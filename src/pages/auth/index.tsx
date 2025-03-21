@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
@@ -166,20 +165,42 @@ const AuthPage = () => {
         return;
       }
       
-      // Create new account
-      await signUp(email, password, persona.label, persona.value);
-      
-      toast({
-        title: "Test Account Created",
-        description: `${persona.label} account created with email: ${email} and password: ${password}`,
+      // If the check fails with "Invalid login" we assume the user doesn't exist
+      // and try to create it using the seed-test-accounts edge function
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/seed-test-accounts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabase.supabaseKey}`
+        }
       });
       
-      // Switch to sign in and pre-fill credentials
-      setActiveTab(AUTH_TABS.SIGN_IN);
-      setEmail(email);
-      setPassword(password);
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Test Accounts Created",
+          description: `You can now sign in with email: ${email} and password: ${password}`,
+        });
+        
+        // Switch to sign in and pre-fill credentials
+        setActiveTab(AUTH_TABS.SIGN_IN);
+        setEmail(email);
+        setPassword(password);
+      } else {
+        toast({
+          title: "Error Creating Test Accounts",
+          description: result.error || "Failed to create test accounts",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Create test account error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create or find test account",
+        variant: "destructive"
+      });
     } finally {
       setIsSigningUp(false);
     }

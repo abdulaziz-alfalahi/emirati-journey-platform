@@ -159,13 +159,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('User creation failed');
       }
 
-      // 2. Assign the selected role to the user
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userData.user.id,
-          role
-        });
+      // 2. Manually insert role using RPC to bypass RLS
+      const { error: roleError } = await supabase.rpc(
+        'assign_role_to_user',
+        { 
+          user_id_param: userData.user.id,
+          role_param: role
+        }
+      );
 
       if (roleError) {
         toast({

@@ -60,11 +60,15 @@ serve(async (req) => {
     for (const persona of PERSONAS) {
       try {
         // Check if user already exists
-        const { data: existingUsers } = await supabaseClient
+        const { data: existingUsers, error: existingUsersError } = await supabaseClient
           .from('profiles')
-          .select('email')
+          .select('id, email')
           .eq('email', persona.email)
-          .single();
+          .maybeSingle();
+
+        if (existingUsersError) {
+          console.error(`Error checking for existing user ${persona.email}:`, existingUsersError);
+        }
 
         if (existingUsers) {
           existingAccounts.push(persona.email);
@@ -87,14 +91,15 @@ serve(async (req) => {
           continue;
         }
 
-        // Add user role
+        // Add user role - use direct SQL for this to bypass RLS
         if (authData.user) {
-          const { error: roleError } = await supabaseClient
-            .from('user_roles')
-            .insert({
-              user_id: authData.user.id,
-              role: persona.role
-            });
+          const { error: roleError } = await supabaseClient.rpc(
+            'assign_role_to_user',
+            { 
+              user_id_param: authData.user.id,
+              role_param: persona.role
+            }
+          );
 
           if (roleError) {
             console.error(`Failed to assign role to ${persona.email}:`, roleError);
