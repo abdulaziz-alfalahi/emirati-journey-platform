@@ -142,7 +142,8 @@ const AuthPage = () => {
   
   // For quick account creation
   const createTestAccount = async (persona: PersonaOption) => {
-    const email = `${persona.value}@emiratijourney.ae`;
+    // Use gmail.com domain which is always valid
+    const email = `${persona.value.replace(/_/g, '-')}@gmail.com`;
     const password = "journey123!";
     
     try {
