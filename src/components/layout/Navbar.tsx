@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import UserMenu from './UserMenu';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,12 +31,12 @@ const Navbar: React.FC = () => {
       )}
     >
       <div className="container px-6 mx-auto flex justify-between items-center">
-        <a href="/" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <span className="w-10 h-10 rounded-xl bg-emirati-teal flex items-center justify-center">
             <span className="text-white font-display font-bold text-xl">E</span>
           </span>
           <span className="font-display font-medium text-xl">Emirati Journey</span>
-        </a>
+        </Link>
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
@@ -47,18 +49,19 @@ const Navbar: React.FC = () => {
           <a href="#services" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200">
             Services
           </a>
-          <button className="premium-button">
-            Get Started
-          </button>
+          <UserMenu />
         </nav>
         
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-foreground"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile Menu Button and User Menu */}
+        <div className="md:hidden flex items-center space-x-4">
+          <UserMenu />
+          <button 
+            className="text-foreground"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
       
       {/* Mobile Navigation */}
@@ -86,12 +89,6 @@ const Navbar: React.FC = () => {
             >
               Services
             </a>
-            <button 
-              className="premium-button w-full flex justify-center mt-4"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Get Started
-            </button>
           </nav>
         </div>
       )}

@@ -9,16 +9,91 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          user_id: string
+          required_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role:
+        | "school_student"
+        | "national_service_participant"
+        | "university_student"
+        | "intern"
+        | "full_time_employee"
+        | "part_time_employee"
+        | "gig_worker"
+        | "jobseeker"
+        | "lifelong_learner"
+        | "entrepreneur"
+        | "retiree"
+        | "educational_institution"
+        | "parent"
+        | "private_sector_recruiter"
+        | "government_representative"
+        | "retiree_advocate"
+        | "training_center"
+        | "assessment_center"
+        | "mentor"
+        | "career_advisor"
+        | "administrator"
+        | "super_user"
     }
     CompositeTypes: {
       [_ in never]: never
