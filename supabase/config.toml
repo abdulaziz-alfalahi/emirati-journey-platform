@@ -89,5 +89,8 @@ gcp_jwt_path = "supabase/gcloud.json"
   
   [functions.create-test-account]
   verify_jwt = false
+  
+  [functions.seed-test-accounts]
+  verify_jwt = false
 
 # Removing the experimental section with replica_enabled as it's not supported

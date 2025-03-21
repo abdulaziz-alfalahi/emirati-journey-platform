@@ -67,6 +67,7 @@ const AuthPage = () => {
   // Loading states
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isCreatingTestAccounts, setIsCreatingTestAccounts] = useState(false);
 
   useEffect(() => {
     // If user is already authenticated, redirect to home
@@ -93,6 +94,11 @@ const AuthPage = () => {
       navigate('/');
     } catch (error) {
       console.error('Sign in error:', error);
+      toast({
+        title: "Sign In Failed",
+        description: error instanceof Error ? error.message : "Failed to sign in. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsSigningIn(false);
     }
@@ -135,80 +141,76 @@ const AuthPage = () => {
       });
     } catch (error) {
       console.error('Sign up error:', error);
-    } finally {
-      setIsSigningUp(false);
-    }
-  };
-  
-  // For quick account creation
-  const createTestAccount = async (persona: PersonaOption) => {
-    // Use gmail.com domain which is always valid
-    const email = `${persona.value.replace(/_/g, '-')}@gmail.com`;
-    const password = "journey123!";
-    
-    try {
-      setIsSigningUp(true);
-      
-      // Check if user already exists
-      const { data, error: checkError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (!checkError && data.user) {
-        toast({
-          title: "Account exists",
-          description: `${persona.label} account already exists. You can sign in.`,
-        });
-        setEmail(email);
-        setPassword(password);
-        setActiveTab(AUTH_TABS.SIGN_IN);
-        return;
-      }
-      
-      // If the check fails with "Invalid login" we assume the user doesn't exist
-      // and try to create it using our edge function
-      try {
-        const { error } = await supabase.functions.invoke('create-test-account', {
-          body: {
-            email,
-            password,
-            fullName: persona.label,
-            role: persona.value
-          }
-        });
-        
-        if (error) {
-          throw error;
-        }
-        
-        toast({
-          title: "Test Account Created",
-          description: `You can now sign in with email: ${email} and password: ${password}`,
-        });
-        
-        // Switch to sign in and pre-fill credentials
-        setActiveTab(AUTH_TABS.SIGN_IN);
-        setEmail(email);
-        setPassword(password);
-      } catch (error) {
-        console.error('Error creating test account:', error);
-        toast({
-          title: "Error Creating Test Account",
-          description: "Failed to create test account. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Create test account error:', error);
       toast({
-        title: "Error",
-        description: "Failed to create or find test account",
+        title: "Registration Failed",
+        description: error instanceof Error ? error.message : "Failed to create account. Please try again.",
         variant: "destructive"
       });
     } finally {
       setIsSigningUp(false);
     }
+  };
+  
+  // For creating all test accounts at once
+  const createAllTestAccounts = async () => {
+    try {
+      setIsCreatingTestAccounts(true);
+      
+      toast({
+        title: "Creating Test Accounts",
+        description: "Please wait while we create the test accounts...",
+      });
+      
+      const { data, error } = await supabase.functions.invoke('seed-test-accounts', {});
+      
+      if (error) {
+        console.error('Error creating test accounts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create test accounts: " + error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Test Accounts Created",
+        description: `Successfully created test accounts. Use any of them with password: journey123!`,
+      });
+      
+      // Switch to sign in tab
+      setActiveTab(AUTH_TABS.SIGN_IN);
+      
+      // Set a default account to sign in with
+      const defaultEmail = 'school-student@gmail.com';
+      setEmail(defaultEmail);
+      setPassword('journey123!');
+      
+    } catch (error) {
+      console.error('Create test accounts error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create test accounts. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingTestAccounts(false);
+    }
+  };
+  
+  // For quick login with a specific persona
+  const loginWithPersona = (persona: PersonaOption) => {
+    const email = `${persona.value.replace(/_/g, '-')}@gmail.com`;
+    const password = "journey123!";
+    
+    setEmail(email);
+    setPassword(password);
+    setActiveTab(AUTH_TABS.SIGN_IN);
+    
+    toast({
+      title: "Credentials Filled",
+      description: `You can now sign in as ${persona.label}`,
+    });
   };
 
   if (isLoading) {
@@ -360,23 +362,42 @@ const AuthPage = () => {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-gray-50 px-2 text-gray-500">Quick Test Accounts</span>
+                  <span className="bg-gray-50 px-2 text-gray-500">Test Accounts</span>
                 </div>
               </div>
               
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {personaOptions.map((persona) => (
-                  <Button
-                    key={persona.value}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => createTestAccount(persona)}
-                    disabled={isSigningUp}
-                    className="text-xs h-auto py-1 justify-start overflow-hidden text-ellipsis whitespace-nowrap"
-                  >
-                    {persona.label}
-                  </Button>
-                ))}
+              <div className="mt-4 space-y-4">
+                <Button
+                  variant="outline"
+                  onClick={createAllTestAccounts}
+                  disabled={isCreatingTestAccounts}
+                  className="w-full"
+                >
+                  {isCreatingTestAccounts ? 'Creating Test Accounts...' : 'Create All Test Accounts'}
+                </Button>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-gray-50 px-2 text-gray-500">Or Login As</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {personaOptions.map((persona) => (
+                    <Button
+                      key={persona.value}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loginWithPersona(persona)}
+                      className="text-xs h-auto py-1 justify-start overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {persona.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           </TabsContent>
