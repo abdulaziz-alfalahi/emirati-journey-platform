@@ -167,20 +167,23 @@ const AuthPage = () => {
       }
       
       // If the check fails with "Invalid login" we assume the user doesn't exist
-      // and try to create it using the seed-test-accounts edge function
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seed-test-accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      // and try to create it using our edge function
+      try {
+        const { error } = await supabase.functions.invoke('create-test-account', {
+          body: {
+            email,
+            password,
+            fullName: persona.label,
+            role: persona.value
+          }
+        });
+        
+        if (error) {
+          throw error;
         }
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
+        
         toast({
-          title: "Test Accounts Created",
+          title: "Test Account Created",
           description: `You can now sign in with email: ${email} and password: ${password}`,
         });
         
@@ -188,10 +191,11 @@ const AuthPage = () => {
         setActiveTab(AUTH_TABS.SIGN_IN);
         setEmail(email);
         setPassword(password);
-      } else {
+      } catch (error) {
+        console.error('Error creating test account:', error);
         toast({
-          title: "Error Creating Test Accounts",
-          description: result.error || "Failed to create test accounts",
+          title: "Error Creating Test Account",
+          description: "Failed to create test account. Please try again.",
           variant: "destructive"
         });
       }

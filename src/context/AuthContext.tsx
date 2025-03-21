@@ -160,11 +160,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // 2. Manually insert role using RPC to bypass RLS
-      const { error: roleError } = await supabase.rpc(
-        'assign_role_to_user' as any, // Use type assertion to bypass the type checking
-        { 
-          user_id_param: userData.user.id,
-          role_param: role
+      const { error: roleError } = await supabase.functions.invoke(
+        'assign-user-role',
+        {
+          body: { 
+            userId: userData.user.id,
+            role: role
+          }
         }
       );
 
