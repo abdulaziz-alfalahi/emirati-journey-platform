@@ -58,13 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event, currentSession) => {
         console.log('Auth state changed:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         
-        if (session?.user) {
-          fetchUserRoles(session.user.id);
+        if (currentSession?.user) {
+          fetchUserRoles(currentSession.user.id);
         } else {
           setRoles([]);
         }
@@ -72,12 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       
-      if (session?.user) {
-        fetchUserRoles(session.user.id);
+      if (currentSession?.user) {
+        fetchUserRoles(currentSession.user.id);
       }
       
       setIsLoading(false);
@@ -108,17 +108,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      console.log('Attempting to sign in with:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
       
       if (error) {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive"
+        console.error('Sign in error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
         });
+        
+        // Special handling for 'Email not confirmed' error to provide a clearer message
+        if (error.message === 'Email not confirmed') {
+          toast({
+            title: "Email not confirmed",
+            description: "Please check Supabase settings to disable email confirmations for development.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
         throw error;
       }
       
+      console.log('Sign in successful:', data);
       toast({
         title: "Welcome back",
         description: "You've successfully logged in"
@@ -143,6 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: window.location.origin + '/auth',
         },
       });
 
