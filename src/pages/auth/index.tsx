@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
@@ -167,11 +168,11 @@ const AuthPage = () => {
       
       // If the check fails with "Invalid login" we assume the user doesn't exist
       // and try to create it using the seed-test-accounts edge function
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/seed-test-accounts`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seed-test-accounts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.supabaseKey}`
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         }
       });
       
