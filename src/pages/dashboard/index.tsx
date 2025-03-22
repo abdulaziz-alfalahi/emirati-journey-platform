@@ -1,15 +1,21 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { User } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Layout from '@/components/layout/Layout';
+import { User, BarChart4, Calendar, BookOpen, Briefcase, Users } from 'lucide-react';
+import DashboardOverview from '@/components/dashboard/DashboardOverview';
+import DashboardMetrics from '@/components/dashboard/DashboardMetrics';
+import DashboardActions from '@/components/dashboard/DashboardActions';
 
 const DashboardPage = () => {
   const { user, roles, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
   
   useEffect(() => {
     // If no user, redirect to login
@@ -21,27 +27,27 @@ const DashboardPage = () => {
   // Role-specific dashboard content based on user role
   const getRoleDashboard = () => {
     if (roles.includes('administrator') || roles.includes('super_user')) {
-      return <AdminDashboard />;
+      return <AdminDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('school_student')) {
-      return <StudentDashboard />;
+      return <StudentDashboard activeTab={activeTab} />;
     }
 
     if (roles.includes('educational_institution')) {
-      return <EducationalInstitutionDashboard />;
+      return <EducationalInstitutionDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('parent')) {
-      return <ParentDashboard />;
+      return <ParentDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('private_sector_recruiter')) {
-      return <RecruiterDashboard />;
+      return <RecruiterDashboard activeTab={activeTab} />;
     }
     
     // Default dashboard for other roles
-    return <DefaultDashboard userRole={roles[0]} />;
+    return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
   };
 
   if (isLoading) {
@@ -53,362 +59,375 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-24 max-w-7xl">
-      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-      <p className="text-muted-foreground mb-8">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
-      
-      {roles.length === 0 ? (
-        <Alert className="mb-8">
-          <User className="h-4 w-4" />
-          <AlertTitle>No role assigned</AlertTitle>
-          <AlertDescription>
-            Your account doesn't have any roles assigned. Please contact an administrator.
-          </AlertDescription>
-        </Alert>
-      ) : (
-        getRoleDashboard()
-      )}
-    </div>
+    <Layout>
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+        <p className="text-muted-foreground mb-8">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
+        
+        {roles.length === 0 ? (
+          <Alert className="mb-8">
+            <User className="h-4 w-4" />
+            <AlertTitle>No role assigned</AlertTitle>
+            <AlertDescription>
+              Your account doesn't have any roles assigned. Please contact an administrator.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          getRoleDashboard()
+        )}
+      </div>
+    </Layout>
   );
 };
 
 // Role-specific dashboard components
-const AdminDashboard = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Total Users</CardTitle>
-          <CardDescription>System-wide user metrics</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">247</div>
-          <p className="text-xs text-muted-foreground mt-2">+12% from last month</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Active Journeys</CardTitle>
-          <CardDescription>Current active user journeys</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">182</div>
-          <p className="text-xs text-muted-foreground mt-2">+5% from last month</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Service Utilization</CardTitle>
-          <CardDescription>Most used platform services</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">68%</div>
-          <p className="text-xs text-muted-foreground mt-2">Career Advisory Services</p>
-        </CardContent>
-      </Card>
-    </div>
+const AdminDashboard = ({ activeTab }: { activeTab: string }) => (
+  <Tabs defaultValue={activeTab} className="space-y-8">
+    <TabsList className="mb-4">
+      <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+      <TabsTrigger value="metrics"><BarChart4 className="h-4 w-4 mr-2" /> Metrics</TabsTrigger>
+      <TabsTrigger value="management"><Users className="h-4 w-4 mr-2" /> Management</TabsTrigger>
+    </TabsList>
     
-    <Card>
-      <CardHeader>
-        <CardTitle>Administration Tools</CardTitle>
-        <CardDescription>Manage system and users</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">User Management</span>
-          <span className="text-xs text-muted-foreground mt-1">Manage accounts</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Role Administration</span>
-          <span className="text-xs text-muted-foreground mt-1">Assign user roles</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Content Manager</span>
-          <span className="text-xs text-muted-foreground mt-1">Manage platform content</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Analytics & Reports</span>
-          <span className="text-xs text-muted-foreground mt-1">View platform metrics</span>
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
+    <TabsContent value="overview" className="space-y-8">
+      <DashboardOverview 
+        metrics={[
+          { title: "Total Users", value: "247", change: "+12%", description: "System-wide user metrics" },
+          { title: "Active Journeys", value: "182", change: "+5%", description: "Current active user journeys" },
+          { title: "Service Utilization", value: "68%", change: "", description: "Career Advisory Services" }
+        ]}
+      />
+    </TabsContent>
+    
+    <TabsContent value="metrics" className="space-y-8">
+      <DashboardMetrics />
+    </TabsContent>
+    
+    <TabsContent value="management" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Administration Tools</CardTitle>
+          <CardDescription>Manage system and users</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { title: "User Management", description: "Manage accounts", icon: Users },
+              { title: "Role Administration", description: "Assign user roles", icon: User },
+              { title: "Content Manager", description: "Manage platform content", icon: BookOpen },
+              { title: "Analytics & Reports", description: "View platform metrics", icon: BarChart4 }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
 );
 
-const StudentDashboard = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Academic Progress</CardTitle>
-          <CardDescription>Your current academic status</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">Grade 11</div>
-          <p className="text-xs text-muted-foreground mt-2">Academic Year 2023-2024</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Summer Programs</CardTitle>
-          <CardDescription>Available knowledge camps</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground mt-2">Available programs near you</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Upcoming Assessments</CardTitle>
-          <CardDescription>Scheduled tests and assignments</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">3</div>
-          <p className="text-xs text-muted-foreground mt-2">Due this week</p>
-        </CardContent>
-      </Card>
-    </div>
+const StudentDashboard = ({ activeTab }: { activeTab: string }) => (
+  <Tabs defaultValue={activeTab} className="space-y-8">
+    <TabsList className="mb-4">
+      <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+      <TabsTrigger value="academics"><BookOpen className="h-4 w-4 mr-2" /> Academics</TabsTrigger>
+      <TabsTrigger value="activities"><Calendar className="h-4 w-4 mr-2" /> Activities</TabsTrigger>
+    </TabsList>
     
-    <Card>
-      <CardHeader>
-        <CardTitle>Educational Resources</CardTitle>
-        <CardDescription>Tools and resources for your academic journey</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Learning Materials</span>
-          <span className="text-xs text-muted-foreground mt-1">Study resources</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Career Guidance</span>
-          <span className="text-xs text-muted-foreground mt-1">Explore career paths</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Scholarship Finder</span>
-          <span className="text-xs text-muted-foreground mt-1">Find opportunities</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Mentorship Connect</span>
-          <span className="text-xs text-muted-foreground mt-1">Find a mentor</span>
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
+    <TabsContent value="overview" className="space-y-8">
+      <DashboardOverview 
+        metrics={[
+          { title: "Academic Progress", value: "Grade 11", change: "", description: "Academic Year 2023-2024" },
+          { title: "Summer Programs", value: "12", change: "", description: "Available programs near you" },
+          { title: "Upcoming Assessments", value: "3", change: "", description: "Due this week" }
+        ]}
+      />
+    </TabsContent>
+    
+    <TabsContent value="academics" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Courses</CardTitle>
+          <CardDescription>Your enrolled courses and grades</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <h4 className="font-medium">Mathematics</h4>
+                <p className="text-sm text-muted-foreground">Advanced Calculus</p>
+              </div>
+              <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
+                A (95%)
+              </div>
+            </div>
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <h4 className="font-medium">Science</h4>
+                <p className="text-sm text-muted-foreground">Physics</p>
+              </div>
+              <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
+                B+ (87%)
+              </div>
+            </div>
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <h4 className="font-medium">Arabic Language</h4>
+                <p className="text-sm text-muted-foreground">Advanced Literature</p>
+              </div>
+              <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
+                A- (92%)
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
+    
+    <TabsContent value="activities" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Educational Resources</CardTitle>
+          <CardDescription>Tools and resources for your academic journey</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { title: "Learning Materials", description: "Study resources", icon: BookOpen },
+              { title: "Career Guidance", description: "Explore career paths", icon: Briefcase },
+              { title: "Scholarship Finder", description: "Find opportunities", icon: BarChart4 },
+              { title: "Mentorship Connect", description: "Find a mentor", icon: Users }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
 );
 
-const EducationalInstitutionDashboard = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Students</CardTitle>
-          <CardDescription>Total registered students</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">1,247</div>
-          <p className="text-xs text-muted-foreground mt-2">+5% growth this semester</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Programs</CardTitle>
-          <CardDescription>Active educational programs</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">24</div>
-          <p className="text-xs text-muted-foreground mt-2">Including 5 new this year</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Scholarships</CardTitle>
-          <CardDescription>Available scholarship opportunities</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground mt-2">8 active applications</p>
-        </CardContent>
-      </Card>
-    </div>
+const EducationalInstitutionDashboard = ({ activeTab }: { activeTab: string }) => (
+  <Tabs defaultValue={activeTab} className="space-y-8">
+    <TabsList className="mb-4">
+      <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+      <TabsTrigger value="students"><Users className="h-4 w-4 mr-2" /> Students</TabsTrigger>
+      <TabsTrigger value="programs"><BookOpen className="h-4 w-4 mr-2" /> Programs</TabsTrigger>
+    </TabsList>
     
-    <Card>
-      <CardHeader>
-        <CardTitle>Institution Tools</CardTitle>
-        <CardDescription>Manage your educational institution</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Student Records</span>
-          <span className="text-xs text-muted-foreground mt-1">Upload and manage</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Programs</span>
-          <span className="text-xs text-muted-foreground mt-1">Manage educational offerings</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Scholarships</span>
-          <span className="text-xs text-muted-foreground mt-1">Create opportunities</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Summer Knowledge Camps</span>
-          <span className="text-xs text-muted-foreground mt-1">Organize programs</span>
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
+    <TabsContent value="overview" className="space-y-8">
+      <DashboardOverview 
+        metrics={[
+          { title: "Students", value: "1,247", change: "+5%", description: "Total registered students" },
+          { title: "Programs", value: "24", change: "", description: "Active educational programs" },
+          { title: "Scholarships", value: "12", change: "", description: "Available scholarship opportunities" }
+        ]}
+      />
+    </TabsContent>
+    
+    <TabsContent value="students" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Student Management</CardTitle>
+          <CardDescription>Upload and manage student records</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button variant="outline" className="w-full justify-start">
+            <User className="mr-2 h-4 w-4" /> Upload Student Records
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            <Calendar className="mr-2 h-4 w-4" /> Schedule Academic Events
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            <BarChart4 className="mr-2 h-4 w-4" /> View Performance Analytics
+          </Button>
+        </CardContent>
+      </Card>
+    </TabsContent>
+    
+    <TabsContent value="programs" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Institution Tools</CardTitle>
+          <CardDescription>Manage your educational institution</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { title: "Student Records", description: "Upload and manage", icon: Users },
+              { title: "Programs", description: "Manage educational offerings", icon: BookOpen },
+              { title: "Scholarships", description: "Create opportunities", icon: BarChart4 },
+              { title: "Summer Knowledge Camps", description: "Organize programs", icon: Calendar }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
 );
 
-const ParentDashboard = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Children</CardTitle>
-          <CardDescription>Registered children</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">2</div>
-          <p className="text-xs text-muted-foreground mt-2">Ages 14 and 16</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Upcoming Events</CardTitle>
-          <CardDescription>School and activity events</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">4</div>
-          <p className="text-xs text-muted-foreground mt-2">Next: Parent-Teacher Meeting</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Recommended Programs</CardTitle>
-          <CardDescription>Based on your children's interests</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">7</div>
-          <p className="text-xs text-muted-foreground mt-2">New recommendations</p>
-        </CardContent>
-      </Card>
-    </div>
+const ParentDashboard = ({ activeTab }: { activeTab: string }) => (
+  <Tabs defaultValue={activeTab} className="space-y-8">
+    <TabsList className="mb-4">
+      <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+      <TabsTrigger value="children"><Users className="h-4 w-4 mr-2" /> Children</TabsTrigger>
+      <TabsTrigger value="resources"><BookOpen className="h-4 w-4 mr-2" /> Resources</TabsTrigger>
+    </TabsList>
     
-    <Card>
-      <CardHeader>
-        <CardTitle>Parent Resources</CardTitle>
-        <CardDescription>Tools to support your children's journey</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Academic Reports</span>
-          <span className="text-xs text-muted-foreground mt-1">View children's progress</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Summer Programs</span>
-          <span className="text-xs text-muted-foreground mt-1">Browse and register</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Scholarship Opportunities</span>
-          <span className="text-xs text-muted-foreground mt-1">Financial aid options</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Career Guidance</span>
-          <span className="text-xs text-muted-foreground mt-1">Help plan their future</span>
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
+    <TabsContent value="overview" className="space-y-8">
+      <DashboardOverview 
+        metrics={[
+          { title: "Children", value: "2", change: "", description: "Registered children" },
+          { title: "Upcoming Events", value: "4", change: "", description: "School and activity events" },
+          { title: "Recommended Programs", value: "7", change: "", description: "Based on your children's interests" }
+        ]}
+      />
+    </TabsContent>
+    
+    <TabsContent value="children" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Children's Progress</CardTitle>
+          <CardDescription>Academic and activity reports for your children</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 border rounded-lg">
+            <div className="flex justify-between">
+              <h3 className="font-medium">Ahmed (16)</h3>
+              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">Grade 11</span>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Overall GPA:</span>
+                <span className="ml-2 font-medium">3.8/4.0</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Attendance:</span>
+                <span className="ml-2 font-medium">98%</span>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="mt-3">
+              View Full Report
+            </Button>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <div className="flex justify-between">
+              <h3 className="font-medium">Fatima (14)</h3>
+              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">Grade 9</span>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Overall GPA:</span>
+                <span className="ml-2 font-medium">3.9/4.0</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Attendance:</span>
+                <span className="ml-2 font-medium">99%</span>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="mt-3">
+              View Full Report
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
+    
+    <TabsContent value="resources" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Parent Resources</CardTitle>
+          <CardDescription>Tools to support your children's journey</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { title: "Academic Reports", description: "View children's progress", icon: BookOpen },
+              { title: "Summer Programs", description: "Browse and register", icon: Calendar },
+              { title: "Scholarship Opportunities", description: "Financial aid options", icon: BarChart4 },
+              { title: "Career Guidance", description: "Help plan their future", icon: Briefcase }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
 );
 
-const RecruiterDashboard = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Open Positions</CardTitle>
-          <CardDescription>Currently advertised jobs</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">15</div>
-          <p className="text-xs text-muted-foreground mt-2">5 new this month</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Applications</CardTitle>
-          <CardDescription>Received job applications</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">47</div>
-          <p className="text-xs text-muted-foreground mt-2">23 new, 24 in review</p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl">Internship Programs</CardTitle>
-          <CardDescription>Available internship positions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">8</div>
-          <p className="text-xs text-muted-foreground mt-2">Starting next quarter</p>
-        </CardContent>
-      </Card>
-    </div>
+const RecruiterDashboard = ({ activeTab }: { activeTab: string }) => (
+  <Tabs defaultValue={activeTab} className="space-y-8">
+    <TabsList className="mb-4">
+      <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+      <TabsTrigger value="jobs"><Briefcase className="h-4 w-4 mr-2" /> Jobs</TabsTrigger>
+      <TabsTrigger value="candidates"><Users className="h-4 w-4 mr-2" /> Candidates</TabsTrigger>
+    </TabsList>
     
-    <Card>
-      <CardHeader>
-        <CardTitle>Recruitment Tools</CardTitle>
-        <CardDescription>Manage your recruitment activities</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Post Job</span>
-          <span className="text-xs text-muted-foreground mt-1">Create new listings</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Internship Manager</span>
-          <span className="text-xs text-muted-foreground mt-1">Organize programs</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Candidate Search</span>
-          <span className="text-xs text-muted-foreground mt-1">Find talented candidates</span>
-        </Button>
-        
-        <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-          <span className="text-lg font-semibold">Emiratization Tracker</span>
-          <span className="text-xs text-muted-foreground mt-1">Monitor compliance</span>
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
+    <TabsContent value="overview" className="space-y-8">
+      <DashboardOverview 
+        metrics={[
+          { title: "Open Positions", value: "15", change: "", description: "Currently advertised jobs" },
+          { title: "Applications", value: "47", change: "", description: "Received job applications" },
+          { title: "Internship Programs", value: "8", change: "", description: "Available internship positions" }
+        ]}
+      />
+    </TabsContent>
+    
+    <TabsContent value="jobs" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Job Management</CardTitle>
+          <CardDescription>Create and manage job listings</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button className="w-full justify-start">
+            <Briefcase className="mr-2 h-4 w-4" /> Post New Job
+          </Button>
+          <div className="border rounded-lg divide-y">
+            <div className="p-4">
+              <div className="flex justify-between">
+                <h3 className="font-medium">Senior Software Engineer</h3>
+                <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">15 applications • Posted 5 days ago</p>
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between">
+                <h3 className="font-medium">Marketing Manager</h3>
+                <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">23 applications • Posted 2 days ago</p>
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between">
+                <h3 className="font-medium">Finance Intern</h3>
+                <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Draft</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">Not published</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent>
+    
+    <TabsContent value="candidates" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Recruitment Tools</CardTitle>
+          <CardDescription>Manage your recruitment activities</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { title: "Post Job", description: "Create new listings", icon: Briefcase },
+              { title: "Internship Manager", description: "Organize programs", icon: Calendar },
+              { title: "Candidate Search", description: "Find talented candidates", icon: Users },
+              { title: "Emiratization Tracker", description: "Monitor compliance", icon: BarChart4 }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+  </Tabs>
 );
 
-const DefaultDashboard = ({ userRole }: { userRole: string }) => {
+const DefaultDashboard = ({ userRole, activeTab }: { userRole: string, activeTab: string }) => {
   // Map of role keys to display names
   const roleLabels: {[key: string]: string} = {
     school_student: 'School Student',
@@ -436,78 +455,82 @@ const DefaultDashboard = ({ userRole }: { userRole: string }) => {
   };
 
   return (
-    <div className="space-y-8">
-      <Alert className="mb-8">
-        <User className="h-4 w-4" />
-        <AlertTitle className="font-semibold">Welcome to your {roleLabels[userRole] || userRole} Dashboard!</AlertTitle>
-        <AlertDescription>
-          This is your personalized dashboard. More features specific to your role will be available soon.
-        </AlertDescription>
-      </Alert>
+    <Tabs defaultValue={activeTab} className="space-y-8">
+      <TabsList className="mb-4">
+        <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
+        <TabsTrigger value="journey"><BarChart4 className="h-4 w-4 mr-2" /> Journey</TabsTrigger>
+        <TabsTrigger value="resources"><BookOpen className="h-4 w-4 mr-2" /> Resources</TabsTrigger>
+      </TabsList>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Journey Status</CardTitle>
-            <CardDescription>Your current position</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{roleLabels[userRole] || userRole}</div>
-            <p className="text-xs text-muted-foreground mt-2">Active since {new Date().toLocaleDateString()}</p>
-          </CardContent>
-        </Card>
+      <TabsContent value="overview" className="space-y-8">
+        <Alert className="mb-8">
+          <User className="h-4 w-4" />
+          <AlertTitle className="font-semibold">Welcome to your {roleLabels[userRole] || userRole} Dashboard!</AlertTitle>
+          <AlertDescription>
+            This is your personalized dashboard. More features specific to your role will be available soon.
+          </AlertDescription>
+        </Alert>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Recommended Services</CardTitle>
-            <CardDescription>Based on your role</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground mt-2">New recommendations</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Network</CardTitle>
-            <CardDescription>Your professional connections</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground mt-2">Start building your network</p>
-          </CardContent>
-        </Card>
-      </div>
+        <DashboardOverview 
+          metrics={[
+            { title: "Journey Status", value: roleLabels[userRole] || userRole, change: "", description: "Your current position" },
+            { title: "Recommended Services", value: "5", change: "", description: "Based on your role" },
+            { title: "Network", value: "0", change: "", description: "Your professional connections" }
+          ]}
+        />
+      </TabsContent>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Tools</CardTitle>
-          <CardDescription>Services and resources for you</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-          <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-            <span className="text-lg font-semibold">Career Planning</span>
-            <span className="text-xs text-muted-foreground mt-1">Explore opportunities</span>
-          </Button>
-          
-          <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-            <span className="text-lg font-semibold">Skill Development</span>
-            <span className="text-xs text-muted-foreground mt-1">Enhance your skills</span>
-          </Button>
-          
-          <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-            <span className="text-lg font-semibold">Mentorship</span>
-            <span className="text-xs text-muted-foreground mt-1">Connect with mentors</span>
-          </Button>
-          
-          <Button className="h-auto py-6 flex flex-col items-center justify-center" variant="outline">
-            <span className="text-lg font-semibold">Networking</span>
-            <span className="text-xs text-muted-foreground mt-1">Build relationships</span>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+      <TabsContent value="journey" className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Career Journey</CardTitle>
+            <CardDescription>Track your progress and plan your next steps</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="relative">
+              <div className="absolute left-0 top-0 h-full w-1 bg-gray-200"></div>
+              
+              <div className="relative pl-8 pb-8">
+                <div className="absolute left-0 top-0 h-4 w-4 rounded-full bg-emirati-teal"></div>
+                <h3 className="font-medium text-lg">Education</h3>
+                <p className="text-sm text-muted-foreground">Completed primary and secondary education</p>
+              </div>
+              
+              <div className="relative pl-8 pb-8">
+                <div className="absolute left-0 top-0 h-4 w-4 rounded-full bg-emirati-teal"></div>
+                <h3 className="font-medium text-lg">Current: {roleLabels[userRole] || userRole}</h3>
+                <p className="text-sm text-muted-foreground">You are here in your journey</p>
+              </div>
+              
+              <div className="relative pl-8">
+                <div className="absolute left-0 top-0 h-4 w-4 rounded-full bg-gray-300"></div>
+                <h3 className="font-medium text-lg text-muted-foreground">Next Steps</h3>
+                <p className="text-sm text-muted-foreground">Set your goals and plan your career path</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      
+      <TabsContent value="resources" className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Available Tools</CardTitle>
+            <CardDescription>Services and resources for you</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DashboardActions 
+              actions={[
+                { title: "Career Planning", description: "Explore opportunities", icon: Briefcase },
+                { title: "Skill Development", description: "Enhance your skills", icon: BookOpen },
+                { title: "Mentorship", description: "Connect with mentors", icon: Users },
+                { title: "Networking", description: "Build relationships", icon: Users }
+              ]}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 };
 

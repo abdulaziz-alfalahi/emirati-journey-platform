@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/auth";
 import ProfilePage from "./pages/profile";
 import DashboardPage from "./pages/dashboard";
+import Layout from "./components/layout/Layout";
 
 const queryClient = new QueryClient();
 
