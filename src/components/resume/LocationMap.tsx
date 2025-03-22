@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -39,11 +38,17 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // First try to get the token from the edge function (if logged in)
       if (user) {
         const { data, error } = await supabase.functions.invoke('get-api-keys');
-        if (!error && data && data.MAPBOX_ACCESS_TOKEN) {
-          setMapboxToken(data.MAPBOX_ACCESS_TOKEN);
-          // Also save to local storage as backup
-          localStorage.setItem('MAPBOX_ACCESS_TOKEN', data.MAPBOX_ACCESS_TOKEN);
-          return;
+        
+        if (!error && data) {
+          // Check for either uppercase or lowercase key names
+          const token = data.MAPBOX_ACCESS_TOKEN || data.mapbox_access_token;
+          
+          if (token) {
+            setMapboxToken(token);
+            // Also save to local storage as backup
+            localStorage.setItem('MAPBOX_ACCESS_TOKEN', token);
+            return;
+          }
         }
       }
       

@@ -86,20 +86,18 @@ serve(async (req) => {
     }
     
     // Create a response object with the API keys
-    let apiKeys = {
-      MAPBOX_ACCESS_TOKEN: "",
-      LINKEDIN_CLIENT_ID: "",
-      LINKEDIN_CLIENT_SECRET: "",
-      UAEPASS_CLIENT_ID: "",
-      UAEPASS_CLIENT_SECRET: ""
-    };
+    let apiKeys: Record<string, string> = {};
     
     // If we have data from the database, use it
     if (apiKeysData && apiKeysData.length > 0) {
-      apiKeys = {
-        ...apiKeys,
-        ...apiKeysData[0]
-      };
+      // Convert all keys to both uppercase and original case
+      Object.entries(apiKeysData[0]).forEach(([key, value]) => {
+        if (typeof value === 'string' && key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
+          // Include both the original case and uppercase version
+          apiKeys[key] = value;
+          apiKeys[key.toUpperCase()] = value;
+        }
+      });
     }
     
     // If we have environment variables set, they take precedence
@@ -115,11 +113,14 @@ serve(async (req) => {
       const envValue = Deno.env.get(key);
       if (envValue) {
         apiKeys[key] = envValue;
+        // Also add lowercase version
+        apiKeys[key.toLowerCase()] = envValue;
       }
     }
 
     // Logs for debugging
     console.log(`API keys retrieved successfully for user ${user.id}`);
+    console.log('Available keys:', Object.keys(apiKeys).filter(k => apiKeys[k]));
 
     return new Response(JSON.stringify(apiKeys), { 
       status: 200,
