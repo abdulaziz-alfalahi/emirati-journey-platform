@@ -38,6 +38,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const [isTokenLoading, setIsTokenLoading] = useState<boolean>(true);
   const { user } = useAuth();
   const [tokenFetchAttempted, setTokenFetchAttempted] = useState<boolean>(false);
+  const [circleAdded, setCircleAdded] = useState<boolean>(false);
 
   // Function to fetch Mapbox token from Supabase edge function
   const fetchMapboxToken = useCallback(async () => {
@@ -190,6 +191,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
           'circle-stroke-opacity': 0.4
         }
       });
+      
+      setCircleAdded(true);
     } else {
       // If source exists, update its data
       (map.current.getSource(privacyCircleSourceId) as mapboxgl.GeoJSONSource).setData({
@@ -251,104 +254,109 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
       }
       
-      // Handle geocoder result
-      geocoder.current.on('result', (e) => {
-        console.log('Geocoder result:', e.result);
-        const coords = e.result.center;
-        if (coords) {
-          // Update privacy circle
-          updatePrivacyCircle([coords[0], coords[1]]);
-          
-          // Format the address to be more general
-          const formattedAddress = formatAddressForPrivacy([e.result]);
-          
-          // Handle both callback types for compatibility
-          if (onLocationSelect) {
-            console.log('Calling onLocationSelect with:', {
-              address: formattedAddress,
-              coordinates: [coords[0], coords[1]],
-              formattedAddress: formattedAddress
-            });
-            
-            onLocationSelect({
-              address: formattedAddress,
-              coordinates: [coords[0], coords[1]],
-              formattedAddress: formattedAddress
-            });
-          }
-          
-          if (onChange) {
-            const location = {
-              longitude: coords[0],
-              latitude: coords[1],
-              name: formattedAddress
-            };
-            console.log('Calling onChange with:', JSON.stringify(location));
-            onChange(JSON.stringify(location));
-          }
-        }
-      });
-      
-      // Add click event to the map for selecting location
-      map.current.on('click', (e) => {
-        console.log('Map clicked at:', e.lngLat);
-        
-        // Update privacy circle
-        updatePrivacyCircle([e.lngLat.lng, e.lngLat.lat]);
-        
-        // Reverse geocode to get address for the coordinates
-        fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
-          .then(response => response.json())
-          .then(data => {
-            // Format the address for privacy
-            const formattedAddress = formatAddressForPrivacy(data.features);
-            
-            // Handle both callback types for compatibility
-            if (onLocationSelect) {
-              console.log('Calling onLocationSelect after map click with:', {
-                address: formattedAddress,
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: formattedAddress
-              });
+      // Wait for map to load before adding handlers
+      map.current.on('load', () => {
+        // Handle geocoder result
+        if (geocoder.current) {
+          geocoder.current.on('result', (e) => {
+            console.log('Geocoder result:', e.result);
+            const coords = e.result.center;
+            if (coords) {
+              // Update privacy circle
+              updatePrivacyCircle([coords[0], coords[1]]);
               
-              onLocationSelect({
-                address: formattedAddress,
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: formattedAddress
-              });
-            }
-            
-            if (onChange) {
-              const location = {
-                longitude: e.lngLat.lng,
-                latitude: e.lngLat.lat,
-                name: formattedAddress
-              };
-              console.log('Calling onChange after map click with:', JSON.stringify(location));
-              onChange(JSON.stringify(location));
-            }
-          })
-          .catch(error => {
-            console.error('Error reverse geocoding:', error);
-            
-            // Fall back to using custom location
-            if (onLocationSelect) {
-              onLocationSelect({
-                address: 'Custom Location',
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: 'Custom Location'
-              });
-            }
-            
-            if (onChange) {
-              const location = {
-                longitude: e.lngLat.lng,
-                latitude: e.lngLat.lat,
-                name: 'Custom Location'
-              };
-              onChange(JSON.stringify(location));
+              // Format the address to be more general
+              const formattedAddress = formatAddressForPrivacy([e.result]);
+              
+              // Handle both callback types for compatibility
+              if (onLocationSelect) {
+                console.log('Calling onLocationSelect with:', {
+                  address: formattedAddress,
+                  coordinates: [coords[0], coords[1]],
+                  formattedAddress: formattedAddress
+                });
+                
+                onLocationSelect({
+                  address: formattedAddress,
+                  coordinates: [coords[0], coords[1]],
+                  formattedAddress: formattedAddress
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: coords[0],
+                  latitude: coords[1],
+                  name: formattedAddress
+                };
+                console.log('Calling onChange with:', JSON.stringify(location));
+                onChange(JSON.stringify(location));
+              }
             }
           });
+        }
+        
+        // Add click event to the map for selecting location
+        map.current.on('click', (e) => {
+          console.log('Map clicked at:', e.lngLat);
+          
+          // Update privacy circle
+          updatePrivacyCircle([e.lngLat.lng, e.lngLat.lat]);
+          
+          // Reverse geocode to get address for the coordinates
+          fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
+            .then(response => response.json())
+            .then(data => {
+              // Format the address for privacy
+              const formattedAddress = formatAddressForPrivacy(data.features);
+              
+              // Handle both callback types for compatibility
+              if (onLocationSelect) {
+                console.log('Calling onLocationSelect after map click with:', {
+                  address: formattedAddress,
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: formattedAddress
+                });
+                
+                onLocationSelect({
+                  address: formattedAddress,
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: formattedAddress
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: e.lngLat.lng,
+                  latitude: e.lngLat.lat,
+                  name: formattedAddress
+                };
+                console.log('Calling onChange after map click with:', JSON.stringify(location));
+                onChange(JSON.stringify(location));
+              }
+            })
+            .catch(error => {
+              console.error('Error reverse geocoding:', error);
+              
+              // Fall back to using custom location
+              if (onLocationSelect) {
+                onLocationSelect({
+                  address: 'Custom Location',
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: 'Custom Location'
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: e.lngLat.lng,
+                  latitude: e.lngLat.lat,
+                  name: 'Custom Location'
+                };
+                onChange(JSON.stringify(location));
+              }
+            });
+        });
       });
       
     } catch (error) {
@@ -361,6 +369,28 @@ const LocationMap: React.FC<LocationMapProps> = ({
       map.current = null;
     };
   }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle]);
+  
+  // Effect to re-add the circle on map style changes (which can remove it)
+  useEffect(() => {
+    if (!map.current || !selectedLocation) return;
+    
+    const handleStyleChange = () => {
+      // Reapply the circle when the map style changes
+      if (selectedLocation && circleAdded) {
+        setTimeout(() => {
+          updatePrivacyCircle(selectedLocation);
+        }, 200);
+      }
+    };
+    
+    map.current.on('style.load', handleStyleChange);
+    
+    return () => {
+      if (map.current) {
+        map.current.off('style.load', handleStyleChange);
+      }
+    };
+  }, [selectedLocation, circleAdded, updatePrivacyCircle]);
   
   const saveCustomToken = () => {
     if (customToken) {
