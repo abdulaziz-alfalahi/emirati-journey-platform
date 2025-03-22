@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +28,11 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
 
     setIsUploading(true);
     try {
+      toast({
+        title: "Processing resume",
+        description: "Extracting data from your resume...",
+      });
+      
       const parsedData = await parseResumeFromFile(file);
       const mergedData = mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
@@ -39,6 +44,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       setFileDialogOpen(false);
     } catch (error) {
+      console.error('Error parsing resume:', error);
       toast({
         title: "Error parsing resume",
         description: error instanceof Error ? error.message : "Failed to parse resume file",
@@ -97,6 +103,9 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Upload Resume</DialogTitle>
+            <DialogDescription>
+              Upload your resume file to extract information automatically.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -132,6 +141,9 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import from LinkedIn</DialogTitle>
+            <DialogDescription>
+              Enter your LinkedIn profile URL to extract your professional information.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
