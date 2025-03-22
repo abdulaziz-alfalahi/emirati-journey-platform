@@ -10,7 +10,7 @@ export const extractPersonalInfo = (content: string): PersonalInfo => {
     email: '',
     phone: '',
     location: '',
-    linkedin: '' // Add default empty LinkedIn property
+    linkedin: '' // Added LinkedIn property to fix the TypeScript error
   };
   
   // Extract email using regex

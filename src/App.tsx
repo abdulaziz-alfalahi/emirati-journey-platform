@@ -11,7 +11,6 @@ import AuthPage from "./pages/auth";
 import ProfilePage from "./pages/profile";
 import DashboardPage from "./pages/dashboard";
 import ResumeBuilderPage from "./pages/resume-builder";
-import Layout from "./components/layout/Layout";
 
 const queryClient = new QueryClient();
 

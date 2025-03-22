@@ -6,23 +6,22 @@ import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import { ResumeTemplate } from '@/components/resume/types';
-import { Button } from '@/components/ui/Button';
-import { FileText, Briefcase } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const ResumeBuilderPage = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate | null>(null);
 
-  // Redirect to login if not authenticated
-  React.useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
-
+  // If loading, show loading spinner
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <Layout>
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <LoadingSpinner />
+        </div>
+      </Layout>
+    );
   }
 
   // If no template is selected, show template selection screen
