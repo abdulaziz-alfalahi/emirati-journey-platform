@@ -2,67 +2,77 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, BookOpen, Users, Bell, Globe, Smartphone, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface Service {
   id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
+  path?: string; // Optional path for navigation
 }
 
-const services: Service[] = [
-  {
-    id: 'resume',
-    title: 'Resume Builder',
-    description: 'Create professional bilingual resumes with UAE-specific templates designed for different career stages.',
-    icon: <FileText size={24} />
-  },
-  {
-    id: 'job-matching',
-    title: 'AI Job Matching',
-    description: 'Find opportunities matching your skills, preferences, and career goals with advanced AI-powered search.',
-    icon: <Search size={24} />
-  },
-  {
-    id: 'training',
-    title: 'Training Services',
-    description: 'Access specialized training programs and upskilling opportunities aligned with industry demands.',
-    icon: <BookOpen size={24} />
-  },
-  {
-    id: 'mentorship',
-    title: 'Mentorship Services',
-    description: 'Connect with experienced professionals for guidance, support, and networking opportunities.',
-    icon: <Users size={24} />
-  },
-  {
-    id: 'notifications',
-    title: 'Smart Notifications',
-    description: 'Receive personalized alerts about relevant opportunities, events, and deadlines.',
-    icon: <Bell size={24} />
-  },
-  {
-    id: 'multilingual',
-    title: 'Multi-Language Support',
-    description: 'Access the platform in Arabic, English, and other languages common in the UAE.',
-    icon: <Globe size={24} />
-  },
-  {
-    id: 'mobile',
-    title: 'Mobile Application',
-    description: 'Stay connected on the go with our feature-rich mobile app and push notifications.',
-    icon: <Smartphone size={24} />
-  },
-  {
-    id: 'analytics',
-    title: 'User Analytics',
-    description: 'Track your progress, identify opportunities, and receive personalized recommendations.',
-    icon: <Zap size={24} />
-  }
-];
-
 const ServiceCards: React.FC = () => {
+  const navigate = useNavigate();
   const [visibleItems, setVisibleItems] = useState<number[]>([]);
+  
+  const services: Service[] = [
+    {
+      id: 'resume',
+      title: 'Resume Builder',
+      description: 'Create professional bilingual resumes with UAE-specific templates designed for different career stages.',
+      icon: <FileText size={24} />,
+      path: '/resume-builder'
+    },
+    {
+      id: 'job-matching',
+      title: 'AI Job Matching',
+      description: 'Find opportunities matching your skills, preferences, and career goals with advanced AI-powered search.',
+      icon: <Search size={24} />
+    },
+    {
+      id: 'training',
+      title: 'Training Services',
+      description: 'Access specialized training programs and upskilling opportunities aligned with industry demands.',
+      icon: <BookOpen size={24} />
+    },
+    {
+      id: 'mentorship',
+      title: 'Mentorship Services',
+      description: 'Connect with experienced professionals for guidance, support, and networking opportunities.',
+      icon: <Users size={24} />
+    },
+    {
+      id: 'notifications',
+      title: 'Smart Notifications',
+      description: 'Receive personalized alerts about relevant opportunities, events, and deadlines.',
+      icon: <Bell size={24} />
+    },
+    {
+      id: 'multilingual',
+      title: 'Multi-Language Support',
+      description: 'Access the platform in Arabic, English, and other languages common in the UAE.',
+      icon: <Globe size={24} />
+    },
+    {
+      id: 'mobile',
+      title: 'Mobile Application',
+      description: 'Stay connected on the go with our feature-rich mobile app and push notifications.',
+      icon: <Smartphone size={24} />
+    },
+    {
+      id: 'analytics',
+      title: 'User Analytics',
+      description: 'Track your progress, identify opportunities, and receive personalized recommendations.',
+      icon: <Zap size={24} />
+    }
+  ];
+  
+  const handleServiceClick = (service: Service) => {
+    if (service.path) {
+      navigate(service.path);
+    }
+  };
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -108,13 +118,15 @@ const ServiceCards: React.FC = () => {
                 "service-card glass-card rounded-2xl p-6 border border-gray-100 transition-all duration-700 transform",
                 visibleItems.includes(index) 
                   ? "opacity-100 translate-y-0" 
-                  : "opacity-0 translate-y-12"
+                  : "opacity-0 translate-y-12",
+                service.path && "cursor-pointer hover:shadow-md hover:border-emirati-teal/30"
               )}
               style={{ 
                 transitionDelay: `${(index % 3) * 100}ms`,
                 backdropFilter: 'blur(10px)'
               }}
               data-index={index}
+              onClick={() => handleServiceClick(service)}
             >
               <div className="w-12 h-12 rounded-xl bg-emirati-teal/10 flex items-center justify-center text-emirati-teal mb-5">
                 {service.icon}
