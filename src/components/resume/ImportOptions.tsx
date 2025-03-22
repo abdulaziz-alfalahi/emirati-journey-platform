@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, Linkedin, Brain } from 'lucide-react';
 import { ResumeData } from './types';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { parseResumeFromFile, extractFromLinkedIn, mergeResumeData } from './utils/resumeParser';
 
 interface ImportOptionsProps {
@@ -20,7 +20,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileDialogOpen, setFileDialogOpen] = useState(false);
   const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,26 +27,21 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
 
     setIsUploading(true);
     
-    // Create a toast ID for updating the toast later
-    const toastId = toast({
-      title: "AI Resume Processing",
+    // Create a toast for processing
+    toast.info("AI Resume Processing", {
       description: "Extracting data using AI...",
-    }).id;
+    });
     
     try {
       // Update toast with processing message
-      toast({
-        id: toastId,
-        title: "AI Resume Processing",
+      toast.info("AI Resume Processing", {
         description: "Reading file and sending to AI service...",
       });
       
       const parsedData = await parseResumeFromFile(file);
       
       // Update toast with success message
-      toast({
-        id: toastId,
-        title: "AI Resume Analysis Complete",
+      toast.success("AI Resume Analysis Complete", {
         description: "Your resume has been processed using AI and data extracted successfully.",
       });
       
@@ -59,11 +53,8 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       console.error('Error parsing resume:', error);
       
       // Update toast with error message
-      toast({
-        id: toastId,
-        title: "Error processing resume",
+      toast.error("Error processing resume", {
         description: error instanceof Error ? error.message : "Failed to parse resume file",
-        variant: "destructive",
       });
     } finally {
       setIsUploading(false);
@@ -74,10 +65,8 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
 
   const handleLinkedInExtract = async () => {
     if (!linkedInUrl.trim()) {
-      toast({
-        title: "LinkedIn URL required",
+      toast.error("LinkedIn URL required", {
         description: "Please enter your LinkedIn profile URL",
-        variant: "destructive",
       });
       return;
     }
@@ -88,17 +77,14 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       const mergedData = mergeResumeData(currentData, linkedInData);
       onImportComplete(mergedData);
       
-      toast({
-        title: "LinkedIn data extracted",
+      toast.success("LinkedIn data extracted", {
         description: "Your LinkedIn profile data has been imported and merged with your current draft.",
       });
       
       setLinkedInDialogOpen(false);
     } catch (error) {
-      toast({
-        title: "Error extracting LinkedIn data",
+      toast.error("Error extracting LinkedIn data", {
         description: error instanceof Error ? error.message : "Failed to extract data from LinkedIn",
-        variant: "destructive",
       });
     } finally {
       setIsExtracting(false);
