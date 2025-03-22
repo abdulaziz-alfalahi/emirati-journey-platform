@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -86,12 +85,57 @@ serve(async (req) => {
       }
     }
     
+    // Store API keys in the database
+    // First, check if there are existing keys
+    const { data: existingKeys, error: getKeysError } = await supabase
+      .from('api_keys')
+      .select('*')
+      .limit(1);
+    
+    if (getKeysError) {
+      console.error('Error fetching existing API keys:', getKeysError);
+      return new Response(JSON.stringify({ error: 'Failed to fetch existing API keys' }), { 
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    let upsertError;
+    
+    // If there are existing keys, update them
+    if (existingKeys && existingKeys.length > 0) {
+      const { error } = await supabase
+        .from('api_keys')
+        .update(validatedData)
+        .eq('id', existingKeys[0].id);
+      
+      upsertError = error;
+    } else {
+      // Otherwise insert new records
+      const { error } = await supabase
+        .from('api_keys')
+        .insert([validatedData]);
+      
+      upsertError = error;
+    }
+    
+    if (upsertError) {
+      console.error('Error saving API keys:', upsertError);
+      return new Response(JSON.stringify({ error: 'Failed to save API keys to database' }), { 
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    // Also set environment variables for the current edge function context
+    // This allows other edge functions to use the API keys
+    for (const [key, value] of Object.entries(validatedData)) {
+      Deno.env.set(key, value as string);
+    }
+    
     // Log the action (but don't log the actual keys for security)
     console.log(`API keys update requested by user ${user.id}`);
     console.log(`Keys being updated: ${Object.keys(validatedData).join(', ')}`);
-
-    // In a production environment, this would update the actual secrets
-    // For now, we'll just return success
     
     // Return a success response
     return new Response(JSON.stringify({ 

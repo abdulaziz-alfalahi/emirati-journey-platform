@@ -36,6 +36,8 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
           const { data, error } = await supabase.functions.invoke('get-api-keys');
           if (!error && data && data.MAPBOX_ACCESS_TOKEN) {
             setMapboxToken(data.MAPBOX_ACCESS_TOKEN);
+            // Also save to local storage as backup
+            localStorage.setItem('MAPBOX_ACCESS_TOKEN', data.MAPBOX_ACCESS_TOKEN);
             return;
           }
         }

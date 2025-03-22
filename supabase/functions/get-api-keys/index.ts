@@ -75,14 +75,48 @@ serve(async (req) => {
       });
     }
 
-    // Get all configured API keys
-    const apiKeys = {
-      MAPBOX_ACCESS_TOKEN: Deno.env.get("MAPBOX_ACCESS_TOKEN") || "",
-      LINKEDIN_CLIENT_ID: Deno.env.get("LINKEDIN_CLIENT_ID") || "",
-      LINKEDIN_CLIENT_SECRET: Deno.env.get("LINKEDIN_CLIENT_SECRET") || "",
-      UAEPASS_CLIENT_ID: Deno.env.get("UAEPASS_CLIENT_ID") || "",
-      UAEPASS_CLIENT_SECRET: Deno.env.get("UAEPASS_CLIENT_SECRET") || ""
+    // Get API keys from the database
+    const { data: apiKeysData, error: apiKeysError } = await supabase
+      .from('api_keys')
+      .select('*')
+      .limit(1);
+    
+    if (apiKeysError) {
+      console.error('Error fetching API keys from database:', apiKeysError);
+    }
+    
+    // Create a response object with the API keys
+    let apiKeys = {
+      MAPBOX_ACCESS_TOKEN: "",
+      LINKEDIN_CLIENT_ID: "",
+      LINKEDIN_CLIENT_SECRET: "",
+      UAEPASS_CLIENT_ID: "",
+      UAEPASS_CLIENT_SECRET: ""
     };
+    
+    // If we have data from the database, use it
+    if (apiKeysData && apiKeysData.length > 0) {
+      apiKeys = {
+        ...apiKeys,
+        ...apiKeysData[0]
+      };
+    }
+    
+    // If we have environment variables set, they take precedence
+    const envKeys = [
+      "MAPBOX_ACCESS_TOKEN",
+      "LINKEDIN_CLIENT_ID",
+      "LINKEDIN_CLIENT_SECRET",
+      "UAEPASS_CLIENT_ID",
+      "UAEPASS_CLIENT_SECRET"
+    ];
+    
+    for (const key of envKeys) {
+      const envValue = Deno.env.get(key);
+      if (envValue) {
+        apiKeys[key] = envValue;
+      }
+    }
 
     // Logs for debugging
     console.log(`API keys retrieved successfully for user ${user.id}`);

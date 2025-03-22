@@ -98,3 +98,4 @@ gcp_jwt_path = "supabase/gcloud.json"
   
   [functions.update-api-keys]
   verify_jwt = true
+
