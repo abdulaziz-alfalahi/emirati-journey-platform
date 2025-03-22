@@ -104,6 +104,9 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                 />
               </TabsContent>
               <TabsContent value="map" className="mt-2">
+                <p className="text-sm text-gray-500 mb-2">
+                  Selecting your residence area on the map will help us provide you with commute details to potential vacancies while protecting your privacy.
+                </p>
                 <LocationMap 
                   initialLocation={data.location}
                   onLocationSelect={handleLocationSelect}
