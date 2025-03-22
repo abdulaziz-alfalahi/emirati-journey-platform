@@ -28,6 +28,7 @@ serve(async (req) => {
     console.log(`Processing resume text (first 100 chars): ${fileContent.substring(0, 100)}...`);
 
     if (!openAIApiKey) {
+      console.error('OpenAI API key is not configured');
       throw new Error('OpenAI API key is not configured. Please add it to your Supabase secrets.');
     }
 
@@ -84,84 +85,106 @@ serve(async (req) => {
     `;
 
     console.log('Sending request to OpenAI...');
+    console.log('Using API key starting with:', openAIApiKey.substring(0, 5) + '...');
 
-    // Call OpenAI API
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: fileContent }
-        ],
-        temperature: 0.3, // Lower temperature for more consistent results
-      }),
-    });
-
-    if (!openAIResponse.ok) {
-      const errorData = await openAIResponse.json();
-      console.error('OpenAI API error:', errorData);
-      
-      // Check for quota errors
-      if (errorData.error && errorData.error.code === 'insufficient_quota') {
-        return new Response(
-          JSON.stringify({ 
-            error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.',
-            fallbackToRegex: true 
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
-    }
-
-    const data = await openAIResponse.json();
-    
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Unexpected response format from OpenAI');
-    }
-
-    const generatedContent = data.choices[0].message.content;
-    console.log('OpenAI response received');
-
-    // Try to parse the response as JSON
-    let parsedData;
     try {
-      // Find JSON object in the response (in case there's any extra text)
-      const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
-      const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
-      parsedData = JSON.parse(jsonString);
-      
-      // Add ids to each item in arrays
-      if (parsedData.experience) {
-        parsedData.experience = parsedData.experience.map(exp => ({...exp, id: crypto.randomUUID()}));
-      }
-      if (parsedData.education) {
-        parsedData.education = parsedData.education.map(edu => ({...edu, id: crypto.randomUUID()}));
-      }
-      if (parsedData.skills) {
-        parsedData.skills = parsedData.skills.map(skill => ({...skill, id: crypto.randomUUID()}));
-      }
-      if (parsedData.languages) {
-        parsedData.languages = parsedData.languages.map(lang => ({...lang, id: crypto.randomUUID()}));
-      }
-      
-      console.log('Successfully parsed resume data');
-    } catch (error) {
-      console.error('Error parsing JSON from OpenAI response:', error);
-      console.error('Response content:', generatedContent);
-      throw new Error('Failed to parse AI response as JSON');
-    }
+      // Call OpenAI API
+      const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: fileContent }
+          ],
+          temperature: 0.3, // Lower temperature for more consistent results
+        }),
+      });
 
-    return new Response(
-      JSON.stringify(parsedData),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      console.log('OpenAI API response status:', openAIResponse.status);
+      
+      if (!openAIResponse.ok) {
+        const errorData = await openAIResponse.json();
+        console.error('OpenAI API error:', JSON.stringify(errorData));
+        
+        // Check for quota errors
+        if (errorData.error && errorData.error.code === 'insufficient_quota') {
+          console.error('OpenAI API quota exceeded');
+          return new Response(
+            JSON.stringify({ 
+              error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.',
+              fallbackToRegex: true 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Check for invalid API key
+        if (errorData.error && (errorData.error.code === 'invalid_api_key' || openAIResponse.status === 401)) {
+          console.error('Invalid OpenAI API key');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Invalid OpenAI API key. Please check your API key and try again.',
+              fallbackToRegex: true 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+      }
+
+      const data = await openAIResponse.json();
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Unexpected response format from OpenAI');
+      }
+
+      const generatedContent = data.choices[0].message.content;
+      console.log('OpenAI response received, content length:', generatedContent.length);
+
+      // Try to parse the response as JSON
+      let parsedData;
+      try {
+        // Find JSON object in the response (in case there's any extra text)
+        const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
+        const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
+        parsedData = JSON.parse(jsonString);
+        
+        // Add ids to each item in arrays
+        if (parsedData.experience) {
+          parsedData.experience = parsedData.experience.map(exp => ({...exp, id: crypto.randomUUID()}));
+        }
+        if (parsedData.education) {
+          parsedData.education = parsedData.education.map(edu => ({...edu, id: crypto.randomUUID()}));
+        }
+        if (parsedData.skills) {
+          parsedData.skills = parsedData.skills.map(skill => ({...skill, id: crypto.randomUUID()}));
+        }
+        if (parsedData.languages) {
+          parsedData.languages = parsedData.languages.map(lang => ({...lang, id: crypto.randomUUID()}));
+        }
+        
+        console.log('Successfully parsed resume data');
+      } catch (error) {
+        console.error('Error parsing JSON from OpenAI response:', error);
+        console.error('Response content:', generatedContent);
+        throw new Error('Failed to parse AI response as JSON');
+      }
+
+      return new Response(
+        JSON.stringify(parsedData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+      
+    } catch (apiError) {
+      console.error('Error in OpenAI API call:', apiError);
+      throw apiError; // Re-throw to be caught by the outer try-catch
+    }
   } catch (error) {
     console.error('Error in extract-resume-data function:', error);
     return new Response(

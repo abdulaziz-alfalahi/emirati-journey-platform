@@ -1,4 +1,3 @@
-
 /**
  * Resume parser utility for extracting data from uploaded resume files
  */
@@ -30,18 +29,17 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             body: { fileContent },
           });
           
-          // Check for API quota errors specifically
-          // The edge function returns { fallbackToRegex: true } when AI quota is exceeded
-          if (error || (data && data.fallbackToRegex)) {
-            console.warn('AI quota exceeded or API error, falling back to regex extraction...');
-            const fallbackData = extractDataFromContent(fileContent, file.type);
-            resolve(fallbackData);
-            return;
-          }
-          
           if (error) {
             console.error('Edge function error:', error);
             throw new Error(`AI extraction failed: ${error.message}`);
+          }
+          
+          // Check if the edge function returned fallbackToRegex flag
+          if (data && data.fallbackToRegex) {
+            console.warn('Edge function signaled to fall back to regex extraction');
+            const fallbackData = extractDataFromContent(fileContent, file.type);
+            resolve(fallbackData);
+            return;
           }
           
           if (!data) {
@@ -533,4 +531,3 @@ export const mergeResumeData = (existing: ResumeData, parsed: Partial<ResumeData
   
   return result;
 };
-

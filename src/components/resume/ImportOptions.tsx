@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Linkedin, Brain, AlertTriangle } from 'lucide-react';
+import { Upload, Linkedin, Brain, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
 import { ResumeData } from './types';
 import { toast } from 'sonner';
 import { parseResumeFromFile, extractFromLinkedIn, mergeResumeData } from './utils/resumeParser';
@@ -20,32 +20,42 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileDialogOpen, setFileDialogOpen] = useState(false);
   const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
-  const [apiErrorOccurred, setApiErrorOccurred] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
-    setApiErrorOccurred(false);
+    setUploadError(null);
+    setUsingFallback(false);
     
     // Create a toast for processing
-    toast.info("AI Resume Processing", {
+    const toastId = toast.info("AI Resume Processing", {
       description: "Extracting data using AI...",
     });
     
     try {
       // Update toast with processing message
       toast.info("AI Resume Processing", {
+        id: toastId,
         description: "Reading file and sending to AI service...",
       });
       
       const parsedData = await parseResumeFromFile(file);
       
-      // Update toast with success message
-      toast.success("AI Resume Analysis Complete", {
-        description: "Your resume has been processed and data extracted successfully.",
-      });
+      // Check if fallback was used based on properties typical in fallback data but not in AI data
+      // This is just a heuristic and might need adjustment
+      if (usingFallback) {
+        toast.warning("Limited Extraction", {
+          description: "Used basic extraction method. Data might be incomplete. Please check and edit the results.",
+        });
+      } else {
+        toast.success("AI Resume Analysis Complete", {
+          description: "Your resume has been processed and data extracted successfully.",
+        });
+      }
       
       const mergedData = mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
@@ -55,12 +65,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       console.error('Error parsing resume:', error);
       
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume file";
-      
-      // Check if it's an API quota error
-      if (errorMessage.includes('quota exceeded') || errorMessage.includes('insufficient_quota')) {
-        setApiErrorOccurred(true);
-        errorMessage = "OpenAI API quota exceeded. The system used fallback extraction which may be less accurate.";
-      }
+      setUploadError(errorMessage);
       
       // Update toast with error message
       toast.error("Error processing resume", {
@@ -119,13 +124,22 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {apiErrorOccurred && (
+            {uploadError && (
+              <div className="bg-red-50 border border-red-200 p-3 rounded-md flex items-start space-x-2">
+                <AlertCircle size={18} className="text-red-500 mt-0.5" />
+                <div className="text-sm text-red-700">
+                  <p className="font-medium mb-1">Error Processing Resume</p>
+                  <p>{uploadError}</p>
+                </div>
+              </div>
+            )}
+            
+            {usingFallback && !uploadError && (
               <div className="bg-amber-50 border border-amber-200 p-3 rounded-md flex items-start space-x-2">
                 <AlertTriangle size={18} className="text-amber-500 mt-0.5" />
                 <div className="text-sm text-amber-700">
-                  <p className="font-medium mb-1">AI Service Limitation</p>
-                  <p>The OpenAI API quota has been exceeded. The system used fallback extraction which may be less accurate. 
-                  Consider trying again later or contact support for assistance.</p>
+                  <p className="font-medium mb-1">Using Basic Extraction</p>
+                  <p>AI-based extraction failed. Using basic pattern matching instead, which may be less accurate.</p>
                 </div>
               </div>
             )}
