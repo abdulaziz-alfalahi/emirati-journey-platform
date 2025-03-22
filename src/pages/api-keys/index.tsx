@@ -76,6 +76,7 @@ const ApiKeysPage = () => {
     UAEPASS_CLIENT_ID: '',
     UAEPASS_CLIENT_SECRET: '',
   });
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Check if user is an admin or super user
   const isAuthorized = roles.includes('administrator') || roles.includes('super_user');
@@ -148,13 +149,17 @@ const ApiKeysPage = () => {
   const saveApiKeys = async () => {
     try {
       setIsSaving(true);
+      setSaveError(null);
       
-      const { error } = await supabase.functions.invoke('update-api-keys', {
+      console.log('Saving API keys:', Object.keys(apiKeys).filter(k => apiKeys[k as keyof ApiKeysState]));
+      
+      const { data, error } = await supabase.functions.invoke('update-api-keys', {
         body: apiKeys
       });
       
       if (error) {
         console.error('Error saving API keys:', error);
+        setSaveError(`Failed to save API keys: ${error.message}`);
         toast({
           title: "Failed to save API keys",
           description: error.message,
@@ -172,6 +177,7 @@ const ApiKeysPage = () => {
       fetchApiKeys();
     } catch (error) {
       console.error('Error saving API keys:', error);
+      setSaveError(`Failed to save API keys: ${error.message || 'Unknown error'}`);
       toast({
         title: "Error",
         description: "An unexpected error occurred while saving API keys.",
@@ -218,6 +224,12 @@ const ApiKeysPage = () => {
                 <strong>Important:</strong> API keys are sensitive information. They are stored securely and are only available to administrators.
               </p>
             </div>
+
+            {saveError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{saveError}</AlertDescription>
+              </Alert>
+            )}
 
             {!isLoaded ? (
               <div className="text-center py-8">

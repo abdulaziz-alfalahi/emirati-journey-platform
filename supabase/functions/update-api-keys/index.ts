@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -32,6 +33,7 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -46,6 +48,10 @@ serve(async (req) => {
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id);
+
+    if (rolesError) {
+      console.error('Error fetching user roles:', rolesError);
+    }
 
     if (!rolesError && roles) {
       isAuthorized = roles.some(r => 
@@ -69,6 +75,8 @@ serve(async (req) => {
     // Parse the request body
     const requestData = await req.json();
     
+    console.log('Received API keys update request with data:', Object.keys(requestData));
+    
     // Validate the API keys format
     const allowedKeys = [
       'MAPBOX_ACCESS_TOKEN', 
@@ -85,6 +93,27 @@ serve(async (req) => {
       }
     }
     
+    console.log('Validated API keys:', Object.keys(validatedData));
+    
+    // Check if the api_keys table exists
+    const { error: tableCheckError } = await supabase
+      .from('api_keys')
+      .select('id')
+      .limit(1);
+    
+    if (tableCheckError) {
+      console.error('Error checking api_keys table:', tableCheckError);
+      if (tableCheckError.message.includes('does not exist')) {
+        console.error('The api_keys table does not exist. Please create it first.');
+        return new Response(JSON.stringify({ 
+          error: 'The api_keys table does not exist. Please create it first.'
+        }), { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+    
     // Store API keys in the database
     // First, check if there are existing keys
     const { data: existingKeys, error: getKeysError } = await supabase
@@ -94,13 +123,15 @@ serve(async (req) => {
     
     if (getKeysError) {
       console.error('Error fetching existing API keys:', getKeysError);
-      return new Response(JSON.stringify({ error: 'Failed to fetch existing API keys' }), { 
+      return new Response(JSON.stringify({ error: 'Failed to fetch existing API keys: ' + getKeysError.message }), { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
     
-    let upsertError;
+    let upsertError = null;
+    
+    console.log('Existing keys found:', existingKeys && existingKeys.length > 0);
     
     // If there are existing keys, update them
     if (existingKeys && existingKeys.length > 0) {
@@ -110,6 +141,12 @@ serve(async (req) => {
         .eq('id', existingKeys[0].id);
       
       upsertError = error;
+      
+      if (error) {
+        console.error('Error updating API keys:', error);
+      } else {
+        console.log('Successfully updated API keys with ID:', existingKeys[0].id);
+      }
     } else {
       // Otherwise insert new records
       const { error } = await supabase
@@ -117,11 +154,19 @@ serve(async (req) => {
         .insert([validatedData]);
       
       upsertError = error;
+      
+      if (error) {
+        console.error('Error inserting API keys:', error);
+      } else {
+        console.log('Successfully inserted new API keys');
+      }
     }
     
     if (upsertError) {
       console.error('Error saving API keys:', upsertError);
-      return new Response(JSON.stringify({ error: 'Failed to save API keys to database' }), { 
+      return new Response(JSON.stringify({ 
+        error: 'Failed to save API keys to database: ' + upsertError.message 
+      }), { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -148,7 +193,9 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error updating API keys:', error);
     
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error: ' + (error.message || 'Unknown error') 
+    }), { 
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
