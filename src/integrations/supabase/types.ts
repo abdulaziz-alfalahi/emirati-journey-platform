@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string | null
+          id: string
+          linkedin_client_id: string | null
+          linkedin_client_secret: string | null
+          mapbox_access_token: string | null
+          uaepass_client_id: string | null
+          uaepass_client_secret: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          linkedin_client_id?: string | null
+          linkedin_client_secret?: string | null
+          mapbox_access_token?: string | null
+          uaepass_client_id?: string | null
+          uaepass_client_secret?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          linkedin_client_id?: string | null
+          linkedin_client_secret?: string | null
+          mapbox_access_token?: string | null
+          uaepass_client_id?: string | null
+          uaepass_client_secret?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

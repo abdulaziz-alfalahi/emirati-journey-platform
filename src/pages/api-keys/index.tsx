@@ -68,6 +68,7 @@ const ApiKeysPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [apiKeys, setApiKeys] = useState<ApiKeysState>({
     MAPBOX_ACCESS_TOKEN: '',
     LINKEDIN_CLIENT_ID: '',
@@ -98,6 +99,7 @@ const ApiKeysPage = () => {
 
   const fetchApiKeys = async () => {
     try {
+      setIsLoaded(false);
       const { data, error } = await supabase.functions.invoke('get-api-keys', {
         method: 'GET'
       });
@@ -121,9 +123,17 @@ const ApiKeysPage = () => {
           }
         });
         setApiKeys(updatedKeys);
+        console.log("API keys loaded:", Object.keys(data).filter(k => data[k]));
       }
     } catch (error) {
       console.error('Error fetching API keys:', error);
+      toast({
+        title: "Error loading API keys",
+        description: "An unexpected error occurred while loading API keys.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoaded(true);
     }
   };
 
@@ -155,8 +165,11 @@ const ApiKeysPage = () => {
       
       toast({
         title: "API keys updated",
-        description: "API keys have been successfully updated."
+        description: "API keys have been successfully saved to the database."
       });
+      
+      // Refresh the keys to confirm they were saved
+      fetchApiKeys();
     } catch (error) {
       console.error('Error saving API keys:', error);
       toast({
@@ -206,41 +219,50 @@ const ApiKeysPage = () => {
               </p>
             </div>
 
-            {apiKeyDefinitions.map((keyDef) => (
-              <Card key={keyDef.id}>
-                <CardHeader className="flex flex-row items-center space-y-0 gap-4">
-                  <div className="bg-muted w-10 h-10 rounded-full flex items-center justify-center">
-                    <keyDef.icon className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <CardTitle>{keyDef.name}</CardTitle>
-                    <CardDescription>{keyDef.description}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Label htmlFor={keyDef.id}>{keyDef.name}</Label>
-                    <Input
-                      id={keyDef.id}
-                      name={keyDef.id}
-                      type={keyDef.isSecret ? "password" : "text"}
-                      placeholder={`Enter ${keyDef.name}...`}
-                      value={apiKeys[keyDef.id]}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {!isLoaded ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emirati-teal mx-auto mb-4"></div>
+                <p>Loading API keys...</p>
+              </div>
+            ) : (
+              <>
+                {apiKeyDefinitions.map((keyDef) => (
+                  <Card key={keyDef.id}>
+                    <CardHeader className="flex flex-row items-center space-y-0 gap-4">
+                      <div className="bg-muted w-10 h-10 rounded-full flex items-center justify-center">
+                        <keyDef.icon className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <CardTitle>{keyDef.name}</CardTitle>
+                        <CardDescription>{keyDef.description}</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Label htmlFor={keyDef.id}>{keyDef.name}</Label>
+                        <Input
+                          id={keyDef.id}
+                          name={keyDef.id}
+                          type={keyDef.isSecret ? "password" : "text"}
+                          placeholder={`Enter ${keyDef.name}...`}
+                          value={apiKeys[keyDef.id]}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
 
-            <div className="flex justify-end">
-              <Button 
-                onClick={saveApiKeys} 
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save API Keys'}
-              </Button>
-            </div>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={saveApiKeys} 
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Saving...' : 'Save API Keys'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

@@ -1,317 +1,183 @@
-
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { supabase } from '@/integrations/supabase/client';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LocationMapProps {
-  initialLocation?: string;
-  onLocationSelect: (location: { 
-    address: string; 
-    coordinates: [number, number]; 
-    formattedAddress: string;
-  }) => void;
+  value?: string;
+  onChange: (location: string) => void;
 }
 
-const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSelect }) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
+const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
+  const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
-  const privacyCircle = useRef<mapboxgl.GeoJSONSource | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const geocoder = useRef<MapboxGeocoder | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [customToken, setCustomToken] = useState<string>('');
   const { user } = useAuth();
 
-  // Fetch Mapbox token
-  useEffect(() => {
-    const fetchMapboxToken = async () => {
-      try {
-        // Try to get from admin API first (if user is logged in and admin)
-        if (user) {
-          const { data, error } = await supabase.functions.invoke('get-api-keys');
-          if (!error && data && data.MAPBOX_ACCESS_TOKEN) {
-            setMapboxToken(data.MAPBOX_ACCESS_TOKEN);
-            // Also save to local storage as backup
-            localStorage.setItem('MAPBOX_ACCESS_TOKEN', data.MAPBOX_ACCESS_TOKEN);
-            return;
-          }
-        }
-        
-        // Fallback to local storage
-        const storedToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
-        if (storedToken) {
-          setMapboxToken(storedToken);
+  // Function to fetch Mapbox token from Supabase edge function
+  const fetchMapboxToken = useCallback(async () => {
+    try {
+      // First try to get the token from the edge function (if logged in)
+      if (user) {
+        const { data, error } = await supabase.functions.invoke('get-api-keys');
+        if (!error && data && data.MAPBOX_ACCESS_TOKEN) {
+          setMapboxToken(data.MAPBOX_ACCESS_TOKEN);
+          // Also save to local storage as backup
+          localStorage.setItem('MAPBOX_ACCESS_TOKEN', data.MAPBOX_ACCESS_TOKEN);
           return;
         }
-        
-        // If no token is available, check if we're in development mode
-        if (import.meta.env.DEV) {
-          setError('Mapbox token not found. Please add it in the API Keys page.');
-        }
-      } catch (e) {
-        console.error('Error fetching Mapbox token:', e);
-        setError('Failed to load Mapbox token. Please try again later.');
       }
-    };
-
-    fetchMapboxToken();
+      
+      // Otherwise try to get from localStorage
+      const localToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
+      if (localToken) {
+        setMapboxToken(localToken);
+        return;
+      }
+      
+      // If no token is found, show an error
+      setTokenError('No Mapbox token available. Please enter one below or contact an administrator.');
+    } catch (error) {
+      console.error('Error fetching Mapbox token:', error);
+      setTokenError('Failed to fetch Mapbox token. Please enter one below or contact an administrator.');
+    }
   }, [user]);
 
-  // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
-
-    // Set the token
-    mapboxgl.accessToken = mapboxToken;
-
-    const initializeMap = async () => {
-      setLoading(true);
+    fetchMapboxToken();
+  }, [fetchMapboxToken]);
+  
+  // Function to initialize map
+  useEffect(() => {
+    if (!mapboxToken || !mapContainer.current || map.current) return;
+    
+    try {
+      // Set the mapbox token
+      mapboxgl.accessToken = mapboxToken;
       
-      try {
-        // Initial coordinates (centered on UAE)
-        let initialCoordinates: [number, number] = [55.2708, 25.2048]; // Dubai coordinates
-        
-        // If we have an initial location string, try to geocode it
-        if (initialLocation) {
-          try {
-            const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(initialLocation)}.json?access_token=${mapboxToken}`
-            );
-            const data = await response.json();
-            
-            if (data.features && data.features.length > 0) {
-              const [lng, lat] = data.features[0].center;
-              initialCoordinates = [lng, lat];
-            }
-          } catch (e) {
-            console.error('Geocoding failed:', e);
-            // Continue with default coordinates if geocoding fails
-          }
+      // Create map
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [55.2708, 25.2048], // Default to Dubai
+        zoom: 10
+      });
+      
+      // Add geocoder (search)
+      geocoder.current = new MapboxGeocoder({
+        accessToken: mapboxToken,
+        mapboxgl: mapboxgl,
+        marker: false
+      });
+      
+      map.current.addControl(geocoder.current);
+      
+      // Create a marker
+      marker.current = new mapboxgl.Marker({ draggable: true })
+        .setLngLat([55.2708, 25.2048]) 
+        .addTo(map.current);
+      
+      // Set initial marker position if value provided
+      if (value) {
+        try {
+          const location = JSON.parse(value);
+          map.current.setCenter([location.longitude, location.latitude]);
+          marker.current.setLngLat([location.longitude, location.latitude]);
+        } catch (e) {
+          console.error('Error parsing location:', e);
         }
-        
-        // Create new map
-        map.current = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/streets-v12',
-          center: initialCoordinates,
-          zoom: 13
-        });
-
-        // Add navigation controls
-        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-        
-        // Add geocoder control
-        const geocoder = new MapboxGeocoder({
-          accessToken: mapboxToken,
-          mapboxgl: mapboxgl,
-          marker: false, // We'll add our own marker
-          placeholder: 'Search for your general area',
-          countries: 'ae', // Limit to UAE
-        });
-        
-        map.current.addControl(geocoder, 'top-left');
-
-        // Add marker and privacy circle on load
-        map.current.on('load', () => {
-          // Add the privacy circle source
-          map.current?.addSource('privacy-circle', {
-            type: 'geojson',
-            data: createGeoJSONCircle(initialCoordinates, 0.5) // 500m radius
-          });
-          
-          privacyCircle.current = map.current?.getSource('privacy-circle') as mapboxgl.GeoJSONSource;
-
-          // Add the privacy circle layer
-          map.current?.addLayer({
-            id: 'privacy-circle-fill',
-            type: 'fill',
-            source: 'privacy-circle',
-            paint: {
-              'fill-color': '#4264fb',
-              'fill-opacity': 0.2
-            }
-          });
-          
-          map.current?.addLayer({
-            id: 'privacy-circle-outline',
-            type: 'line',
-            source: 'privacy-circle',
-            paint: {
-              'line-color': '#4264fb',
-              'line-width': 2
-            }
-          });
-
-          // Add marker
-          marker.current = new mapboxgl.Marker({ draggable: true })
-            .setLngLat(initialCoordinates)
-            .addTo(map.current as mapboxgl.Map);
-
-          // Update on marker drag
-          marker.current.on('dragend', updateLocation);
-        });
-
-        // Update on map click
-        map.current.on('click', (e) => {
-          if (marker.current) {
-            marker.current.setLngLat(e.lngLat);
-            updateLocation();
-          }
-        });
-
-        // Update on geocoder result
-        geocoder.on('result', (e) => {
-          if (marker.current && e.result && e.result.center) {
-            marker.current.setLngLat(e.result.center);
-            updateLocation(e.result.place_name);
-          }
-        });
-
-        setLoading(false);
-      } catch (e) {
-        console.error('Map initialization error:', e);
-        setError('Failed to load the map. Please try again later.');
-        setLoading(false);
       }
-    };
-
-    initializeMap();
-
-    // Cleanup
+      
+      // Handle geocoder result
+      geocoder.current.on('result', (e) => {
+        const coords = e.result.center;
+        if (marker.current && coords) {
+          marker.current.setLngLat(coords);
+          const location = {
+            longitude: coords[0],
+            latitude: coords[1],
+            name: e.result.place_name
+          };
+          onChange(JSON.stringify(location));
+        }
+      });
+      
+      // Handle marker dragend
+      marker.current.on('dragend', () => {
+        const lngLat = marker.current?.getLngLat();
+        if (lngLat) {
+          const location = {
+            longitude: lngLat.lng,
+            latitude: lngLat.lat,
+            name: 'Custom Location'
+          };
+          onChange(JSON.stringify(location));
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      setTokenError('Failed to initialize map. Please verify your Mapbox token.');
+    }
+    
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      map.current?.remove();
+      map.current = null;
     };
-  }, [initialLocation, mapboxToken]);
-
-  // Create a GeoJSON circle feature for the privacy area
-  const createGeoJSONCircle = (center: [number, number], radiusInKm: number, points: number = 64) => {
-    const coords = {
-      latitude: center[1],
-      longitude: center[0]
-    };
-
-    const km = radiusInKm;
-    const ret = [];
-    const distanceX = km / (111.320 * Math.cos(coords.latitude * Math.PI / 180));
-    const distanceY = km / 110.574;
-
-    let theta, x, y;
-    for (let i = 0; i < points; i++) {
-      theta = (i / points) * (2 * Math.PI);
-      x = distanceX * Math.cos(theta);
-      y = distanceY * Math.sin(theta);
-
-      ret.push([coords.longitude + x, coords.latitude + y]);
+  }, [mapboxToken, value, onChange]);
+  
+  const saveCustomToken = () => {
+    if (customToken) {
+      localStorage.setItem('MAPBOX_ACCESS_TOKEN', customToken);
+      setMapboxToken(customToken);
+      setTokenError(null);
     }
-    ret.push(ret[0]); // Close the loop
-
-    return {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [ret]
-      },
-      properties: {}
-    };
   };
-
-  // Update location based on marker position
-  const updateLocation = async (placeName?: string) => {
-    if (!marker.current || !map.current || !mapboxToken) return;
-
-    const coordinates = marker.current.getLngLat().toArray() as [number, number];
-
-    // Update privacy circle
-    if (privacyCircle.current) {
-      privacyCircle.current.setData(createGeoJSONCircle(coordinates, 0.5) as any);
-    }
-
-    // Reverse geocode to get address if not provided
-    let formattedAddress = placeName || '';
-    if (!formattedAddress) {
-      try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxToken}`
-        );
-        const data = await response.json();
-        
-        if (data.features && data.features.length > 0) {
-          formattedAddress = data.features[0].place_name;
-        }
-      } catch (e) {
-        console.error('Reverse geocoding failed:', e);
-        formattedAddress = `${coordinates[1].toFixed(4)}, ${coordinates[0].toFixed(4)}`;
-      }
-    }
-
-    // Pass the location data to the parent component
-    onLocationSelect({
-      address: formattedAddress,
-      coordinates: coordinates,
-      formattedAddress: formattedAddress
-    });
-  };
-
-  // If no token, show token input
-  if (!mapboxToken) {
+  
+  // If we're waiting for a token or have an error, show a placeholder
+  if (tokenError) {
     return (
-      <div className="relative w-full h-[400px] rounded-md overflow-hidden flex flex-col items-center justify-center border border-input bg-muted p-6">
-        <div className="text-center space-y-4 max-w-md">
-          <h3 className="text-lg font-medium">Mapbox API Key Required</h3>
-          <p className="text-sm text-muted-foreground">
-            To use the location feature, please provide your Mapbox API key. You can add it in the API Keys page if you're an administrator.
-          </p>
-          <div className="space-y-2">
-            <label htmlFor="mapbox-token" className="text-sm font-medium">
-              Mapbox Access Token (will be stored in browser only)
-            </label>
-            <input
-              id="mapbox-token"
-              type="text"
-              className="w-full px-3 py-2 border rounded-md"
-              placeholder="pk.eyJ1Ijoi..."
-              onChange={(e) => {
-                const token = e.target.value.trim();
-                if (token) {
-                  setMapboxToken(token);
-                  localStorage.setItem('MAPBOX_ACCESS_TOKEN', token);
-                  toast.success("Mapbox token saved in browser storage");
-                }
-              }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Your token will only be stored in your browser's local storage and not sent to any server.
-            </p>
-          </div>
+      <div className="rounded border border-gray-300 p-4 space-y-4">
+        <p className="text-red-500">{tokenError}</p>
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            className="border border-gray-300 rounded px-3 py-2 flex-1"
+            placeholder="Enter your Mapbox token"
+            value={customToken}
+            onChange={(e) => setCustomToken(e.target.value)}
+          />
+          <button 
+            className="bg-emirati-teal text-white px-4 py-2 rounded"
+            onClick={saveCustomToken}
+          >
+            Save
+          </button>
         </div>
+        <p className="text-sm text-gray-500">
+          You can get a Mapbox token by signing up at <a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">mapbox.com</a>
+        </p>
       </div>
     );
   }
-
-  return (
-    <div className="relative w-full h-[400px] rounded-md overflow-hidden">
-      <div ref={mapContainer} className="absolute inset-0 rounded-md border border-input" />
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
-          <div className="text-primary">Loading map...</div>
-        </div>
-      )}
-      {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
-          <div className="text-destructive">{error}</div>
-        </div>
-      )}
-      <div className="absolute bottom-2 left-2 right-2 bg-white/80 p-2 text-xs text-gray-600 rounded-md backdrop-blur-sm">
-        Note: For privacy reasons, only a 500-meter area around your selection will be used. Your exact location is not stored.
+  
+  if (!mapboxToken) {
+    return (
+      <div className="rounded border border-gray-300 p-4 flex items-center justify-center h-80">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
       </div>
-    </div>
+    );
+  }
+  
+  return (
+    <div ref={mapContainer} className="h-80 rounded border border-gray-300" />
   );
 };
 
