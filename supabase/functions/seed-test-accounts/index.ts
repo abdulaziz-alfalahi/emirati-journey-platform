@@ -71,17 +71,23 @@ serve(async (req) => {
         }
 
         if (existingUsers) {
+          // If user exists, ensure their email is confirmed
+          await supabaseClient.auth.admin.updateUserById(existingUsers.id, {
+            email_confirm: true,
+            user_metadata: { email_verified: true }
+          });
           existingAccounts.push(persona.email);
           continue;
         }
 
-        // Create user
+        // Create user with confirmed email
         const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
           email: persona.email,
           password: password,
           email_confirm: true,
           user_metadata: {
-            full_name: persona.fullName
+            full_name: persona.fullName,
+            email_verified: true
           }
         });
 
@@ -91,7 +97,7 @@ serve(async (req) => {
           continue;
         }
 
-        // Add user role - use direct SQL for this to bypass RLS
+        // Add user role - use RPC for this to bypass RLS
         if (authData.user) {
           const { error: roleError } = await supabaseClient.rpc(
             'assign_role_to_user',
@@ -146,3 +152,4 @@ serve(async (req) => {
     );
   }
 });
+
