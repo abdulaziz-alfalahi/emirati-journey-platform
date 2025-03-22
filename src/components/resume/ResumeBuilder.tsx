@@ -143,7 +143,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
 
   return (
     <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
@@ -156,7 +156,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           <h1 className="text-2xl font-bold text-primary">Resume Builder</h1>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant="outline" 
             size="sm"
