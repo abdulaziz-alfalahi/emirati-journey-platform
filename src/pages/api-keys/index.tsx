@@ -13,11 +13,11 @@ import { Shield, MapPin, Linkedin, FileKey } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ApiKeysState {
-  MAPBOX_ACCESS_TOKEN: string;
-  LINKEDIN_CLIENT_ID: string;
-  LINKEDIN_CLIENT_SECRET: string;
-  UAEPASS_CLIENT_ID: string;
-  UAEPASS_CLIENT_SECRET: string;
+  mapbox_access_token: string;
+  linkedin_client_id: string;
+  linkedin_client_secret: string;
+  uaepass_client_id: string;
+  uaepass_client_secret: string;
 }
 
 interface ApiKeyDefinition {
@@ -30,32 +30,32 @@ interface ApiKeyDefinition {
 
 const apiKeyDefinitions: ApiKeyDefinition[] = [
   {
-    id: 'MAPBOX_ACCESS_TOKEN',
+    id: 'mapbox_access_token',
     name: 'Mapbox Access Token',
     description: 'Used for maps and location functionality throughout the platform.',
     icon: MapPin
   },
   {
-    id: 'LINKEDIN_CLIENT_ID',
+    id: 'linkedin_client_id',
     name: 'LinkedIn Client ID',
     description: 'Used for LinkedIn authentication and data import.',
     icon: Linkedin
   },
   {
-    id: 'LINKEDIN_CLIENT_SECRET',
+    id: 'linkedin_client_secret',
     name: 'LinkedIn Client Secret',
     description: 'Used for LinkedIn authentication and data import.',
     icon: Linkedin,
     isSecret: true
   },
   {
-    id: 'UAEPASS_CLIENT_ID',
+    id: 'uaepass_client_id',
     name: 'UAEPass Client ID',
     description: 'Used for UAEPass authentication integration.',
     icon: FileKey
   },
   {
-    id: 'UAEPASS_CLIENT_SECRET',
+    id: 'uaepass_client_secret',
     name: 'UAEPass Client Secret',
     description: 'Used for UAEPass authentication integration.',
     icon: FileKey,
@@ -70,13 +70,14 @@ const ApiKeysPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [apiKeys, setApiKeys] = useState<ApiKeysState>({
-    MAPBOX_ACCESS_TOKEN: '',
-    LINKEDIN_CLIENT_ID: '',
-    LINKEDIN_CLIENT_SECRET: '',
-    UAEPASS_CLIENT_ID: '',
-    UAEPASS_CLIENT_SECRET: '',
+    mapbox_access_token: '',
+    linkedin_client_id: '',
+    linkedin_client_secret: '',
+    uaepass_client_id: '',
+    uaepass_client_secret: '',
   });
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
 
   // Check if user is an admin or super user
   const isAuthorized = roles.includes('administrator') || roles.includes('super_user');
@@ -119,8 +120,9 @@ const ApiKeysPage = () => {
         // Populate the form with existing data
         const updatedKeys = { ...apiKeys };
         Object.keys(data).forEach(key => {
-          if (key in updatedKeys) {
-            updatedKeys[key as keyof ApiKeysState] = data[key] || '';
+          const keyLower = key.toLowerCase();
+          if (keyLower in updatedKeys) {
+            updatedKeys[keyLower as keyof ApiKeysState] = data[key] || '';
           }
         });
         setApiKeys(updatedKeys);
@@ -140,9 +142,10 @@ const ApiKeysPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const lowerName = name.toLowerCase() as keyof ApiKeysState;
     setApiKeys(prev => ({
       ...prev,
-      [name]: value
+      [lowerName]: value
     }));
   };
 
@@ -150,16 +153,26 @@ const ApiKeysPage = () => {
     try {
       setIsSaving(true);
       setSaveError(null);
+      setErrorDetails(null);
       
-      console.log('Saving API keys:', Object.keys(apiKeys).filter(k => apiKeys[k as keyof ApiKeysState]));
+      const keysToSave = Object.fromEntries(
+        Object.entries(apiKeys).filter(([_, value]) => value !== '')
+      );
       
-      const { data, error } = await supabase.functions.invoke('update-api-keys', {
-        body: apiKeys
+      console.log('Saving API keys:', Object.keys(keysToSave));
+      
+      const { data, error, status } = await supabase.functions.invoke('update-api-keys', {
+        body: keysToSave
       });
       
       if (error) {
         console.error('Error saving API keys:', error);
         setSaveError(`Failed to save API keys: ${error.message}`);
+        
+        if (status === 500 && error.message.includes('Edge Function returned a non-2xx status code')) {
+          setErrorDetails(`The server encountered an error. Please try again or contact the administrator.`);
+        }
+        
         toast({
           title: "Failed to save API keys",
           description: error.message,
@@ -175,7 +188,7 @@ const ApiKeysPage = () => {
       
       // Refresh the keys to confirm they were saved
       fetchApiKeys();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving API keys:', error);
       setSaveError(`Failed to save API keys: ${error.message || 'Unknown error'}`);
       toast({
@@ -227,7 +240,14 @@ const ApiKeysPage = () => {
 
             {saveError && (
               <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{saveError}</AlertDescription>
+                <AlertDescription>
+                  {saveError}
+                  {errorDetails && (
+                    <div className="mt-2 text-sm opacity-80">
+                      {errorDetails}
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 
