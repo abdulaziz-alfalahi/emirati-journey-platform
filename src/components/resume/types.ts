@@ -1,4 +1,3 @@
-
 // Resume template definition
 export interface ResumeTemplate {
   id: string;
@@ -26,6 +25,7 @@ export interface PersonalInfo {
   email: string;
   phone: string;
   location: string;
+  coordinates?: [number, number]; // Add coordinates for map location
   linkedin?: string;
   website?: string;
   photo?: string;

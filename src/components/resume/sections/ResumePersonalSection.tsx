@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PersonalInfo } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import LocationMap from '../LocationMap';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ResumePersonalSectionProps {
   data: PersonalInfo;
@@ -12,11 +13,25 @@ interface ResumePersonalSectionProps {
 }
 
 const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onChange }) => {
+  const [locationTab, setLocationTab] = useState<string>(data.coordinates ? 'map' : 'text');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     onChange({
       ...data,
       [name]: value
+    });
+  };
+
+  const handleLocationSelect = (locationData: { 
+    address: string; 
+    coordinates: [number, number]; 
+    formattedAddress: string;
+  }) => {
+    onChange({
+      ...data,
+      location: locationData.formattedAddress,
+      coordinates: locationData.coordinates
     });
   };
 
@@ -72,15 +87,38 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
             />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2 md:col-span-2">
             <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              name="location"
-              value={data.location}
-              onChange={handleChange}
-              placeholder="e.g., Dubai, UAE"
-            />
+            <Tabs value={locationTab} onValueChange={setLocationTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="text">Enter Manually</TabsTrigger>
+                <TabsTrigger value="map">Select on Map</TabsTrigger>
+              </TabsList>
+              <TabsContent value="text" className="mt-2">
+                <Input
+                  id="location"
+                  name="location"
+                  value={data.location}
+                  onChange={handleChange}
+                  placeholder="e.g., Dubai, UAE"
+                />
+              </TabsContent>
+              <TabsContent value="map" className="mt-2">
+                <LocationMap 
+                  initialLocation={data.location} 
+                  onLocationSelect={handleLocationSelect} 
+                />
+                <Input
+                  id="location"
+                  name="location"
+                  value={data.location}
+                  onChange={handleChange}
+                  className="mt-2"
+                  placeholder="Location will be updated when selected on map"
+                  readOnly
+                />
+              </TabsContent>
+            </Tabs>
           </div>
           
           <div className="space-y-2">
@@ -94,7 +132,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
             />
           </div>
           
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2">
             <Label htmlFor="website">Website (Optional)</Label>
             <Input
               id="website"
