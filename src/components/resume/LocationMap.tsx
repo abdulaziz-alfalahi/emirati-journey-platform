@@ -160,6 +160,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
           try {
             const location = JSON.parse(locationValue);
             if (location.longitude && location.latitude) {
+              console.log('Setting initial location from JSON:', location);
               map.current.setCenter([location.longitude, location.latitude]);
               marker.current.setLngLat([location.longitude, location.latitude]);
             }
@@ -174,12 +175,19 @@ const LocationMap: React.FC<LocationMapProps> = ({
       
       // Handle geocoder result
       geocoder.current.on('result', (e) => {
+        console.log('Geocoder result:', e.result);
         const coords = e.result.center;
         if (marker.current && coords) {
           marker.current.setLngLat(coords);
           
           // Handle both callback types for compatibility
           if (onLocationSelect) {
+            console.log('Calling onLocationSelect with:', {
+              address: e.result.place_name,
+              coordinates: [coords[0], coords[1]],
+              formattedAddress: e.result.place_name
+            });
+            
             onLocationSelect({
               address: e.result.place_name,
               coordinates: [coords[0], coords[1]],
@@ -193,6 +201,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
               latitude: coords[1],
               name: e.result.place_name
             };
+            console.log('Calling onChange with:', JSON.stringify(location));
             onChange(JSON.stringify(location));
           }
         }
@@ -201,24 +210,129 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Handle marker dragend
       marker.current.on('dragend', () => {
         const lngLat = marker.current?.getLngLat();
+        console.log('Marker dragend event, new position:', lngLat);
+        
         if (lngLat) {
-          // Handle both callback types for compatibility
-          if (onLocationSelect) {
-            onLocationSelect({
-              address: 'Custom Location',
-              coordinates: [lngLat.lng, lngLat.lat],
-              formattedAddress: 'Custom Location'
+          // Reverse geocode to get address for the coordinates
+          fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxToken}`)
+            .then(response => response.json())
+            .then(data => {
+              let placeName = 'Custom Location';
+              if (data && data.features && data.features.length > 0) {
+                placeName = data.features[0].place_name;
+              }
+              
+              // Handle both callback types for compatibility
+              if (onLocationSelect) {
+                console.log('Calling onLocationSelect after drag with:', {
+                  address: placeName,
+                  coordinates: [lngLat.lng, lngLat.lat],
+                  formattedAddress: placeName
+                });
+                
+                onLocationSelect({
+                  address: placeName,
+                  coordinates: [lngLat.lng, lngLat.lat],
+                  formattedAddress: placeName
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: lngLat.lng,
+                  latitude: lngLat.lat,
+                  name: placeName
+                };
+                console.log('Calling onChange after drag with:', JSON.stringify(location));
+                onChange(JSON.stringify(location));
+              }
+            })
+            .catch(error => {
+              console.error('Error reverse geocoding:', error);
+              
+              // Fall back to using custom location
+              if (onLocationSelect) {
+                onLocationSelect({
+                  address: 'Custom Location',
+                  coordinates: [lngLat.lng, lngLat.lat],
+                  formattedAddress: 'Custom Location'
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: lngLat.lng,
+                  latitude: lngLat.lat,
+                  name: 'Custom Location'
+                };
+                onChange(JSON.stringify(location));
+              }
             });
-          }
+        }
+      });
+      
+      // Add click event to the map for selecting location
+      map.current.on('click', (e) => {
+        console.log('Map clicked at:', e.lngLat);
+        
+        if (marker.current) {
+          marker.current.setLngLat(e.lngLat);
           
-          if (onChange) {
-            const location = {
-              longitude: lngLat.lng,
-              latitude: lngLat.lat,
-              name: 'Custom Location'
-            };
-            onChange(JSON.stringify(location));
-          }
+          // Reverse geocode to get address for the coordinates
+          fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
+            .then(response => response.json())
+            .then(data => {
+              let placeName = 'Custom Location';
+              if (data && data.features && data.features.length > 0) {
+                placeName = data.features[0].place_name;
+              }
+              
+              // Handle both callback types for compatibility
+              if (onLocationSelect) {
+                console.log('Calling onLocationSelect after map click with:', {
+                  address: placeName,
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: placeName
+                });
+                
+                onLocationSelect({
+                  address: placeName,
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: placeName
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: e.lngLat.lng,
+                  latitude: e.lngLat.lat,
+                  name: placeName
+                };
+                console.log('Calling onChange after map click with:', JSON.stringify(location));
+                onChange(JSON.stringify(location));
+              }
+            })
+            .catch(error => {
+              console.error('Error reverse geocoding:', error);
+              
+              // Fall back to using custom location
+              if (onLocationSelect) {
+                onLocationSelect({
+                  address: 'Custom Location',
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                  formattedAddress: 'Custom Location'
+                });
+              }
+              
+              if (onChange) {
+                const location = {
+                  longitude: e.lngLat.lng,
+                  latitude: e.lngLat.lat,
+                  name: 'Custom Location'
+                };
+                onChange(JSON.stringify(location));
+              }
+            });
         }
       });
       
