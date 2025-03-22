@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -307,8 +308,8 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div className="container mx-auto py-8 px-4 mt-16 sm:mt-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
@@ -321,7 +322,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           <h1 className="text-2xl font-bold text-primary">Resume Builder</h1>
         </div>
         
-        <div className="flex flex-wrap gap-3 mt-2 sm:mt-0">
+        <div className="flex flex-wrap gap-3 mt-2 w-full md:w-auto justify-end">
           <Button 
             variant="outline" 
             size="sm"
