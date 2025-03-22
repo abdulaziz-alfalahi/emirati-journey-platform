@@ -143,7 +143,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
 
   return (
     <div className="container mx-auto py-6 px-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
@@ -156,7 +156,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           <h1 className="text-2xl font-bold text-primary">Resume Builder</h1>
         </div>
         
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3 mt-2 sm:mt-0">
           <Button 
             variant="outline" 
             size="sm"
@@ -186,6 +186,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
               <Button 
                 variant="default" 
                 size="sm"
+                onClick={() => setIsPreviewOpen(true)}
               >
                 <Eye size={16} className="mr-1" /> Preview
               </Button>
@@ -194,7 +195,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
               <DialogHeader>
                 <DialogTitle>Resume Preview</DialogTitle>
               </DialogHeader>
-              <Tabs defaultValue="classic" className="mt-4">
+              <Tabs defaultValue={resumeTheme} className="mt-4">
                 <div className="flex justify-between items-center mb-4">
                   <TabsList>
                     <TabsTrigger value="classic" onClick={() => setResumeTheme("classic")}>Classic</TabsTrigger>
