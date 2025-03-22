@@ -2,12 +2,14 @@
 import React from 'react';
 import { Button } from '@/components/ui/Button';
 import { LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ActionItem {
   title: string;
   description: string;
   icon: LucideIcon;
   onClick?: () => void;
+  link?: string; // Add support for link property
 }
 
 interface DashboardActionsProps {
@@ -19,10 +21,12 @@ const DashboardActions: React.FC<DashboardActionsProps> = ({ actions }) => {
     <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
       {actions.map((action, index) => {
         const Icon = action.icon;
-        return (
+        
+        // If a link is provided, wrap the button in a Link component
+        const ButtonContent = (
           <Button 
             key={index}
-            className="h-auto py-6 flex flex-col items-center justify-center" 
+            className="h-auto py-6 flex flex-col items-center justify-center w-full" 
             variant="outline"
             onClick={action.onClick}
           >
@@ -30,6 +34,14 @@ const DashboardActions: React.FC<DashboardActionsProps> = ({ actions }) => {
             <span className="text-lg font-semibold">{action.title}</span>
             <span className="text-xs text-muted-foreground mt-1">{action.description}</span>
           </Button>
+        );
+        
+        return action.link ? (
+          <Link key={index} to={action.link} className="block">
+            {ButtonContent}
+          </Link>
+        ) : (
+          ButtonContent
         );
       })}
     </div>
