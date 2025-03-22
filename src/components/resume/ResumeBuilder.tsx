@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -98,10 +97,8 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
   };
 
   const saveResume = async () => {
-    // Save to local storage as a backup
     localStorage.setItem("savedResume", JSON.stringify(resumeData));
 
-    // Check if user is logged in
     if (!user) {
       toast.warning("Authentication required", {
         description: "Please log in to save your resume to the cloud",
@@ -114,12 +111,11 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     try {
       let resumeId = currentResumeId;
 
-      // If no resume ID exists, create a new resume
       if (!resumeId) {
         const resumeTitle = resumeData.personal.fullName ? 
           `${resumeData.personal.fullName}'s Resume` : 'My Resume';
           
-        const { data: resumeData, error: resumeError } = await supabase
+        const { data: newResumeData, error: resumeError } = await supabase
           .from('resumes')
           .insert({
             user_id: user.id,
@@ -134,10 +130,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           throw resumeError;
         }
 
-        resumeId = resumeData.id;
+        resumeId = newResumeData.id;
         setCurrentResumeId(resumeId);
       } else {
-        // Update existing resume
         const resumeTitle = resumeData.personal.fullName ? 
           `${resumeData.personal.fullName}'s Resume` : 'My Resume';
           
@@ -156,7 +151,6 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         }
       }
 
-      // Check if resume data exists and update or insert accordingly
       const { data: existingData, error: checkError } = await supabase
         .from('resume_data')
         .select('id')
@@ -170,7 +164,6 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
       const resumeDataAsJson = resumeData as unknown as Json;
 
       if (existingData) {
-        // Update existing data
         const { error: dataUpdateError } = await supabase
           .from('resume_data')
           .update({
@@ -183,7 +176,6 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           throw dataUpdateError;
         }
       } else {
-        // Insert new data
         const { error: dataInsertError } = await supabase
           .from('resume_data')
           .insert({
@@ -233,10 +225,8 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
   const exportToPdf = async () => {
     setIsExporting(true);
     try {
-      // First open the preview if it's not already open
       setIsPreviewOpen(true);
       
-      // Wait for the preview to render
       setTimeout(async () => {
         const resumeElement = document.querySelector('.resume-preview-wrapper');
         if (!resumeElement) {
@@ -292,7 +282,6 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     }
   };
 
-  // Render active section content
   const renderActiveSection = () => {
     switch (activeSection) {
       case "personal":
@@ -423,4 +412,3 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
 };
 
 export default ResumeBuilder;
-
