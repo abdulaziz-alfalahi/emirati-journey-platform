@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -240,12 +239,6 @@ serve(async (req) => {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
-      }
-      
-      // Also set environment variables for the current edge function context
-      // This allows other edge functions to use the API keys
-      for (const [key, value] of Object.entries(validatedData)) {
-        Deno.env.set(key.toUpperCase(), value as string);
       }
       
       // Log the action (but don't log the actual keys for security)
