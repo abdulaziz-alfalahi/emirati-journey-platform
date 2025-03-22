@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -25,16 +24,25 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Processing resume text (first 100 chars): ${fileContent.substring(0, 100)}...`);
+    console.log(`Processing resume text (length: ${fileContent.length} chars)`);
+    console.log(`First 100 chars: ${fileContent.substring(0, 100)}...`);
 
     if (!openAIApiKey) {
       console.error('OpenAI API key is not configured');
-      throw new Error('OpenAI API key is not configured. Please add it to your Supabase secrets.');
+      return new Response(
+        JSON.stringify({ 
+          error: 'OpenAI API key is not configured. Please add it to your Supabase secrets.',
+          fallbackToRegex: true 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Create a system prompt that instructs the model how to parse resume data
     const systemPrompt = `
       You are an expert resume parser. Extract structured information from the resume text.
+      The user will provide raw resume text, and you need to parse it into structured data.
+      
       Output ONLY valid JSON with the following structure:
       {
         "personal": {
@@ -81,11 +89,19 @@ serve(async (req) => {
         ]
       }
       
+      Important parsing guidelines:
+      1. For dates, always convert to YYYY-MM format
+      2. For current positions, set current = true and endDate = null
+      3. For skills, try to determine skill level based on context, years of experience, or explicit mentions
+      4. Extract full descriptions for jobs including responsibilities and achievements
+      5. If an expected field is not found in the text, use empty string or empty array as appropriate
+      6. Do not include any explanatory text or markdown, just return valid JSON
+      7. Do your best to extract structured information even if the resume format is unusual
+      
       Do not include any explanatory text, just return the JSON object.
     `;
 
     console.log('Sending request to OpenAI...');
-    console.log('Using API key starting with:', openAIApiKey.substring(0, 5) + '...');
 
     try {
       // Call OpenAI API
@@ -101,7 +117,7 @@ serve(async (req) => {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: fileContent }
           ],
-          temperature: 0.3, // Lower temperature for more consistent results
+          temperature: 0.1, // Lower temperature for more deterministic results
         }),
       });
 
@@ -135,25 +151,39 @@ serve(async (req) => {
           );
         }
         
-        throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
+        // Other API errors
+        console.error(`General OpenAI API error: ${JSON.stringify(errorData)}`);
+        return new Response(
+          JSON.stringify({ 
+            error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}`,
+            fallbackToRegex: true 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       const data = await openAIResponse.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Unexpected response format from OpenAI');
+        console.error('Unexpected response format from OpenAI:', JSON.stringify(data));
+        return new Response(
+          JSON.stringify({ 
+            error: 'Unexpected response format from OpenAI',
+            fallbackToRegex: true 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       const generatedContent = data.choices[0].message.content;
       console.log('OpenAI response received, content length:', generatedContent.length);
 
       // Try to parse the response as JSON
-      let parsedData;
       try {
         // Find JSON object in the response (in case there's any extra text)
         const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
         const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
-        parsedData = JSON.parse(jsonString);
+        const parsedData = JSON.parse(jsonString);
         
         // Add ids to each item in arrays
         if (parsedData.experience) {
@@ -170,20 +200,31 @@ serve(async (req) => {
         }
         
         console.log('Successfully parsed resume data');
+        return new Response(
+          JSON.stringify(parsedData),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       } catch (error) {
         console.error('Error parsing JSON from OpenAI response:', error);
         console.error('Response content:', generatedContent);
-        throw new Error('Failed to parse AI response as JSON');
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to parse AI response as JSON',
+            fallbackToRegex: true 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-
-      return new Response(
-        JSON.stringify(parsedData),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
       
     } catch (apiError) {
       console.error('Error in OpenAI API call:', apiError);
-      throw apiError; // Re-throw to be caught by the outer try-catch
+      return new Response(
+        JSON.stringify({ 
+          error: apiError.message || 'Error in OpenAI API call',
+          fallbackToRegex: true 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
   } catch (error) {
     console.error('Error in extract-resume-data function:', error);

@@ -19,8 +19,8 @@ export const extractPersonalInfo = (content: string): ResumeData['personal'] => 
     personal.email = emailMatch[0];
   }
   
-  // Extract phone number
-  const phoneRegex = /\b(?:\+\d{1,3}[-. ]?)?\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}\b/;
+  // Extract phone number (improved regex)
+  const phoneRegex = /\b(?:\+?\d{1,4}[-. ]?)?(?:\(?\d{3}\)?[-. ]?|\d{3}[-. ]?)\d{3}[-. ]?\d{4}\b/;
   const phoneMatch = content.match(phoneRegex);
   if (phoneMatch) {
     personal.phone = phoneMatch[0];
@@ -29,20 +29,37 @@ export const extractPersonalInfo = (content: string): ResumeData['personal'] => 
   // Try to extract name (assuming it's at the beginning of the resume)
   const lines = content.split('\n').filter(line => line.trim().length > 0);
   if (lines.length > 0) {
-    // Assume the first non-empty line is the name
-    personal.fullName = lines[0].trim();
-    
-    // If second line looks like a job title, extract it
-    if (lines.length > 1 && !emailRegex.test(lines[1]) && !phoneRegex.test(lines[1])) {
-      personal.jobTitle = lines[1].trim();
+    // Check if first line is too long to be a name
+    const firstLine = lines[0].trim();
+    if (firstLine.length < 50 && !emailRegex.test(firstLine) && !phoneRegex.test(firstLine)) {
+      personal.fullName = firstLine;
+      
+      // If second line looks like a job title, extract it
+      if (lines.length > 1) {
+        const secondLine = lines[1].trim();
+        if (secondLine.length < 100 && !emailRegex.test(secondLine) && !phoneRegex.test(secondLine)) {
+          personal.jobTitle = secondLine;
+        }
+      }
+    }
+  }
+  
+  // Try to extract job title if not found yet
+  if (!personal.jobTitle) {
+    // Look for common job title patterns
+    const jobTitleRegex = /\b(Senior|Junior|Lead|Principal|Chief|Head of|Director|Manager|Developer|Engineer|Designer|Architect|Analyst|Consultant|Specialist|Officer|Coordinator|Administrator)\b[\s\w]+(?=\n|$)/i;
+    const jobMatch = content.match(jobTitleRegex);
+    if (jobMatch) {
+      personal.jobTitle = jobMatch[0].trim();
     }
   }
   
   // Try to extract location
   const locationPatterns = [
-    /(?:located in|location|address|residing at)\s+([^,\n]+(?:,\s*[^,\n]+)?)/i,
-    /([A-Za-z\s]+,\s*[A-Za-z\s]+,\s*(?:UAE|United Arab Emirates))/i,
-    /([A-Za-z\s]+,\s*(?:UAE|United Arab Emirates))/i,
+    /(?:located in|location|address|residing at|based in)\s+([^,\n]+(?:,\s*[^,\n]+)?)/i,
+    /([A-Za-z\s]+,\s*[A-Za-z\s]+(?:,\s*[A-Za-z\s]+)?)/i,
+    /\b([A-Za-z\s]+,\s*(?:UAE|United Arab Emirates|USA|United States|UK|Canada|Australia))\b/i,
+    /\b(Dubai|Abu Dhabi|Sharjah|Ajman|Umm Al Quwain|Fujairah|Ras Al Khaimah)(?:,\s*(?:UAE|United Arab Emirates))?\b/i,
   ];
   
   for (const pattern of locationPatterns) {
@@ -51,6 +68,13 @@ export const extractPersonalInfo = (content: string): ResumeData['personal'] => 
       personal.location = match[1].trim();
       break;
     }
+  }
+  
+  // Try to extract LinkedIn profile
+  const linkedinRegex = /(?:linkedin\.com\/in\/|linkedin profile:?\s*)([\w-]+)/i;
+  const linkedinMatch = content.match(linkedinRegex);
+  if (linkedinMatch && linkedinMatch[1]) {
+    personal.linkedin = `https://linkedin.com/in/${linkedinMatch[1]}`;
   }
   
   return personal;

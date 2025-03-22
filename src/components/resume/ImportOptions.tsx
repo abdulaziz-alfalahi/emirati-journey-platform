@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/Button';
@@ -30,31 +31,55 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     setUploadError(null);
     setUsingFallback(false);
     
-    const toastId = toast.info("AI Resume Processing", {
-      description: "Extracting data using AI...",
+    // Show initial toast
+    const toastId = toast.loading("Processing Resume", {
+      description: "Analyzing your resume...",
     });
     
     try {
-      toast.info("AI Resume Processing", {
-        id: toastId,
-        description: "Reading file and sending to AI service...",
-      });
+      // Check file size
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        throw new Error("File too large. Please upload a file smaller than 5MB.");
+      }
       
-      const parsedData = await parseResumeFromFile(file);
-      
-      if (usingFallback) {
-        toast.warning("Limited Extraction", {
-          description: "Used basic extraction method. Data might be incomplete. Please check and edit the results.",
-        });
-      } else {
-        toast.success("AI Resume Analysis Complete", {
-          description: "Your resume has been processed and data extracted successfully.",
+      // Check file type
+      const supportedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+      if (!supportedTypes.includes(file.type)) {
+        toast.warning("Unsupported file type", {
+          id: toastId,
+          description: "For best results, use PDF, DOC, DOCX, or TXT files.",
         });
       }
       
+      // Update toast to show extraction in progress
+      toast.loading("Extracting Data", {
+        id: toastId,
+        description: "Reading file and extracting information...",
+      });
+      
+      // Parse the resume
+      const parsedData = await parseResumeFromFile(file);
+      
+      // Check if we received data
+      if (!parsedData || (
+        (!parsedData.personal || Object.values(parsedData.personal).filter(Boolean).length === 0) && 
+        (!parsedData.experience || parsedData.experience.length === 0) &&
+        (!parsedData.education || parsedData.education.length === 0)
+      )) {
+        throw new Error("Could not extract meaningful data from your resume. Please try a different file.");
+      }
+      
+      // Success toast
+      toast.success("Resume Processed", {
+        id: toastId,
+        description: "Your resume has been processed successfully.",
+      });
+      
+      // Merge the data with existing data
       const mergedData = mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
       
+      // Close the dialog
       setFileDialogOpen(false);
     } catch (error) {
       console.error('Error parsing resume:', error);
@@ -62,36 +87,52 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume file";
       setUploadError(errorMessage);
       
-      toast.error("Error processing resume", {
+      toast.error("Error Processing Resume", {
+        id: toastId,
         description: errorMessage,
       });
     } finally {
       setIsUploading(false);
+      // Reset the file input
       e.target.value = '';
     }
   };
 
   const handleLinkedInExtract = async () => {
     if (!linkedInUrl.trim()) {
-      toast.error("LinkedIn URL required", {
+      toast.error("LinkedIn URL Required", {
         description: "Please enter your LinkedIn profile URL",
       });
       return;
     }
 
+    // Validate LinkedIn URL format
+    if (!linkedInUrl.includes('linkedin.com/in/')) {
+      toast.error("Invalid LinkedIn URL", {
+        description: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile)",
+      });
+      return;
+    }
+
     setIsExtracting(true);
+    const toastId = toast.loading("Connecting to LinkedIn", {
+      description: "Extracting your profile data...",
+    });
+    
     try {
       const linkedInData = await extractFromLinkedIn(linkedInUrl);
       const mergedData = mergeResumeData(currentData, linkedInData);
       onImportComplete(mergedData);
       
-      toast.success("LinkedIn data extracted", {
-        description: "Your LinkedIn profile data has been imported and merged with your current draft.",
+      toast.success("LinkedIn Import Complete", {
+        id: toastId,
+        description: "Your LinkedIn profile data has been imported and merged with your current resume.",
       });
       
       setLinkedInDialogOpen(false);
     } catch (error) {
-      toast.error("Error extracting LinkedIn data", {
+      toast.error("LinkedIn Import Failed", {
+        id: toastId,
         description: error instanceof Error ? error.message : "Failed to extract data from LinkedIn",
       });
     } finally {
