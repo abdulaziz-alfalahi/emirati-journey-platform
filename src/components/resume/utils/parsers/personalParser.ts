@@ -1,15 +1,16 @@
 
-import { ResumeData } from '../../types';
+import { ResumeData, PersonalInfo } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Extract personal information from resume content
-export const extractPersonalInfo = (content: string): ResumeData['personal'] => {
+export const extractPersonalInfo = (content: string): PersonalInfo => {
   const personal = {
     fullName: '',
     jobTitle: '',
     email: '',
     phone: '',
     location: '',
+    linkedin: '' // Add default empty LinkedIn property
   };
   
   // Extract email using regex
