@@ -113,7 +113,7 @@ serve(async (req) => {
             error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.',
             fallbackToRegex: true 
           }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
@@ -169,7 +169,7 @@ serve(async (req) => {
         error: error.message || 'Unknown error occurred',
         fallbackToRegex: true 
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

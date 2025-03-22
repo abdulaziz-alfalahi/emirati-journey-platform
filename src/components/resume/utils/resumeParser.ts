@@ -26,12 +26,13 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         try {
           console.log('Calling AI extraction service...');
           // Call the Edge Function to extract data using AI
-          const { data, error, status } = await supabase.functions.invoke('extract-resume-data', {
+          const { data, error } = await supabase.functions.invoke('extract-resume-data', {
             body: { fileContent },
           });
           
-          // Check for API quota errors specifically - Edge Function will return status 429
-          if (status === 429 || (error && data?.fallbackToRegex)) {
+          // Check for API quota errors specifically
+          // The edge function returns { fallbackToRegex: true } when AI quota is exceeded
+          if (error || (data && data.fallbackToRegex)) {
             console.warn('AI quota exceeded or API error, falling back to regex extraction...');
             const fallbackData = extractDataFromContent(fileContent, file.type);
             resolve(fallbackData);
