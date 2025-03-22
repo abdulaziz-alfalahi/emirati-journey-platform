@@ -7,6 +7,7 @@ interface ActionItem {
   title: string;
   description: string;
   icon: LucideIcon;
+  onClick?: () => void;
 }
 
 interface DashboardActionsProps {
@@ -23,6 +24,7 @@ const DashboardActions: React.FC<DashboardActionsProps> = ({ actions }) => {
             key={index}
             className="h-auto py-6 flex flex-col items-center justify-center" 
             variant="outline"
+            onClick={action.onClick}
           >
             <Icon className="h-6 w-6 mb-2" />
             <span className="text-lg font-semibold">{action.title}</span>
