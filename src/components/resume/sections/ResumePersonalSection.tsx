@@ -105,8 +105,8 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
               </TabsContent>
               <TabsContent value="map" className="mt-2">
                 <LocationMap 
-                  initialLocation={data.location} 
-                  onLocationSelect={handleLocationSelect} 
+                  initialLocation={data.location}
+                  onLocationSelect={handleLocationSelect}
                 />
                 <Input
                   id="location"

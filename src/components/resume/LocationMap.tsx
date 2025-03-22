@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -7,11 +8,22 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LocationMapProps {
-  value?: string;
-  onChange: (location: string) => void;
+  initialLocation?: string;
+  onLocationSelect: (locationData: { 
+    address: string; 
+    coordinates: [number, number]; 
+    formattedAddress: string;
+  }) => void;
+  value?: string; // Keep compatibility with old implementation
+  onChange?: (location: string) => void; // Keep compatibility with old implementation
 }
 
-const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
+const LocationMap: React.FC<LocationMapProps> = ({ 
+  initialLocation, 
+  onLocationSelect,
+  value, // For backward compatibility
+  onChange // For backward compatibility
+}) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
@@ -85,11 +97,20 @@ const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
         .addTo(map.current);
       
       // Set initial marker position if value provided
-      if (value) {
+      const locationValue = initialLocation || value;
+      if (locationValue) {
         try {
-          const location = JSON.parse(value);
-          map.current.setCenter([location.longitude, location.latitude]);
-          marker.current.setLngLat([location.longitude, location.latitude]);
+          // Try to parse as JSON first (from old implementation)
+          try {
+            const location = JSON.parse(locationValue);
+            if (location.longitude && location.latitude) {
+              map.current.setCenter([location.longitude, location.latitude]);
+              marker.current.setLngLat([location.longitude, location.latitude]);
+            }
+          } catch (e) {
+            // If not JSON, just use as address string
+            console.log('Using location as string:', locationValue);
+          }
         } catch (e) {
           console.error('Error parsing location:', e);
         }
@@ -100,12 +121,24 @@ const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
         const coords = e.result.center;
         if (marker.current && coords) {
           marker.current.setLngLat(coords);
-          const location = {
-            longitude: coords[0],
-            latitude: coords[1],
-            name: e.result.place_name
-          };
-          onChange(JSON.stringify(location));
+          
+          // Handle both callback types for compatibility
+          if (onLocationSelect) {
+            onLocationSelect({
+              address: e.result.place_name,
+              coordinates: [coords[0], coords[1]],
+              formattedAddress: e.result.place_name
+            });
+          }
+          
+          if (onChange) {
+            const location = {
+              longitude: coords[0],
+              latitude: coords[1],
+              name: e.result.place_name
+            };
+            onChange(JSON.stringify(location));
+          }
         }
       });
       
@@ -113,12 +146,23 @@ const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
       marker.current.on('dragend', () => {
         const lngLat = marker.current?.getLngLat();
         if (lngLat) {
-          const location = {
-            longitude: lngLat.lng,
-            latitude: lngLat.lat,
-            name: 'Custom Location'
-          };
-          onChange(JSON.stringify(location));
+          // Handle both callback types for compatibility
+          if (onLocationSelect) {
+            onLocationSelect({
+              address: 'Custom Location',
+              coordinates: [lngLat.lng, lngLat.lat],
+              formattedAddress: 'Custom Location'
+            });
+          }
+          
+          if (onChange) {
+            const location = {
+              longitude: lngLat.lng,
+              latitude: lngLat.lat,
+              name: 'Custom Location'
+            };
+            onChange(JSON.stringify(location));
+          }
         }
       });
       
@@ -131,7 +175,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ value, onChange }) => {
       map.current?.remove();
       map.current = null;
     };
-  }, [mapboxToken, value, onChange]);
+  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect]);
   
   const saveCustomToken = () => {
     if (customToken) {
