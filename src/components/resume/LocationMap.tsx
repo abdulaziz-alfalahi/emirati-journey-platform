@@ -160,11 +160,17 @@ const LocationMap: React.FC<LocationMapProps> = ({
     
     setSelectedLocation(coordinates);
     
-    // Check if the source already exists
-    const source = map.current.getSource(privacyCircleSourceId);
-    
-    if (!source) {
-      // If source doesn't exist, add it
+    try {
+      // Always remove the previous source and layer if they exist
+      if (map.current.getLayer(privacyCircleId)) {
+        map.current.removeLayer(privacyCircleId);
+      }
+      
+      if (map.current.getSource(privacyCircleSourceId)) {
+        map.current.removeSource(privacyCircleSourceId);
+      }
+      
+      // Add the source and layer again
       map.current.addSource(privacyCircleSourceId, {
         type: 'geojson',
         data: {
@@ -193,16 +199,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
       });
       
       setCircleAdded(true);
-    } else {
-      // If source exists, update its data
-      (map.current.getSource(privacyCircleSourceId) as mapboxgl.GeoJSONSource).setData({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: coordinates
-        },
-        properties: {}
-      });
+    } catch (error) {
+      console.error('Error updating privacy circle:', error);
     }
   }, []);
   
@@ -243,7 +241,11 @@ const LocationMap: React.FC<LocationMapProps> = ({
             if (location.longitude && location.latitude) {
               console.log('Setting initial location from JSON:', location);
               map.current.setCenter([location.longitude, location.latitude]);
-              updatePrivacyCircle([location.longitude, location.latitude]);
+              
+              // Wait for the map to be loaded before adding the circle
+              map.current.once('load', () => {
+                updatePrivacyCircle([location.longitude, location.latitude]);
+              });
             }
           } catch (e) {
             // If not JSON, just use as address string
@@ -256,6 +258,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
       
       // Wait for map to load before adding handlers
       map.current.on('load', () => {
+        console.log('Map loaded, setting up event handlers');
+        
         // Handle geocoder result
         if (geocoder.current) {
           geocoder.current.on('result', (e) => {
@@ -359,6 +363,26 @@ const LocationMap: React.FC<LocationMapProps> = ({
         });
       });
       
+      // Add event listener for style changes (which can remove layers)
+      map.current.on('style.load', () => {
+        console.log('Map style loaded/changed, re-adding circle if needed');
+        if (selectedLocation) {
+          // Small delay to ensure the map is ready
+          setTimeout(() => {
+            updatePrivacyCircle(selectedLocation);
+          }, 100);
+        }
+      });
+      
+      // Add event listener for map move end
+      map.current.on('moveend', () => {
+        console.log('Map move ended, ensuring circle is visible');
+        if (selectedLocation) {
+          // Re-add the circle after map movements
+          updatePrivacyCircle(selectedLocation);
+        }
+      });
+      
     } catch (error) {
       console.error('Error initializing map:', error);
       setTokenError('Failed to initialize map. Please verify your Mapbox token.');
@@ -369,28 +393,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
       map.current = null;
     };
   }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle]);
-  
-  // Effect to re-add the circle on map style changes (which can remove it)
-  useEffect(() => {
-    if (!map.current || !selectedLocation) return;
-    
-    const handleStyleChange = () => {
-      // Reapply the circle when the map style changes
-      if (selectedLocation && circleAdded) {
-        setTimeout(() => {
-          updatePrivacyCircle(selectedLocation);
-        }, 200);
-      }
-    };
-    
-    map.current.on('style.load', handleStyleChange);
-    
-    return () => {
-      if (map.current) {
-        map.current.off('style.load', handleStyleChange);
-      }
-    };
-  }, [selectedLocation, circleAdded, updatePrivacyCircle]);
   
   const saveCustomToken = () => {
     if (customToken) {
