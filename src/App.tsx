@@ -12,6 +12,7 @@ import AuthPage from "./pages/auth";
 import ProfilePage from "./pages/profile";
 import DashboardPage from "./pages/dashboard";
 import ResumeBuilderPage from "./pages/resume-builder";
+import ApiKeysPage from "./pages/api-keys";
 import React from "react"; // Add explicit React import
 
 // Create QueryClient outside of the component to avoid recreation on re-renders
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                <Route path="/api-keys" element={<ApiKeysPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

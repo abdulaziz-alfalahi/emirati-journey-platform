@@ -92,3 +92,9 @@ gcp_jwt_path = "supabase/gcloud.json"
   
   [functions.seed-test-accounts]
   verify_jwt = false
+  
+  [functions.get-api-keys]
+  verify_jwt = true
+  
+  [functions.update-api-keys]
+  verify_jwt = true
