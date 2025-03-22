@@ -1,16 +1,16 @@
-
 /**
  * Resume parser utility for extracting data from uploaded resume files
  */
 import { ResumeData } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/integrations/supabase/client';
 
 // Parse resume from uploaded file
 export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeData>> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const fileContent = e.target?.result as string;
         
@@ -20,11 +20,34 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           return;
         }
         
-        console.log('Parsing file content:', fileContent.substring(0, 200) + '...');
+        console.log('File read complete. Content length:', fileContent.length);
         
-        // Extract data from file content
-        const parsedData = extractDataFromContent(fileContent, file.type);
-        resolve(parsedData);
+        try {
+          console.log('Calling AI extraction service...');
+          // Call the Edge Function to extract data using AI
+          const { data, error } = await supabase.functions.invoke('extract-resume-data', {
+            body: { fileContent },
+          });
+          
+          if (error) {
+            console.error('Edge function error:', error);
+            throw new Error(`AI extraction failed: ${error.message}`);
+          }
+          
+          if (!data) {
+            throw new Error('No data returned from AI extraction service');
+          }
+          
+          console.log('AI extraction successful');
+          resolve(data);
+        } catch (error) {
+          console.error('AI extraction error:', error);
+          console.log('Falling back to regex extraction...');
+          
+          // Fallback to the original extraction method
+          const parsedData = extractDataFromContent(fileContent, file.type);
+          resolve(parsedData);
+        }
       } catch (error) {
         console.error('Error parsing resume:', error);
         reject(new Error('Failed to parse resume file. Please try a different file.'));
@@ -134,7 +157,7 @@ const extractExperience = (content: string): ResumeData['experience'] => {
     const expContent = experienceSection[0];
     
     // Try to identify individual roles/positions
-    const companyRegex = /(?:^|\n)([A-Za-z0-9\s&.,]+)(?:\s*[-|–]\s*|\s*\|\s*|\s*at\s*|\n)([A-Za-z0-9\s&.,]+)(?:\n|\s+)(?:((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*\d{4})\s*(?:[-–]\s*)((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*\d{4}|Present))?/gmi;
+    const companyRegex = /(?:^|\n)([A-Za-z0-9\s&.,]+)(?:\s*[-|–]\s*|\s*\|\s*|\n)([A-Za-z0-9\s&.,]+)(?:\n|\s+)(?:((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*\d{4})\s*(?:[-–]\s*)((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*\d{4}|Present))?/gmi;
     
     let match;
     while ((match = companyRegex.exec(expContent)) !== null) {

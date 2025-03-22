@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Linkedin } from 'lucide-react';
+import { Upload, Linkedin, Brain } from 'lucide-react';
 import { ResumeData } from './types';
 import { useToast } from '@/hooks/use-toast';
 import { parseResumeFromFile, extractFromLinkedIn, mergeResumeData } from './utils/resumeParser';
@@ -27,26 +27,41 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     if (!file) return;
 
     setIsUploading(true);
+    
+    // Create a toast ID for updating the toast later
+    const toastId = toast({
+      title: "AI Resume Processing",
+      description: "Extracting data using AI...",
+    }).id;
+    
     try {
+      // Update toast with processing message
       toast({
-        title: "Processing resume",
-        description: "Extracting data from your resume...",
+        id: toastId,
+        title: "AI Resume Processing",
+        description: "Reading file and sending to AI service...",
       });
       
       const parsedData = await parseResumeFromFile(file);
+      
+      // Update toast with success message
+      toast({
+        id: toastId,
+        title: "AI Resume Analysis Complete",
+        description: "Your resume has been processed using AI and data extracted successfully.",
+      });
+      
       const mergedData = mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
-      
-      toast({
-        title: "Resume parsed successfully",
-        description: "Your resume data has been imported and merged with your current draft.",
-      });
       
       setFileDialogOpen(false);
     } catch (error) {
       console.error('Error parsing resume:', error);
+      
+      // Update toast with error message
       toast({
-        title: "Error parsing resume",
+        id: toastId,
+        title: "Error processing resume",
         description: error instanceof Error ? error.message : "Failed to parse resume file",
         variant: "destructive",
       });
@@ -104,7 +119,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           <DialogHeader>
             <DialogTitle>Upload Resume</DialogTitle>
             <DialogDescription>
-              Upload your resume file to extract information automatically.
+              Upload your resume file to extract information using AI.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -124,7 +139,8 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
             {isUploading && (
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-                <span className="ml-2">Extracting data...</span>
+                <span className="ml-2">AI Processing Resume...</span>
+                <Brain size={18} className="ml-2 text-blue-500" />
               </div>
             )}
           </div>
