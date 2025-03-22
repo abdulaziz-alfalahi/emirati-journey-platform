@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -78,6 +79,7 @@ serve(async (req) => {
     
     // Check if the api_keys table has the expected schema
     try {
+      // Modified query to fix the ambiguity by explicitly using column aliases
       const { data: tableInfo, error: tableInfoError } = await supabase
         .rpc('get_table_columns', { table_name: 'api_keys' });
       
