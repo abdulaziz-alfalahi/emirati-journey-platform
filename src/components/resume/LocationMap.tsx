@@ -275,7 +275,9 @@ const LocationMap: React.FC<LocationMapProps> = ({
       map.current.on('click', (e) => {
         console.log('Map clicked at:', e.lngLat);
         
+        // Update marker position when the map is clicked
         if (marker.current) {
+          // This is the fix: Update marker position immediately on click
           marker.current.setLngLat(e.lngLat);
           
           // Reverse geocode to get address for the coordinates
