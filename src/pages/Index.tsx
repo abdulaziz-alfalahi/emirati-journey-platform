@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Hero from '@/components/home/Hero';
 import JourneyStages from '@/components/home/JourneyStages';
@@ -21,9 +22,9 @@ const Index = () => {
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
             Join thousands of Emiratis transforming their careers through our comprehensive platform.
           </p>
-          <button className="bg-white text-emirati-navy hover:bg-emirati-gold hover:text-white transition-colors duration-300 font-medium py-4 px-8 rounded-full text-lg shadow-lg">
+          <Link to="/resume-builder" className="inline-block bg-white text-emirati-navy hover:bg-emirati-gold hover:text-white transition-colors duration-300 font-medium py-4 px-8 rounded-full text-lg shadow-lg">
             Get Started Today
-          </button>
+          </Link>
         </div>
       </section>
     </Layout>
