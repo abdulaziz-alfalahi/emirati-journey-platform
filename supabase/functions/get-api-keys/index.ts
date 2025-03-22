@@ -41,7 +41,7 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+      return new Response(JSON.stringify({ error: 'Unauthorized', details: authError?.message }), { 
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
@@ -83,6 +83,10 @@ serve(async (req) => {
     
     if (apiKeysError) {
       console.error('Error fetching API keys from database:', apiKeysError);
+      return new Response(JSON.stringify({ error: 'Failed to fetch API keys', details: apiKeysError.message }), { 
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
     
     // Create a response object with the API keys
@@ -90,12 +94,29 @@ serve(async (req) => {
     
     // If we have data from the database, use it
     if (apiKeysData && apiKeysData.length > 0) {
-      // Convert all keys to both uppercase and original case
+      // Add all keys in multiple formats to ensure compatibility
       Object.entries(apiKeysData[0]).forEach(([key, value]) => {
         if (typeof value === 'string' && key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
-          // Include both the original case and uppercase version
+          // Original case
           apiKeys[key] = value;
+          
+          // Uppercase version
           apiKeys[key.toUpperCase()] = value;
+          
+          // Lowercase version
+          apiKeys[key.toLowerCase()] = value;
+          
+          // Camel case version (for keys with underscores)
+          if (key.includes('_')) {
+            const camelCase = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+            apiKeys[camelCase] = value;
+          }
+          
+          // Dash version (for keys with underscores)
+          if (key.includes('_')) {
+            const dashCase = key.replace(/_/g, '-');
+            apiKeys[dashCase] = value;
+          }
         }
       });
     }
@@ -112,15 +133,28 @@ serve(async (req) => {
     for (const key of envKeys) {
       const envValue = Deno.env.get(key);
       if (envValue) {
+        // Add the key in multiple formats
         apiKeys[key] = envValue;
-        // Also add lowercase version
         apiKeys[key.toLowerCase()] = envValue;
+        apiKeys[key.toUpperCase()] = envValue;
+        
+        // Camel case version
+        if (key.includes('_')) {
+          const camelCase = key.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+          apiKeys[camelCase] = envValue;
+        }
+        
+        // Dash version
+        if (key.includes('_')) {
+          const dashCase = key.replace(/_/g, '-');
+          apiKeys[dashCase] = envValue;
+        }
       }
     }
 
     // Logs for debugging
     console.log(`API keys retrieved successfully for user ${user.id}`);
-    console.log('Available keys:', Object.keys(apiKeys).filter(k => apiKeys[k]));
+    console.log('Available keys:', Object.keys(apiKeys));
 
     return new Response(JSON.stringify(apiKeys), { 
       status: 200,
@@ -129,7 +163,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error getting API keys:', error);
     
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+    return new Response(JSON.stringify({ error: 'Internal server error', details: error.message }), { 
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
