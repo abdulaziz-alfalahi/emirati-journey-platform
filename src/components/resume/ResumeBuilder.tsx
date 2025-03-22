@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { v4 as uuidv4 } from 'uuid';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Json } from "@/integrations/supabase/types";
 
 interface ResumeBuilderProps {
   template: ResumeTemplate;
@@ -36,6 +37,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
   const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
   
   // Initialize resume data
   const [resumeData, setResumeData] = useState<ResumeData>({
@@ -114,11 +116,14 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
 
       // If no resume ID exists, create a new resume
       if (!resumeId) {
+        const resumeTitle = resumeData.personal.fullName ? 
+          `${resumeData.personal.fullName}'s Resume` : 'My Resume';
+          
         const { data: resumeData, error: resumeError } = await supabase
           .from('resumes')
           .insert({
             user_id: user.id,
-            title: resumeData.personal.fullName ? `${resumeData.personal.fullName}'s Resume` : 'My Resume',
+            title: resumeTitle,
             template_id: template.id,
             theme: resumeTheme
           })
@@ -133,10 +138,13 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         setCurrentResumeId(resumeId);
       } else {
         // Update existing resume
+        const resumeTitle = resumeData.personal.fullName ? 
+          `${resumeData.personal.fullName}'s Resume` : 'My Resume';
+          
         const { error: updateError } = await supabase
           .from('resumes')
           .update({
-            title: resumeData.personal.fullName ? `${resumeData.personal.fullName}'s Resume` : 'My Resume',
+            title: resumeTitle,
             template_id: template.id,
             theme: resumeTheme,
             updated_at: new Date().toISOString()
@@ -159,12 +167,14 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         throw checkError;
       }
 
+      const resumeDataAsJson = resumeData as unknown as Json;
+
       if (existingData) {
         // Update existing data
         const { error: dataUpdateError } = await supabase
           .from('resume_data')
           .update({
-            data: resumeData,
+            data: resumeDataAsJson,
             updated_at: new Date().toISOString()
           })
           .eq('id', existingData.id);
@@ -178,7 +188,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
           .from('resume_data')
           .insert({
             resume_id: resumeId,
-            data: resumeData
+            data: resumeDataAsJson
           });
 
         if (dataInsertError) {
@@ -234,7 +244,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         }
 
         try {
-          const canvas = await html2canvas(resumeElement, {
+          const canvas = await html2canvas(resumeElement as HTMLElement, {
             scale: 2,
             useCORS: true,
             logging: false
@@ -373,17 +383,17 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
                 </div>
                 
                 <TabsContent value="classic" className="mt-0">
-                  <div className="resume-preview-wrapper">
+                  <div className="resume-preview-wrapper" ref={previewRef}>
                     <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
                   </div>
                 </TabsContent>
                 <TabsContent value="modern" className="mt-0">
-                  <div className="resume-preview-wrapper">
+                  <div className="resume-preview-wrapper" ref={previewRef}>
                     <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
                   </div>
                 </TabsContent>
                 <TabsContent value="minimalist" className="mt-0">
-                  <div className="resume-preview-wrapper">
+                  <div className="resume-preview-wrapper" ref={previewRef}>
                     <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
                   </div>
                 </TabsContent>
@@ -413,3 +423,4 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
 };
 
 export default ResumeBuilder;
+
