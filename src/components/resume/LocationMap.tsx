@@ -1,11 +1,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
-
-// Set the Mapbox token
-// In a production environment, this should come from environment variables
-mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZWFpIiwiYSI6ImNsdmh0MzFueTBhaTkybW1panZhZmg5NWcifQ.a-KoWt2GgS5HZtkVojI1Qw';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -23,10 +24,48 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
   const privacyCircle = useRef<mapboxgl.GeoJSONSource | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [mapboxToken, setMapboxToken] = useState<string>('');
+  const { user } = useAuth();
+
+  // Fetch Mapbox token
+  useEffect(() => {
+    const fetchMapboxToken = async () => {
+      try {
+        // Try to get from admin API first (if user is logged in and admin)
+        if (user) {
+          const { data, error } = await supabase.functions.invoke('get-api-keys');
+          if (!error && data && data.MAPBOX_ACCESS_TOKEN) {
+            setMapboxToken(data.MAPBOX_ACCESS_TOKEN);
+            return;
+          }
+        }
+        
+        // Fallback to local storage
+        const storedToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
+        if (storedToken) {
+          setMapboxToken(storedToken);
+          return;
+        }
+        
+        // If no token is available, check if we're in development mode
+        if (import.meta.env.DEV) {
+          setError('Mapbox token not found. Please add it in the API Keys page.');
+        }
+      } catch (e) {
+        console.error('Error fetching Mapbox token:', e);
+        setError('Failed to load Mapbox token. Please try again later.');
+      }
+    };
+
+    fetchMapboxToken();
+  }, [user]);
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || !mapboxToken) return;
+
+    // Set the token
+    mapboxgl.accessToken = mapboxToken;
 
     const initializeMap = async () => {
       setLoading(true);
@@ -39,7 +78,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
         if (initialLocation) {
           try {
             const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(initialLocation)}.json?access_token=${mapboxgl.accessToken}`
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(initialLocation)}.json?access_token=${mapboxToken}`
             );
             const data = await response.json();
             
@@ -65,8 +104,8 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
         map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
         
         // Add geocoder control
-        const geocoder = new mapboxgl.Geocoder({
-          accessToken: mapboxgl.accessToken,
+        const geocoder = new MapboxGeocoder({
+          accessToken: mapboxToken,
           mapboxgl: mapboxgl,
           marker: false, // We'll add our own marker
           placeholder: 'Search for your general area',
@@ -147,7 +186,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
         map.current.remove();
       }
     };
-  }, [initialLocation]);
+  }, [initialLocation, mapboxToken]);
 
   // Create a GeoJSON circle feature for the privacy area
   const createGeoJSONCircle = (center: [number, number], radiusInKm: number, points: number = 64) => {
@@ -183,7 +222,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
 
   // Update location based on marker position
   const updateLocation = async (placeName?: string) => {
-    if (!marker.current || !map.current) return;
+    if (!marker.current || !map.current || !mapboxToken) return;
 
     const coordinates = marker.current.getLngLat().toArray() as [number, number];
 
@@ -197,7 +236,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
     if (!formattedAddress) {
       try {
         const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxgl.accessToken}`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxToken}`
         );
         const data = await response.json();
         
@@ -217,6 +256,42 @@ const LocationMap: React.FC<LocationMapProps> = ({ initialLocation, onLocationSe
       formattedAddress: formattedAddress
     });
   };
+
+  // If no token, show token input
+  if (!mapboxToken) {
+    return (
+      <div className="relative w-full h-[400px] rounded-md overflow-hidden flex flex-col items-center justify-center border border-input bg-muted p-6">
+        <div className="text-center space-y-4 max-w-md">
+          <h3 className="text-lg font-medium">Mapbox API Key Required</h3>
+          <p className="text-sm text-muted-foreground">
+            To use the location feature, please provide your Mapbox API key. You can add it in the API Keys page if you're an administrator.
+          </p>
+          <div className="space-y-2">
+            <label htmlFor="mapbox-token" className="text-sm font-medium">
+              Mapbox Access Token (will be stored in browser only)
+            </label>
+            <input
+              id="mapbox-token"
+              type="text"
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="pk.eyJ1Ijoi..."
+              onChange={(e) => {
+                const token = e.target.value.trim();
+                if (token) {
+                  setMapboxToken(token);
+                  localStorage.setItem('MAPBOX_ACCESS_TOKEN', token);
+                  toast.success("Mapbox token saved in browser storage");
+                }
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Your token will only be stored in your browser's local storage and not sent to any server.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[400px] rounded-md overflow-hidden">
