@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ResumeTemplate, ResumeData } from './types';
 import ResumePreview from './ResumePreview';
 import ResumePersonalSection from './sections/ResumePersonalSection';
@@ -15,6 +16,11 @@ import ResumeExperienceSection from './sections/ResumeExperienceSection';
 import ResumeSkillsSection from './sections/ResumeSkillsSection';
 import ResumeSummarySection from './sections/ResumeSummarySection';
 import ResumeSidebar from './ResumeSidebar';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
+import { v4 as uuidv4 } from 'uuid';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface ResumeBuilderProps {
   template: ResumeTemplate;
@@ -22,10 +28,14 @@ interface ResumeBuilderProps {
 }
 
 const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<string>("personal");
   const [resumeTheme, setResumeTheme] = useState<"classic" | "modern" | "minimalist">("classic");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [currentResumeId, setCurrentResumeId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   
   // Initialize resume data
   const [resumeData, setResumeData] = useState<ResumeData>({
@@ -47,6 +57,18 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     projects: [],
     achievements: []
   });
+
+  // Load saved resume from local storage on first render
+  useEffect(() => {
+    const savedResume = localStorage.getItem("savedResume");
+    if (savedResume) {
+      try {
+        setResumeData(JSON.parse(savedResume));
+      } catch (error) {
+        console.error("Error parsing saved resume:", error);
+      }
+    }
+  }, []);
 
   // Handler functions
   const handlePersonalInfoChange = (personal: ResumeData['personal']) => {
@@ -73,12 +95,111 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     setResumeData(prev => ({ ...prev, languages }));
   };
 
-  const saveResume = () => {
+  const saveResume = async () => {
+    // Save to local storage as a backup
     localStorage.setItem("savedResume", JSON.stringify(resumeData));
-    toast({
-      title: "Resume Saved",
-      description: "Your resume has been saved successfully!"
-    });
+
+    // Check if user is logged in
+    if (!user) {
+      toast.warning("Authentication required", {
+        description: "Please log in to save your resume to the cloud",
+        duration: 5000,
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      let resumeId = currentResumeId;
+
+      // If no resume ID exists, create a new resume
+      if (!resumeId) {
+        const { data: resumeData, error: resumeError } = await supabase
+          .from('resumes')
+          .insert({
+            user_id: user.id,
+            title: resumeData.personal.fullName ? `${resumeData.personal.fullName}'s Resume` : 'My Resume',
+            template_id: template.id,
+            theme: resumeTheme
+          })
+          .select('id')
+          .single();
+
+        if (resumeError) {
+          throw resumeError;
+        }
+
+        resumeId = resumeData.id;
+        setCurrentResumeId(resumeId);
+      } else {
+        // Update existing resume
+        const { error: updateError } = await supabase
+          .from('resumes')
+          .update({
+            title: resumeData.personal.fullName ? `${resumeData.personal.fullName}'s Resume` : 'My Resume',
+            template_id: template.id,
+            theme: resumeTheme,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', resumeId);
+
+        if (updateError) {
+          throw updateError;
+        }
+      }
+
+      // Check if resume data exists and update or insert accordingly
+      const { data: existingData, error: checkError } = await supabase
+        .from('resume_data')
+        .select('id')
+        .eq('resume_id', resumeId)
+        .maybeSingle();
+
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (existingData) {
+        // Update existing data
+        const { error: dataUpdateError } = await supabase
+          .from('resume_data')
+          .update({
+            data: resumeData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingData.id);
+
+        if (dataUpdateError) {
+          throw dataUpdateError;
+        }
+      } else {
+        // Insert new data
+        const { error: dataInsertError } = await supabase
+          .from('resume_data')
+          .insert({
+            resume_id: resumeId,
+            data: resumeData
+          });
+
+        if (dataInsertError) {
+          throw dataInsertError;
+        }
+      }
+
+      uiToast({
+        title: "Resume Saved",
+        description: "Your resume has been saved successfully!"
+      });
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      uiToast({
+        title: "Error Saving Resume",
+        description: "There was a problem saving your resume. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const downloadResume = () => {
@@ -93,27 +214,72 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     link.click();
     document.body.removeChild(link);
     
-    toast({
+    uiToast({
       title: "Resume Downloaded",
       description: "Your resume has been downloaded as JSON",
     });
   };
 
-  const exportToPdf = () => {
-    toast({
-      title: "PDF Export",
-      description: "Your resume has been exported as PDF (demo functionality)",
-    });
-    
-    // Simulate downloading PDF
-    setTimeout(() => {
-      const filename = `${resumeData.personal.fullName.replace(/\s+/g, '_') || 'resume'}_resume.pdf`;
+  const exportToPdf = async () => {
+    setIsExporting(true);
+    try {
+      // First open the preview if it's not already open
+      setIsPreviewOpen(true);
       
-      toast({
-        title: "PDF Ready",
-        description: `${filename} has been prepared for download`,
+      // Wait for the preview to render
+      setTimeout(async () => {
+        const resumeElement = document.querySelector('.resume-preview-wrapper');
+        if (!resumeElement) {
+          throw new Error('Resume preview not found');
+        }
+
+        try {
+          const canvas = await html2canvas(resumeElement, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+          
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const imgWidth = canvas.width;
+          const imgHeight = canvas.height;
+          const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+          
+          const imgX = (pdfWidth - imgWidth * ratio) / 2;
+          const imgY = 0;
+          
+          pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+          
+          const filename = `${resumeData.personal.fullName.replace(/\s+/g, '_') || 'resume'}_resume.pdf`;
+          pdf.save(filename);
+          
+          uiToast({
+            title: "PDF Export Complete",
+            description: `${filename} has been downloaded`,
+          });
+        } catch (error) {
+          console.error('PDF generation error:', error);
+          throw error;
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      uiToast({
+        title: "PDF Export Failed",
+        description: "There was a problem exporting your resume to PDF.",
+        variant: "destructive"
       });
-    }, 1500);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Render active section content
@@ -161,8 +327,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
             variant="outline" 
             size="sm"
             onClick={saveResume}
+            disabled={isSaving}
           >
-            <Save size={16} className="mr-1" /> Save
+            <Save size={16} className="mr-1" /> {isSaving ? 'Saving...' : 'Save'}
           </Button>
           
           <Button 
@@ -177,8 +344,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
             variant="outline" 
             size="sm"
             onClick={exportToPdf}
+            disabled={isExporting}
           >
-            <FileOutput size={16} className="mr-1" /> Export PDF
+            <FileOutput size={16} className="mr-1" /> {isExporting ? 'Exporting...' : 'Export PDF'}
           </Button>
           
           <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
@@ -205,13 +373,19 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
                 </div>
                 
                 <TabsContent value="classic" className="mt-0">
-                  <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  <div className="resume-preview-wrapper">
+                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  </div>
                 </TabsContent>
                 <TabsContent value="modern" className="mt-0">
-                  <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  <div className="resume-preview-wrapper">
+                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  </div>
                 </TabsContent>
                 <TabsContent value="minimalist" className="mt-0">
-                  <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  <div className="resume-preview-wrapper">
+                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
+                  </div>
                 </TabsContent>
               </Tabs>
             </DialogContent>

@@ -36,6 +36,78 @@ export type Database = {
         }
         Relationships: []
       }
+      resume_data: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          resume_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          resume_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          resume_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_data_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resume_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_data_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resumes: {
+        Row: {
+          created_at: string
+          id: string
+          is_public: boolean
+          template_id: string
+          theme: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          template_id: string
+          theme?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          template_id?: string
+          theme?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -59,7 +131,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      resume_view: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string | null
+          is_public: boolean | null
+          template_id: string | null
+          theme: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
