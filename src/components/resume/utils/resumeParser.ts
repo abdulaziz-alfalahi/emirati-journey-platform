@@ -1,3 +1,4 @@
+
 /**
  * Resume parser utility for extracting data from uploaded resume files
  */
@@ -25,9 +26,17 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         try {
           console.log('Calling AI extraction service...');
           // Call the Edge Function to extract data using AI
-          const { data, error } = await supabase.functions.invoke('extract-resume-data', {
+          const { data, error, status } = await supabase.functions.invoke('extract-resume-data', {
             body: { fileContent },
           });
+          
+          // Check for API quota errors specifically - Edge Function will return status 429
+          if (status === 429 || (error && data?.fallbackToRegex)) {
+            console.warn('AI quota exceeded or API error, falling back to regex extraction...');
+            const fallbackData = extractDataFromContent(fileContent, file.type);
+            resolve(fallbackData);
+            return;
+          }
           
           if (error) {
             console.error('Edge function error:', error);

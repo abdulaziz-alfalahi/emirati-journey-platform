@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Linkedin, Brain } from 'lucide-react';
+import { Upload, Linkedin, Brain, AlertTriangle } from 'lucide-react';
 import { ResumeData } from './types';
 import { toast } from 'sonner';
 import { parseResumeFromFile, extractFromLinkedIn, mergeResumeData } from './utils/resumeParser';
@@ -20,12 +20,14 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const [isExtracting, setIsExtracting] = useState(false);
   const [fileDialogOpen, setFileDialogOpen] = useState(false);
   const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
+  const [apiErrorOccurred, setApiErrorOccurred] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
+    setApiErrorOccurred(false);
     
     // Create a toast for processing
     toast.info("AI Resume Processing", {
@@ -42,7 +44,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       // Update toast with success message
       toast.success("AI Resume Analysis Complete", {
-        description: "Your resume has been processed using AI and data extracted successfully.",
+        description: "Your resume has been processed and data extracted successfully.",
       });
       
       const mergedData = mergeResumeData(currentData, parsedData);
@@ -52,9 +54,17 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     } catch (error) {
       console.error('Error parsing resume:', error);
       
+      let errorMessage = error instanceof Error ? error.message : "Failed to parse resume file";
+      
+      // Check if it's an API quota error
+      if (errorMessage.includes('quota exceeded') || errorMessage.includes('insufficient_quota')) {
+        setApiErrorOccurred(true);
+        errorMessage = "OpenAI API quota exceeded. The system used fallback extraction which may be less accurate.";
+      }
+      
       // Update toast with error message
       toast.error("Error processing resume", {
-        description: error instanceof Error ? error.message : "Failed to parse resume file",
+        description: errorMessage,
       });
     } finally {
       setIsUploading(false);
@@ -109,6 +119,17 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {apiErrorOccurred && (
+              <div className="bg-amber-50 border border-amber-200 p-3 rounded-md flex items-start space-x-2">
+                <AlertTriangle size={18} className="text-amber-500 mt-0.5" />
+                <div className="text-sm text-amber-700">
+                  <p className="font-medium mb-1">AI Service Limitation</p>
+                  <p>The OpenAI API quota has been exceeded. The system used fallback extraction which may be less accurate. 
+                  Consider trying again later or contact support for assistance.</p>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="resume-file">Select a file to upload</Label>
               <Input

@@ -27,6 +27,10 @@ serve(async (req) => {
 
     console.log(`Processing resume text (first 100 chars): ${fileContent.substring(0, 100)}...`);
 
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured. Please add it to your Supabase secrets.');
+    }
+
     // Create a system prompt that instructs the model how to parse resume data
     const systemPrompt = `
       You are an expert resume parser. Extract structured information from the resume text.
@@ -101,6 +105,18 @@ serve(async (req) => {
     if (!openAIResponse.ok) {
       const errorData = await openAIResponse.json();
       console.error('OpenAI API error:', errorData);
+      
+      // Check for quota errors
+      if (errorData.error && errorData.error.code === 'insufficient_quota') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.',
+            fallbackToRegex: true 
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       throw new Error(`OpenAI API error: ${JSON.stringify(errorData)}`);
     }
 
@@ -149,7 +165,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in extract-resume-data function:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Unknown error occurred' }),
+      JSON.stringify({ 
+        error: error.message || 'Unknown error occurred',
+        fallbackToRegex: true 
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
