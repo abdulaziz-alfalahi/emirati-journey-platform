@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Linkedin, Brain, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, Linkedin, Brain, AlertTriangle, AlertCircle } from 'lucide-react';
 import { ResumeData } from './types';
 import { toast } from 'sonner';
 import { parseResumeFromFile, extractFromLinkedIn, mergeResumeData } from './utils/resumeParser';
@@ -31,13 +30,11 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     setUploadError(null);
     setUsingFallback(false);
     
-    // Create a toast for processing
     const toastId = toast.info("AI Resume Processing", {
       description: "Extracting data using AI...",
     });
     
     try {
-      // Update toast with processing message
       toast.info("AI Resume Processing", {
         id: toastId,
         description: "Reading file and sending to AI service...",
@@ -45,8 +42,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       const parsedData = await parseResumeFromFile(file);
       
-      // Check if fallback was used based on properties typical in fallback data but not in AI data
-      // This is just a heuristic and might need adjustment
       if (usingFallback) {
         toast.warning("Limited Extraction", {
           description: "Used basic extraction method. Data might be incomplete. Please check and edit the results.",
@@ -67,13 +62,11 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume file";
       setUploadError(errorMessage);
       
-      // Update toast with error message
       toast.error("Error processing resume", {
         description: errorMessage,
       });
     } finally {
       setIsUploading(false);
-      // Reset the input to allow re-uploading the same file
       e.target.value = '';
     }
   };
