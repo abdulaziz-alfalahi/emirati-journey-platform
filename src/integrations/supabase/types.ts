@@ -180,6 +180,15 @@ export type Database = {
       }
     }
     Functions: {
+      get_table_columns: {
+        Args: {
+          table_name: string
+        }
+        Returns: {
+          column_name: string
+          data_type: string
+        }[]
+      }
       has_role: {
         Args: {
           user_id: string
