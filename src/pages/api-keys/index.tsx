@@ -161,7 +161,7 @@ const ApiKeysPage = () => {
       
       console.log('Saving API keys:', Object.keys(keysToSave));
       
-      const { data, error, status } = await supabase.functions.invoke('update-api-keys', {
+      const { data, error } = await supabase.functions.invoke('update-api-keys', {
         body: keysToSave
       });
       
@@ -169,7 +169,8 @@ const ApiKeysPage = () => {
         console.error('Error saving API keys:', error);
         setSaveError(`Failed to save API keys: ${error.message}`);
         
-        if (status === 500 && error.message.includes('Edge Function returned a non-2xx status code')) {
+        // Check if it's likely a server error without using the status property
+        if (error.message.includes('Edge Function returned a non-2xx status code')) {
           setErrorDetails(`The server encountered an error. Please try again or contact the administrator.`);
         }
         
