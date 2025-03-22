@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ResumeTemplate, ResumeData } from './types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +9,7 @@ import ResumeExperienceSection from './sections/ResumeExperienceSection';
 import ResumeEducationSection from './sections/ResumeEducationSection';
 import ResumeSkillsSection from './sections/ResumeSkillsSection';
 import ResumePreview from './ResumePreview';
+import ImportOptions from './ImportOptions';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,6 +50,15 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
       ...prev,
       [section]: data
     }));
+  };
+
+  // Import data from external sources
+  const handleImportComplete = (importedData: ResumeData) => {
+    setResumeData(importedData);
+    toast({
+      title: "Data imported successfully",
+      description: "Your resume has been updated with the imported data.",
+    });
   };
 
   // Save resume to Supabase
@@ -103,6 +114,10 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         </div>
         
         <div className="flex items-center gap-3">
+          <ImportOptions 
+            onImportComplete={handleImportComplete} 
+            currentData={resumeData} 
+          />
           <Button 
             variant="outline" 
             onClick={saveResume} 
