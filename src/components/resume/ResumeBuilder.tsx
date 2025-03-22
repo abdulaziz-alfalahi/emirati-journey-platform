@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ResumeTemplate, ResumeData } from './types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,7 +10,7 @@ import ResumeSkillsSection from './sections/ResumeSkillsSection';
 import ResumePreview from './ResumePreview';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { v4 as uuidv4 } from '@tanstack/react-query';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ResumeBuilderProps {
   template: ResumeTemplate;
