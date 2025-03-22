@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -5,6 +6,7 @@ import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -30,40 +32,71 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [customToken, setCustomToken] = useState<string>('');
+  const [isTokenLoading, setIsTokenLoading] = useState<boolean>(true);
   const { user } = useAuth();
 
   // Function to fetch Mapbox token from Supabase edge function
   const fetchMapboxToken = useCallback(async () => {
+    setIsTokenLoading(true);
     try {
-      // First try to get the token from the edge function (if logged in)
+      // First try to get the token from localStorage
+      const localToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
+      
+      // If there's a token in localStorage and we're not logged in, use it
+      if (localToken && !user) {
+        console.log('Using Mapbox token from localStorage');
+        setMapboxToken(localToken);
+        setIsTokenLoading(false);
+        return;
+      }
+      
+      // Try to get the token from the edge function (if logged in)
       if (user) {
+        console.log('Fetching Mapbox token from edge function');
         const { data, error } = await supabase.functions.invoke('get-api-keys');
         
-        if (!error && data) {
-          // Check for either uppercase or lowercase key names
-          const token = data.MAPBOX_ACCESS_TOKEN || data.mapbox_access_token;
+        if (error) {
+          console.error('Error fetching API keys:', error);
+          throw error;
+        }
+        
+        if (data) {
+          console.log('API keys received:', Object.keys(data).filter(k => data[k]));
           
-          if (token) {
-            setMapboxToken(token);
-            // Also save to local storage as backup
-            localStorage.setItem('MAPBOX_ACCESS_TOKEN', token);
-            return;
+          // Check for any valid mapbox token (case-insensitive)
+          const mapboxKeyNames = ['MAPBOX_ACCESS_TOKEN', 'mapbox_access_token'];
+          
+          for (const keyName of mapboxKeyNames) {
+            if (data[keyName]) {
+              console.log(`Found Mapbox token with key: ${keyName}`);
+              setMapboxToken(data[keyName]);
+              localStorage.setItem('MAPBOX_ACCESS_TOKEN', data[keyName]);
+              setIsTokenLoading(false);
+              return;
+            }
           }
+          
+          // Additional debug check to see ALL keys we received
+          console.log('All keys received:', Object.keys(data));
         }
       }
       
-      // Otherwise try to get from localStorage
-      const localToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
+      // If we got here and there's a token in localStorage, use it as fallback
       if (localToken) {
+        console.log('Using fallback Mapbox token from localStorage');
         setMapboxToken(localToken);
+        setIsTokenLoading(false);
         return;
       }
       
       // If no token is found, show an error
+      console.log('No Mapbox token found');
       setTokenError('No Mapbox token available. Please enter one below or contact an administrator.');
     } catch (error) {
       console.error('Error fetching Mapbox token:', error);
       setTokenError('Failed to fetch Mapbox token. Please enter one below or contact an administrator.');
+    } finally {
+      setIsTokenLoading(false);
     }
   }, [user]);
 
@@ -76,6 +109,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
     if (!mapboxToken || !mapContainer.current || map.current) return;
     
     try {
+      console.log('Initializing map with token:', mapboxToken.substring(0, 10) + '...');
+      
       // Set the mapbox token
       mapboxgl.accessToken = mapboxToken;
       
@@ -187,10 +222,19 @@ const LocationMap: React.FC<LocationMapProps> = ({
       localStorage.setItem('MAPBOX_ACCESS_TOKEN', customToken);
       setMapboxToken(customToken);
       setTokenError(null);
+      toast.success('Mapbox token saved successfully');
     }
   };
   
   // If we're waiting for a token or have an error, show a placeholder
+  if (isTokenLoading) {
+    return (
+      <div className="rounded border border-gray-300 p-4 flex items-center justify-center h-80">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
+      </div>
+    );
+  }
+  
   if (tokenError) {
     return (
       <div className="rounded border border-gray-300 p-4 space-y-4">
@@ -213,14 +257,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
         <p className="text-sm text-gray-500">
           You can get a Mapbox token by signing up at <a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">mapbox.com</a>
         </p>
-      </div>
-    );
-  }
-  
-  if (!mapboxToken) {
-    return (
-      <div className="rounded border border-gray-300 p-4 flex items-center justify-center h-80">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
       </div>
     );
   }
