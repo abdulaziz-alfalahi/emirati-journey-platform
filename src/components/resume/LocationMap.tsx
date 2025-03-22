@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -122,6 +123,36 @@ const LocationMap: React.FC<LocationMapProps> = ({
     fetchMapboxToken();
   }, [fetchMapboxToken]);
   
+  // Function to format the address for privacy by removing specific details
+  const formatAddressForPrivacy = (features: any[]) => {
+    if (!features || features.length === 0) return 'Custom Location';
+    
+    // Try to find neighborhood or district first
+    const neighborhood = features.find(f => 
+      f.place_type.includes('neighborhood') || 
+      f.place_type.includes('district')
+    );
+    
+    if (neighborhood) return neighborhood.place_name;
+    
+    // Fall back to place (city)
+    const place = features.find(f => f.place_type.includes('place'));
+    if (place) return place.place_name;
+    
+    // Last resort, use the first feature but try to extract just the area name
+    const firstFeature = features[0];
+    
+    // If we have a full address, try to extract just the area parts
+    if (firstFeature.context && firstFeature.context.length > 0) {
+      // Skip the first part (street address) and start with neighborhood/district
+      const contextParts = firstFeature.context.map((c: any) => c.text);
+      return contextParts.join(', ');
+    }
+    
+    // If all else fails, return the full place name
+    return firstFeature.place_name || 'Custom Location';
+  };
+  
   // Function to update privacy circle on the map
   const updatePrivacyCircle = useCallback((coordinates: [number, number]) => {
     if (!map.current) return;
@@ -161,7 +192,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       });
     } else {
       // If source exists, update its data
-      map.current.getSource(privacyCircleSourceId).setData({
+      (map.current.getSource(privacyCircleSourceId) as mapboxgl.GeoJSONSource).setData({
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -228,18 +259,21 @@ const LocationMap: React.FC<LocationMapProps> = ({
           // Update privacy circle
           updatePrivacyCircle([coords[0], coords[1]]);
           
+          // Format the address to be more general
+          const formattedAddress = formatAddressForPrivacy([e.result]);
+          
           // Handle both callback types for compatibility
           if (onLocationSelect) {
             console.log('Calling onLocationSelect with:', {
-              address: e.result.place_name,
+              address: formattedAddress,
               coordinates: [coords[0], coords[1]],
-              formattedAddress: e.result.place_name
+              formattedAddress: formattedAddress
             });
             
             onLocationSelect({
-              address: e.result.place_name,
+              address: formattedAddress,
               coordinates: [coords[0], coords[1]],
-              formattedAddress: e.result.place_name
+              formattedAddress: formattedAddress
             });
           }
           
@@ -247,7 +281,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
             const location = {
               longitude: coords[0],
               latitude: coords[1],
-              name: e.result.place_name
+              name: formattedAddress
             };
             console.log('Calling onChange with:', JSON.stringify(location));
             onChange(JSON.stringify(location));
@@ -266,23 +300,21 @@ const LocationMap: React.FC<LocationMapProps> = ({
         fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
           .then(response => response.json())
           .then(data => {
-            let placeName = 'Custom Location';
-            if (data && data.features && data.features.length > 0) {
-              placeName = data.features[0].place_name;
-            }
+            // Format the address for privacy
+            const formattedAddress = formatAddressForPrivacy(data.features);
             
             // Handle both callback types for compatibility
             if (onLocationSelect) {
               console.log('Calling onLocationSelect after map click with:', {
-                address: placeName,
+                address: formattedAddress,
                 coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: placeName
+                formattedAddress: formattedAddress
               });
               
               onLocationSelect({
-                address: placeName,
+                address: formattedAddress,
                 coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: placeName
+                formattedAddress: formattedAddress
               });
             }
             
@@ -290,7 +322,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
               const location = {
                 longitude: e.lngLat.lng,
                 latitude: e.lngLat.lat,
-                name: placeName
+                name: formattedAddress
               };
               console.log('Calling onChange after map click with:', JSON.stringify(location));
               onChange(JSON.stringify(location));
