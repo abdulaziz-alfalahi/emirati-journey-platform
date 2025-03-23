@@ -46,7 +46,7 @@ export const useMapInitialization = ({
   // Flag to prevent rendering the map more than once
   const renderingMapRef = useRef(false);
 
-  // Parse initial location string
+  // Parse initial location string - using try/catch to safely handle JSON parsing
   const parseInitialLocation = useCallback((locationStr: string) => {
     console.log('Parsing initial location:', locationStr);
     
@@ -126,7 +126,7 @@ export const useMapInitialization = ({
     }
   }, [mapStyleLoaded]);
   
-  // Create a debounced geocode function
+  // Create a debounced geocode function - with proper error handling
   const geocodeLocation = useCallback(debounce(async (lng: number, lat: number) => {
     try {
       // Get the token
@@ -140,18 +140,25 @@ export const useMapInitialization = ({
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}`
       );
+      
+      if (!response.ok) {
+        throw new Error(`Geocoding failed with status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.features && data.features.length > 0) {
         const placeName = data.features[0].place_name;
         console.log('Geocoded address:', placeName);
         
+        // Create a new location object with properly typed coordinates
         const newLocation: LocationData = {
           address: placeName,
-          coordinates: [lng, lat],
+          coordinates: [lng, lat], // Ensure this is a tuple of [number, number]
           formattedAddress: placeName
         };
         
+        // Pass the safely structured object to the callback
         onLocationSelect(newLocation);
       }
     } catch (error) {
@@ -211,6 +218,7 @@ export const useMapInitialization = ({
     renderingMapRef.current = true;
     
     try {
+      // Set the token before creating the map
       mapboxgl.accessToken = accessToken;
       
       // Parse initial location
@@ -221,23 +229,25 @@ export const useMapInitialization = ({
         zoom: 12
       };
       
-      // Create the map
-      const map = new mapboxgl.Map({
+      // Create the map with safe and deliberate parameters
+      const mapOptions: mapboxgl.MapOptions = {
         container: mapContainerRef.current,
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [initialLocationData.lng, initialLocationData.lat],
         zoom: 12
-      });
+      };
+      
+      const map = new mapboxgl.Map(mapOptions);
       
       // Save map instance in ref
       mapRef.current = map;
       
-      // Handle style load
+      // Handle style load - this is crucial for adding sources and layers
       map.on('style.load', () => {
         console.log('Map style loaded');
         setMapStyleLoaded(true);
         
-        // Add initial marker and circle
+        // Add initial marker and circle after style is loaded
         if (lastValidLocationRef.current) {
           const { lng, lat } = lastValidLocationRef.current;
           setupMapFeatures(map, lng, lat);
@@ -246,15 +256,16 @@ export const useMapInitialization = ({
         mapInitializedRef.current = true;
       });
       
-      // Add click handler
+      // Add click handler - use proper event object destructuring
       map.on('click', (e) => {
+        // Safely access coordinates using MapboxGL's API
         const { lng, lat } = e.lngLat;
         console.log('Map clicked at:', lng, lat);
         
-        // Update last valid location
+        // Update last valid location using proper properties
         lastValidLocationRef.current = {
-          lng,
-          lat,
+          lng: lng,
+          lat: lat,
           zoom: map.getZoom()
         };
         
@@ -264,10 +275,12 @@ export const useMapInitialization = ({
       
       // Handle map movement end - ensure we keep our state in sync
       map.on('moveend', () => {
-        const center = map.getCenter();
-        const zoom = map.getZoom();
+        if (!mapRef.current) return;
         
-        // Only update if moved by user (not programmatically)
+        const center = mapRef.current.getCenter();
+        const zoom = mapRef.current.getZoom();
+        
+        // Only update if moved by user (not programmatically) and there's a previous location
         if (lastValidLocationRef.current && 
             (Math.abs(center.lng - lastValidLocationRef.current.lng) > 0.001 || 
              Math.abs(center.lat - lastValidLocationRef.current.lat) > 0.001)) {
@@ -309,43 +322,50 @@ export const useMapInitialization = ({
     
     console.log('Initial location changed, updating map:', initialLocation);
     
-    const locationData = parseInitialLocation(initialLocation);
-    const map = mapRef.current;
-    
-    // Update map center
-    map.flyTo({
-      center: [locationData.lng, locationData.lat],
-      zoom: 12,
-      essential: true
-    });
-    
-    // Update last valid location
-    lastValidLocationRef.current = {
-      lng: locationData.lng,
-      lat: locationData.lat,
-      zoom: 12
-    };
-    
-    // Update marker and circle
-    setupMapFeatures(map, locationData.lng, locationData.lat);
-    
-    // Notify about the selected location
-    const newLocation: LocationData = {
-      address: locationData.name,
-      coordinates: [locationData.lng, locationData.lat],
-      formattedAddress: locationData.name
-    };
-    
-    onLocationSelect(newLocation);
+    try {
+      const locationData = parseInitialLocation(initialLocation);
+      const map = mapRef.current;
+      
+      // Update map center - using safe values
+      map.flyTo({
+        center: [locationData.lng, locationData.lat],
+        zoom: 12,
+        essential: true
+      });
+      
+      // Update last valid location with properly typed values
+      lastValidLocationRef.current = {
+        lng: locationData.lng,
+        lat: locationData.lat,
+        zoom: 12
+      };
+      
+      // Update marker and circle
+      setupMapFeatures(map, locationData.lng, locationData.lat);
+      
+      // Notify about the selected location with a properly structured object
+      const newLocation: LocationData = {
+        address: locationData.name,
+        coordinates: [locationData.lng, locationData.lat], // Ensure proper tuple typing
+        formattedAddress: locationData.name
+      };
+      
+      onLocationSelect(newLocation);
+    } catch (error) {
+      console.error("Error updating map with new location:", error);
+    }
   }, [initialLocation, mapStyleLoaded, parseInitialLocation, setupMapFeatures, onLocationSelect]);
   
   // If persistent circle is turned on, ensure it's visible when map is ready
   useEffect(() => {
     if (!persistentCircle || !mapRef.current || !mapStyleLoaded || !lastValidLocationRef.current) return;
     
-    const { lng, lat } = lastValidLocationRef.current;
-    updatePrivacyCircle(lng, lat);
-    
+    try {
+      const { lng, lat } = lastValidLocationRef.current;
+      updatePrivacyCircle(lng, lat);
+    } catch (error) {
+      console.error("Error updating persistent circle:", error);
+    }
   }, [persistentCircle, updatePrivacyCircle, mapStyleLoaded]);
 
   return {
