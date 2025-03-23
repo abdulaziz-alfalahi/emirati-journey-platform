@@ -70,7 +70,10 @@ const ServiceCards: React.FC = () => {
   
   const handleServiceClick = (service: Service) => {
     if (service.path) {
+      console.log(`Navigating to: ${service.path}`);
       navigate(service.path);
+    } else {
+      console.log(`Service ${service.id} has no path defined`);
     }
   };
   
@@ -119,7 +122,7 @@ const ServiceCards: React.FC = () => {
                 visibleItems.includes(index) 
                   ? "opacity-100 translate-y-0" 
                   : "opacity-0 translate-y-12",
-                service.path && "cursor-pointer hover:shadow-md hover:border-emirati-teal/30"
+                service.path ? "cursor-pointer hover:shadow-md hover:border-emirati-teal/30" : ""
               )}
               style={{ 
                 transitionDelay: `${(index % 3) * 100}ms`,
@@ -133,6 +136,11 @@ const ServiceCards: React.FC = () => {
               </div>
               <h3 className="text-xl font-display font-medium mb-3">{service.title}</h3>
               <p className="text-foreground/70 leading-relaxed">{service.description}</p>
+              {service.path && (
+                <div className="mt-4 text-emirati-teal text-sm font-medium">
+                  Click to explore
+                </div>
+              )}
             </div>
           ))}
         </div>
