@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { debounce } from 'lodash';
@@ -71,7 +72,10 @@ export const useMapInitialization = ({
   const updatePrivacyCircle = useCallback((lng: number, lat: number) => {
     console.log('Updating privacy circle at:', lng, lat);
     
-    if (!mapRef.current || !mapStyleLoaded) return;
+    if (!mapRef.current || !mapStyleLoaded) {
+      console.log('Map or style not ready yet, skipping privacy circle update');
+      return;
+    }
     
     const map = mapRef.current;
     
@@ -174,11 +178,12 @@ export const useMapInitialization = ({
     if (markerRef.current) {
       markerRef.current.remove();
     }
+    
     markerRef.current = new mapboxgl.Marker()
       .setLngLat([lng, lat])
       .addTo(map);
     
-    // Add privacy circle if map style is loaded
+    // Add privacy circle only if map style is loaded
     if (mapStyleLoaded) {
       updatePrivacyCircle(lng, lat);
     }
@@ -253,7 +258,7 @@ export const useMapInitialization = ({
           zoom: map.getZoom()
         };
         
-        // Only add/update marker and circle if map style is loaded
+        // Setup map features when user clicks
         setupMapFeatures(map, lng, lat);
       });
       
