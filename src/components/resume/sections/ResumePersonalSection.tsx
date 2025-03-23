@@ -112,11 +112,6 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   initialLocation={data.location}
                   onLocationSelect={handleLocationSelect}
                 />
-                {data.location && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-                    <p className="text-sm font-medium">Selected location: {data.location}</p>
-                  </div>
-                )}
               </TabsContent>
             </Tabs>
           </div>

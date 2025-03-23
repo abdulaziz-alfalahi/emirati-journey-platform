@@ -9,7 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // A more reliable token for development - still recommended to replace with your own
-const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoiYXBwLXRlc3QtdG9rZW4iLCJhIjoiY2x0OXB5MGdnMDFmNjJrcGR5ZjMxanZleCJ9.ZNk3gy0m1T0QIl_86vV_rw';
+const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+
+// This is a public token that should work for development
+const PUBLIC_MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -42,6 +45,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const [circleAdded, setCircleAdded] = useState<boolean>(false);
   const [customToken, setCustomToken] = useState<string>('');
   const [mapError, setMapError] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
   // Function to fetch Mapbox token from Supabase edge function or localStorage
   const fetchMapboxToken = useCallback(async () => {
@@ -50,7 +54,16 @@ const LocationMap: React.FC<LocationMapProps> = ({
     setIsTokenLoading(true);
     
     try {
-      // First try to get the token from localStorage
+      // First try to use the public token (which is reliable)
+      if (PUBLIC_MAPBOX_TOKEN) {
+        console.log('Using public Mapbox token');
+        setMapboxToken(PUBLIC_MAPBOX_TOKEN);
+        localStorage.setItem('MAPBOX_ACCESS_TOKEN', PUBLIC_MAPBOX_TOKEN);
+        setIsTokenLoading(false);
+        return;
+      }
+      
+      // Then try to get the token from localStorage
       const localToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
       
       // If there's a token in localStorage, use it
@@ -238,10 +251,13 @@ const LocationMap: React.FC<LocationMapProps> = ({
               map.current.once('load', () => {
                 updatePrivacyCircle([location.longitude, location.latitude]);
               });
+              
+              setSelectedAddress(location.name || 'Selected Location');
             }
           } catch (e) {
             // If not JSON, just use as address string
             console.log('Using location as string:', locationValue);
+            setSelectedAddress(locationValue);
           }
         } catch (e) {
           console.error('Error parsing location:', e);
@@ -263,6 +279,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
               
               // Format the address to be more general
               const formattedAddress = formatAddressForPrivacy([e.result]);
+              setSelectedAddress(formattedAddress);
               
               // Handle both callback types for compatibility
               if (onLocationSelect) {
@@ -305,6 +322,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
             .then(data => {
               // Format the address for privacy
               const formattedAddress = formatAddressForPrivacy(data.features);
+              setSelectedAddress(formattedAddress);
               
               // Handle both callback types for compatibility
               if (onLocationSelect) {
@@ -335,11 +353,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
               console.error('Error reverse geocoding:', error);
               
               // Fall back to using custom location
+              const customLocation = 'Custom Location';
+              setSelectedAddress(customLocation);
+              
               if (onLocationSelect) {
                 onLocationSelect({
-                  address: 'Custom Location',
+                  address: customLocation,
                   coordinates: [e.lngLat.lng, e.lngLat.lat],
-                  formattedAddress: 'Custom Location'
+                  formattedAddress: customLocation
                 });
               }
               
@@ -347,7 +368,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
                 const location = {
                   longitude: e.lngLat.lng,
                   latitude: e.lngLat.lat,
-                  name: 'Custom Location'
+                  name: customLocation
                 };
                 onChange(JSON.stringify(location));
               }
@@ -471,9 +492,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
   return (
     <div>
       <div ref={mapContainer} className="h-80 rounded border border-gray-300" />
-      {selectedLocation && (
+      {(selectedLocation || selectedAddress) && (
         <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-          <p className="text-sm font-medium">Selected coordinates: {selectedLocation[1].toFixed(4)}, {selectedLocation[0].toFixed(4)}</p>
+          {selectedAddress && (
+            <p className="text-sm font-medium mb-1">Selected location: {selectedAddress}</p>
+          )}
+          {selectedLocation && (
+            <p className="text-xs text-gray-500">Coordinates: {selectedLocation[1].toFixed(4)}, {selectedLocation[0].toFixed(4)}</p>
+          )}
         </div>
       )}
     </div>
