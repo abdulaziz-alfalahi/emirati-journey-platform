@@ -56,11 +56,11 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           } catch (localError) {
             console.error('Legacy extraction error:', localError);
             
-            // Try with edge function as a fallback if available
+            // Try with enhanced-resume-parser edge function as a fallback
             try {
-              console.log('Attempting AI extraction as fallback...');
+              console.log('Attempting enhanced edge function as fallback...');
               
-              const response = await supabase.functions.invoke('extract-resume-data', {
+              const response = await supabase.functions.invoke('enhanced-resume-parser', {
                 body: { 
                   fileContent,
                   fileType: file.type 
@@ -68,22 +68,51 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
               });
               
               if (response.error) {
-                console.error('Edge function error:', response.error);
-                throw new Error(`AI extraction failed: ${response.error.message}`);
+                console.error('Enhanced edge function error:', response.error);
+                throw new Error(`Enhanced edge extraction failed: ${response.error.message}`);
               }
               
               const data = response.data;
               
               if (!data) {
-                throw new Error('No data returned from AI extraction service');
+                throw new Error('No data returned from enhanced edge function');
               }
               
-              console.log('AI extraction successful');
+              console.log('Enhanced edge function extraction successful');
               parsedData = data;
-            } catch (aiError) {
-              console.error('AI extraction also failed:', aiError);
-              // If all methods fail, return the best effort from local extraction
-              parsedData = extractDataFromContent(fileContent, file.type);
+              
+            } catch (enhancedEdgeError) {
+              console.error('Enhanced edge function also failed:', enhancedEdgeError);
+              
+              // Fall back to AI extraction as a last resort
+              try {
+                console.log('Attempting AI extraction as final fallback...');
+                
+                const aiResponse = await supabase.functions.invoke('extract-resume-data', {
+                  body: { 
+                    fileContent,
+                    fileType: file.type 
+                  },
+                });
+                
+                if (aiResponse.error) {
+                  console.error('AI edge function error:', aiResponse.error);
+                  throw new Error(`AI extraction failed: ${aiResponse.error.message}`);
+                }
+                
+                const aiData = aiResponse.data;
+                
+                if (!aiData) {
+                  throw new Error('No data returned from AI extraction service');
+                }
+                
+                console.log('AI extraction successful');
+                parsedData = aiData;
+              } catch (aiError) {
+                console.error('All extraction methods failed:', aiError);
+                // If all methods fail, return the best effort from local extraction
+                parsedData = extractDataFromContent(fileContent, file.type);
+              }
             }
           }
         }
