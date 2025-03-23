@@ -31,7 +31,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
     getEffectiveToken
   } = useMapboxToken();
   
-  // Map initialization and interaction
+  // Map initialization and interaction 
   const { resetMap } = useMapInitialization({
     mapContainerRef,
     initialLocation,
