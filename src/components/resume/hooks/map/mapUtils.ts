@@ -1,4 +1,3 @@
-
 import mapboxgl from 'mapbox-gl';
 import { LocationData } from '../../types/location';
 
@@ -27,7 +26,7 @@ export const geocodeLocation = async (
     }
     
     const data = await response.json();
-    console.log('Geocoding response:', data);
+    console.log('Geocoding response features:', data.features?.length);
     
     if (data.features && data.features.length > 0) {
       // Find the most appropriate place name (neighborhood, locality, place)
@@ -188,7 +187,7 @@ export const setupMapFeatures = (
     }
     
     // Geocode the location
-    console.log('Calling geocodeCallback');
+    console.log('Calling geocodeCallback with coordinates:', lng, lat);
     geocodeCallback(lng, lat);
   } catch (error) {
     console.error('Error in setupMapFeatures:', error);

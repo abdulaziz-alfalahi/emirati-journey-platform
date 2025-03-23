@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { setupMapFeatures } from './mapUtils';

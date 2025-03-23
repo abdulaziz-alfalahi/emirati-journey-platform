@@ -50,7 +50,7 @@ export const useMapInitialization = ({
   const geocodeLocationCallback = useCallback(
     debounce(async (lng: number, lat: number) => {
       try {
-        console.log('Starting geocoding process');
+        console.log('Starting geocoding process for:', lng, lat);
         const token = getEffectiveToken();
         if (!token) {
           console.error('No token available for geocoding');
@@ -61,7 +61,7 @@ export const useMapInitialization = ({
         const locationData = await geocodeLocation(lng, lat, token);
         
         if (locationData) {
-          console.log('Geocoded location:', locationData);
+          console.log('Geocoded location successfully:', locationData);
           onLocationSelect(locationData);
         } else {
           console.error('Geocoding returned null result');
