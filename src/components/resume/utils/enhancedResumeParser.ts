@@ -10,61 +10,184 @@ import { ResumeData } from '../types';
 import { extractDataFromContent } from './resumeContentParser';
 import { mergeResumeData } from './resumeDataUtils';
 
-// Simulated document processor functionality
+// Advanced document processor functionality
 const processDocument = (fileContent: string, fileType: string): { text: string, metadata: any } => {
-  // For simplicity, we're treating the content as the text directly
-  // In a real implementation, we would parse different file types appropriately
-  return {
-    text: fileContent,
-    metadata: {
-      fileType,
-      processedAt: new Date().toISOString(),
-      textLength: fileContent.length
-    }
+  console.log(`Processing document of type: ${fileType} with content length: ${fileContent.length}`);
+  
+  let text = fileContent;
+  let metadata = {
+    fileType,
+    processedAt: new Date().toISOString(),
+    textLength: fileContent.length
   };
+  
+  // Process based on file type
+  if (fileType.includes('pdf')) {
+    // For PDF content that comes as text (already extracted client-side)
+    text = cleanText(fileContent);
+    metadata.processingMethod = 'text-extraction-from-pdf';
+  } 
+  else if (fileType.includes('word') || fileType.includes('doc')) {
+    // For Word document content
+    text = cleanText(fileContent);
+    metadata.processingMethod = 'text-extraction-from-doc';
+  } 
+  else if (fileType.includes('text/plain')) {
+    // For plain text
+    text = cleanText(fileContent);
+    metadata.processingMethod = 'text-extraction-from-txt';
+  }
+  else if (fileType.includes('html')) {
+    // For HTML content, strip HTML tags
+    text = stripHtml(fileContent);
+    metadata.processingMethod = 'html-extraction';
+  }
+  else {
+    // Default case - just clean the text
+    text = cleanText(fileContent);
+    metadata.processingMethod = 'generic-extraction';
+  }
+  
+  return { text, metadata };
 };
 
-// Simulated section identification
-const identifySections = (text: string): Record<string, string> => {
-  // Simple section identification based on common resume headings
-  const sections: Record<string, string> = {};
+// Helper function to clean text similar to the Python implementation
+const cleanText = (text: string): string => {
+  if (!text) return "";
   
+  // Replace multiple newlines with a single newline
+  text = text.replace(/\n\s*\n/g, '\n\n');
+  
+  // Replace multiple spaces with a single space
+  text = text.replace(/ +/g, ' ');
+  
+  // Remove non-printable characters (adjust as needed for JS)
+  text = text.replace(/[^\x20-\x7E\n]/g, '');
+  
+  return text.trim();
+};
+
+// Helper function to strip HTML tags
+const stripHtml = (html: string): string => {
+  if (!html) return "";
+  
+  // First, replace <br>, <p>, <div> endings with newlines to preserve formatting
+  const withLineBreaks = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n');
+  
+  // Remove all other HTML tags
+  const withoutTags = withLineBreaks.replace(/<[^>]*>/g, '');
+  
+  // Decode HTML entities
+  const decoded = withoutTags
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  
+  // Clean the resulting text
+  return cleanText(decoded);
+};
+
+// Advanced section identification
+const identifySections = (text: string): Record<string, string> => {
   // Common section headers in resumes
   const sectionHeaders = [
-    'SUMMARY', 'PROFESSIONAL SUMMARY', 'PROFILE',
+    'SUMMARY', 'PROFESSIONAL SUMMARY', 'PROFILE', 'OBJECTIVE',
     'EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT HISTORY', 'PROFESSIONAL EXPERIENCE',
-    'EDUCATION', 'ACADEMIC BACKGROUND', 'EDUCATIONAL BACKGROUND',
-    'SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES',
+    'EDUCATION', 'ACADEMIC BACKGROUND', 'EDUCATIONAL BACKGROUND', 'QUALIFICATIONS',
+    'SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES', 'EXPERTISE',
     'LANGUAGES', 'LANGUAGE PROFICIENCY',
-    'CERTIFICATIONS', 'CERTIFICATES', 'ACCREDITATIONS',
-    'PROJECTS', 'KEY PROJECTS', 'PROJECT EXPERIENCE',
-    'ACHIEVEMENTS', 'AWARDS', 'HONORS',
-    'PUBLICATIONS', 'RESEARCH', 'PAPERS'
+    'CERTIFICATIONS', 'CERTIFICATES', 'ACCREDITATIONS', 'LICENSES',
+    'PROJECTS', 'KEY PROJECTS', 'PROJECT EXPERIENCE', 'PORTFOLIO',
+    'ACHIEVEMENTS', 'AWARDS', 'HONORS', 'RECOGNITIONS',
+    'PUBLICATIONS', 'RESEARCH', 'PAPERS', 'PRESENTATIONS',
+    'VOLUNTEERING', 'VOLUNTEER EXPERIENCE', 'COMMUNITY SERVICE',
+    'REFERENCES', 'PROFESSIONAL REFERENCES'
   ];
   
-  // Extract content between section headers
-  let currentSection = 'HEADER';
-  sections[currentSection] = '';
+  // Create the sections object with initial "HEADER" section
+  const sections: Record<string, string> = {
+    'HEADER': ''
+  };
   
+  // Regular expression patterns for various section header formats
+  // This regex catches headers that are:
+  // 1. All caps
+  // 2. Possibly preceded by numbers (like "1. EXPERIENCE")
+  // 3. Possibly followed by a colon
+  // 4. Possibly underlined with ===== or -----
+  const headerRegexPatterns = [
+    // Basic all-caps pattern
+    new RegExp(`^(${sectionHeaders.join('|')})\\s*:?\\s*$`, 'i'),
+    
+    // With numbers prefix (1. EXPERIENCE)
+    new RegExp(`^\\d+\\.?\\s+(${sectionHeaders.join('|')})\\s*:?\\s*$`, 'i'),
+    
+    // Underlined with === or ---
+    new RegExp(`^(${sectionHeaders.join('|')})\\s*:?\\s*$\\n[=\\-]+`, 'im')
+  ];
+  
+  // Process line by line to identify sections
+  let currentSection = 'HEADER';
   const lines = text.split('\n');
-  for (const line of lines) {
-    const trimmedLine = line.trim().toUpperCase();
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
     
-    // Check if this line is a section header
-    const matchedHeader = sectionHeaders.find(header => 
-      trimmedLine === header || 
-      trimmedLine === header + ':' || 
-      trimmedLine === header + ' :'
-    );
+    // Check if this line matches any section header pattern
+    let isHeader = false;
     
-    if (matchedHeader) {
-      currentSection = matchedHeader;
-      sections[currentSection] = '';
-    } else {
+    // First, use our predefined regex patterns
+    for (const pattern of headerRegexPatterns) {
+      if (pattern.test(line)) {
+        // Extract the header name
+        const match = line.match(new RegExp(`(${sectionHeaders.join('|')})`, 'i'));
+        
+        if (match && match[0]) {
+          currentSection = match[0].toUpperCase();
+          if (!sections[currentSection]) sections[currentSection] = '';
+          isHeader = true;
+          break;
+        }
+      }
+    }
+    
+    // If no match with regex patterns, check for exact matches
+    if (!isHeader) {
+      const upperLine = line.toUpperCase();
+      
+      // Check for exact matches with section headers
+      const exactMatch = sectionHeaders.find(header => 
+        upperLine === header || 
+        upperLine === header + ':' || 
+        upperLine === header + ' :'
+      );
+      
+      if (exactMatch) {
+        currentSection = exactMatch;
+        if (!sections[currentSection]) sections[currentSection] = '';
+        isHeader = true;
+      }
+    }
+    
+    // If not a header, add line to current section
+    if (!isHeader) {
       sections[currentSection] += line + '\n';
     }
   }
   
+  // Clean up each section (trim whitespace)
+  Object.keys(sections).forEach(key => {
+    sections[key] = sections[key].trim();
+  });
+  
+  console.log('Identified sections:', Object.keys(sections));
   return sections;
 };
 
@@ -93,12 +216,13 @@ export class EnhancedResumeParser {
       const extractedData = extractDataFromContent(text, fileType);
       console.log('Entities extracted using content parser');
       
-      // Step 4: Add metadata to the result
+      // Step 4: Add metadata and section information to the result
       const result: Partial<ResumeData> & { metadata?: any } = {
         ...extractedData,
         metadata: {
           ...metadata,
           sectionCount: Object.keys(sections).length,
+          sectionNames: Object.keys(sections),
           parser: 'EnhancedResumeParser'
         }
       };
