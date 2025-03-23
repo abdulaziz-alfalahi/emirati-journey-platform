@@ -13,8 +13,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only allow GET requests
-  if (req.method !== 'GET') {
+  // Allow both GET and POST methods for backward compatibility
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { 
       status: 405,
       headers: { ...corsHeaders, "Content-Type": "application/json" }

@@ -4,6 +4,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { debounce } from 'lodash';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface LocationData {
   address: string;
@@ -50,15 +53,60 @@ const LocationMap: React.FC<LocationMapProps> = ({
   // Flag to prevent rendering the map more than once
   const renderingMapRef = useRef(false);
 
+  // Add a state for custom Mapbox token input
+  const [customMapboxToken, setCustomMapboxToken] = useState<string>('');
+  const [showTokenInput, setShowTokenInput] = useState<boolean>(false);
+
   // Fetch Mapbox API key
-  const { data: apiKeys, isLoading: isLoadingApiKeys } = useQuery({
+  const { data: apiKeys, isLoading: isLoadingApiKeys, error: apiKeysError } = useQuery({
     queryKey: ['mapbox-api-key'],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('get-api-keys');
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase.functions.invoke('get-api-keys', {
+          method: 'GET'
+        });
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        console.error("Error fetching API keys:", error);
+        setShowTokenInput(true);
+        return null;
+      }
     },
   });
+
+  // Effect to check if we need to show token input
+  useEffect(() => {
+    if (apiKeysError || (apiKeys && !apiKeys.mapbox_access_token && !apiKeys.MAPBOX_ACCESS_TOKEN)) {
+      setShowTokenInput(true);
+    }
+  }, [apiKeys, apiKeysError]);
+
+  // Handle token submission
+  const handleTokenSubmit = () => {
+    if (!customMapboxToken.trim()) {
+      toast.error("Please enter a valid Mapbox token");
+      return;
+    }
+    
+    // Save token to localStorage for persistence
+    localStorage.setItem('mapbox_custom_token', customMapboxToken);
+    
+    // Reset the map
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
+    
+    mapInitializedRef.current = false;
+    renderingMapRef.current = false;
+    circleLayerAddedRef.current = false;
+    
+    toast.success("Mapbox token applied");
+    
+    // Force a re-render to initialize the map with the new token
+    setMapStyleLoaded(false);
+  };
 
   // Parse initial location string
   const parseInitialLocation = useCallback((locationStr: string) => {
@@ -136,8 +184,20 @@ const LocationMap: React.FC<LocationMapProps> = ({
   // Create a debounced geocode function
   const geocodeLocation = useCallback(debounce(async (lng: number, lat: number) => {
     try {
+      // Get the token from various sources
+      const token = 
+        apiKeys?.mapbox_access_token || 
+        apiKeys?.MAPBOX_ACCESS_TOKEN || 
+        localStorage.getItem('mapbox_custom_token') || 
+        customMapboxToken;
+      
+      if (!token) {
+        console.error('No Mapbox token available for geocoding');
+        return;
+      }
+      
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${apiKeys?.mapbox_access_token || apiKeys?.MAPBOX_ACCESS_TOKEN}`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}`
       );
       const data = await response.json();
       
@@ -157,140 +217,154 @@ const LocationMap: React.FC<LocationMapProps> = ({
     } catch (error) {
       console.error('Error geocoding location:', error);
     }
-  }, 300), [apiKeys, onLocationSelect]);
+  }, 300), [apiKeys, onLocationSelect, customMapboxToken]);
   
   // Initialize the map when the component mounts
   useEffect(() => {
-    // Skip if API keys aren't loaded or map is already being rendered
-    if (isLoadingApiKeys || renderingMapRef.current || !mapContainerRef.current) {
+    // Skip if map is already being rendered
+    if (renderingMapRef.current || !mapContainerRef.current) {
       return;
     }
     
     console.log('Initializing map');
     renderingMapRef.current = true;
     
-    const accessToken = apiKeys?.mapbox_access_token || apiKeys?.MAPBOX_ACCESS_TOKEN;
+    // Get token from various sources
+    const accessToken = 
+      apiKeys?.mapbox_access_token || 
+      apiKeys?.MAPBOX_ACCESS_TOKEN || 
+      localStorage.getItem('mapbox_custom_token') || 
+      customMapboxToken;
+    
     if (!accessToken) {
       console.error('Mapbox access token not found');
       renderingMapRef.current = false;
+      setShowTokenInput(true);
       return;
     }
     
-    mapboxgl.accessToken = accessToken;
-    
-    // Parse initial location
-    const initialLocationData = parseInitialLocation(initialLocation);
-    lastValidLocationRef.current = {
-      lng: initialLocationData.lng,
-      lat: initialLocationData.lat,
-      zoom: 12
-    };
-    
-    // Create the map
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [initialLocationData.lng, initialLocationData.lat],
-      zoom: 12
-    });
-    
-    // Save map instance in ref
-    mapRef.current = map;
-    
-    // Handle style load
-    map.on('style.load', () => {
-      console.log('Map style loaded');
-      setMapStyleLoaded(true);
+    try {
+      mapboxgl.accessToken = accessToken;
       
-      // Add initial marker and circle
-      if (lastValidLocationRef.current) {
-        const { lng, lat } = lastValidLocationRef.current;
-        
-        // Add marker
-        if (markerRef.current) {
-          markerRef.current.remove();
-        }
-        markerRef.current = new mapboxgl.Marker()
-          .setLngLat([lng, lat])
-          .addTo(map);
-        
-        // Add privacy circle
-        updatePrivacyCircle(lng, lat);
-        
-        // Geocode the initial location
-        geocodeLocation(lng, lat);
-      }
-      
-      mapInitializedRef.current = true;
-    });
-    
-    // Add click handler
-    map.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
-      console.log('Map clicked at:', lng, lat);
-      
-      // Update last valid location
+      // Parse initial location
+      const initialLocationData = parseInitialLocation(initialLocation);
       lastValidLocationRef.current = {
-        lng,
-        lat,
-        zoom: map.getZoom()
+        lng: initialLocationData.lng,
+        lat: initialLocationData.lat,
+        zoom: 12
       };
       
-      // Update marker
-      if (markerRef.current) {
-        markerRef.current.setLngLat([lng, lat]);
-      } else {
-        markerRef.current = new mapboxgl.Marker()
-          .setLngLat([lng, lat])
-          .addTo(map);
-      }
+      // Create the map
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [initialLocationData.lng, initialLocationData.lat],
+        zoom: 12
+      });
       
-      // Update circle
-      updatePrivacyCircle(lng, lat);
+      // Save map instance in ref
+      mapRef.current = map;
       
-      // Geocode the location
-      geocodeLocation(lng, lat);
-    });
-    
-    // Handle map movement end - ensure we keep our state in sync
-    map.on('moveend', () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
+      // Handle style load
+      map.on('style.load', () => {
+        console.log('Map style loaded');
+        setMapStyleLoaded(true);
+        
+        // Add initial marker and circle
+        if (lastValidLocationRef.current) {
+          const { lng, lat } = lastValidLocationRef.current;
+          
+          // Add marker
+          if (markerRef.current) {
+            markerRef.current.remove();
+          }
+          markerRef.current = new mapboxgl.Marker()
+            .setLngLat([lng, lat])
+            .addTo(map);
+          
+          // Add privacy circle
+          updatePrivacyCircle(lng, lat);
+          
+          // Geocode the initial location
+          geocodeLocation(lng, lat);
+        }
+        
+        mapInitializedRef.current = true;
+      });
       
-      // Only update if moved by user (not programmatically)
-      if (lastValidLocationRef.current && 
-          (Math.abs(center.lng - lastValidLocationRef.current.lng) > 0.001 || 
-           Math.abs(center.lat - lastValidLocationRef.current.lat) > 0.001)) {
+      // Add click handler
+      map.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+        console.log('Map clicked at:', lng, lat);
+        
+        // Update last valid location
         lastValidLocationRef.current = {
-          lng: center.lng,
-          lat: center.lat,
-          zoom
+          lng,
+          lat,
+          zoom: map.getZoom()
         };
-      }
-    });
-    
-    // Handle map idle (for operations after map has settled)
-    map.on('idle', () => {
-      // Ensure the circle is visible after the map has settled
-      if (persistentCircle && lastValidLocationRef.current && circleLayerAddedRef.current) {
-        const { lng, lat } = lastValidLocationRef.current;
+        
+        // Update marker
+        if (markerRef.current) {
+          markerRef.current.setLngLat([lng, lat]);
+        } else {
+          markerRef.current = new mapboxgl.Marker()
+            .setLngLat([lng, lat])
+            .addTo(map);
+        }
+        
+        // Update circle
         updatePrivacyCircle(lng, lat);
-      }
-    });
-    
-    // Cleanup function
-    return () => {
-      if (mapRef.current) {
-        console.log('Removing map');
-        mapRef.current.remove();
-        mapRef.current = null;
-        circleLayerAddedRef.current = false;
-        markerRef.current = null;
-        mapInitializedRef.current = false;
-      }
+        
+        // Geocode the location
+        geocodeLocation(lng, lat);
+      });
+      
+      // Handle map movement end - ensure we keep our state in sync
+      map.on('moveend', () => {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        
+        // Only update if moved by user (not programmatically)
+        if (lastValidLocationRef.current && 
+            (Math.abs(center.lng - lastValidLocationRef.current.lng) > 0.001 || 
+             Math.abs(center.lat - lastValidLocationRef.current.lat) > 0.001)) {
+          lastValidLocationRef.current = {
+            lng: center.lng,
+            lat: center.lat,
+            zoom
+          };
+        }
+      });
+      
+      // Handle map idle (for operations after map has settled)
+      map.on('idle', () => {
+        // Ensure the circle is visible after the map has settled
+        if (persistentCircle && lastValidLocationRef.current && circleLayerAddedRef.current) {
+          const { lng, lat } = lastValidLocationRef.current;
+          updatePrivacyCircle(lng, lat);
+        }
+      });
+      
+      // Cleanup function
+      return () => {
+        if (mapRef.current) {
+          console.log('Removing map');
+          mapRef.current.remove();
+          mapRef.current = null;
+          circleLayerAddedRef.current = false;
+          markerRef.current = null;
+          mapInitializedRef.current = false;
+        }
+        renderingMapRef.current = false;
+      };
+    } catch (error) {
+      console.error("Error initializing map:", error);
       renderingMapRef.current = false;
-    };
-  }, [apiKeys, isLoadingApiKeys, initialLocation, parseInitialLocation, updatePrivacyCircle, geocodeLocation, persistentCircle]);
+      setShowTokenInput(true);
+      return;
+    }
+  }, [apiKeys, isLoadingApiKeys, initialLocation, parseInitialLocation, updatePrivacyCircle, geocodeLocation, persistentCircle, customMapboxToken]);
   
   // Update map when initialLocation changes and map is already initialized
   useEffect(() => {
@@ -353,14 +427,55 @@ const LocationMap: React.FC<LocationMapProps> = ({
     return () => clearInterval(interval);
   }, [persistentCircle, updatePrivacyCircle]);
 
+  // If we have a custom token in localStorage, load it
+  useEffect(() => {
+    const savedToken = localStorage.getItem('mapbox_custom_token');
+    if (savedToken) {
+      setCustomMapboxToken(savedToken);
+    }
+  }, []);
+
   return (
     <div>
+      {showTokenInput ? (
+        <div className="mb-4 p-4 border border-orange-300 bg-orange-50 rounded-md">
+          <p className="text-sm text-orange-800 mb-2">
+            Mapbox access token is required to display the map. Please enter your Mapbox public token below.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={customMapboxToken}
+              onChange={(e) => setCustomMapboxToken(e.target.value)}
+              placeholder="Enter your Mapbox public token"
+              className="flex-1"
+            />
+            <Button onClick={handleTokenSubmit} size="sm">
+              Apply Token
+            </Button>
+          </div>
+          <p className="text-xs text-gray-600 mt-2">
+            You can get a Mapbox token by creating an account at{" "}
+            <a 
+              href="https://mapbox.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              mapbox.com
+            </a>
+            . Find your public token in the Account {'>'} Access tokens section.
+          </p>
+        </div>
+      ) : null}
+      
       <div 
         ref={mapContainerRef} 
         className="rounded-md overflow-hidden border border-gray-300" 
         style={{ height, width: '100%' }}
       />
-      {isLoadingApiKeys && (
+      
+      {isLoadingApiKeys && !showTokenInput && (
         <div className="flex justify-center items-center h-full w-full absolute top-0 left-0 bg-white bg-opacity-70">
           <p>Loading map...</p>
         </div>

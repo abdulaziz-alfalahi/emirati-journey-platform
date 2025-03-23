@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { PersonalInfo } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,9 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     coordinates: data.coordinates || undefined,
     formattedAddress: data.location || ''
   });
+  
+  // Add key state to force remount of the map component when tab changes
+  const [mapKey, setMapKey] = useState<number>(0);
 
   useEffect(() => {
     if (
@@ -37,6 +41,8 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       
       if (data.coordinates && locationTab === 'text') {
         setLocationTab('map');
+        // Force map remount
+        setMapKey(prev => prev + 1);
       } else if (!data.coordinates && locationTab === 'map') {
         setLocationTab('text');
       }
@@ -97,6 +103,12 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
 
   const handleTabChange = (value: string) => {
     console.log('Tab changed to:', value);
+    
+    // Force map remount when switching to map tab
+    if (value === 'map') {
+      setMapKey(prev => prev + 1);
+    }
+    
     setLocationTab(value);
     
     if (value === 'text' && locationInfo.formattedAddress && locationTab === 'map') {
@@ -199,7 +211,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   Selecting your residence area on the map will help us provide you with commute details to potential vacancies while protecting your privacy.
                 </p>
                 <LocationMap 
-                  key={`map-${locationTab === 'map'}`}
+                  key={`map-${mapKey}`}
                   initialLocation={getLocationStringForMap()}
                   onLocationSelect={handleLocationSelect}
                   persistentCircle={true}
