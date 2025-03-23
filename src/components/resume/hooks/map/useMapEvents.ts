@@ -29,8 +29,12 @@ export const useMapEvents = ({
   
   // Function to setup map features (marker, circle) after style is loaded
   const setupFeatures = useCallback((lng: number, lat: number) => {
-    if (!map) return;
+    if (!map) {
+      console.error('Map not available in setupFeatures');
+      return;
+    }
     
+    console.log(`Setting up features at ${lng},${lat}`);
     setupMapFeatures(
       map,
       markerRef,
@@ -45,11 +49,16 @@ export const useMapEvents = ({
 
   // Setup click event handler
   const setupClickHandler = useCallback(() => {
-    if (!map) return;
+    if (!map) {
+      console.error('Map not available in setupClickHandler');
+      return;
+    }
     
+    console.log('Setting up click handler');
     map.on('click', (e) => {
       // Safely access coordinates using MapboxGL's API
       const { lng, lat } = e.lngLat;
+      console.log(`Map clicked at ${lng},${lat}`);
       
       // Update last valid location using proper properties
       lastValidLocationRef.current = {
@@ -65,8 +74,12 @@ export const useMapEvents = ({
 
   // Setup movement end handler
   const setupMoveEndHandler = useCallback(() => {
-    if (!map) return;
+    if (!map) {
+      console.error('Map not available in setupMoveEndHandler');
+      return;
+    }
     
+    console.log('Setting up moveend handler');
     map.on('moveend', () => {
       if (!map) return;
       
@@ -88,19 +101,27 @@ export const useMapEvents = ({
 
   // Setup style load handler
   const setupStyleLoadHandler = useCallback((callback: () => void) => {
-    if (!map) return;
+    if (!map) {
+      console.error('Map not available in setupStyleLoadHandler');
+      return;
+    }
     
+    console.log('Setting up style.load handler');
     map.on('style.load', () => {
+      console.log('Map style loaded - from event handler');
       callback();
       
       // Wait a brief moment to ensure style is fully loaded
       setTimeout(() => {
         // Add initial marker and circle after style is loaded
         if (lastValidLocationRef.current && map.isStyleLoaded()) {
+          console.log('Setting up initial features after style load');
           const { lng, lat } = lastValidLocationRef.current;
           setupFeatures(lng, lat);
+        } else {
+          console.log('Style not fully loaded or no valid location after timeout');
         }
-      }, 100);
+      }, 200);
     });
   }, [map, lastValidLocationRef, setupFeatures]);
 

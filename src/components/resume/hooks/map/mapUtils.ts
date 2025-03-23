@@ -16,6 +16,8 @@ export const geocodeLocation = async (
       return null;
     }
     
+    console.log(`Geocoding coordinates: ${lng},${lat} with token: ${token.substring(0, 10)}...`);
+    
     const response = await fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&types=place,locality,neighborhood,district`
     );
@@ -25,6 +27,7 @@ export const geocodeLocation = async (
     }
     
     const data = await response.json();
+    console.log('Geocoding response:', data);
     
     if (data.features && data.features.length > 0) {
       // Find the most appropriate place name (neighborhood, locality, place)
@@ -36,6 +39,7 @@ export const geocodeLocation = async (
       );
       
       const placeName = place ? place.place_name : data.features[0].place_name;
+      console.log('Selected place name:', placeName);
       
       // Create a new location object with properly typed coordinates
       return {
@@ -44,6 +48,7 @@ export const geocodeLocation = async (
         formattedAddress: placeName
       };
     }
+    console.error('No features found in geocoding response');
     return null;
   } catch (error) {
     console.error('Error geocoding location:', error);
@@ -91,12 +96,14 @@ export const updatePrivacyCircle = (
   lat: number
 ): void => {
   if (!map || !map.isStyleLoaded()) {
+    console.log('Map style not loaded, deferring privacy circle update');
     return;
   }
   
   try {
     // Create a GeoJSON source for the circle if it doesn't exist
     if (!circleLayerAddedRef.current) {
+      console.log('Adding privacy circle source and layer');
       // Add the source for the circle
       map.addSource('privacy-circle', {
         type: 'geojson',
@@ -125,7 +132,9 @@ export const updatePrivacyCircle = (
       
       circleLayerAddedRef.current = true;
       circleRef.current = map.getSource('privacy-circle') as mapboxgl.GeoJSONSource;
+      console.log('Privacy circle added successfully');
     } else if (circleRef.current) {
+      console.log('Updating existing privacy circle');
       // Update the existing circle
       circleRef.current.setData({
         type: 'Feature',
@@ -154,20 +163,34 @@ export const setupMapFeatures = (
   mapStyleLoaded: boolean,
   geocodeCallback: (lng: number, lat: number) => void
 ): void => {
-  // Add marker
-  if (markerRef.current) {
-    markerRef.current.remove();
+  if (!map) {
+    console.error('Map not initialized in setupMapFeatures');
+    return;
   }
   
-  markerRef.current = new mapboxgl.Marker()
-    .setLngLat([lng, lat])
-    .addTo(map);
-  
-  // Add privacy circle only if map style is loaded
-  if (mapStyleLoaded && map.isStyleLoaded()) {
-    updatePrivacyCircle(map, circleRef, circleLayerAddedRef, lng, lat);
+  try {
+    console.log(`Setting up map features at ${lng},${lat}`);
+    
+    // Add marker
+    if (markerRef.current) {
+      markerRef.current.remove();
+    }
+    
+    markerRef.current = new mapboxgl.Marker()
+      .setLngLat([lng, lat])
+      .addTo(map);
+    
+    // Add privacy circle only if map style is loaded
+    if (mapStyleLoaded && map.isStyleLoaded()) {
+      updatePrivacyCircle(map, circleRef, circleLayerAddedRef, lng, lat);
+    } else {
+      console.log('Map style not loaded, privacy circle will be added after style loads');
+    }
+    
+    // Geocode the location
+    console.log('Calling geocodeCallback');
+    geocodeCallback(lng, lat);
+  } catch (error) {
+    console.error('Error in setupMapFeatures:', error);
   }
-  
-  // Geocode the location
-  geocodeCallback(lng, lat);
 };

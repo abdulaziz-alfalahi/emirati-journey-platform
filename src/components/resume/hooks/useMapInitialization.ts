@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { debounce } from 'lodash';
@@ -46,18 +47,31 @@ export const useMapInitialization = ({
   const inConsoleOperationRef = useRef(false);
 
   // Create a debounced geocode function - with proper error handling
-  const geocodeLocationCallback = useCallback(debounce(async (lng: number, lat: number) => {
-    try {
-      const token = getEffectiveToken();
-      const locationData = await geocodeLocation(lng, lat, token);
-      
-      if (locationData) {
-        onLocationSelect(locationData);
+  const geocodeLocationCallback = useCallback(
+    debounce(async (lng: number, lat: number) => {
+      try {
+        console.log('Starting geocoding process');
+        const token = getEffectiveToken();
+        if (!token) {
+          console.error('No token available for geocoding');
+          return;
+        }
+        
+        console.log('Geocoding location with token available');
+        const locationData = await geocodeLocation(lng, lat, token);
+        
+        if (locationData) {
+          console.log('Geocoded location:', locationData);
+          onLocationSelect(locationData);
+        } else {
+          console.error('Geocoding returned null result');
+        }
+      } catch (error) {
+        console.error('Error in geocodeLocationCallback:', error);
       }
-    } catch (error) {
-      console.error('Error geocoding location:', error);
-    }
-  }, 300), [getEffectiveToken, onLocationSelect]);
+    }, 300), 
+    [getEffectiveToken, onLocationSelect]
+  );
 
   // Setup map events
   const { 
@@ -105,6 +119,7 @@ export const useMapInitialization = ({
     renderingMapRef.current = true;
     
     try {
+      console.log('Initializing map');
       // Set the token before creating the map
       mapboxgl.accessToken = accessToken;
       
@@ -130,7 +145,10 @@ export const useMapInitialization = ({
       mapRef.current = map;
       
       // Setup event handlers
-      setupStyleLoadHandler(() => setMapStyleLoaded(true));
+      setupStyleLoadHandler(() => {
+        console.log('Map style loaded');
+        setMapStyleLoaded(true);
+      });
       setupClickHandler();
       setupMoveEndHandler();
       
