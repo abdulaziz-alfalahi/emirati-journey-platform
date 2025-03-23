@@ -10,15 +10,24 @@ import { ResumeData } from '../types';
 import { extractDataFromContent } from './resumeContentParser';
 import { mergeResumeData } from './resumeDataUtils';
 
+// Define the metadata type to include processingMethod
+interface DocumentMetadata {
+  fileType: string;
+  processedAt: string;
+  textLength: number;
+  processingMethod: string;
+}
+
 // Advanced document processor functionality
-const processDocument = (fileContent: string, fileType: string): { text: string, metadata: any } => {
+const processDocument = (fileContent: string, fileType: string): { text: string, metadata: DocumentMetadata } => {
   console.log(`Processing document of type: ${fileType} with content length: ${fileContent.length}`);
   
   let text = fileContent;
-  let metadata = {
+  let metadata: DocumentMetadata = {
     fileType,
     processedAt: new Date().toISOString(),
-    textLength: fileContent.length
+    textLength: fileContent.length,
+    processingMethod: 'generic-extraction'
   };
   
   // Process based on file type
