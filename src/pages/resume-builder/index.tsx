@@ -25,6 +25,17 @@ const getSavedResume = (): ResumeData | null => {
   }
 };
 
+// Safely log objects to prevent window.postMessage errors
+const safeConsoleLog = (label: string, data: any) => {
+  try {
+    // Convert data to a simple object with only primitive values
+    const simplifiedData = JSON.parse(JSON.stringify(data));
+    console.info(label, simplifiedData);
+  } catch (error) {
+    console.error("Error logging data:", error);
+  }
+};
+
 const ResumeBuilderPage = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +89,44 @@ const ResumeBuilderPage = () => {
       setIsResumeLoading(false);
     }
   }, [resumeData, isProcessingLinkedIn]);
+
+  // Override console.info/log for this component to prevent postMessage errors
+  useEffect(() => {
+    const originalConsoleInfo = console.info;
+    const originalConsoleLog = console.log;
+
+    console.info = function(...args) {
+      try {
+        // Use the safe logging function for objects
+        if (args.length > 1 && typeof args[1] === 'object') {
+          safeConsoleLog(args[0], args[1]);
+        } else {
+          originalConsoleInfo.apply(console, args);
+        }
+      } catch (error) {
+        originalConsoleInfo.call(console, "Error in console.info override:", error);
+      }
+    };
+
+    console.log = function(...args) {
+      try {
+        // Use the safe logging function for objects
+        if (args.length > 1 && typeof args[1] === 'object') {
+          safeConsoleLog(args[0], args[1]);
+        } else {
+          originalConsoleLog.apply(console, args);
+        }
+      } catch (error) {
+        originalConsoleLog.call(console, "Error in console.log override:", error);
+      }
+    };
+
+    // Restore the original console methods when component unmounts
+    return () => {
+      console.info = originalConsoleInfo;
+      console.log = originalConsoleLog;
+    };
+  }, []);
 
   if (isLoading || isProcessingLinkedIn || isResumeLoading) {
     return (

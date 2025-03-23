@@ -21,11 +21,25 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
   };
 
   const handleLocationChange = (location: string, coordinates?: [number, number]) => {
-    onChange({
-      ...data,
-      location,
-      coordinates
-    });
+    // Make sure the data being passed is cloneable (no complex objects)
+    try {
+      // Using JSON.stringify/parse to ensure only serializable data is passed
+      const safeLocation = location ? JSON.parse(JSON.stringify(location)) : location;
+      const safeCoordinates = coordinates ? JSON.parse(JSON.stringify(coordinates)) : coordinates;
+      
+      onChange({
+        ...data,
+        location: safeLocation,
+        coordinates: safeCoordinates
+      });
+    } catch (error) {
+      console.error("Error processing location data:", error);
+      // Fallback to just updating the location string
+      onChange({
+        ...data,
+        location
+      });
+    }
   };
 
   return (
