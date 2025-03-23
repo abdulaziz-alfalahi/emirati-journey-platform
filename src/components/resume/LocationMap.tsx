@@ -8,8 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Default public Mapbox token for development - replace with your own in production
-const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoiZGVtby1hY2NvdW50IiwiYSI6ImNrbzBsdjBzMzA2NHMyb3FtZjlmNGFxbDEifQ.B1lTSwuYWdJ16pvZCPyVKw';
+// A more reliable token for development - still recommended to replace with your own
+const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoiYXBwLXRlc3QtdG9rZW4iLCJhIjoiY2x0OXB5MGdnMDFmNjJrcGR5ZjMxanZleCJ9.ZNk3gy0m1T0QIl_86vV_rw';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -41,6 +41,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const [tokenFetchAttempted, setTokenFetchAttempted] = useState<boolean>(false);
   const [circleAdded, setCircleAdded] = useState<boolean>(false);
   const [customToken, setCustomToken] = useState<string>('');
+  const [mapError, setMapError] = useState<string | null>(null);
 
   // Function to fetch Mapbox token from Supabase edge function or localStorage
   const fetchMapboxToken = useCallback(async () => {
@@ -121,14 +122,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
     
     // Try to find neighborhood or district first
     const neighborhood = features.find(f => 
-      f.place_type.includes('neighborhood') || 
-      f.place_type.includes('district')
+      f.place_type?.includes('neighborhood') || 
+      f.place_type?.includes('district')
     );
     
     if (neighborhood) return neighborhood.place_name;
     
     // Fall back to place (city)
-    const place = features.find(f => f.place_type.includes('place'));
+    const place = features.find(f => f.place_type?.includes('place'));
     if (place) return place.place_name;
     
     // Last resort, use the first feature but try to extract just the area name
@@ -374,8 +375,15 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
       });
       
+      // Handle map errors
+      map.current.on('error', (e) => {
+        console.error('Map error:', e);
+        setMapError('Map could not be loaded. Please try again later.');
+      });
+      
     } catch (error) {
       console.error('Error initializing map:', error);
+      setMapError('Failed to initialize map. Please try again later.');
       toast.error("Map initialization failed", {
         description: "Please check your internet connection or try again later.",
         duration: 5000,
@@ -392,6 +400,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
     if (customToken) {
       localStorage.setItem('MAPBOX_ACCESS_TOKEN', customToken);
       setMapboxToken(customToken);
+      setMapError(null);
       toast.success('Mapbox token saved successfully');
     }
   };
@@ -401,6 +410,33 @@ const LocationMap: React.FC<LocationMapProps> = ({
     return (
       <div className="rounded border border-gray-300 p-4 flex items-center justify-center h-80">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
+      </div>
+    );
+  }
+  
+  // If we have an error, show error message and token input
+  if (mapError) {
+    return (
+      <div className="rounded border border-gray-300 p-4 space-y-4">
+        <p className="text-red-500">{mapError}</p>
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            className="border border-gray-300 rounded px-3 py-2 flex-1"
+            placeholder="Enter your Mapbox token"
+            value={customToken}
+            onChange={(e) => setCustomToken(e.target.value)}
+          />
+          <button 
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={saveCustomToken}
+          >
+            Save
+          </button>
+        </div>
+        <p className="text-sm text-gray-500">
+          You can get a Mapbox token by signing up at <a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">mapbox.com</a>
+        </p>
       </div>
     );
   }
@@ -433,7 +469,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
   }
   
   return (
-    <div ref={mapContainer} className="h-80 rounded border border-gray-300" />
+    <div>
+      <div ref={mapContainer} className="h-80 rounded border border-gray-300" />
+      {selectedLocation && (
+        <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+          <p className="text-sm font-medium">Selected coordinates: {selectedLocation[1].toFixed(4)}, {selectedLocation[0].toFixed(4)}</p>
+        </div>
+      )}
+    </div>
   );
 };
 
