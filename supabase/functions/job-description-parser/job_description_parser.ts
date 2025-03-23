@@ -1,14 +1,10 @@
 
 /**
- * Job Description Parser Module
- *
- * This module handles the parsing of job descriptions to extract structured information.
- * It uses a similar approach to the enhanced resume parser but is specialized for job descriptions.
+ * Job Description Parser for Supabase Edge Function
+ * 
+ * A TypeScript implementation of the Job Description Parser
  */
 
-import { ResumeData } from '../types';
-
-// Define the JobDescription interface
 export interface JobDescription {
   title: string;
   company: string;
@@ -70,21 +66,21 @@ interface SalaryInfo {
 export class JobDescriptionParser {
   // Section patterns for identifying different parts of a job description
   private sectionPatterns: Record<string, RegExp> = {
-    title: /(?i)(job\s+title|position|role)/,
-    company: /(?i)(company|organization|employer)/,
-    location: /(?i)(location|place|city|region|country)/,
-    employment_type: /(?i)(employment\s+type|job\s+type|contract\s+type)/,
-    work_mode: /(?i)(work\s+mode|remote|on-site|hybrid)/,
-    description: /(?i)(job\s+description|about\s+the\s+job|about\s+the\s+role|overview)/,
-    responsibilities: /(?i)(responsibilities|duties|key\s+responsibilities|what\s+you\'ll\s+do)/,
-    requirements: /(?i)(requirements|qualifications|what\s+you\s+need|what\s+we\'re\s+looking\s+for)/,
-    education: /(?i)(education|academic|qualifications|degree)/,
-    experience: /(?i)(experience|work\s+experience|professional\s+experience)/,
-    skills: /(?i)(skills|technical\s+skills|competencies|expertise)/,
-    benefits: /(?i)(benefits|perks|what\s+we\s+offer|compensation)/,
-    salary: /(?i)(salary|compensation|pay|wage)/,
-    application: /(?i)(how\s+to\s+apply|application\s+process|next\s+steps)/,
-    deadline: /(?i)(deadline|closing\s+date|apply\s+by)/
+    title: /(job\s+title|position|role)/i,
+    company: /(company|organization|employer)/i,
+    location: /(location|place|city|region|country)/i,
+    employment_type: /(employment\s+type|job\s+type|contract\s+type)/i,
+    work_mode: /(work\s+mode|remote|on-site|hybrid)/i,
+    description: /(job\s+description|about\s+the\s+job|about\s+the\s+role|overview)/i,
+    responsibilities: /(responsibilities|duties|key\s+responsibilities|what\s+you\'ll\s+do)/i,
+    requirements: /(requirements|qualifications|what\s+you\s+need|what\s+we\'re\s+looking\s+for)/i,
+    education: /(education|academic|qualifications|degree)/i,
+    experience: /(experience|work\s+experience|professional\s+experience)/i,
+    skills: /(skills|technical\s+skills|competencies|expertise)/i,
+    benefits: /(benefits|perks|what\s+we\s+offer|compensation)/i,
+    salary: /(salary|compensation|pay|wage)/i,
+    application: /(how\s+to\s+apply|application\s+process|next\s+steps)/i,
+    deadline: /(deadline|closing\s+date|apply\s+by)/i
   };
 
   // Employment type patterns
@@ -132,35 +128,27 @@ export class JobDescriptionParser {
 
   // Experience patterns
   private experiencePatterns: RegExp[] = [
-    /(\d+)\+?\s+years?/,
-    /minimum\s+of\s+(\d+)\s+years?/,
-    /at\s+least\s+(\d+)\s+years?/,
-    /(\d+)-(\d+)\s+years?/
+    /(\d+)\+?\s+years?/i,
+    /minimum\s+of\s+(\d+)\s+years?/i,
+    /at\s+least\s+(\d+)\s+years?/i,
+    /(\d+)-(\d+)\s+years?/i
   ];
 
   // Salary patterns
   private salaryPatterns: RegExp[] = [
-    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*-\s*(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)\s*-\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)/,
-    /up\s+to\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
-    /starting\s+at\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
-    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+per\s+(hour|year|month|week)/
+    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*-\s*(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
+    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)\s*-\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)/i,
+    /up\s+to\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
+    /starting\s+at\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
+    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+per\s+(hour|year|month|week)/i
   ];
 
   // Date patterns
   private datePatterns: RegExp[] = [
-    /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4}\b/,
-    /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/,
-    /\b\d{4}-\d{1,2}-\d{1,2}\b/
+    /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4}\b/i,
+    /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/i,
+    /\b\d{4}-\d{1,2}-\d{1,2}\b/i
   ];
-
-  constructor() {
-    // Replace (?i) with proper JavaScript regex flags
-    Object.keys(this.sectionPatterns).forEach(key => {
-      const pattern = this.sectionPatterns[key].source.replace('(?i)', '');
-      this.sectionPatterns[key] = new RegExp(pattern, 'i');
-    });
-  }
 
   /**
    * Parse a job description and extract structured information
@@ -300,9 +288,9 @@ export class JobDescriptionParser {
     
     // Look for company patterns
     const companyPatterns = [
-      /(?:at|with|for|by)\s+([A-Z][A-Za-z0-9\s&]+)(?:,|\.|is)/,
+      /(?:at|with|for|by)\s+([A-Z][A-Za-z0-9\s&]+)(?:,|\.|is)/i,
       /Company\s*:\s*([^,\n]+)/i,
-      /([A-Z][A-Za-z0-9\s&]+)\s+is\s+(?:seeking|looking|hiring)/
+      /([A-Z][A-Za-z0-9\s&]+)\s+is\s+(?:seeking|looking|hiring)/i
     ];
     
     for (const pattern of companyPatterns) {
@@ -327,8 +315,8 @@ export class JobDescriptionParser {
     // Look for common location patterns
     const locationPatterns = [
       /Location\s*:\s*([^,\n]+)/i,
-      /(?:in|at|near)\s+([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/,
-      /([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/,
+      /(?:in|at|near)\s+([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/i,
+      /([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/i,
       /based\s+in\s+([^,\n]+)/i,
       /position\s+in\s+([^,\n]+)/i
     ];
@@ -548,29 +536,35 @@ export class JobDescriptionParser {
     
     // Look for experience patterns
     for (const pattern of this.experiencePatterns) {
-      const matches = content.matchAll(pattern);
-      for (const match of matches) {
-        const years = parseInt(match[1], 10);
-        
-        // Try to find the field of experience
-        let field = "";
-        const start = Math.max(0, match.index ? match.index - P0 : 0);
-        const end = Math.min(content.length, (match.index || 0) + match[0].length + 50);
-        const context = content.substring(start, end);
-        
-        const fieldMatch = context.match(/experience\s+in\s+([^,\.]+)/i);
-        if (fieldMatch && fieldMatch[1]) {
-          field = fieldMatch[1].trim();
+      const matches = content.match(pattern);
+      if (matches && matches.length > 1) {
+        for (let i = 0; i < matches.length; i++) {
+          const match = matches[i];
+          const yearMatch = match.match(/\d+/);
+          if (yearMatch) {
+            const years = parseInt(yearMatch[0], 10);
+          
+            // Try to find the field of experience
+            let field = "";
+            const contextStart = Math.max(0, content.indexOf(match) - 50);
+            const contextEnd = Math.min(content.length, content.indexOf(match) + match.length + 50);
+            const context = content.substring(contextStart, contextEnd);
+            
+            const fieldMatch = context.match(/experience\s+in\s+([^,\.]+)/i);
+            if (fieldMatch && fieldMatch[1]) {
+              field = fieldMatch[1].trim();
+            }
+            
+            // Determine if required or preferred
+            const required = !(/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(context));
+            
+            experienceReqs.push({
+              years,
+              field,
+              required
+            });
+          }
         }
-        
-        // Determine if required or preferred
-        const required = !(/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(context));
-        
-        experienceReqs.push({
-          years,
-          field,
-          required
-        });
       }
     }
     
@@ -721,9 +715,10 @@ export class JobDescriptionParser {
     // Extract certifications
     for (const keyword of certKeywords) {
       const regex = new RegExp('\\b' + keyword + '(?:\\s+in)?\\s+([^,\\.]+)', 'i');
-      const matches = content.matchAll(regex);
-      for (const match of Array.from(matches)) {
-        const certName = match[0].trim();
+      const matches = content.match(regex);
+      
+      if (matches) {
+        const certName = matches[0].trim();
         
         // Determine if required or preferred
         let required = true;
@@ -984,97 +979,3 @@ export class JobDescriptionParser {
     return keywords.slice(0, 20);
   }
 }
-
-// This function will help integrate the job description parser with the current resume parser
-export const parseJobDescriptionFromFile = async (file: File): Promise<JobDescription> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const fileContent = e.target?.result as string;
-        
-        if (!fileContent) {
-          reject(new Error('Could not read file content'));
-          return;
-        }
-        
-        console.log('File read complete. Content length:', fileContent.length);
-        const parser = new JobDescriptionParser();
-        const parsedData = parser.parseJobDescription(fileContent);
-        
-        resolve(parsedData);
-      } catch (error) {
-        console.error('Error parsing job description:', error);
-        reject(new Error('Failed to parse job description file. Please try a different file.'));
-      }
-    };
-    
-    reader.onerror = () => {
-      reject(new Error('Error reading file. Please try again.'));
-    };
-    
-    reader.readAsText(file);
-  });
-};
-
-// Integrate with the resume parser to identify matches
-export const findResumeJobMatches = (resumeData: ResumeData, jobDescription: JobDescription): { 
-  matchScore: number;
-  skillMatches: string[];
-  skillGaps: string[];
-  experienceMatches: string[];
-  experienceGaps: string[];
-} => {
-  // Initialize return object
-  const result = {
-    matchScore: 0,
-    skillMatches: [] as string[],
-    skillGaps: [] as string[],
-    experienceMatches: [] as string[],
-    experienceGaps: [] as string[]
-  };
-  
-  // Match skills
-  const resumeSkills = resumeData.skills.map(skill => skill.name.toLowerCase());
-  const jobSkills = jobDescription.requirements.skills.map(skill => skill.name.toLowerCase());
-  
-  // Find matching skills
-  result.skillMatches = jobSkills.filter(skill => 
-    resumeSkills.some(resumeSkill => resumeSkill.includes(skill))
-  );
-  
-  // Find missing skills
-  result.skillGaps = jobSkills.filter(skill => 
-    !resumeSkills.some(resumeSkill => resumeSkill.includes(skill))
-  );
-  
-  // Calculate match percentage
-  const skillMatchPercentage = jobSkills.length > 0 
-    ? (result.skillMatches.length / jobSkills.length) * 100
-    : 0;
-  
-  // Match experience (very basic implementation)
-  const resumeExperience = resumeData.experience.map(exp => exp.description.toLowerCase());
-  const jobResponsibilities = jobDescription.responsibilities.map(resp => resp.toLowerCase());
-  
-  // Find matching experience areas
-  result.experienceMatches = jobResponsibilities.filter(resp => 
-    resumeExperience.some(exp => exp.includes(resp.substring(0, 15)))
-  );
-  
-  // Find missing experience areas
-  result.experienceGaps = jobResponsibilities.filter(resp => 
-    !resumeExperience.some(exp => exp.includes(resp.substring(0, 15)))
-  );
-  
-  // Calculate experience match percentage
-  const experienceMatchPercentage = jobResponsibilities.length > 0
-    ? (result.experienceMatches.length / jobResponsibilities.length) * 100
-    : 0;
-  
-  // Calculate overall match score
-  result.matchScore = Math.round((skillMatchPercentage + experienceMatchPercentage) / 2);
-  
-  return result;
-};
