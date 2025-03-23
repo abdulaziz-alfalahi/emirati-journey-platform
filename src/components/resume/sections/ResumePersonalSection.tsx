@@ -25,6 +25,27 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     formattedAddress: data.location || ''
   });
   
+  // Synchronize state with incoming data props when they change
+  useEffect(() => {
+    // Only update local state if the data props have changed significantly
+    if (data.location !== locationInfo.formattedAddress || 
+        JSON.stringify(data.coordinates) !== JSON.stringify(locationInfo.coordinates)) {
+      
+      setLocationInfo({
+        address: data.location || '',
+        coordinates: data.coordinates || undefined,
+        formattedAddress: data.location || ''
+      });
+      
+      // Set the appropriate tab based on whether coordinates exist
+      if (data.coordinates && locationTab === 'text') {
+        setLocationTab('map');
+      } else if (!data.coordinates && locationTab === 'map') {
+        setLocationTab('text');
+      }
+    }
+  }, [data.location, data.coordinates]);
+  
   // Update parent data when locationInfo changes
   useEffect(() => {
     // Only update if there are changes to avoid infinite loops
@@ -49,16 +70,10 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       setLocationInfo(prev => ({
         ...prev,
         address: value,
-        formattedAddress: value
+        formattedAddress: value,
+        // Clear coordinates if entering location manually
+        ...(locationTab === 'text' ? { coordinates: undefined } : {})
       }));
-      
-      // Clear coordinates if entering location manually
-      if (locationTab === 'text') {
-        setLocationInfo(prev => ({
-          ...prev,
-          coordinates: undefined
-        }));
-      }
       return;
     }
     
@@ -75,9 +90,10 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
   }) => {
     console.log('Location selected:', locationData);
     
-    // Update local state first
+    // Update local state
     setLocationInfo(locationData);
     
+    // Notify user
     toast.success("Location selected", {
       description: `Selected: ${locationData.formattedAddress}`,
       duration: 3000,
@@ -99,14 +115,14 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
 
   // Prepare location string for the map component
   const getLocationStringForMap = () => {
-    if (data.coordinates) {
+    if (locationInfo.coordinates) {
       return JSON.stringify({
-        longitude: data.coordinates[0],
-        latitude: data.coordinates[1],
-        name: data.location
+        longitude: locationInfo.coordinates[0],
+        latitude: locationInfo.coordinates[1],
+        name: locationInfo.formattedAddress
       });
     }
-    return data.location || '';
+    return locationInfo.formattedAddress || '';
   };
 
   return (

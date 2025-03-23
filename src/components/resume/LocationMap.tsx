@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -34,19 +35,52 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const circleRadius = 250; // 500 meter diameter (radius = 250)
   const privacyCircleId = 'privacy-circle';
   const privacyCircleSourceId = 'privacy-circle-source';
-  const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
-  const { user } = useAuth();
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-  const [mapError, setMapError] = useState<string | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>(FALLBACK_MAPBOX_TOKEN);
   const [isLoadingToken, setIsLoadingToken] = useState<boolean>(true);
+  const { user } = useAuth();
   
-  // Refs to prevent re-renders and maintain state
+  // Using refs to track state without causing rerenders
   const mapInitializedRef = useRef<boolean>(false);
-  const circleAddedRef = useRef<boolean>(false);
-  const initialCoordinatesRef = useRef<[number, number] | null>(null);
-  const selectedLocationRef = useRef<[number, number] | null>(null);
-  const styleLoadedRef = useRef<boolean>(false);
+  const privacyCircleRef = useRef<{
+    added: boolean;
+    coordinates: [number, number] | null;
+    address: string | null;
+  }>({
+    added: false,
+    coordinates: null,
+    address: null
+  });
+  const stylesLoadedRef = useRef<boolean>(false);
+  
+  // Format the address for privacy by removing specific details
+  const formatAddressForPrivacy = useCallback((features: any[]) => {
+    if (!features || features.length === 0) return 'Custom Location';
+    
+    // Try to find neighborhood or district first
+    const neighborhood = features.find(f => 
+      f.place_type?.includes('neighborhood') || 
+      f.place_type?.includes('district')
+    );
+    
+    if (neighborhood) return neighborhood.place_name;
+    
+    // Fall back to place (city)
+    const place = features.find(f => f.place_type?.includes('place'));
+    if (place) return place.place_name;
+    
+    // Last resort, use the first feature but try to extract just the area name
+    const firstFeature = features[0];
+    
+    // If we have a full address, try to extract just the area parts
+    if (firstFeature.context && firstFeature.context.length > 0) {
+      // Skip the first part (street address) and start with neighborhood/district
+      const contextParts = firstFeature.context.map((c: any) => c.text);
+      return contextParts.join(', ');
+    }
+    
+    // If all else fails, return the full place name
+    return firstFeature.place_name || 'Custom Location';
+  }, []);
 
   // Parse location string to extract coordinates
   const parseLocationString = useCallback((locationString: string) => {
@@ -54,7 +88,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Try parsing as JSON first (common format for stored locations)
       try {
         const location = JSON.parse(locationString);
-        if (location.longitude && location.latitude) {
+        if (location.longitude !== undefined && location.latitude !== undefined) {
           return {
             coordinates: [location.longitude, location.latitude] as [number, number],
             address: location.name || 'Selected Location'
@@ -86,23 +120,27 @@ const LocationMap: React.FC<LocationMapProps> = ({
       };
     }
   }, []);
-
-  // Function to update privacy circle on the map
-  const updatePrivacyCircle = useCallback((coordinates: [number, number]) => {
+  
+  // Function to ensure privacy circle is displayed on the map
+  const ensurePrivacyCircle = useCallback((coordinates: [number, number], address: string) => {
     if (!map.current) return;
     
-    // Update refs to maintain state between renders
-    setSelectedLocation(coordinates);
-    selectedLocationRef.current = coordinates;
-    
     try {
-      // Check if the map is loaded
+      // Make sure the map style is loaded
       if (!map.current.isStyleLoaded()) {
-        console.log("Map style not loaded yet, waiting for style.load event");
+        stylesLoadedRef.current = false;
+        console.log("Map style not loaded yet, will add circle when style loads");
+        
+        // Store coordinates and address for when style loads
+        privacyCircleRef.current = {
+          added: false,
+          coordinates: coordinates,
+          address: address
+        };
         return;
       }
       
-      styleLoadedRef.current = true;
+      stylesLoadedRef.current = true;
       
       // Always remove the previous source and layer if they exist
       if (map.current.getLayer(privacyCircleId)) {
@@ -142,46 +180,53 @@ const LocationMap: React.FC<LocationMapProps> = ({
       });
       
       // Update the center of the map to the selected location
-      map.current.setCenter(coordinates);
+      map.current.easeTo({
+        center: coordinates,
+        duration: 500
+      });
       
       // Update ref to track that circle has been added
-      circleAddedRef.current = true;
+      privacyCircleRef.current = {
+        added: true,
+        coordinates: coordinates,
+        address: address
+      };
       
-      console.log("Privacy circle updated at:", coordinates);
+      console.log("Privacy circle successfully added at:", coordinates);
     } catch (error) {
-      console.error('Error updating privacy circle:', error);
+      console.error('Error adding privacy circle:', error);
     }
   }, []);
   
-  // Format the address for privacy by removing specific details
-  const formatAddressForPrivacy = (features: any[]) => {
-    if (!features || features.length === 0) return 'Custom Location';
+  // Update privacy circle and related state
+  const updateLocation = useCallback((coordinates: [number, number], address: string) => {
+    // Update refs
+    privacyCircleRef.current = {
+      ...privacyCircleRef.current,
+      coordinates: coordinates,
+      address: address
+    };
     
-    // Try to find neighborhood or district first
-    const neighborhood = features.find(f => 
-      f.place_type?.includes('neighborhood') || 
-      f.place_type?.includes('district')
-    );
+    // Add circle to map
+    ensurePrivacyCircle(coordinates, address);
     
-    if (neighborhood) return neighborhood.place_name;
+    // Call callback functions
+    onLocationSelect({
+      address: address,
+      coordinates: coordinates,
+      formattedAddress: address
+    });
     
-    // Fall back to place (city)
-    const place = features.find(f => f.place_type?.includes('place'));
-    if (place) return place.place_name;
-    
-    // Last resort, use the first feature but try to extract just the area name
-    const firstFeature = features[0];
-    
-    // If we have a full address, try to extract just the area parts
-    if (firstFeature.context && firstFeature.context.length > 0) {
-      // Skip the first part (street address) and start with neighborhood/district
-      const contextParts = firstFeature.context.map((c: any) => c.text);
-      return contextParts.join(', ');
+    // For backward compatibility
+    if (onChange) {
+      const location = {
+        longitude: coordinates[0],
+        latitude: coordinates[1],
+        name: address
+      };
+      onChange(JSON.stringify(location));
     }
-    
-    // If all else fails, return the full place name
-    return firstFeature.place_name || 'Custom Location';
-  };
+  }, [ensurePrivacyCircle, onLocationSelect, onChange]);
 
   // Fetch Mapbox token from Supabase Edge Function
   useEffect(() => {
@@ -220,7 +265,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    // Avoid reinitializing if map is already created or token is not loaded
+    // Don't initialize if already initialized, token is loading, or container is missing
     if (mapInitializedRef.current || isLoadingToken || !mapboxToken || !mapContainer.current) return;
     
     try {
@@ -236,8 +281,9 @@ const LocationMap: React.FC<LocationMapProps> = ({
         center: [55.2708, 25.2048], // Default to Dubai
         zoom: 10,
         attributionControl: false,
-        preserveDrawingBuffer: true, // Helps with rendering issues
-        renderWorldCopies: false // Prevents multiple world copies which can cause flickering
+        preserveDrawingBuffer: true,
+        renderWorldCopies: false,
+        failIfMajorPerformanceCaveat: true
       });
       
       // Prevent reinitialization
@@ -251,16 +297,20 @@ const LocationMap: React.FC<LocationMapProps> = ({
           
           if (parsedLocation.coordinates) {
             console.log('Setting initial location from parsed coordinates:', parsedLocation.coordinates);
-            initialCoordinatesRef.current = parsedLocation.coordinates;
-            selectedLocationRef.current = parsedLocation.coordinates;
-            setSelectedLocation(parsedLocation.coordinates);
-            setSelectedAddress(parsedLocation.address);
-          } else {
+            privacyCircleRef.current = {
+              added: false,
+              coordinates: parsedLocation.coordinates,
+              address: parsedLocation.address || 'Selected Location'
+            };
+          } else if (parsedLocation.address) {
             console.log('Using location as string:', parsedLocation.address);
-            setSelectedAddress(parsedLocation.address);
+            privacyCircleRef.current = {
+              ...privacyCircleRef.current,
+              address: parsedLocation.address
+            };
           }
         } catch (e) {
-          console.error('Error parsing location:', e);
+          console.error('Error parsing initial location:', e);
         }
       }
       
@@ -286,13 +336,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // When map style loads
       map.current.on('style.load', () => {
         console.log('Map style loaded');
-        styleLoadedRef.current = true;
+        stylesLoadedRef.current = true;
         
-        // Re-add the privacy circle if we have coordinates
-        if (selectedLocationRef.current) {
-          updatePrivacyCircle(selectedLocationRef.current);
-        } else if (initialCoordinatesRef.current) {
-          updatePrivacyCircle(initialCoordinatesRef.current);
+        // Add the privacy circle if we have coordinates
+        if (privacyCircleRef.current.coordinates) {
+          ensurePrivacyCircle(
+            privacyCircleRef.current.coordinates,
+            privacyCircleRef.current.address || 'Selected Location'
+          );
         }
       });
       
@@ -302,32 +353,11 @@ const LocationMap: React.FC<LocationMapProps> = ({
           console.log('Geocoder result:', e.result);
           const coords = e.result.center;
           if (coords) {
-            // Set the map center
-            map.current?.setCenter([coords[0], coords[1]]);
-            
-            // Update privacy circle
-            updatePrivacyCircle([coords[0], coords[1]]);
-            
             // Format the address to be more general
             const formattedAddress = formatAddressForPrivacy([e.result]);
-            setSelectedAddress(formattedAddress);
             
-            // Call onLocationSelect callback
-            onLocationSelect({
-              address: formattedAddress,
-              coordinates: [coords[0], coords[1]],
-              formattedAddress: formattedAddress
-            });
-            
-            // For backward compatibility
-            if (onChange) {
-              const location = {
-                longitude: coords[0],
-                latitude: coords[1],
-                name: formattedAddress
-              };
-              onChange(JSON.stringify(location));
-            }
+            // Update location with new coordinates and address
+            updateLocation([coords[0], coords[1]], formattedAddress);
           }
         });
       }
@@ -336,78 +366,54 @@ const LocationMap: React.FC<LocationMapProps> = ({
       map.current.on('click', (e) => {
         console.log('Map clicked at:', e.lngLat);
         
-        // Update privacy circle
-        updatePrivacyCircle([e.lngLat.lng, e.lngLat.lat]);
-        
         // Reverse geocode to get address for the coordinates
         fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
           .then(response => response.json())
           .then(data => {
             // Format the address for privacy
             const formattedAddress = formatAddressForPrivacy(data.features);
-            setSelectedAddress(formattedAddress);
             
-            // Call onLocationSelect callback
-            onLocationSelect({
-              address: formattedAddress,
-              coordinates: [e.lngLat.lng, e.lngLat.lat],
-              formattedAddress: formattedAddress
-            });
-            
-            // For backward compatibility
-            if (onChange) {
-              const location = {
-                longitude: e.lngLat.lng,
-                latitude: e.lngLat.lat,
-                name: formattedAddress
-              };
-              onChange(JSON.stringify(location));
-            }
+            // Update location with new coordinates and address
+            updateLocation([e.lngLat.lng, e.lngLat.lat], formattedAddress);
           })
           .catch(error => {
             console.error('Error reverse geocoding:', error);
             
             // Fall back to using custom location
             const customLocation = 'Custom Location';
-            setSelectedAddress(customLocation);
             
-            onLocationSelect({
-              address: customLocation,
-              coordinates: [e.lngLat.lng, e.lngLat.lat],
-              formattedAddress: customLocation
-            });
-            
-            if (onChange) {
-              const location = {
-                longitude: e.lngLat.lng,
-                latitude: e.lngLat.lat,
-                name: customLocation
-              };
-              onChange(JSON.stringify(location));
-            }
+            // Update location with new coordinates and fallback address
+            updateLocation([e.lngLat.lng, e.lngLat.lat], customLocation);
           });
       });
       
       // Handle map errors
       map.current.on('error', (e) => {
         console.error('Map error:', e);
-        setMapError('Map could not be loaded. Please try again later.');
       });
       
-      // When the map moves due to user interaction, we need to maintain the selected location
-      map.current.on('moveend', () => {
-        // Don't reset the center if we have a selected location
-        if (selectedLocationRef.current && map.current) {
-          // Check if the circle needs to be redrawn
-          if (styleLoadedRef.current && !map.current.getLayer(privacyCircleId) && circleAddedRef.current) {
-            updatePrivacyCircle(selectedLocationRef.current);
+      // When the map is idle (after animations, panning, etc)
+      map.current.on('idle', () => {
+        // Check if we need to add or restore the privacy circle
+        if (privacyCircleRef.current.coordinates && stylesLoadedRef.current) {
+          // If the circle is missing but we have coordinates, restore it
+          if (!map.current?.getLayer(privacyCircleId) && privacyCircleRef.current.added) {
+            console.log('Restoring privacy circle');
+            ensurePrivacyCircle(
+              privacyCircleRef.current.coordinates,
+              privacyCircleRef.current.address || 'Selected Location'
+            );
           }
         }
       });
       
+      // When style is reloaded, we need to re-add the circle
+      map.current.on('styledataloading', () => {
+        stylesLoadedRef.current = false;
+      });
+      
     } catch (error) {
       console.error('Error initializing map:', error);
-      setMapError('Failed to initialize map. Please try again later.');
       toast.error("Map initialization failed", {
         description: "Please check your internet connection or try again later.",
         duration: 5000,
@@ -418,31 +424,28 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Clean up only if map was initialized
       if (map.current) {
         console.log('Cleaning up map instance');
-        if (geocoderInstance.current) {
-          try {
+        try {
+          if (geocoderInstance.current) {
             map.current.removeControl(geocoderInstance.current);
-          } catch (e) {
-            console.error('Error removing geocoder:', e);
+            geocoderInstance.current = null;
           }
-          geocoderInstance.current = null;
+          map.current.remove();
+        } catch (e) {
+          console.error('Error removing map:', e);
         }
-        map.current.remove();
+        
         map.current = null;
-        // Reset initialization flag on unmount
         mapInitializedRef.current = false;
-        circleAddedRef.current = false;
-        styleLoadedRef.current = false;
+        stylesLoadedRef.current = false;
+        privacyCircleRef.current = {
+          added: false,
+          coordinates: null,
+          address: null
+        };
       }
     };
-  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isLoadingToken, parseLocationString]);
+  }, [mapboxToken, initialLocation, value, ensurePrivacyCircle, updateLocation, isLoadingToken, parseLocationString, formatAddressForPrivacy]);
   
-  // Keep the privacy circle updated when selectedLocation changes (e.g. after style reloads)
-  useEffect(() => {
-    if (map.current && map.current.isStyleLoaded() && selectedLocation) {
-      updatePrivacyCircle(selectedLocation);
-    }
-  }, [selectedLocation, updatePrivacyCircle]);
-
   // If we're loading the token, show loading state
   if (isLoadingToken) {
     return (
@@ -455,21 +458,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
     );
   }
   
-  // If we have an error, show error message
-  if (mapError) {
-    return (
-      <div className="rounded border border-gray-300 p-4 space-y-4">
-        <p className="text-red-500">{mapError}</p>
-        <button 
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={() => window.location.reload()}
-        >
-          Reload Map
-        </button>
-      </div>
-    );
-  }
-  
   return (
     <div className="animate-fade-in">
       <div 
@@ -477,9 +465,9 @@ const LocationMap: React.FC<LocationMapProps> = ({
         className="h-80 rounded border border-gray-300"
         style={{ position: 'relative' }}
       />
-      {selectedAddress && (
+      {privacyCircleRef.current.address && (
         <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-          <p className="text-sm font-medium">Selected location: {selectedAddress}</p>
+          <p className="text-sm font-medium">Selected location: {privacyCircleRef.current.address}</p>
         </div>
       )}
     </div>
