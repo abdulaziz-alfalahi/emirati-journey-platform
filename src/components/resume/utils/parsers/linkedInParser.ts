@@ -30,6 +30,7 @@ export const extractFromLinkedIn = async (linkedInUrl: string): Promise<Partial<
             phone: '+971 5x xxx xxxx',
             location: 'Dubai, UAE',
             linkedin: linkedInUrl,
+            website: `https://${username.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')}.com` // Added the missing website property
           },
           experience: [
             {

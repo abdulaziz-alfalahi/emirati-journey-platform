@@ -35,7 +35,15 @@ export const extractDataFromContent = (content: string, fileType: string): Parti
   const processedContent = preprocessContent(content);
   
   const parsedData: Partial<ResumeData> = {
-    personal: { fullName: '', jobTitle: '', email: '', phone: '', location: '' },
+    personal: { 
+      fullName: '', 
+      jobTitle: '', 
+      email: '', 
+      phone: '', 
+      location: '',
+      linkedin: '', // Added the missing linkedin property
+      website: ''  // Added the missing website property
+    },
     experience: [],
     education: [],
     skills: [],

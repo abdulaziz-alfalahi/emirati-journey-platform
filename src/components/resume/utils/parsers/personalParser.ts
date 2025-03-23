@@ -10,7 +10,8 @@ export const extractPersonalInfo = (content: string): PersonalInfo => {
     email: '',
     phone: '',
     location: '',
-    linkedin: '' // Added LinkedIn property to fix the TypeScript error
+    linkedin: '',
+    website: '' // Added the missing website property
   };
   
   // Extract email using regex
@@ -76,6 +77,13 @@ export const extractPersonalInfo = (content: string): PersonalInfo => {
   const linkedinMatch = content.match(linkedinRegex);
   if (linkedinMatch && linkedinMatch[1]) {
     personal.linkedin = `https://linkedin.com/in/${linkedinMatch[1]}`;
+  }
+  
+  // Try to extract website
+  const websiteRegex = /(?:website|web|url|portfolio|site):?\s*(https?:\/\/[^\s,]+)/i;
+  const websiteMatch = content.match(websiteRegex);
+  if (websiteMatch && websiteMatch[1]) {
+    personal.website = websiteMatch[1].trim();
   }
   
   return personal;
