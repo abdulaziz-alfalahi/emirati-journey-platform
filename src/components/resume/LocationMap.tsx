@@ -31,17 +31,20 @@ const LocationMap: React.FC<LocationMapProps> = ({
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const geocoderInstance = useRef<MapboxGeocoder | null>(null);
   const circleRadius = 250; // 500 meter diameter (radius = 250)
   const privacyCircleId = 'privacy-circle';
   const privacyCircleSourceId = 'privacy-circle-source';
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
-  const geocoder = useRef<MapboxGeocoder | null>(null);
   const { user } = useAuth();
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+  const [mapboxToken, setMapboxToken] = useState<string>(FALLBACK_MAPBOX_TOKEN);
   const [isLoadingToken, setIsLoadingToken] = useState<boolean>(true);
+  const [mapInitialized, setMapInitialized] = useState<boolean>(false);
+  
+  // Prevent re-initialization of the map
+  const mapInitializedRef = useRef<boolean>(false);
 
   // Fetch Mapbox token from Supabase Edge Function
   useEffect(() => {
@@ -50,7 +53,9 @@ const LocationMap: React.FC<LocationMapProps> = ({
         setIsLoadingToken(true);
         console.log('Fetching Mapbox token from Supabase...');
         
-        const { data, error } = await supabase.functions.invoke('get-api-keys');
+        const { data, error } = await supabase.functions.invoke('get-api-keys', {
+          method: 'GET'
+        });
         
         if (error) {
           console.error('Error fetching Mapbox token:', error);
@@ -167,7 +172,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current || isMapInitialized || isLoadingToken || !mapboxToken) return;
+    // Avoid reinitializing if map is already created or token is not loaded
+    if (mapInitializedRef.current || isLoadingToken || !mapboxToken || !mapContainer.current) return;
     
     try {
       console.log('Initializing map with token:', mapboxToken.substring(0, 10) + '...');
@@ -181,33 +187,37 @@ const LocationMap: React.FC<LocationMapProps> = ({
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [55.2708, 25.2048], // Default to Dubai
         zoom: 10,
-        attributionControl: false
+        attributionControl: false,
+        renderWorldCopies: false, // Prevents multiple world copies
+        preserveDrawingBuffer: true // Helps with rendering issues
       });
       
-      // Add navigation controls
-      map.current.addControl(
-        new mapboxgl.NavigationControl(),
-        'top-right'
-      );
+      // Prevent reinitialization
+      mapInitializedRef.current = true;
       
-      // Add geocoder (search)
-      geocoder.current = new MapboxGeocoder({
-        accessToken: mapboxToken,
-        mapboxgl: mapboxgl,
-        marker: false,
-        placeholder: 'Search for a location'
-      });
-      
-      map.current.addControl(geocoder.current);
-      
-      // Debug logging
-      console.log('Map container:', mapContainer.current);
-      console.log('Map instance created:', map.current);
-      
-      // Handle map load event
-      map.current.on('load', () => {
+      // Once the map is fully loaded, handle UI updates
+      map.current.once('load', () => {
         console.log('Map loaded successfully');
-        setIsMapInitialized(true);
+        setMapInitialized(true);
+        
+        // Add navigation controls after the map loads
+        map.current?.addControl(
+          new mapboxgl.NavigationControl(),
+          'top-right'
+        );
+        
+        // Add geocoder (search) after the map loads
+        if (!geocoderInstance.current) {
+          geocoderInstance.current = new MapboxGeocoder({
+            accessToken: mapboxToken,
+            mapboxgl: mapboxgl,
+            marker: false,
+            placeholder: 'Search for a location',
+            zoom: 13
+          });
+          
+          map.current?.addControl(geocoderInstance.current);
+        }
         
         // Set initial marker position if value provided
         const locationValue = initialLocation || value;
@@ -233,8 +243,8 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
         
         // Handle geocoder result
-        if (geocoder.current) {
-          geocoder.current.on('result', (e) => {
+        if (geocoderInstance.current) {
+          geocoderInstance.current.on('result', (e) => {
             console.log('Geocoder result:', e.result);
             const coords = e.result.center;
             if (coords) {
@@ -350,13 +360,25 @@ const LocationMap: React.FC<LocationMapProps> = ({
     }
     
     return () => {
+      // Clean up only if map was initialized
       if (map.current) {
+        console.log('Cleaning up map instance');
+        if (geocoderInstance.current) {
+          try {
+            map.current.removeControl(geocoderInstance.current);
+          } catch (e) {
+            console.error('Error removing geocoder:', e);
+          }
+          geocoderInstance.current = null;
+        }
         map.current.remove();
         map.current = null;
-        setIsMapInitialized(false);
+        // Reset initialization flag on unmount
+        mapInitializedRef.current = false;
+        setMapInitialized(false);
       }
     };
-  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isMapInitialized, isLoadingToken]);
+  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isLoadingToken]);
   
   // If we're loading the token, show loading state
   if (isLoadingToken) {
@@ -386,7 +408,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
   }
   
   return (
-    <div>
+    <div className="animate-fade-in">
       <div 
         ref={mapContainer} 
         className="h-80 rounded border border-gray-300"

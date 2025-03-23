@@ -51,6 +51,16 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
         address: value,
         formattedAddress: value
       }));
+      
+      // Clear coordinates if entering location manually
+      if (locationTab === 'text') {
+        onChange({
+          ...data,
+          location: value,
+          coordinates: undefined // Clear coordinates when typing directly
+        });
+        return;
+      }
     }
     
     onChange({
@@ -78,12 +88,6 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       duration: 3000,
     });
   };
-
-  console.log('Current location data:', { 
-    dataLocation: data.location, 
-    dataCoordinates: data.coordinates,
-    locationInfo
-  });
 
   return (
     <Card>
@@ -148,7 +152,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                 <Input
                   id="location"
                   name="location"
-                  value={data.location || ''}
+                  value={locationInfo.address}
                   onChange={handleChange}
                   placeholder="e.g., Dubai, UAE"
                 />
@@ -161,16 +165,6 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   initialLocation={data.location}
                   onLocationSelect={handleLocationSelect}
                 />
-                {locationInfo.formattedAddress && locationTab === 'map' && (
-                  <div className="mt-2">
-                    <p className="text-sm font-medium">Selected location: {locationInfo.formattedAddress}</p>
-                    {locationInfo.coordinates && (
-                      <p className="text-xs text-gray-500">
-                        Coordinates: {locationInfo.coordinates[1].toFixed(4)}, {locationInfo.coordinates[0].toFixed(4)}
-                      </p>
-                    )}
-                  </div>
-                )}
               </TabsContent>
             </Tabs>
           </div>
