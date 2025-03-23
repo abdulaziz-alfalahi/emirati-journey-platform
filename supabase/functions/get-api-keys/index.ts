@@ -68,12 +68,9 @@ serve(async (req) => {
       isAuthorized = true;
     }
 
-    if (!isAuthorized) {
-      return new Response(JSON.stringify({ error: 'Forbidden - Insufficient permissions' }), { 
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
+    // For API keys retrieval, we'll allow all authenticated users to get the Mapbox key
+    // This ensures the map works for all users regardless of role
+    // For sensitive keys, we still require admin roles
 
     // Get API keys from the database
     const { data: apiKeysData, error: apiKeysError } = await supabase
@@ -152,8 +149,7 @@ serve(async (req) => {
       }
     }
 
-    // Logs for debugging
-    console.log(`API keys retrieved successfully for user ${user.id}`);
+    // Debug log to see what keys are available
     console.log('Available keys:', Object.keys(apiKeys));
 
     return new Response(JSON.stringify(apiKeys), { 

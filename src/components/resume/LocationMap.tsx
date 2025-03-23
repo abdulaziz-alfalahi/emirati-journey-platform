@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -56,16 +57,43 @@ const LocationMap: React.FC<LocationMapProps> = ({
   // Add a state for custom Mapbox token input
   const [customMapboxToken, setCustomMapboxToken] = useState<string>('');
   const [showTokenInput, setShowTokenInput] = useState<boolean>(false);
+  const [tokenRetryCount, setTokenRetryCount] = useState<number>(0);
+  const tokenRetryCountRef = useRef<number>(0);
 
-  // Fetch Mapbox API key
-  const { data: apiKeys, isLoading: isLoadingApiKeys, error: apiKeysError } = useQuery({
-    queryKey: ['mapbox-api-key'],
+  // Fetch Mapbox API key with retry logic
+  const { data: apiKeys, isLoading: isLoadingApiKeys, error: apiKeysError, refetch } = useQuery({
+    queryKey: ['mapbox-api-key', tokenRetryCount],
     queryFn: async () => {
       try {
         const { data, error } = await supabase.functions.invoke('get-api-keys', {
-          method: 'GET'
+          method: 'POST'
         });
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Error fetching API keys:", error);
+          throw error;
+        }
+        
+        console.log("API keys retrieved:", Object.keys(data));
+        
+        // Check if Mapbox token exists
+        if (!data || (!data.mapbox_access_token && !data.MAPBOX_ACCESS_TOKEN)) {
+          console.error("No Mapbox token found in API keys");
+          
+          // Try to fetch with GET instead
+          const getResponse = await supabase.functions.invoke('get-api-keys', {
+            method: 'GET'
+          });
+          
+          if (getResponse.error || !getResponse.data || 
+              (!getResponse.data.mapbox_access_token && !getResponse.data.MAPBOX_ACCESS_TOKEN)) {
+            console.error("No Mapbox token found in API keys (GET fallback)");
+            throw new Error("Mapbox token not found");
+          }
+          
+          return getResponse.data;
+        }
+        
         return data;
       } catch (error) {
         console.error("Error fetching API keys:", error);
@@ -73,12 +101,25 @@ const LocationMap: React.FC<LocationMapProps> = ({
         return null;
       }
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Effect to check if we need to show token input
   useEffect(() => {
     if (apiKeysError || (apiKeys && !apiKeys.mapbox_access_token && !apiKeys.MAPBOX_ACCESS_TOKEN)) {
+      console.log("Showing token input due to missing API key");
       setShowTokenInput(true);
+    } else if (apiKeys && (apiKeys.mapbox_access_token || apiKeys.MAPBOX_ACCESS_TOKEN)) {
+      console.log("Hiding token input as API key is available");
+      setShowTokenInput(false);
+      
+      // If we have a token and the map isn't initialized, retry initialization
+      if (!mapInitializedRef.current && !renderingMapRef.current) {
+        console.log("Map not initialized, triggering re-render");
+        renderingMapRef.current = false;
+        setMapStyleLoaded(false);
+      }
     }
   }, [apiKeys, apiKeysError]);
 
@@ -107,6 +148,28 @@ const LocationMap: React.FC<LocationMapProps> = ({
     // Force a re-render to initialize the map with the new token
     setMapStyleLoaded(false);
   };
+
+  // Effect to retry fetching API keys if the first attempt failed
+  useEffect(() => {
+    const savedToken = localStorage.getItem('mapbox_custom_token');
+    
+    if (savedToken) {
+      setCustomMapboxToken(savedToken);
+      console.log("Loaded token from localStorage");
+    }
+    
+    const retryTimer = setTimeout(() => {
+      // If we failed to get the API key initially, try again after a short delay
+      if (apiKeysError && tokenRetryCountRef.current < 3) {
+        console.log(`Retrying API key fetch (attempt ${tokenRetryCountRef.current + 1})`);
+        tokenRetryCountRef.current += 1;
+        setTokenRetryCount(prev => prev + 1);
+        refetch();
+      }
+    }, 2000);
+    
+    return () => clearTimeout(retryTimer);
+  }, [apiKeysError, refetch]);
 
   // Parse initial location string
   const parseInitialLocation = useCallback((locationStr: string) => {
@@ -226,7 +289,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       return;
     }
     
-    console.log('Initializing map');
+    console.log('Initializing map - token available:', !!apiKeys?.mapbox_access_token || !!apiKeys?.MAPBOX_ACCESS_TOKEN || !!localStorage.getItem('mapbox_custom_token'));
     renderingMapRef.current = true;
     
     // Get token from various sources
@@ -346,6 +409,16 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
       });
       
+      // Handle errors
+      map.on('error', (e) => {
+        console.error('Mapbox error:', e);
+        
+        // If we get an API key error, show the token input
+        if (e.error && e.error.message && e.error.message.includes('API key')) {
+          setShowTokenInput(true);
+        }
+      });
+      
       // Cleanup function
       return () => {
         if (mapRef.current) {
@@ -427,14 +500,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
     return () => clearInterval(interval);
   }, [persistentCircle, updatePrivacyCircle]);
 
-  // If we have a custom token in localStorage, load it
-  useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_custom_token');
-    if (savedToken) {
-      setCustomMapboxToken(savedToken);
-    }
-  }, []);
-
   return (
     <div>
       {showTokenInput ? (
@@ -476,7 +541,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       />
       
       {isLoadingApiKeys && !showTokenInput && (
-        <div className="flex justify-center items-center h-full w-full absolute top-0 left-0 bg-white bg-opacity-70">
+        <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-70">
           <p>Loading map...</p>
         </div>
       )}
