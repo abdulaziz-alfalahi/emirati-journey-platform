@@ -71,52 +71,56 @@ export const useMapInitialization = ({
   const updatePrivacyCircle = useCallback((lng: number, lat: number) => {
     console.log('Updating privacy circle at:', lng, lat);
     
-    if (!mapRef.current) return;
+    if (!mapRef.current || !mapStyleLoaded) return;
     
     const map = mapRef.current;
     
-    // Create a GeoJSON source for the circle if it doesn't exist
-    if (!circleLayerAddedRef.current) {
-      // Add the source for the circle
-      map.addSource('privacy-circle', {
-        type: 'geojson',
-        data: {
+    try {
+      // Create a GeoJSON source for the circle if it doesn't exist
+      if (!circleLayerAddedRef.current) {
+        // Add the source for the circle
+        map.addSource('privacy-circle', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            properties: {}
+          }
+        });
+        
+        // Add the circle layer
+        map.addLayer({
+          id: 'privacy-circle-layer',
+          type: 'circle',
+          source: 'privacy-circle',
+          paint: {
+            'circle-radius': 1000, // radius in meters
+            'circle-color': 'rgba(255, 0, 0, 0.2)',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': 'rgba(255, 0, 0, 0.7)'
+          }
+        });
+        
+        circleLayerAddedRef.current = true;
+        circleRef.current = map.getSource('privacy-circle') as mapboxgl.GeoJSONSource;
+      } else if (circleRef.current) {
+        // Update the existing circle
+        circleRef.current.setData({
           type: 'Feature',
           geometry: {
             type: 'Point',
             coordinates: [lng, lat]
           },
           properties: {}
-        }
-      });
-      
-      // Add the circle layer
-      map.addLayer({
-        id: 'privacy-circle-layer',
-        type: 'circle',
-        source: 'privacy-circle',
-        paint: {
-          'circle-radius': 1000, // radius in meters
-          'circle-color': 'rgba(255, 0, 0, 0.2)',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': 'rgba(255, 0, 0, 0.7)'
-        }
-      });
-      
-      circleLayerAddedRef.current = true;
-      circleRef.current = map.getSource('privacy-circle') as mapboxgl.GeoJSONSource;
-    } else if (circleRef.current) {
-      // Update the existing circle
-      circleRef.current.setData({
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [lng, lat]
-        },
-        properties: {}
-      });
+        });
+      }
+    } catch (error) {
+      console.error("Error updating privacy circle:", error);
     }
-  }, []);
+  }, [mapStyleLoaded]);
   
   // Create a debounced geocode function
   const geocodeLocation = useCallback(debounce(async (lng: number, lat: number) => {
@@ -159,9 +163,27 @@ export const useMapInitialization = ({
     }
     
     mapInitializedRef.current = false;
+    setMapStyleLoaded(false);
     renderingMapRef.current = false;
     circleLayerAddedRef.current = false;
   }, []);
+  
+  // Function to add marker and circle after style is loaded
+  const setupMapFeatures = useCallback((map: mapboxgl.Map, lng: number, lat: number) => {
+    // Add marker
+    if (markerRef.current) {
+      markerRef.current.remove();
+    }
+    markerRef.current = new mapboxgl.Marker()
+      .setLngLat([lng, lat])
+      .addTo(map);
+    
+    // Add privacy circle
+    updatePrivacyCircle(lng, lat);
+    
+    // Geocode the location
+    geocodeLocation(lng, lat);
+  }, [updatePrivacyCircle, geocodeLocation]);
   
   // Initialize the map when the component mounts
   useEffect(() => {
@@ -211,20 +233,7 @@ export const useMapInitialization = ({
         // Add initial marker and circle
         if (lastValidLocationRef.current) {
           const { lng, lat } = lastValidLocationRef.current;
-          
-          // Add marker
-          if (markerRef.current) {
-            markerRef.current.remove();
-          }
-          markerRef.current = new mapboxgl.Marker()
-            .setLngLat([lng, lat])
-            .addTo(map);
-          
-          // Add privacy circle
-          updatePrivacyCircle(lng, lat);
-          
-          // Geocode the initial location
-          geocodeLocation(lng, lat);
+          setupMapFeatures(map, lng, lat);
         }
         
         mapInitializedRef.current = true;
@@ -242,20 +251,10 @@ export const useMapInitialization = ({
           zoom: map.getZoom()
         };
         
-        // Update marker
-        if (markerRef.current) {
-          markerRef.current.setLngLat([lng, lat]);
-        } else {
-          markerRef.current = new mapboxgl.Marker()
-            .setLngLat([lng, lat])
-            .addTo(map);
+        // Only add/update marker and circle if map style is loaded
+        if (mapStyleLoaded) {
+          setupMapFeatures(map, lng, lat);
         }
-        
-        // Update circle
-        updatePrivacyCircle(lng, lat);
-        
-        // Geocode the location
-        geocodeLocation(lng, lat);
       });
       
       // Handle map movement end - ensure we keep our state in sync
@@ -272,15 +271,6 @@ export const useMapInitialization = ({
             lat: center.lat,
             zoom
           };
-        }
-      });
-      
-      // Handle map idle (for operations after map has settled)
-      map.on('idle', () => {
-        // Ensure the circle is visible after the map has settled
-        if (persistentCircle && lastValidLocationRef.current && circleLayerAddedRef.current) {
-          const { lng, lat } = lastValidLocationRef.current;
-          updatePrivacyCircle(lng, lat);
         }
       });
       
@@ -306,7 +296,7 @@ export const useMapInitialization = ({
       renderingMapRef.current = false;
       return;
     }
-  }, [getEffectiveToken, initialLocation, mapContainerRef, parseInitialLocation, updatePrivacyCircle, geocodeLocation, persistentCircle]);
+  }, [getEffectiveToken, initialLocation, mapContainerRef, parseInitialLocation, setupMapFeatures, mapStyleLoaded]);
   
   // Update map when initialLocation changes and map is already initialized
   useEffect(() => {
@@ -331,17 +321,8 @@ export const useMapInitialization = ({
       zoom: 12
     };
     
-    // Update or add marker
-    if (markerRef.current) {
-      markerRef.current.setLngLat([locationData.lng, locationData.lat]);
-    } else {
-      markerRef.current = new mapboxgl.Marker()
-        .setLngLat([locationData.lng, locationData.lat])
-        .addTo(map);
-    }
-    
-    // Update privacy circle
-    updatePrivacyCircle(locationData.lng, locationData.lat);
+    // Update marker and circle
+    setupMapFeatures(map, locationData.lng, locationData.lat);
     
     // Notify about the selected location
     const newLocation: LocationData = {
@@ -351,22 +332,16 @@ export const useMapInitialization = ({
     };
     
     onLocationSelect(newLocation);
-  }, [initialLocation, mapStyleLoaded, parseInitialLocation, updatePrivacyCircle, onLocationSelect]);
+  }, [initialLocation, mapStyleLoaded, parseInitialLocation, setupMapFeatures, onLocationSelect]);
   
-  // If persistent circle is turned on, keep checking that the circle is visible
+  // If persistent circle is turned on, ensure it's visible when map is ready
   useEffect(() => {
-    if (!persistentCircle || !mapRef.current || !circleLayerAddedRef.current || !lastValidLocationRef.current) return;
+    if (!persistentCircle || !mapRef.current || !mapStyleLoaded || !lastValidLocationRef.current) return;
     
-    // Force update the circle periodically
-    const interval = setInterval(() => {
-      if (mapRef.current && lastValidLocationRef.current) {
-        const { lng, lat } = lastValidLocationRef.current;
-        updatePrivacyCircle(lng, lat);
-      }
-    }, 1000);
+    const { lng, lat } = lastValidLocationRef.current;
+    updatePrivacyCircle(lng, lat);
     
-    return () => clearInterval(interval);
-  }, [persistentCircle, updatePrivacyCircle]);
+  }, [persistentCircle, updatePrivacyCircle, mapStyleLoaded]);
 
   return {
     mapStyleLoaded,
