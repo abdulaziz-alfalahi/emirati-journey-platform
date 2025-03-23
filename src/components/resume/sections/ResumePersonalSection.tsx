@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PersonalInfo } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,9 +14,35 @@ interface ResumePersonalSectionProps {
 
 const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onChange }) => {
   const [locationTab, setLocationTab] = useState<string>(data.coordinates ? 'map' : 'text');
+  const [locationInfo, setLocationInfo] = useState<{
+    address: string;
+    coordinates?: [number, number];
+    formattedAddress: string;
+  }>({
+    address: data.location || '',
+    coordinates: data.coordinates || undefined,
+    formattedAddress: data.location || ''
+  });
+
+  // Update locationTab when coordinates change
+  useEffect(() => {
+    if (data.coordinates && locationTab !== 'map') {
+      setLocationTab('map');
+    }
+  }, [data.coordinates]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    
+    // Handle location text input separately
+    if (name === 'location') {
+      setLocationInfo(prev => ({
+        ...prev,
+        address: value,
+        formattedAddress: value
+      }));
+    }
+    
     onChange({
       ...data,
       [name]: value
@@ -29,6 +55,8 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     formattedAddress: string;
   }) => {
     console.log('Location selected:', locationData);
+    setLocationInfo(locationData);
+    
     onChange({
       ...data,
       location: locationData.formattedAddress,
@@ -112,6 +140,18 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   initialLocation={data.location}
                   onLocationSelect={handleLocationSelect}
                 />
+                {locationInfo.formattedAddress && locationTab === 'map' && (
+                  <div className="mt-2">
+                    <Input
+                      id="location"
+                      name="location"
+                      value={locationInfo.formattedAddress}
+                      onChange={handleChange}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>

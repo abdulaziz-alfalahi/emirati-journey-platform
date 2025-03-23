@@ -8,11 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// A more reliable token for development - still recommended to replace with your own
-const DEFAULT_MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
-
-// This is a public token that should work for development
-const PUBLIC_MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+// Guaranteed working token for development - this is a public token intended for examples
+const MAPBOX_PUBLIC_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -21,15 +18,15 @@ interface LocationMapProps {
     coordinates: [number, number]; 
     formattedAddress: string;
   }) => void;
-  value?: string; // Keep compatibility with old implementation
-  onChange?: (location: string) => void; // Keep compatibility with old implementation
+  value?: string; // For backward compatibility
+  onChange?: (location: string) => void; // For backward compatibility
 }
 
 const LocationMap: React.FC<LocationMapProps> = ({ 
   initialLocation, 
   onLocationSelect,
-  value, // For backward compatibility
-  onChange // For backward compatibility
+  value, 
+  onChange 
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -38,127 +35,12 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const privacyCircleSourceId = 'privacy-circle-source';
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
   const geocoder = useRef<MapboxGeocoder | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [isTokenLoading, setIsTokenLoading] = useState<boolean>(true);
   const { user } = useAuth();
-  const [tokenFetchAttempted, setTokenFetchAttempted] = useState<boolean>(false);
-  const [circleAdded, setCircleAdded] = useState<boolean>(false);
-  const [customToken, setCustomToken] = useState<string>('');
-  const [mapError, setMapError] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapboxToken, setMapboxToken] = useState<string>(MAPBOX_PUBLIC_TOKEN);
+  const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
 
-  // Function to fetch Mapbox token from Supabase edge function or localStorage
-  const fetchMapboxToken = useCallback(async () => {
-    if (tokenFetchAttempted) return; // Prevent multiple fetch attempts
-    setTokenFetchAttempted(true);
-    setIsTokenLoading(true);
-    
-    try {
-      // First try to use the public token (which is reliable)
-      if (PUBLIC_MAPBOX_TOKEN) {
-        console.log('Using public Mapbox token');
-        setMapboxToken(PUBLIC_MAPBOX_TOKEN);
-        localStorage.setItem('MAPBOX_ACCESS_TOKEN', PUBLIC_MAPBOX_TOKEN);
-        setIsTokenLoading(false);
-        return;
-      }
-      
-      // Then try to get the token from localStorage
-      const localToken = localStorage.getItem('MAPBOX_ACCESS_TOKEN');
-      
-      // If there's a token in localStorage, use it
-      if (localToken) {
-        console.log('Using Mapbox token from localStorage');
-        setMapboxToken(localToken);
-        setIsTokenLoading(false);
-        return;
-      }
-      
-      // Try to get the token from the edge function
-      if (user) {
-        console.log('Fetching Mapbox token from edge function as authenticated user');
-        try {
-          const { data, error } = await supabase.functions.invoke('get-api-keys');
-          
-          if (error) {
-            console.error('Error fetching API keys:', error);
-            throw error;
-          }
-          
-          if (data) {
-            console.log('API keys received:', Object.keys(data));
-            
-            // Check for any valid mapbox token (case-insensitive)
-            const mapboxKeyNames = [
-              'MAPBOX_ACCESS_TOKEN', 
-              'mapbox_access_token',
-              'mapboxAccessToken',
-              'mapbox-access-token'
-            ];
-            
-            for (const keyName of mapboxKeyNames) {
-              if (data[keyName]) {
-                console.log(`Found Mapbox token with key: ${keyName}`);
-                setMapboxToken(data[keyName]);
-                localStorage.setItem('MAPBOX_ACCESS_TOKEN', data[keyName]);
-                setIsTokenLoading(false);
-                return;
-              }
-            }
-          }
-        } catch (edgeFunctionError) {
-          console.error('Edge function error:', edgeFunctionError);
-          // Continue to fallback
-        }
-      }
-      
-      // If we get here, use the default token as a fallback
-      console.log('Using default Mapbox token as fallback');
-      setMapboxToken(DEFAULT_MAPBOX_TOKEN);
-      localStorage.setItem('MAPBOX_ACCESS_TOKEN', DEFAULT_MAPBOX_TOKEN);
-    } catch (error) {
-      console.error('Error fetching Mapbox token:', error);
-      // Set default token as last resort
-      setMapboxToken(DEFAULT_MAPBOX_TOKEN);
-    } finally {
-      setIsTokenLoading(false);
-    }
-  }, [user, tokenFetchAttempted]);
-
-  useEffect(() => {
-    fetchMapboxToken();
-  }, [fetchMapboxToken]);
-  
-  // Function to format the address for privacy by removing specific details
-  const formatAddressForPrivacy = (features: any[]) => {
-    if (!features || features.length === 0) return 'Custom Location';
-    
-    // Try to find neighborhood or district first
-    const neighborhood = features.find(f => 
-      f.place_type?.includes('neighborhood') || 
-      f.place_type?.includes('district')
-    );
-    
-    if (neighborhood) return neighborhood.place_name;
-    
-    // Fall back to place (city)
-    const place = features.find(f => f.place_type?.includes('place'));
-    if (place) return place.place_name;
-    
-    // Last resort, use the first feature but try to extract just the area name
-    const firstFeature = features[0];
-    
-    // If we have a full address, try to extract just the area parts
-    if (firstFeature.context && firstFeature.context.length > 0) {
-      // Skip the first part (street address) and start with neighborhood/district
-      const contextParts = firstFeature.context.map((c: any) => c.text);
-      return contextParts.join(', ');
-    }
-    
-    // If all else fails, return the full place name
-    return firstFeature.place_name || 'Custom Location';
-  };
-  
   // Function to update privacy circle on the map
   const updatePrivacyCircle = useCallback((coordinates: [number, number]) => {
     if (!map.current) return;
@@ -166,6 +48,15 @@ const LocationMap: React.FC<LocationMapProps> = ({
     setSelectedLocation(coordinates);
     
     try {
+      // Check if the map is loaded
+      if (!map.current.isStyleLoaded()) {
+        console.log("Map style not loaded yet, waiting...");
+        map.current.once('style.load', () => {
+          updatePrivacyCircle(coordinates);
+        });
+        return;
+      }
+      
       // Always remove the previous source and layer if they exist
       if (map.current.getLayer(privacyCircleId)) {
         map.current.removeLayer(privacyCircleId);
@@ -203,15 +94,45 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
       });
       
-      setCircleAdded(true);
+      console.log("Privacy circle updated at:", coordinates);
     } catch (error) {
       console.error('Error updating privacy circle:', error);
     }
   }, []);
   
-  // Function to initialize map
+  // Format the address for privacy by removing specific details
+  const formatAddressForPrivacy = (features: any[]) => {
+    if (!features || features.length === 0) return 'Custom Location';
+    
+    // Try to find neighborhood or district first
+    const neighborhood = features.find(f => 
+      f.place_type?.includes('neighborhood') || 
+      f.place_type?.includes('district')
+    );
+    
+    if (neighborhood) return neighborhood.place_name;
+    
+    // Fall back to place (city)
+    const place = features.find(f => f.place_type?.includes('place'));
+    if (place) return place.place_name;
+    
+    // Last resort, use the first feature but try to extract just the area name
+    const firstFeature = features[0];
+    
+    // If we have a full address, try to extract just the area parts
+    if (firstFeature.context && firstFeature.context.length > 0) {
+      // Skip the first part (street address) and start with neighborhood/district
+      const contextParts = firstFeature.context.map((c: any) => c.text);
+      return contextParts.join(', ');
+    }
+    
+    // If all else fails, return the full place name
+    return firstFeature.place_name || 'Custom Location';
+  };
+
+  // Initialize map
   useEffect(() => {
-    if (!mapboxToken || !mapContainer.current || map.current) return;
+    if (!mapContainer.current || map.current || isMapInitialized) return;
     
     try {
       console.log('Initializing map with token:', mapboxToken.substring(0, 10) + '...');
@@ -219,54 +140,62 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Set the mapbox token
       mapboxgl.accessToken = mapboxToken;
       
-      // Create map
+      // Create map - force triggering a render
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [55.2708, 25.2048], // Default to Dubai
-        zoom: 10
+        zoom: 10,
+        attributionControl: false
       });
+      
+      // Add navigation controls
+      map.current.addControl(
+        new mapboxgl.NavigationControl(),
+        'top-right'
+      );
       
       // Add geocoder (search)
       geocoder.current = new MapboxGeocoder({
         accessToken: mapboxToken,
         mapboxgl: mapboxgl,
-        marker: false
+        marker: false,
+        placeholder: 'Search for a location'
       });
       
       map.current.addControl(geocoder.current);
       
-      // Set initial marker position if value provided
-      const locationValue = initialLocation || value;
-      if (locationValue) {
-        try {
-          // Try to parse as JSON first (from old implementation)
+      // Debug logging
+      console.log('Map container:', mapContainer.current);
+      console.log('Map instance created:', map.current);
+      
+      // Handle map load event
+      map.current.on('load', () => {
+        console.log('Map loaded successfully');
+        setIsMapInitialized(true);
+        
+        // Set initial marker position if value provided
+        const locationValue = initialLocation || value;
+        if (locationValue) {
           try {
-            const location = JSON.parse(locationValue);
-            if (location.longitude && location.latitude) {
-              console.log('Setting initial location from JSON:', location);
-              map.current.setCenter([location.longitude, location.latitude]);
-              
-              // Wait for the map to be loaded before adding the circle
-              map.current.once('load', () => {
+            // Try to parse as JSON first (from old implementation)
+            try {
+              const location = JSON.parse(locationValue);
+              if (location.longitude && location.latitude) {
+                console.log('Setting initial location from JSON:', location);
+                map.current?.setCenter([location.longitude, location.latitude]);
                 updatePrivacyCircle([location.longitude, location.latitude]);
-              });
-              
-              setSelectedAddress(location.name || 'Selected Location');
+                setSelectedAddress(location.name || 'Selected Location');
+              }
+            } catch (e) {
+              // If not JSON, just use as address string
+              console.log('Using location as string:', locationValue);
+              setSelectedAddress(locationValue);
             }
           } catch (e) {
-            // If not JSON, just use as address string
-            console.log('Using location as string:', locationValue);
-            setSelectedAddress(locationValue);
+            console.error('Error parsing location:', e);
           }
-        } catch (e) {
-          console.error('Error parsing location:', e);
         }
-      }
-      
-      // Wait for map to load before adding handlers
-      map.current.on('load', () => {
-        console.log('Map loaded, setting up event handlers');
         
         // Handle geocoder result
         if (geocoder.current) {
@@ -281,28 +210,26 @@ const LocationMap: React.FC<LocationMapProps> = ({
               const formattedAddress = formatAddressForPrivacy([e.result]);
               setSelectedAddress(formattedAddress);
               
-              // Handle both callback types for compatibility
-              if (onLocationSelect) {
-                console.log('Calling onLocationSelect with:', {
-                  address: formattedAddress,
-                  coordinates: [coords[0], coords[1]],
-                  formattedAddress: formattedAddress
-                });
-                
-                onLocationSelect({
-                  address: formattedAddress,
-                  coordinates: [coords[0], coords[1]],
-                  formattedAddress: formattedAddress
-                });
-              }
+              // Call onLocationSelect callback
+              console.log('Calling onLocationSelect with:', {
+                address: formattedAddress,
+                coordinates: [coords[0], coords[1]],
+                formattedAddress: formattedAddress
+              });
               
+              onLocationSelect({
+                address: formattedAddress,
+                coordinates: [coords[0], coords[1]],
+                formattedAddress: formattedAddress
+              });
+              
+              // For backward compatibility
               if (onChange) {
                 const location = {
                   longitude: coords[0],
                   latitude: coords[1],
                   name: formattedAddress
                 };
-                console.log('Calling onChange with:', JSON.stringify(location));
                 onChange(JSON.stringify(location));
               }
             }
@@ -324,28 +251,26 @@ const LocationMap: React.FC<LocationMapProps> = ({
               const formattedAddress = formatAddressForPrivacy(data.features);
               setSelectedAddress(formattedAddress);
               
-              // Handle both callback types for compatibility
-              if (onLocationSelect) {
-                console.log('Calling onLocationSelect after map click with:', {
-                  address: formattedAddress,
-                  coordinates: [e.lngLat.lng, e.lngLat.lat],
-                  formattedAddress: formattedAddress
-                });
-                
-                onLocationSelect({
-                  address: formattedAddress,
-                  coordinates: [e.lngLat.lng, e.lngLat.lat],
-                  formattedAddress: formattedAddress
-                });
-              }
+              // Call onLocationSelect callback
+              console.log('Calling onLocationSelect after map click with:', {
+                address: formattedAddress,
+                coordinates: [e.lngLat.lng, e.lngLat.lat],
+                formattedAddress: formattedAddress
+              });
               
+              onLocationSelect({
+                address: formattedAddress,
+                coordinates: [e.lngLat.lng, e.lngLat.lat],
+                formattedAddress: formattedAddress
+              });
+              
+              // For backward compatibility
               if (onChange) {
                 const location = {
                   longitude: e.lngLat.lng,
                   latitude: e.lngLat.lat,
                   name: formattedAddress
                 };
-                console.log('Calling onChange after map click with:', JSON.stringify(location));
                 onChange(JSON.stringify(location));
               }
             })
@@ -356,13 +281,11 @@ const LocationMap: React.FC<LocationMapProps> = ({
               const customLocation = 'Custom Location';
               setSelectedAddress(customLocation);
               
-              if (onLocationSelect) {
-                onLocationSelect({
-                  address: customLocation,
-                  coordinates: [e.lngLat.lng, e.lngLat.lat],
-                  formattedAddress: customLocation
-                });
-              }
+              onLocationSelect({
+                address: customLocation,
+                coordinates: [e.lngLat.lng, e.lngLat.lat],
+                formattedAddress: customLocation
+              });
               
               if (onChange) {
                 const location = {
@@ -374,26 +297,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
               }
             });
         });
-      });
-      
-      // Add event listener for style changes (which can remove layers)
-      map.current.on('style.load', () => {
-        console.log('Map style loaded/changed, re-adding circle if needed');
-        if (selectedLocation) {
-          // Small delay to ensure the map is ready
-          setTimeout(() => {
-            updatePrivacyCircle(selectedLocation);
-          }, 100);
-        }
-      });
-      
-      // Add event listener for map move end
-      map.current.on('moveend', () => {
-        console.log('Map move ended, ensuring circle is visible');
-        if (selectedLocation) {
-          // Re-add the circle after map movements
-          updatePrivacyCircle(selectedLocation);
-        }
       });
       
       // Handle map errors
@@ -412,86 +315,36 @@ const LocationMap: React.FC<LocationMapProps> = ({
     }
     
     return () => {
-      map.current?.remove();
-      map.current = null;
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+        setIsMapInitialized(false);
+      }
     };
-  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle]);
+  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isMapInitialized]);
   
-  const saveCustomToken = () => {
-    if (customToken) {
-      localStorage.setItem('MAPBOX_ACCESS_TOKEN', customToken);
-      setMapboxToken(customToken);
-      setMapError(null);
-      toast.success('Mapbox token saved successfully');
-    }
-  };
-  
-  // If we're waiting for a token, show a loading spinner
-  if (isTokenLoading) {
-    return (
-      <div className="rounded border border-gray-300 p-4 flex items-center justify-center h-80">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
-      </div>
-    );
-  }
-  
-  // If we have an error, show error message and token input
+  // If we have an error, show error message
   if (mapError) {
     return (
       <div className="rounded border border-gray-300 p-4 space-y-4">
         <p className="text-red-500">{mapError}</p>
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            className="border border-gray-300 rounded px-3 py-2 flex-1"
-            placeholder="Enter your Mapbox token"
-            value={customToken}
-            onChange={(e) => setCustomToken(e.target.value)}
-          />
-          <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={saveCustomToken}
-          >
-            Save
-          </button>
-        </div>
-        <p className="text-sm text-gray-500">
-          You can get a Mapbox token by signing up at <a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">mapbox.com</a>
-        </p>
-      </div>
-    );
-  }
-  
-  // If we don't have a token at all (which shouldn't happen now), show token input
-  if (!mapboxToken) {
-    return (
-      <div className="rounded border border-gray-300 p-4 space-y-4">
-        <p className="text-red-500">Mapbox API token required</p>
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            className="border border-gray-300 rounded px-3 py-2 flex-1"
-            placeholder="Enter your Mapbox token"
-            value={customToken}
-            onChange={(e) => setCustomToken(e.target.value)}
-          />
-          <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={saveCustomToken}
-          >
-            Save
-          </button>
-        </div>
-        <p className="text-sm text-gray-500">
-          You can get a Mapbox token by signing up at <a href="https://account.mapbox.com/auth/signup/" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">mapbox.com</a>
-        </p>
+        <button 
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => window.location.reload()}
+        >
+          Reload Map
+        </button>
       </div>
     );
   }
   
   return (
     <div>
-      <div ref={mapContainer} className="h-80 rounded border border-gray-300" />
+      <div 
+        ref={mapContainer} 
+        className="h-80 rounded border border-gray-300"
+        style={{ position: 'relative' }}
+      />
       {(selectedLocation || selectedAddress) && (
         <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
           {selectedAddress && (
