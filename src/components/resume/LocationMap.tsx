@@ -8,8 +8,9 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Guaranteed working token for development - this is a public token intended for examples
-const MAPBOX_PUBLIC_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+// This token is just a fallback in case we can't get the token from Supabase
+// The real token should come from Supabase Edge Function
+const FALLBACK_MAPBOX_TOKEN = 'pk.eyJ1IjoiYWJkdWxheml6LWFsZmFsYWhpIiwiYSI6ImNtOGxoM3MyODE3dHgyanM1NXJvNWV6bjUifQ.DxkAfLeJXnYFLFjjl75N0Q';
 
 interface LocationMapProps {
   initialLocation?: string;
@@ -38,8 +39,42 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const { user } = useAuth();
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>(MAPBOX_PUBLIC_TOKEN);
+  const [mapboxToken, setMapboxToken] = useState<string>('');
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+  const [isLoadingToken, setIsLoadingToken] = useState<boolean>(true);
+
+  // Fetch Mapbox token from Supabase Edge Function
+  useEffect(() => {
+    const fetchMapboxToken = async () => {
+      try {
+        setIsLoadingToken(true);
+        console.log('Fetching Mapbox token from Supabase...');
+        
+        const { data, error } = await supabase.functions.invoke('get-api-keys');
+        
+        if (error) {
+          console.error('Error fetching Mapbox token:', error);
+          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+          toast.error('Could not fetch Mapbox token. Using fallback token.', {
+            description: "Map functionality might be limited."
+          });
+        } else if (data && data.mapbox_access_token) {
+          console.log('Successfully fetched Mapbox token');
+          setMapboxToken(data.mapbox_access_token);
+        } else {
+          console.warn('No Mapbox token found in the response. Using fallback token.');
+          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+        }
+      } catch (err) {
+        console.error('Exception when fetching Mapbox token:', err);
+        setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+      } finally {
+        setIsLoadingToken(false);
+      }
+    };
+
+    fetchMapboxToken();
+  }, []);
 
   // Function to update privacy circle on the map
   const updatePrivacyCircle = useCallback((coordinates: [number, number]) => {
@@ -132,7 +167,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current || isMapInitialized) return;
+    if (!mapContainer.current || map.current || isMapInitialized || isLoadingToken || !mapboxToken) return;
     
     try {
       console.log('Initializing map with token:', mapboxToken.substring(0, 10) + '...');
@@ -321,7 +356,19 @@ const LocationMap: React.FC<LocationMapProps> = ({
         setIsMapInitialized(false);
       }
     };
-  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isMapInitialized]);
+  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isMapInitialized, isLoadingToken]);
+  
+  // If we're loading the token, show loading state
+  if (isLoadingToken) {
+    return (
+      <div className="rounded border border-gray-300 p-4 h-80 flex justify-center items-center">
+        <div className="flex flex-col items-center space-y-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="text-gray-500">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
   
   // If we have an error, show error message
   if (mapError) {

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import LocationMap from '../LocationMap';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
 
 interface ResumePersonalSectionProps {
   data: PersonalInfo;
@@ -30,6 +31,15 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       setLocationTab('map');
     }
   }, [data.coordinates]);
+
+  // Reset locationInfo when data changes from external source
+  useEffect(() => {
+    setLocationInfo({
+      address: data.location || '',
+      coordinates: data.coordinates || undefined,
+      formattedAddress: data.location || ''
+    });
+  }, [data.location, data.coordinates]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,7 +72,18 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       location: locationData.formattedAddress,
       coordinates: locationData.coordinates
     });
+
+    toast.success("Location selected", {
+      description: `Selected: ${locationData.formattedAddress}`,
+      duration: 3000,
+    });
   };
+
+  console.log('Current location data:', { 
+    dataLocation: data.location, 
+    dataCoordinates: data.coordinates,
+    locationInfo
+  });
 
   return (
     <Card>
@@ -127,7 +148,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                 <Input
                   id="location"
                   name="location"
-                  value={data.location}
+                  value={data.location || ''}
                   onChange={handleChange}
                   placeholder="e.g., Dubai, UAE"
                 />
@@ -142,14 +163,12 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                 />
                 {locationInfo.formattedAddress && locationTab === 'map' && (
                   <div className="mt-2">
-                    <Input
-                      id="location"
-                      name="location"
-                      value={locationInfo.formattedAddress}
-                      onChange={handleChange}
-                      readOnly
-                      className="bg-gray-50"
-                    />
+                    <p className="text-sm font-medium">Selected location: {locationInfo.formattedAddress}</p>
+                    {locationInfo.coordinates && (
+                      <p className="text-xs text-gray-500">
+                        Coordinates: {locationInfo.coordinates[1].toFixed(4)}, {locationInfo.coordinates[0].toFixed(4)}
+                      </p>
+                    )}
                   </div>
                 )}
               </TabsContent>
