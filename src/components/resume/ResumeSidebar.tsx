@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   User, 
   Briefcase, 
@@ -9,13 +9,18 @@ import {
   FileText,
   FileUp,
   Linkedin,
-  AlignLeft
+  AlignLeft,
+  Image
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ResumeTemplate, ResumeData } from './types';
+import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from './utils/resumeParser';
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ResumeSidebarProps {
   activeSection: string;
@@ -33,140 +38,141 @@ const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
   setResumeData
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const { toast: uiToast } = useToast();
+  const { user } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    toast({
-      title: "Processing Resume",
+    setIsProcessing(true);
+    toast.loading("Processing Resume", {
       description: "Analyzing your resume file...",
     });
 
-    // Simulate file processing
-    setTimeout(() => {
-      // Simulate extracted data
-      const mockExtractedData: ResumeData = {
-        personal: {
-          fullName: "Jane Smith",
-          jobTitle: "Software Engineer",
-          email: "jane.smith@example.com",
-          phone: "+971 555 123 456",
-          location: "Dubai, UAE",
-        },
-        summary: "Experienced software engineer with a passion for building innovative solutions.",
-        experience: [
-          { 
-            id: "exp1",
-            company: "Tech Solutions LLC", 
-            position: "Senior Developer", 
-            location: "Dubai, UAE",
-            startDate: "2019-08", 
-            endDate: "2023-03", 
-            current: false,
-            description: "Led development team in creating enterprise software solutions. Implemented CI/CD pipelines and improved code quality."
-          }
-        ],
-        education: [
-          { 
-            id: "edu1",
-            institution: "University of Technology", 
-            degree: "Bachelor of Science", 
-            field: "Computer Science",
-            location: "Dubai, UAE",
-            startDate: "2015-09", 
-            endDate: "2019-06", 
-            current: false,
-          }
-        ],
-        skills: [
-          { id: "skill1", name: "JavaScript", level: "advanced" },
-          { id: "skill2", name: "React", level: "advanced" },
-          { id: "skill3", name: "Node.js", level: "intermediate" },
-          { id: "skill4", name: "TypeScript", level: "advanced" }
-        ],
-        languages: [
-          { id: "lang1", name: "English", proficiency: "fluent" },
-          { id: "lang2", name: "Arabic", proficiency: "conversational" }
-        ]
-      };
-
-      setResumeData(mockExtractedData);
+    try {
+      // Determine if this is an image file
+      const isImage = file.type.startsWith('image/');
       
-      toast({
-        title: "Resume Processed",
-        description: "Data from your resume has been extracted successfully!"
+      // Process the file using the appropriate parser
+      const extractedData = isImage
+        ? await parseResumeFromImage(file)
+        : await parseResumeFromFile(file);
+      
+      if (extractedData) {
+        // Update the resume data with the extracted information
+        setResumeData(current => {
+          // Merge with current data to preserve any existing data
+          return {
+            ...current,
+            ...extractedData,
+            // Ensure we handle nested objects properly
+            personal: {
+              ...current.personal,
+              ...extractedData.personal
+            }
+          };
+        });
+        
+        toast.success("Resume Processed", {
+          description: "Data from your resume has been extracted successfully!"
+        });
+      }
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      toast.error("Processing Failed", {
+        description: error instanceof Error ? error.message : "Failed to process your resume file",
       });
-    }, 2000);
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    } finally {
+      setIsProcessing(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
-  const extractFromLinkedIn = () => {
-    toast({
-      title: "LinkedIn Integration",
-      description: "Connecting to LinkedIn and extracting profile data...",
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    toast.loading("Processing Resume Image", {
+      description: "Extracting text from your resume image...",
     });
 
-    // Simulate LinkedIn data extraction
-    setTimeout(() => {
-      // Simulate extracted data
-      const mockLinkedInData: ResumeData = {
-        personal: {
-          fullName: "Alex Johnson",
-          jobTitle: "Project Manager",
-          email: "alex.johnson@example.com",
-          phone: "+971 555 987 654",
-          location: "Abu Dhabi, UAE",
-        },
-        summary: "Dedicated project manager with a track record of delivering complex projects on time and within budget.",
-        experience: [
-          { 
-            id: "exp1",
-            company: "Global Projects Co.", 
-            position: "Senior Project Manager", 
-            location: "Abu Dhabi, UAE",
-            startDate: "2014-08", 
-            endDate: "2023-01", 
-            current: false,
-            description: "Managed large-scale construction projects with budgets exceeding $50M. Coordinated cross-functional teams and ensured regulatory compliance."
-          }
-        ],
-        education: [
-          { 
-            id: "edu1",
-            institution: "Business School International", 
-            degree: "Master of Business Administration", 
-            field: "Project Management",
-            location: "Abu Dhabi, UAE",
-            startDate: "2012-09", 
-            endDate: "2014-06", 
-            current: false,
-          }
-        ],
-        skills: [
-          { id: "skill1", name: "Project Management", level: "expert" },
-          { id: "skill2", name: "Budget Planning", level: "expert" },
-          { id: "skill3", name: "Team Leadership", level: "advanced" },
-          { id: "skill4", name: "Risk Management", level: "advanced" }
-        ],
-        languages: [
-          { id: "lang1", name: "English", proficiency: "fluent" },
-          { id: "lang2", name: "Arabic", proficiency: "fluent" }
-        ]
-      };
-
-      setResumeData(mockLinkedInData);
+    try {
+      const extractedData = await parseResumeFromImage(file);
       
-      toast({
-        title: "LinkedIn Import Complete",
-        description: "Data from your LinkedIn profile has been imported successfully!"
+      if (extractedData) {
+        setResumeData(current => {
+          return {
+            ...current,
+            ...extractedData,
+            personal: {
+              ...current.personal,
+              ...extractedData.personal
+            }
+          };
+        });
+        
+        toast.success("Image Processed", {
+          description: "Data from your resume image has been extracted successfully!"
+        });
+      }
+    } catch (error) {
+      console.error("Error processing resume image:", error);
+      toast.error("Image Processing Failed", {
+        description: error instanceof Error ? error.message : "Failed to extract data from your resume image",
       });
-    }, 2500);
+    } finally {
+      setIsProcessing(false);
+      // Reset file input
+      if (imageInputRef.current) {
+        imageInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleLinkedInImport = async () => {
+    // If user is not logged in
+    if (!user) {
+      toast.warning("Authentication Required", {
+        description: "Please log in to import data from LinkedIn",
+        duration: 5000,
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    toast.loading("LinkedIn Integration", {
+      description: "Connecting to LinkedIn...",
+    });
+
+    try {
+      // Initiate OAuth flow with LinkedIn
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: window.location.origin + '/resume-builder?linkedin_auth=true',
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // The actual data handling will be done on redirect back to the app
+      // See the effect in the ResumeBuilderPage component
+    } catch (error) {
+      console.error("LinkedIn authentication error:", error);
+      toast.error("LinkedIn Connection Failed", {
+        description: error instanceof Error ? error.message : "Failed to connect to LinkedIn",
+      });
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -228,6 +234,7 @@ const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
               variant="outline" 
               className="w-full justify-start" 
               onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
             >
               <FileUp size={16} className="mr-2" /> Upload Resume
             </Button>
@@ -235,14 +242,31 @@ const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
               type="file" 
               ref={fileInputRef} 
               className="hidden" 
-              accept=".pdf,.doc,.docx,.json"
+              accept=".pdf,.doc,.docx,.json,.txt"
               onChange={handleFileUpload}
             />
             
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={extractFromLinkedIn}
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isProcessing}
+            >
+              <Image size={16} className="mr-2" /> Scan Resume Image
+            </Button>
+            <input 
+              type="file" 
+              ref={imageInputRef} 
+              className="hidden" 
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={handleLinkedInImport}
+              disabled={isProcessing}
             >
               <Linkedin size={16} className="mr-2" /> Import from LinkedIn
             </Button>
