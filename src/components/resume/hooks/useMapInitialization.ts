@@ -168,7 +168,7 @@ export const useMapInitialization = ({
     circleLayerAddedRef.current = false;
   }, []);
   
-  // Function to add marker and circle after style is loaded
+  // Function to setup map features (marker, circle) after style is loaded
   const setupMapFeatures = useCallback((map: mapboxgl.Map, lng: number, lat: number) => {
     // Add marker
     if (markerRef.current) {
@@ -178,12 +178,14 @@ export const useMapInitialization = ({
       .setLngLat([lng, lat])
       .addTo(map);
     
-    // Add privacy circle
-    updatePrivacyCircle(lng, lat);
+    // Add privacy circle if map style is loaded
+    if (mapStyleLoaded) {
+      updatePrivacyCircle(lng, lat);
+    }
     
     // Geocode the location
     geocodeLocation(lng, lat);
-  }, [updatePrivacyCircle, geocodeLocation]);
+  }, [updatePrivacyCircle, geocodeLocation, mapStyleLoaded]);
   
   // Initialize the map when the component mounts
   useEffect(() => {
@@ -252,9 +254,7 @@ export const useMapInitialization = ({
         };
         
         // Only add/update marker and circle if map style is loaded
-        if (mapStyleLoaded) {
-          setupMapFeatures(map, lng, lat);
-        }
+        setupMapFeatures(map, lng, lat);
       });
       
       // Handle map movement end - ensure we keep our state in sync
@@ -296,7 +296,7 @@ export const useMapInitialization = ({
       renderingMapRef.current = false;
       return;
     }
-  }, [getEffectiveToken, initialLocation, mapContainerRef, parseInitialLocation, setupMapFeatures, mapStyleLoaded]);
+  }, [getEffectiveToken, initialLocation, mapContainerRef, parseInitialLocation, setupMapFeatures]);
   
   // Update map when initialLocation changes and map is already initialized
   useEffect(() => {
