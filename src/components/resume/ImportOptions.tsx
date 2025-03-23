@@ -11,7 +11,8 @@ import {
   parseResumeFromFile, 
   parseResumeFromImage,
   importFromLinkedIn, 
-  mergeResumeData 
+  mergeResumeData,
+  enhancedResumeParser 
 } from './utils/resumeParser';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -42,7 +43,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     
     // Show initial toast
     const toastId = toast.loading("Processing Resume", {
-      description: "Analyzing your resume...",
+      description: "Analyzing your resume with Enhanced Parser...",
     });
     
     try {
@@ -63,7 +64,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       // Update toast to show extraction in progress
       toast.loading("Extracting Data", {
         id: toastId,
-        description: "Reading file and extracting information...",
+        description: "Using Enhanced Parser to extract information...",
       });
       
       // Parse the resume
@@ -77,15 +78,21 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       )) {
         throw new Error("Could not extract meaningful data from your resume. Please try a different file.");
       }
+
+      // Check if the data has metadata from the enhanced parser
+      const usedEnhancedParser = parsedData.hasOwnProperty('metadata') && 
+                                (parsedData as any)?.metadata?.parser === 'EnhancedResumeParser';
       
       // Success toast
       toast.success("Resume Processed", {
         id: toastId,
-        description: "Your resume has been processed successfully.",
+        description: usedEnhancedParser 
+          ? "Your resume has been processed successfully using the Enhanced Parser."
+          : "Your resume has been processed successfully.",
       });
       
       // Merge the data with existing data
-      const mergedData = mergeResumeData(currentData, parsedData);
+      const mergedData = enhancedResumeParser.mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
       
       // Close the dialog

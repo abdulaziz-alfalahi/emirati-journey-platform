@@ -6,6 +6,7 @@ import { ResumeData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { extractDataFromContent } from './resumeContentParser';
 import { extractFromLinkedIn } from './parsers/linkedInParser';
+import { enhancedResumeParser } from './enhancedResumeParser';
 
 // Parse resume from uploaded file
 export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeData>> => {
@@ -25,49 +26,65 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         console.log('File read complete. Content length:', fileContent.length);
         let parsedData: Partial<ResumeData> = {};
         
-        // Use the local extraction method as the primary approach
+        // Try the enhanced parser first
         try {
-          console.log('Using local regex extraction...');
-          parsedData = extractDataFromContent(fileContent, file.type);
+          console.log('Using enhanced resume parser...');
+          parsedData = enhancedResumeParser.parseResumeContent(fileContent, file.type);
           
           // Check if we got meaningful data
           if (isEmptyResumeData(parsedData)) {
-            console.warn('Regex extraction returned empty data');
-            throw new Error('Local extraction returned empty data');
+            console.warn('Enhanced parser returned empty data');
+            throw new Error('Enhanced parsing returned empty data');
           }
           
-          console.log('Local extraction successful:', parsedData);
-        } catch (localError) {
-          console.error('Local extraction error:', localError);
+          console.log('Enhanced parsing successful:', parsedData);
+        } catch (enhancedError) {
+          console.error('Enhanced parsing error:', enhancedError);
           
-          // Try with edge function as a fallback if available
+          // Fall back to the legacy extraction method
           try {
-            console.log('Attempting AI extraction as fallback...');
-            
-            const response = await supabase.functions.invoke('extract-resume-data', {
-              body: { 
-                fileContent,
-                fileType: file.type 
-              },
-            });
-            
-            if (response.error) {
-              console.error('Edge function error:', response.error);
-              throw new Error(`AI extraction failed: ${response.error.message}`);
-            }
-            
-            const data = response.data;
-            
-            if (!data) {
-              throw new Error('No data returned from AI extraction service');
-            }
-            
-            console.log('AI extraction successful');
-            parsedData = data;
-          } catch (aiError) {
-            console.error('AI extraction also failed:', aiError);
-            // If both methods fail, return the best effort from local extraction
+            console.log('Falling back to legacy regex extraction...');
             parsedData = extractDataFromContent(fileContent, file.type);
+            
+            // Check if we got meaningful data
+            if (isEmptyResumeData(parsedData)) {
+              console.warn('Legacy extraction returned empty data');
+              throw new Error('Legacy extraction returned empty data');
+            }
+            
+            console.log('Legacy extraction successful:', parsedData);
+          } catch (localError) {
+            console.error('Legacy extraction error:', localError);
+            
+            // Try with edge function as a fallback if available
+            try {
+              console.log('Attempting AI extraction as fallback...');
+              
+              const response = await supabase.functions.invoke('extract-resume-data', {
+                body: { 
+                  fileContent,
+                  fileType: file.type 
+                },
+              });
+              
+              if (response.error) {
+                console.error('Edge function error:', response.error);
+                throw new Error(`AI extraction failed: ${response.error.message}`);
+              }
+              
+              const data = response.data;
+              
+              if (!data) {
+                throw new Error('No data returned from AI extraction service');
+              }
+              
+              console.log('AI extraction successful');
+              parsedData = data;
+            } catch (aiError) {
+              console.error('AI extraction also failed:', aiError);
+              // If all methods fail, return the best effort from local extraction
+              parsedData = extractDataFromContent(fileContent, file.type);
+            }
           }
         }
         
@@ -176,3 +193,4 @@ export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: stri
 // Re-export for backward compatibility
 export { extractFromLinkedIn } from './parsers/linkedInParser';
 export { mergeResumeData } from './resumeDataUtils';
+export { enhancedResumeParser };
