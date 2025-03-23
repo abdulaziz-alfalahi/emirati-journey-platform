@@ -28,6 +28,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     coordinates: [number, number]; 
     formattedAddress: string;
   }) => {
+    console.log('Location selected:', locationData);
     onChange({
       ...data,
       location: locationData.formattedAddress,
@@ -111,15 +112,11 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   initialLocation={data.location}
                   onLocationSelect={handleLocationSelect}
                 />
-                <Input
-                  id="location"
-                  name="location"
-                  value={data.location}
-                  onChange={handleChange}
-                  className="mt-2"
-                  placeholder="Location will be updated when selected on map"
-                  readOnly
-                />
+                {data.location && (
+                  <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                    <p className="text-sm font-medium">Selected location: {data.location}</p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
