@@ -24,22 +24,22 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     coordinates: data.coordinates || undefined,
     formattedAddress: data.location || ''
   });
-
-  // Update locationTab when coordinates change
+  
+  // Update parent data when locationInfo changes
   useEffect(() => {
-    if (data.coordinates && locationTab !== 'map') {
-      setLocationTab('map');
+    // Only update if there are changes to avoid infinite loops
+    const locationChanged = data.location !== locationInfo.formattedAddress;
+    const coordinatesChanged = 
+      JSON.stringify(data.coordinates) !== JSON.stringify(locationInfo.coordinates);
+    
+    if (locationChanged || coordinatesChanged) {
+      onChange({
+        ...data,
+        location: locationInfo.formattedAddress,
+        coordinates: locationInfo.coordinates
+      });
     }
-  }, [data.coordinates]);
-
-  // Reset locationInfo when data changes from external source
-  useEffect(() => {
-    setLocationInfo({
-      address: data.location || '',
-      coordinates: data.coordinates || undefined,
-      formattedAddress: data.location || ''
-    });
-  }, [data.location, data.coordinates]);
+  }, [locationInfo, data, onChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -54,13 +54,12 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       
       // Clear coordinates if entering location manually
       if (locationTab === 'text') {
-        onChange({
-          ...data,
-          location: value,
-          coordinates: undefined // Clear coordinates when typing directly
-        });
-        return;
+        setLocationInfo(prev => ({
+          ...prev,
+          coordinates: undefined
+        }));
       }
+      return;
     }
     
     onChange({
@@ -75,14 +74,10 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     formattedAddress: string;
   }) => {
     console.log('Location selected:', locationData);
+    
+    // Update local state first
     setLocationInfo(locationData);
     
-    onChange({
-      ...data,
-      location: locationData.formattedAddress,
-      coordinates: locationData.coordinates
-    });
-
     toast.success("Location selected", {
       description: `Selected: ${locationData.formattedAddress}`,
       duration: 3000,
@@ -93,11 +88,25 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
   const handleTabChange = (value: string) => {
     setLocationTab(value);
     
-    // If switching to map and we already have coordinates, make sure they're used
-    if (value === 'map' && data.coordinates) {
-      // Location already has coordinates, no need to take action
-      console.log('Switching to map tab with existing coordinates:', data.coordinates);
+    // If switching to text tab, use the formatted address in the text input
+    if (value === 'text' && locationInfo.formattedAddress) {
+      setLocationInfo(prev => ({
+        ...prev,
+        address: locationInfo.formattedAddress
+      }));
     }
+  };
+
+  // Prepare location string for the map component
+  const getLocationStringForMap = () => {
+    if (data.coordinates) {
+      return JSON.stringify({
+        longitude: data.coordinates[0],
+        latitude: data.coordinates[1],
+        name: data.location
+      });
+    }
+    return data.location || '';
   };
 
   return (
@@ -173,13 +182,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   Selecting your residence area on the map will help us provide you with commute details to potential vacancies while protecting your privacy.
                 </p>
                 <LocationMap 
-                  initialLocation={data.coordinates 
-                    ? JSON.stringify({
-                        longitude: data.coordinates[0],
-                        latitude: data.coordinates[1],
-                        name: data.location
-                      }) 
-                    : data.location}
+                  initialLocation={getLocationStringForMap()}
                   onLocationSelect={handleLocationSelect}
                 />
               </TabsContent>

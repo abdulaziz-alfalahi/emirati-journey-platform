@@ -40,66 +40,69 @@ const LocationMap: React.FC<LocationMapProps> = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>(FALLBACK_MAPBOX_TOKEN);
   const [isLoadingToken, setIsLoadingToken] = useState<boolean>(true);
-  const [mapInitialized, setMapInitialized] = useState<boolean>(false);
   
-  // Prevent re-initialization of the map
+  // Refs to prevent re-renders and maintain state
   const mapInitializedRef = useRef<boolean>(false);
-  // New ref to track if a privacy circle has already been added
   const circleAddedRef = useRef<boolean>(false);
-  // New ref to track initial coordinates
   const initialCoordinatesRef = useRef<[number, number] | null>(null);
+  const selectedLocationRef = useRef<[number, number] | null>(null);
+  const styleLoadedRef = useRef<boolean>(false);
 
-  // Fetch Mapbox token from Supabase Edge Function
-  useEffect(() => {
-    const fetchMapboxToken = async () => {
+  // Parse location string to extract coordinates
+  const parseLocationString = useCallback((locationString: string) => {
+    try {
+      // Try parsing as JSON first (common format for stored locations)
       try {
-        setIsLoadingToken(true);
-        console.log('Fetching Mapbox token from Supabase...');
-        
-        const { data, error } = await supabase.functions.invoke('get-api-keys', {
-          method: 'GET'
-        });
-        
-        if (error) {
-          console.error('Error fetching Mapbox token:', error);
-          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
-          toast.error('Could not fetch Mapbox token. Using fallback token.', {
-            description: "Map functionality might be limited."
-          });
-        } else if (data && data.mapbox_access_token) {
-          console.log('Successfully fetched Mapbox token');
-          setMapboxToken(data.mapbox_access_token);
-        } else {
-          console.warn('No Mapbox token found in the response. Using fallback token.');
-          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+        const location = JSON.parse(locationString);
+        if (location.longitude && location.latitude) {
+          return {
+            coordinates: [location.longitude, location.latitude] as [number, number],
+            address: location.name || 'Selected Location'
+          };
         }
-      } catch (err) {
-        console.error('Exception when fetching Mapbox token:', err);
-        setMapboxToken(FALLBACK_MAPBOX_TOKEN);
-      } finally {
-        setIsLoadingToken(false);
+      } catch (e) {
+        // Not a JSON string, continue
       }
-    };
-
-    fetchMapboxToken();
+      
+      // Check if it matches a coordinates pattern
+      const coordsMatch = locationString.match(/\[?(-?\d+\.?\d*),\s*(-?\d+\.?\d*)\]?/);
+      if (coordsMatch) {
+        return {
+          coordinates: [parseFloat(coordsMatch[1]), parseFloat(coordsMatch[2])] as [number, number],
+          address: locationString
+        };
+      }
+      
+      // Just use as text address
+      return {
+        coordinates: null,
+        address: locationString
+      };
+    } catch (e) {
+      console.error('Error parsing location string:', e);
+      return {
+        coordinates: null,
+        address: locationString
+      };
+    }
   }, []);
 
   // Function to update privacy circle on the map
   const updatePrivacyCircle = useCallback((coordinates: [number, number]) => {
     if (!map.current) return;
     
+    // Update refs to maintain state between renders
     setSelectedLocation(coordinates);
+    selectedLocationRef.current = coordinates;
     
     try {
       // Check if the map is loaded
       if (!map.current.isStyleLoaded()) {
-        console.log("Map style not loaded yet, waiting...");
-        // Wait for map style to load before adding layers
-        map.current.once('style.load', () => {
-          updatePrivacyCircle(coordinates);
-        });
+        console.log("Map style not loaded yet, waiting for style.load event");
         return;
       }
+      
+      styleLoadedRef.current = true;
       
       // Always remove the previous source and layer if they exist
       if (map.current.getLayer(privacyCircleId)) {
@@ -180,43 +183,39 @@ const LocationMap: React.FC<LocationMapProps> = ({
     return firstFeature.place_name || 'Custom Location';
   };
 
-  // Parse location string to extract coordinates
-  const parseLocationString = useCallback((locationString: string) => {
-    try {
-      // Try parsing as JSON first (common format for stored locations)
+  // Fetch Mapbox token from Supabase Edge Function
+  useEffect(() => {
+    const fetchMapboxToken = async () => {
       try {
-        const location = JSON.parse(locationString);
-        if (location.longitude && location.latitude) {
-          return {
-            coordinates: [location.longitude, location.latitude] as [number, number],
-            address: location.name || 'Selected Location'
-          };
+        setIsLoadingToken(true);
+        console.log('Fetching Mapbox token from Supabase...');
+        
+        const { data, error } = await supabase.functions.invoke('get-api-keys', {
+          method: 'GET'
+        });
+        
+        if (error) {
+          console.error('Error fetching Mapbox token:', error);
+          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+          toast.error('Could not fetch Mapbox token. Using fallback token.', {
+            description: "Map functionality might be limited."
+          });
+        } else if (data && data.mapbox_access_token) {
+          console.log('Successfully fetched Mapbox token');
+          setMapboxToken(data.mapbox_access_token);
+        } else {
+          console.warn('No Mapbox token found in the response. Using fallback token.');
+          setMapboxToken(FALLBACK_MAPBOX_TOKEN);
         }
-      } catch (e) {
-        // Not a JSON string, continue
+      } catch (err) {
+        console.error('Exception when fetching Mapbox token:', err);
+        setMapboxToken(FALLBACK_MAPBOX_TOKEN);
+      } finally {
+        setIsLoadingToken(false);
       }
-      
-      // Check if it matches a coordinates pattern
-      const coordsMatch = locationString.match(/\[?(-?\d+\.?\d*),\s*(-?\d+\.?\d*)\]?/);
-      if (coordsMatch) {
-        return {
-          coordinates: [parseFloat(coordsMatch[1]), parseFloat(coordsMatch[2])] as [number, number],
-          address: locationString
-        };
-      }
-      
-      // Just use as text address
-      return {
-        coordinates: null,
-        address: locationString
-      };
-    } catch (e) {
-      console.error('Error parsing location string:', e);
-      return {
-        coordinates: null,
-        address: locationString
-      };
-    }
+    };
+
+    fetchMapboxToken();
   }, []);
 
   // Initialize map
@@ -237,157 +236,156 @@ const LocationMap: React.FC<LocationMapProps> = ({
         center: [55.2708, 25.2048], // Default to Dubai
         zoom: 10,
         attributionControl: false,
-        preserveDrawingBuffer: true // Helps with rendering issues
+        preserveDrawingBuffer: true, // Helps with rendering issues
+        renderWorldCopies: false // Prevents multiple world copies which can cause flickering
       });
       
       // Prevent reinitialization
       mapInitializedRef.current = true;
       
-      // Once the map is fully loaded, handle UI updates
-      map.current.on('load', () => {
-        console.log('Map loaded successfully');
-        setMapInitialized(true);
-        
-        // Add navigation controls after the map loads
-        map.current?.addControl(
-          new mapboxgl.NavigationControl(),
-          'top-right'
-        );
-        
-        // Add geocoder (search) after the map loads
-        if (!geocoderInstance.current) {
-          geocoderInstance.current = new MapboxGeocoder({
-            accessToken: mapboxToken,
-            mapboxgl: mapboxgl,
-            marker: false,
-            placeholder: 'Search for a location',
-            zoom: 13
-          });
+      // Process initial location value before map loads
+      const locationValue = initialLocation || value;
+      if (locationValue) {
+        try {
+          const parsedLocation = parseLocationString(locationValue);
           
-          map.current?.addControl(geocoderInstance.current);
-        }
-        
-        // Set initial marker position if value provided
-        const locationValue = initialLocation || value;
-        if (locationValue) {
-          try {
-            const parsedLocation = parseLocationString(locationValue);
-            
-            if (parsedLocation.coordinates) {
-              console.log('Setting initial location from parsed coordinates:', parsedLocation.coordinates);
-              initialCoordinatesRef.current = parsedLocation.coordinates;
-              map.current?.setCenter(parsedLocation.coordinates);
-              updatePrivacyCircle(parsedLocation.coordinates);
-              setSelectedAddress(parsedLocation.address);
-            } else {
-              console.log('Using location as string:', parsedLocation.address);
-              setSelectedAddress(parsedLocation.address);
-            }
-          } catch (e) {
-            console.error('Error parsing location:', e);
+          if (parsedLocation.coordinates) {
+            console.log('Setting initial location from parsed coordinates:', parsedLocation.coordinates);
+            initialCoordinatesRef.current = parsedLocation.coordinates;
+            selectedLocationRef.current = parsedLocation.coordinates;
+            setSelectedLocation(parsedLocation.coordinates);
+            setSelectedAddress(parsedLocation.address);
+          } else {
+            console.log('Using location as string:', parsedLocation.address);
+            setSelectedAddress(parsedLocation.address);
           }
+        } catch (e) {
+          console.error('Error parsing location:', e);
         }
+      }
+      
+      // Add navigation controls
+      map.current.addControl(
+        new mapboxgl.NavigationControl(),
+        'top-right'
+      );
+      
+      // Add geocoder (search) control
+      if (!geocoderInstance.current) {
+        geocoderInstance.current = new MapboxGeocoder({
+          accessToken: mapboxToken,
+          mapboxgl: mapboxgl,
+          marker: false,
+          placeholder: 'Search for a location',
+          zoom: 13
+        });
         
-        // Handle geocoder result
-        if (geocoderInstance.current) {
-          geocoderInstance.current.on('result', (e) => {
-            console.log('Geocoder result:', e.result);
-            const coords = e.result.center;
-            if (coords) {
-              // Update privacy circle
-              updatePrivacyCircle([coords[0], coords[1]]);
-              
-              // Format the address to be more general
-              const formattedAddress = formatAddressForPrivacy([e.result]);
-              setSelectedAddress(formattedAddress);
-              
-              // Call onLocationSelect callback
-              console.log('Calling onLocationSelect with:', {
-                address: formattedAddress,
-                coordinates: [coords[0], coords[1]],
-                formattedAddress: formattedAddress
-              });
-              
-              onLocationSelect({
-                address: formattedAddress,
-                coordinates: [coords[0], coords[1]],
-                formattedAddress: formattedAddress
-              });
-              
-              // For backward compatibility
-              if (onChange) {
-                const location = {
-                  longitude: coords[0],
-                  latitude: coords[1],
-                  name: formattedAddress
-                };
-                onChange(JSON.stringify(location));
-              }
+        map.current.addControl(geocoderInstance.current);
+      }
+      
+      // When map style loads
+      map.current.on('style.load', () => {
+        console.log('Map style loaded');
+        styleLoadedRef.current = true;
+        
+        // Re-add the privacy circle if we have coordinates
+        if (selectedLocationRef.current) {
+          updatePrivacyCircle(selectedLocationRef.current);
+        } else if (initialCoordinatesRef.current) {
+          updatePrivacyCircle(initialCoordinatesRef.current);
+        }
+      });
+      
+      // Handle geocoder result
+      if (geocoderInstance.current) {
+        geocoderInstance.current.on('result', (e) => {
+          console.log('Geocoder result:', e.result);
+          const coords = e.result.center;
+          if (coords) {
+            // Set the map center
+            map.current?.setCenter([coords[0], coords[1]]);
+            
+            // Update privacy circle
+            updatePrivacyCircle([coords[0], coords[1]]);
+            
+            // Format the address to be more general
+            const formattedAddress = formatAddressForPrivacy([e.result]);
+            setSelectedAddress(formattedAddress);
+            
+            // Call onLocationSelect callback
+            onLocationSelect({
+              address: formattedAddress,
+              coordinates: [coords[0], coords[1]],
+              formattedAddress: formattedAddress
+            });
+            
+            // For backward compatibility
+            if (onChange) {
+              const location = {
+                longitude: coords[0],
+                latitude: coords[1],
+                name: formattedAddress
+              };
+              onChange(JSON.stringify(location));
+            }
+          }
+        });
+      }
+      
+      // Add click event to the map for selecting location
+      map.current.on('click', (e) => {
+        console.log('Map clicked at:', e.lngLat);
+        
+        // Update privacy circle
+        updatePrivacyCircle([e.lngLat.lng, e.lngLat.lat]);
+        
+        // Reverse geocode to get address for the coordinates
+        fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
+          .then(response => response.json())
+          .then(data => {
+            // Format the address for privacy
+            const formattedAddress = formatAddressForPrivacy(data.features);
+            setSelectedAddress(formattedAddress);
+            
+            // Call onLocationSelect callback
+            onLocationSelect({
+              address: formattedAddress,
+              coordinates: [e.lngLat.lng, e.lngLat.lat],
+              formattedAddress: formattedAddress
+            });
+            
+            // For backward compatibility
+            if (onChange) {
+              const location = {
+                longitude: e.lngLat.lng,
+                latitude: e.lngLat.lat,
+                name: formattedAddress
+              };
+              onChange(JSON.stringify(location));
+            }
+          })
+          .catch(error => {
+            console.error('Error reverse geocoding:', error);
+            
+            // Fall back to using custom location
+            const customLocation = 'Custom Location';
+            setSelectedAddress(customLocation);
+            
+            onLocationSelect({
+              address: customLocation,
+              coordinates: [e.lngLat.lng, e.lngLat.lat],
+              formattedAddress: customLocation
+            });
+            
+            if (onChange) {
+              const location = {
+                longitude: e.lngLat.lng,
+                latitude: e.lngLat.lat,
+                name: customLocation
+              };
+              onChange(JSON.stringify(location));
             }
           });
-        }
-        
-        // Add click event to the map for selecting location
-        map.current.on('click', (e) => {
-          console.log('Map clicked at:', e.lngLat);
-          
-          // Update privacy circle
-          updatePrivacyCircle([e.lngLat.lng, e.lngLat.lat]);
-          
-          // Reverse geocode to get address for the coordinates
-          fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${e.lngLat.lng},${e.lngLat.lat}.json?access_token=${mapboxToken}`)
-            .then(response => response.json())
-            .then(data => {
-              // Format the address for privacy
-              const formattedAddress = formatAddressForPrivacy(data.features);
-              setSelectedAddress(formattedAddress);
-              
-              // Call onLocationSelect callback
-              console.log('Calling onLocationSelect after map click with:', {
-                address: formattedAddress,
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: formattedAddress
-              });
-              
-              onLocationSelect({
-                address: formattedAddress,
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: formattedAddress
-              });
-              
-              // For backward compatibility
-              if (onChange) {
-                const location = {
-                  longitude: e.lngLat.lng,
-                  latitude: e.lngLat.lat,
-                  name: formattedAddress
-                };
-                onChange(JSON.stringify(location));
-              }
-            })
-            .catch(error => {
-              console.error('Error reverse geocoding:', error);
-              
-              // Fall back to using custom location
-              const customLocation = 'Custom Location';
-              setSelectedAddress(customLocation);
-              
-              onLocationSelect({
-                address: customLocation,
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                formattedAddress: customLocation
-              });
-              
-              if (onChange) {
-                const location = {
-                  longitude: e.lngLat.lng,
-                  latitude: e.lngLat.lat,
-                  name: customLocation
-                };
-                onChange(JSON.stringify(location));
-              }
-            });
-        });
       });
       
       // Handle map errors
@@ -396,14 +394,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
         setMapError('Map could not be loaded. Please try again later.');
       });
       
-      // Handle map style changes
-      map.current.on('styledata', () => {
-        console.log('Map style loaded');
-        // Re-add the privacy circle if it was previously added and we have coordinates
-        if (circleAddedRef.current && selectedLocation) {
-          updatePrivacyCircle(selectedLocation);
-        } else if (initialCoordinatesRef.current) {
-          updatePrivacyCircle(initialCoordinatesRef.current);
+      // When the map moves due to user interaction, we need to maintain the selected location
+      map.current.on('moveend', () => {
+        // Don't reset the center if we have a selected location
+        if (selectedLocationRef.current && map.current) {
+          // Check if the circle needs to be redrawn
+          if (styleLoadedRef.current && !map.current.getLayer(privacyCircleId) && circleAddedRef.current) {
+            updatePrivacyCircle(selectedLocationRef.current);
+          }
         }
       });
       
@@ -432,18 +430,18 @@ const LocationMap: React.FC<LocationMapProps> = ({
         map.current = null;
         // Reset initialization flag on unmount
         mapInitializedRef.current = false;
-        setMapInitialized(false);
         circleAddedRef.current = false;
+        styleLoadedRef.current = false;
       }
     };
   }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isLoadingToken, parseLocationString]);
   
-  // Keep the privacy circle updated when selectedLocation changes (e.g. after rerendering)
+  // Keep the privacy circle updated when selectedLocation changes (e.g. after style reloads)
   useEffect(() => {
     if (map.current && map.current.isStyleLoaded() && selectedLocation) {
       updatePrivacyCircle(selectedLocation);
     }
-  }, [mapInitialized, selectedLocation, updatePrivacyCircle]);
+  }, [selectedLocation, updatePrivacyCircle]);
 
   // If we're loading the token, show loading state
   if (isLoadingToken) {
