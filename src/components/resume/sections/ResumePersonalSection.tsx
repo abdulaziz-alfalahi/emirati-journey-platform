@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PersonalInfo } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,56 +23,48 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     coordinates: data.coordinates || undefined,
     formattedAddress: data.location || ''
   });
-  
-  // Synchronize state with incoming data props when they change
+
   useEffect(() => {
-    // Only update local state if the data props have changed significantly
-    if (data.location !== locationInfo.formattedAddress || 
-        JSON.stringify(data.coordinates) !== JSON.stringify(locationInfo.coordinates)) {
-      
+    if (
+      data.location !== locationInfo.formattedAddress || 
+      JSON.stringify(data.coordinates) !== JSON.stringify(locationInfo.coordinates)
+    ) {
       setLocationInfo({
         address: data.location || '',
         coordinates: data.coordinates || undefined,
         formattedAddress: data.location || ''
       });
       
-      // Set the appropriate tab based on whether coordinates exist
       if (data.coordinates && locationTab === 'text') {
         setLocationTab('map');
       } else if (!data.coordinates && locationTab === 'map') {
         setLocationTab('text');
       }
     }
-  }, [data.location, data.coordinates]);
-  
-  // Update parent data when locationInfo changes
-  useEffect(() => {
-    // Only update if there are changes to avoid infinite loops
-    const locationChanged = data.location !== locationInfo.formattedAddress;
-    const coordinatesChanged = 
-      JSON.stringify(data.coordinates) !== JSON.stringify(locationInfo.coordinates);
-    
-    if (locationChanged || coordinatesChanged) {
-      onChange({
-        ...data,
-        location: locationInfo.formattedAddress,
-        coordinates: locationInfo.coordinates
-      });
-    }
-  }, [locationInfo, data, onChange]);
+  }, [data.location, data.coordinates, locationInfo.formattedAddress, locationInfo.coordinates, locationTab]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // Handle location text input separately
     if (name === 'location') {
-      setLocationInfo(prev => ({
-        ...prev,
+      const newLocationInfo = {
+        ...locationInfo,
         address: value,
-        formattedAddress: value,
-        // Clear coordinates if entering location manually
-        ...(locationTab === 'text' ? { coordinates: undefined } : {})
-      }));
+        formattedAddress: value
+      };
+      
+      if (locationTab === 'text') {
+        newLocationInfo.coordinates = undefined;
+      }
+      
+      setLocationInfo(newLocationInfo);
+      
+      onChange({
+        ...data,
+        location: value,
+        coordinates: locationTab === 'text' ? undefined : locationInfo.coordinates
+      });
+      
       return;
     }
     
@@ -83,38 +74,48 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     });
   };
 
-  const handleLocationSelect = (locationData: { 
+  const handleLocationSelect = useCallback((locationData: { 
     address: string; 
     coordinates: [number, number]; 
     formattedAddress: string;
   }) => {
     console.log('Location selected:', locationData);
     
-    // Update local state
     setLocationInfo(locationData);
     
-    // Notify user
+    onChange({
+      ...data,
+      location: locationData.formattedAddress,
+      coordinates: locationData.coordinates
+    });
+    
     toast.success("Location selected", {
       description: `Selected: ${locationData.formattedAddress}`,
       duration: 3000,
     });
-  };
+  }, [data, onChange]);
 
-  // When switching to map tab, ensure we have the latest data
   const handleTabChange = (value: string) => {
+    console.log('Tab changed to:', value);
     setLocationTab(value);
     
-    // If switching to text tab, use the formatted address in the text input
-    if (value === 'text' && locationInfo.formattedAddress) {
-      setLocationInfo(prev => ({
-        ...prev,
-        address: locationInfo.formattedAddress
-      }));
+    if (value === 'text' && locationInfo.formattedAddress && locationTab === 'map') {
+      const newLocationInfo = {
+        ...locationInfo,
+        address: locationInfo.formattedAddress,
+      };
+      
+      setLocationInfo(newLocationInfo);
+      
+      onChange({
+        ...data,
+        location: locationInfo.formattedAddress,
+        coordinates: undefined
+      });
     }
   };
 
-  // Prepare location string for the map component
-  const getLocationStringForMap = () => {
+  const getLocationStringForMap = useCallback(() => {
     if (locationInfo.coordinates) {
       return JSON.stringify({
         longitude: locationInfo.coordinates[0],
@@ -123,7 +124,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
       });
     }
     return locationInfo.formattedAddress || '';
-  };
+  }, [locationInfo.coordinates, locationInfo.formattedAddress]);
 
   return (
     <Card>
@@ -198,8 +199,10 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   Selecting your residence area on the map will help us provide you with commute details to potential vacancies while protecting your privacy.
                 </p>
                 <LocationMap 
+                  key={`map-${locationTab === 'map'}`}
                   initialLocation={getLocationStringForMap()}
                   onLocationSelect={handleLocationSelect}
+                  persistentCircle={true}
                 />
               </TabsContent>
             </Tabs>
