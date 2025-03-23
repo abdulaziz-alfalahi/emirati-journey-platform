@@ -91,6 +91,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Check if the map is loaded
       if (!map.current.isStyleLoaded()) {
         console.log("Map style not loaded yet, waiting...");
+        // Wait for map style to load before adding layers
         map.current.once('style.load', () => {
           updatePrivacyCircle(coordinates);
         });
@@ -196,7 +197,7 @@ const LocationMap: React.FC<LocationMapProps> = ({
       mapInitializedRef.current = true;
       
       // Once the map is fully loaded, handle UI updates
-      map.current.once('load', () => {
+      map.current.on('load', () => {
         console.log('Map loaded successfully');
         setMapInitialized(true);
         
@@ -414,14 +415,9 @@ const LocationMap: React.FC<LocationMapProps> = ({
         className="h-80 rounded border border-gray-300"
         style={{ position: 'relative' }}
       />
-      {(selectedLocation || selectedAddress) && (
+      {selectedAddress && (
         <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-          {selectedAddress && (
-            <p className="text-sm font-medium mb-1">Selected location: {selectedAddress}</p>
-          )}
-          {selectedLocation && (
-            <p className="text-xs text-gray-500">Coordinates: {selectedLocation[1].toFixed(4)}, {selectedLocation[0].toFixed(4)}</p>
-          )}
+          <p className="text-sm font-medium">Selected location: {selectedAddress}</p>
         </div>
       )}
     </div>
