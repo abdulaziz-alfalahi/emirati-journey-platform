@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -45,6 +44,10 @@ const LocationMap: React.FC<LocationMapProps> = ({
   
   // Prevent re-initialization of the map
   const mapInitializedRef = useRef<boolean>(false);
+  // New ref to track if a privacy circle has already been added
+  const circleAddedRef = useRef<boolean>(false);
+  // New ref to track initial coordinates
+  const initialCoordinatesRef = useRef<[number, number] | null>(null);
 
   // Fetch Mapbox token from Supabase Edge Function
   useEffect(() => {
@@ -135,6 +138,12 @@ const LocationMap: React.FC<LocationMapProps> = ({
         }
       });
       
+      // Update the center of the map to the selected location
+      map.current.setCenter(coordinates);
+      
+      // Update ref to track that circle has been added
+      circleAddedRef.current = true;
+      
       console.log("Privacy circle updated at:", coordinates);
     } catch (error) {
       console.error('Error updating privacy circle:', error);
@@ -171,6 +180,45 @@ const LocationMap: React.FC<LocationMapProps> = ({
     return firstFeature.place_name || 'Custom Location';
   };
 
+  // Parse location string to extract coordinates
+  const parseLocationString = useCallback((locationString: string) => {
+    try {
+      // Try parsing as JSON first (common format for stored locations)
+      try {
+        const location = JSON.parse(locationString);
+        if (location.longitude && location.latitude) {
+          return {
+            coordinates: [location.longitude, location.latitude] as [number, number],
+            address: location.name || 'Selected Location'
+          };
+        }
+      } catch (e) {
+        // Not a JSON string, continue
+      }
+      
+      // Check if it matches a coordinates pattern
+      const coordsMatch = locationString.match(/\[?(-?\d+\.?\d*),\s*(-?\d+\.?\d*)\]?/);
+      if (coordsMatch) {
+        return {
+          coordinates: [parseFloat(coordsMatch[1]), parseFloat(coordsMatch[2])] as [number, number],
+          address: locationString
+        };
+      }
+      
+      // Just use as text address
+      return {
+        coordinates: null,
+        address: locationString
+      };
+    } catch (e) {
+      console.error('Error parsing location string:', e);
+      return {
+        coordinates: null,
+        address: locationString
+      };
+    }
+  }, []);
+
   // Initialize map
   useEffect(() => {
     // Avoid reinitializing if map is already created or token is not loaded
@@ -182,14 +230,13 @@ const LocationMap: React.FC<LocationMapProps> = ({
       // Set the mapbox token
       mapboxgl.accessToken = mapboxToken;
       
-      // Create map - force triggering a render
+      // Create map
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [55.2708, 25.2048], // Default to Dubai
         zoom: 10,
         attributionControl: false,
-        renderWorldCopies: false, // Prevents multiple world copies
         preserveDrawingBuffer: true // Helps with rendering issues
       });
       
@@ -224,19 +271,17 @@ const LocationMap: React.FC<LocationMapProps> = ({
         const locationValue = initialLocation || value;
         if (locationValue) {
           try {
-            // Try to parse as JSON first (from old implementation)
-            try {
-              const location = JSON.parse(locationValue);
-              if (location.longitude && location.latitude) {
-                console.log('Setting initial location from JSON:', location);
-                map.current?.setCenter([location.longitude, location.latitude]);
-                updatePrivacyCircle([location.longitude, location.latitude]);
-                setSelectedAddress(location.name || 'Selected Location');
-              }
-            } catch (e) {
-              // If not JSON, just use as address string
-              console.log('Using location as string:', locationValue);
-              setSelectedAddress(locationValue);
+            const parsedLocation = parseLocationString(locationValue);
+            
+            if (parsedLocation.coordinates) {
+              console.log('Setting initial location from parsed coordinates:', parsedLocation.coordinates);
+              initialCoordinatesRef.current = parsedLocation.coordinates;
+              map.current?.setCenter(parsedLocation.coordinates);
+              updatePrivacyCircle(parsedLocation.coordinates);
+              setSelectedAddress(parsedLocation.address);
+            } else {
+              console.log('Using location as string:', parsedLocation.address);
+              setSelectedAddress(parsedLocation.address);
             }
           } catch (e) {
             console.error('Error parsing location:', e);
@@ -351,6 +396,17 @@ const LocationMap: React.FC<LocationMapProps> = ({
         setMapError('Map could not be loaded. Please try again later.');
       });
       
+      // Handle map style changes
+      map.current.on('styledata', () => {
+        console.log('Map style loaded');
+        // Re-add the privacy circle if it was previously added and we have coordinates
+        if (circleAddedRef.current && selectedLocation) {
+          updatePrivacyCircle(selectedLocation);
+        } else if (initialCoordinatesRef.current) {
+          updatePrivacyCircle(initialCoordinatesRef.current);
+        }
+      });
+      
     } catch (error) {
       console.error('Error initializing map:', error);
       setMapError('Failed to initialize map. Please try again later.');
@@ -377,10 +433,18 @@ const LocationMap: React.FC<LocationMapProps> = ({
         // Reset initialization flag on unmount
         mapInitializedRef.current = false;
         setMapInitialized(false);
+        circleAddedRef.current = false;
       }
     };
-  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isLoadingToken]);
+  }, [mapboxToken, initialLocation, value, onChange, onLocationSelect, updatePrivacyCircle, isLoadingToken, parseLocationString]);
   
+  // Keep the privacy circle updated when selectedLocation changes (e.g. after rerendering)
+  useEffect(() => {
+    if (map.current && map.current.isStyleLoaded() && selectedLocation) {
+      updatePrivacyCircle(selectedLocation);
+    }
+  }, [mapInitialized, selectedLocation, updatePrivacyCircle]);
+
   // If we're loading the token, show loading state
   if (isLoadingToken) {
     return (

@@ -89,6 +89,17 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
     });
   };
 
+  // When switching to map tab, ensure we have the latest data
+  const handleTabChange = (value: string) => {
+    setLocationTab(value);
+    
+    // If switching to map and we already have coordinates, make sure they're used
+    if (value === 'map' && data.coordinates) {
+      // Location already has coordinates, no need to take action
+      console.log('Switching to map tab with existing coordinates:', data.coordinates);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -143,7 +154,7 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
           
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="location">Location</Label>
-            <Tabs value={locationTab} onValueChange={setLocationTab} className="w-full">
+            <Tabs value={locationTab} onValueChange={handleTabChange} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="text">Enter Manually</TabsTrigger>
                 <TabsTrigger value="map">Select on Map</TabsTrigger>
@@ -162,7 +173,13 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({ data, onC
                   Selecting your residence area on the map will help us provide you with commute details to potential vacancies while protecting your privacy.
                 </p>
                 <LocationMap 
-                  initialLocation={data.location}
+                  initialLocation={data.coordinates 
+                    ? JSON.stringify({
+                        longitude: data.coordinates[0],
+                        latitude: data.coordinates[1],
+                        name: data.location
+                      }) 
+                    : data.location}
                   onLocationSelect={handleLocationSelect}
                 />
               </TabsContent>
