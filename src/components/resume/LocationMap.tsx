@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from './hooks/useMapboxToken';
 import { useMapInitialization } from './hooks/useMapInitialization';
@@ -20,7 +20,6 @@ const LocationMap: React.FC<LocationMapProps> = ({
   persistentCircle = false
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
   
   // Token management
   const {
@@ -32,24 +31,11 @@ const LocationMap: React.FC<LocationMapProps> = ({
     getEffectiveToken
   } = useMapboxToken();
   
-  // Handle location selection from the map
-  const handleLocationSelect = (location: LocationData) => {
-    // Create a new object to ensure it's serializable for postMessage
-    const serializedLocation: LocationData = {
-      address: location.address,
-      coordinates: [...location.coordinates], // Create a new array
-      formattedAddress: location.formattedAddress
-    };
-    
-    setSelectedLocation(serializedLocation);
-    onLocationSelect(serializedLocation);
-  };
-  
   // Map initialization and interaction
-  const { mapStyleLoaded, resetMap } = useMapInitialization({
+  const { resetMap } = useMapInitialization({
     mapContainerRef,
     initialLocation,
-    onLocationSelect: handleLocationSelect,
+    onLocationSelect,
     getEffectiveToken,
     persistentCircle
   });

@@ -14,8 +14,7 @@ export const useMapboxToken = () => {
   const { 
     data: apiKeys, 
     isLoading: isLoadingApiKeys, 
-    error: apiKeysError, 
-    refetch 
+    error: apiKeysError
   } = useQuery({
     queryKey: ['mapbox-api-key', tokenRetryCount],
     queryFn: async () => {
@@ -25,16 +24,11 @@ export const useMapboxToken = () => {
         });
         
         if (error) {
-          console.error("Error fetching API keys:", error);
           throw error;
         }
         
-        console.log("API keys retrieved:", Object.keys(data));
-        
         // Check if Mapbox token exists
         if (!data || (!data.mapbox_access_token && !data.MAPBOX_ACCESS_TOKEN)) {
-          console.error("No Mapbox token found in API keys");
-          
           // Try with GET instead
           const getResponse = await supabase.functions.invoke('get-api-keys', {
             method: 'GET'
@@ -42,7 +36,6 @@ export const useMapboxToken = () => {
           
           if (getResponse.error || !getResponse.data || 
               (!getResponse.data.mapbox_access_token && !getResponse.data.MAPBOX_ACCESS_TOKEN)) {
-            console.error("No Mapbox token found in API keys (GET fallback)");
             throw new Error("Mapbox token not found");
           }
           
@@ -51,7 +44,6 @@ export const useMapboxToken = () => {
         
         return data;
       } catch (error) {
-        console.error("Error fetching API keys:", error);
         setShowTokenInput(true);
         return null;
       }
@@ -63,41 +55,26 @@ export const useMapboxToken = () => {
   // Effect to check if we need to show token input
   useEffect(() => {
     if (apiKeysError || (apiKeys && !apiKeys.mapbox_access_token && !apiKeys.MAPBOX_ACCESS_TOKEN)) {
-      console.log("Showing token input due to missing API key");
       setShowTokenInput(true);
     } else if (apiKeys && (apiKeys.mapbox_access_token || apiKeys.MAPBOX_ACCESS_TOKEN)) {
-      console.log("Hiding token input as API key is available");
       setShowTokenInput(false);
     }
   }, [apiKeys, apiKeysError]);
 
-  // Effect to retry fetching API keys if the first attempt failed
+  // Effect to load a saved token from localStorage
   useEffect(() => {
     const savedToken = localStorage.getItem('mapbox_custom_token');
     
     if (savedToken) {
       setCustomMapboxToken(savedToken);
-      console.log("Loaded token from localStorage");
     }
-    
-    const retryTimer = setTimeout(() => {
-      // If we failed to get the API key initially, try again after a short delay
-      if (apiKeysError && tokenRetryCountRef.current < 3) {
-        console.log(`Retrying API key fetch (attempt ${tokenRetryCountRef.current + 1})`);
-        tokenRetryCountRef.current += 1;
-        setTokenRetryCount(prev => prev + 1);
-        refetch();
-      }
-    }, 2000);
-    
-    return () => clearTimeout(retryTimer);
-  }, [apiKeysError, refetch]);
+  }, []);
 
   // Handle token submission
   const handleTokenSubmit = useCallback(() => {
     if (!customMapboxToken.trim()) {
       toast.error("Please enter a valid Mapbox token");
-      return;
+      return false;
     }
     
     // Save token to localStorage for persistence

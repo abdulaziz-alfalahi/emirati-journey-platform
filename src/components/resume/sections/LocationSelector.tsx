@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +25,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     formattedAddress: string;
   }>({
     address: location || '',
-    coordinates: coordinates ? [coordinates[0], coordinates[1]] : undefined, // Ensure it's a proper tuple
+    coordinates: coordinates || undefined,
     formattedAddress: location || ''
   });
   
@@ -32,16 +33,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const [mapKey, setMapKey] = useState<number>(0);
 
   useEffect(() => {
-    // Create a new copy of coordinates to ensure it's a proper tuple
-    const newCoords = coordinates ? [coordinates[0], coordinates[1]] as [number, number] : undefined;
-    
     if (
       location !== locationInfo.formattedAddress || 
-      JSON.stringify(newCoords) !== JSON.stringify(locationInfo.coordinates)
+      JSON.stringify(coordinates) !== JSON.stringify(locationInfo.coordinates)
     ) {
       setLocationInfo({
         address: location || '',
-        coordinates: newCoords,
+        coordinates: coordinates || undefined,
         formattedAddress: location || ''
       });
       
@@ -77,27 +75,22 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   };
 
   const handleLocationSelect = useCallback((locationData: LocationData) => {
-    console.log('Location selected:', locationData);
-    
-    // Ensure we're working with a properly typed tuple for coordinates
-    if (!Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2) {
+    if (!locationData.coordinates || locationData.coordinates.length !== 2) {
       console.error('Invalid coordinates format:', locationData.coordinates);
       return;
     }
     
-    // Create a new object with proper tuple typing for coordinates
-    const serializedLocation = {
+    // Create a properly typed coordinates tuple
+    const coords: [number, number] = [locationData.coordinates[0], locationData.coordinates[1]];
+    
+    const newLocationInfo = {
       address: locationData.address,
-      coordinates: [locationData.coordinates[0], locationData.coordinates[1]] as [number, number],
+      coordinates: coords,
       formattedAddress: locationData.formattedAddress
     };
     
-    setLocationInfo(serializedLocation);
-    
-    onLocationChange(
-      serializedLocation.formattedAddress,
-      serializedLocation.coordinates
-    );
+    setLocationInfo(newLocationInfo);
+    onLocationChange(newLocationInfo.formattedAddress, newLocationInfo.coordinates);
     
     toast.success("Location selected", {
       description: `Selected: ${locationData.formattedAddress}`,
@@ -106,8 +99,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   }, [onLocationChange]);
 
   const handleTabChange = (value: string) => {
-    console.log('Tab changed to:', value);
-    
     // Force map remount when switching to map tab
     if (value === 'map') {
       setMapKey(prev => prev + 1);
@@ -122,11 +113,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       };
       
       setLocationInfo(newLocationInfo);
-      
-      onLocationChange(
-        locationInfo.formattedAddress,
-        undefined
-      );
+      onLocationChange(locationInfo.formattedAddress, undefined);
     }
   };
 
