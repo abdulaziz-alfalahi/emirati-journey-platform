@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -5,9 +6,8 @@ import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import { ResumeTemplate, ResumeData } from '@/components/resume/types';
-import { importFromLinkedIn, mergeResumeData } from '@/components/resume/utils/resumeParser';
+import { mergeResumeData } from '@/components/resume/utils/resumeDataUtils';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 const ResumeBuilderPage = () => {
   const { user, isLoading } = useAuth();
@@ -34,80 +34,26 @@ const ResumeBuilderPage = () => {
         setIsProcessingLinkedIn(true);
         
         try {
-          // Get the session to access the access token
-          const { data: { session }, error } = await supabase.auth.getSession();
-          
-          if (error) {
-            throw error;
-          }
-          
-          if (!session) {
-            throw new Error('No active session found after LinkedIn authentication');
-          }
-          
-          // Get saved resume data from local storage
-          let existingData: ResumeData = {
-            personal: {
-              fullName: "",
-              jobTitle: "",
-              email: "",
-              phone: "",
-              location: "",
-              linkedin: "",
-              website: ""
-            },
-            summary: "",
-            experience: [],
-            education: [],
-            skills: [],
-            languages: [],
-            certifications: [],
-            projects: [],
-            achievements: []
-          };
-          
+          // For now, we'll just load the saved resume data from localStorage
+          // This is a simplified version as we're fixing the loading issue
           const savedResume = localStorage.getItem("savedResume");
+          
           if (savedResume) {
             try {
-              existingData = JSON.parse(savedResume);
+              const parsedData = JSON.parse(savedResume);
+              setResumeData(parsedData);
+              
+              toast.success("Resume Data Loaded", {
+                description: "Your saved resume data has been loaded successfully.",
+                duration: 3000,
+              });
             } catch (parseError) {
               console.error("Error parsing saved resume:", parseError);
+              toast.error("Error Loading Resume", {
+                description: "Failed to load your saved resume data.",
+                duration: 5000,
+              });
             }
-          }
-          
-          // Get LinkedIn provider token
-          const provider = session.user.app_metadata.provider;
-          if (provider === 'linkedin_oidc') {
-            const accessToken = session.provider_token;
-            
-            if (!accessToken) {
-              throw new Error('No LinkedIn access token found');
-            }
-            
-            // Get user email for LinkedIn URL construction
-            const email = session.user.email;
-            const linkedInUrl = `https://linkedin.com/in/${email?.split('@')[0] || 'user'}`;
-            
-            toast.loading("Importing LinkedIn Data", {
-              description: "Retrieving your professional information...",
-              duration: 3000,
-            });
-            
-            // Import data from LinkedIn using the access token
-            const linkedInData = await importFromLinkedIn(linkedInUrl, accessToken);
-            
-            // Merge with existing data
-            const mergedData = mergeResumeData(existingData, linkedInData);
-            
-            // Save merged data to local storage
-            localStorage.setItem("savedResume", JSON.stringify(mergedData));
-            
-            setResumeData(mergedData);
-            
-            toast.success("LinkedIn Import Complete", {
-              description: "Your LinkedIn profile data has been imported successfully.",
-              duration: 3000,
-            });
           }
           
           // Remove the query parameter from URL
@@ -128,6 +74,20 @@ const ResumeBuilderPage = () => {
       checkForLinkedInAuth();
     }
   }, [location, isLoading, navigate]);
+  
+  // Load saved resume on component mount if not already loaded from LinkedIn auth
+  useEffect(() => {
+    if (!resumeData && !isProcessingLinkedIn) {
+      const savedResume = localStorage.getItem("savedResume");
+      if (savedResume) {
+        try {
+          setResumeData(JSON.parse(savedResume));
+        } catch (error) {
+          console.error("Error parsing saved resume:", error);
+        }
+      }
+    }
+  }, [resumeData, isProcessingLinkedIn]);
 
   // If loading, show loading spinner
   if (isLoading || isProcessingLinkedIn) {
