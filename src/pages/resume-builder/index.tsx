@@ -25,14 +25,58 @@ const getSavedResume = (): ResumeData | null => {
   }
 };
 
-// Safely log objects to prevent window.postMessage errors
+// Improved function to safely log objects - preventing circular references
 const safeConsoleLog = (label: string, data: any) => {
   try {
-    // Convert data to a simple object with only primitive values
-    const simplifiedData = JSON.parse(JSON.stringify(data));
-    console.info(label, simplifiedData);
+    // Only process objects, pass through primitives directly
+    if (data === null || data === undefined || typeof data !== 'object') {
+      return;
+    }
+    
+    // Create a simplified copy with only primitive values
+    const seen = new WeakSet();
+    const getSimplifiedCopy = (obj: any): any => {
+      // Handle primitive values directly
+      if (obj === null || obj === undefined || typeof obj !== 'object') {
+        return obj;
+      }
+      
+      // Prevent circular references
+      if (seen.has(obj)) {
+        return '[Circular Reference]';
+      }
+      seen.add(obj);
+      
+      try {
+        // Handle arrays
+        if (Array.isArray(obj)) {
+          return obj.map(item => getSimplifiedCopy(item));
+        }
+        
+        // Handle regular objects
+        const result: Record<string, any> = {};
+        for (const key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            // Skip functions and DOM nodes
+            if (typeof obj[key] === 'function' || 
+                (obj[key] && obj[key].nodeType)) {
+              result[key] = `[${typeof obj[key]}]`;
+            } else {
+              result[key] = getSimplifiedCopy(obj[key]);
+            }
+          }
+        }
+        return result;
+      } catch (err) {
+        return `[Unserializable: ${err.message}]`;
+      }
+    };
+    
+    // Create a safe copy and log it
+    const simplifiedData = getSimplifiedCopy(data);
+    console.log(`${label}:`, simplifiedData);
   } catch (error) {
-    console.error("Error logging data:", error);
+    console.log(`Error logging data for ${label}:`, error.message);
   }
 };
 
@@ -90,34 +134,65 @@ const ResumeBuilderPage = () => {
     }
   }, [resumeData, isProcessingLinkedIn]);
 
-  // Override console.info/log for this component to prevent postMessage errors
+  // Replace console overrides with a safer implementation
   useEffect(() => {
     const originalConsoleInfo = console.info;
     const originalConsoleLog = console.log;
-
+    let isOverrideActive = false;
+    
     console.info = function(...args) {
+      if (isOverrideActive) {
+        // Prevent recursion - use original directly
+        originalConsoleInfo.apply(console, args);
+        return;
+      }
+      
       try {
-        // Use the safe logging function for objects
-        if (args.length > 1 && typeof args[1] === 'object') {
+        isOverrideActive = true;
+        
+        // Handle objects more safely
+        if (args.length > 1 && typeof args[1] === 'object' && args[1] !== null) {
+          // Log simple messages directly
+          originalConsoleInfo.call(console, args[0]);
+          // Log complex objects separately with safe function
           safeConsoleLog(args[0], args[1]);
         } else {
+          // For simple arguments, use the original method
           originalConsoleInfo.apply(console, args);
         }
       } catch (error) {
+        // In case of any error, log it but don't recurse
         originalConsoleInfo.call(console, "Error in console.info override:", error);
+      } finally {
+        isOverrideActive = false;
       }
     };
 
     console.log = function(...args) {
+      if (isOverrideActive) {
+        // Prevent recursion - use original directly
+        originalConsoleLog.apply(console, args);
+        return;
+      }
+      
       try {
-        // Use the safe logging function for objects
-        if (args.length > 1 && typeof args[1] === 'object') {
+        isOverrideActive = true;
+        
+        // Handle objects more safely
+        if (args.length > 1 && typeof args[1] === 'object' && args[1] !== null) {
+          // Log simple messages directly
+          originalConsoleLog.call(console, args[0]);
+          // Log complex objects separately with safe function
           safeConsoleLog(args[0], args[1]);
         } else {
+          // For simple arguments, use the original method
           originalConsoleLog.apply(console, args);
         }
       } catch (error) {
+        // In case of any error, log it but don't recurse
         originalConsoleLog.call(console, "Error in console.log override:", error);
+      } finally {
+        isOverrideActive = false;
       }
     };
 
