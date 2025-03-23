@@ -32,7 +32,10 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           console.log('Calling AI extraction service...');
           // Call the Edge Function to extract data using AI
           const response = await supabase.functions.invoke('extract-resume-data', {
-            body: { fileContent },
+            body: { 
+              fileContent,
+              fileType: file.type 
+            },
           });
           
           if (response.error) {
@@ -94,6 +97,11 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             description: "AI-powered extraction wasn't available. Using basic extraction instead, which may be less accurate.",
             duration: 5000,
           });
+        } else {
+          toast.success("Resume parsed successfully", {
+            description: "Your resume was parsed using our AI-powered extraction for better accuracy.",
+            duration: 3000,
+          });
         }
         
         resolve(parsedData);
@@ -108,6 +116,76 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
     };
     
     reader.readAsText(file);
+  });
+};
+
+// Parse resume from image file
+export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeData>> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+      try {
+        const imageData = e.target?.result as string;
+        
+        if (!imageData) {
+          reject(new Error('Could not read image data'));
+          return;
+        }
+        
+        console.log('Image read complete. Processing...');
+        
+        try {
+          // Call the Edge Function to perform OCR and extract data
+          const response = await supabase.functions.invoke('extract-resume-from-image', {
+            body: { 
+              imageData,
+              fileName: file.name,
+              fileType: file.type
+            },
+          });
+          
+          if (response.error) {
+            console.error('Edge function error:', response.error);
+            throw new Error(`Image extraction failed: ${response.error.message}`);
+          }
+          
+          const data = response.data;
+          
+          if (!data) {
+            throw new Error('No data returned from image extraction service');
+          }
+          
+          console.log('Image extraction successful');
+          
+          // Check if we got meaningful data
+          if (isEmptyResumeData(data)) {
+            reject(new Error('Could not extract meaningful data from your resume image. Please try a clearer image or a different format.'));
+            return;
+          }
+          
+          toast.success("Resume image parsed", {
+            description: "Your resume image was successfully processed and the data extracted.",
+            duration: 3000,
+          });
+          
+          resolve(data);
+        } catch (error) {
+          console.error('Image extraction error:', error);
+          reject(new Error('Failed to extract text from image. Please try a clearer image or a different format.'));
+        }
+      } catch (error) {
+        console.error('Error processing resume image:', error);
+        reject(new Error('Failed to process resume image. Please try again.'));
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Error reading image file. Please try again.'));
+    };
+    
+    // Read image file as Data URL
+    reader.readAsDataURL(file);
   });
 };
 
@@ -128,6 +206,44 @@ const isEmptyResumeData = (data: Partial<ResumeData>): boolean => {
     (hasNoExperience && hasNoSkills) || 
     (hasNoEducation && hasNoSkills)
   );
+};
+
+// Enhanced LinkedIn import with proper API integration
+export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: string): Promise<Partial<ResumeData>> => {
+  try {
+    console.log('Starting LinkedIn profile import...');
+    
+    // If we have an access token from OAuth, use it
+    const payload: any = { linkedInUrl };
+    if (accessToken) {
+      payload.accessToken = accessToken;
+    }
+    
+    // Call the Edge Function to handle LinkedIn data extraction
+    const response = await supabase.functions.invoke('extract-from-linkedin', {
+      body: payload,
+    });
+    
+    if (response.error) {
+      console.error('LinkedIn extraction error:', response.error);
+      throw new Error(`LinkedIn import failed: ${response.error.message}`);
+    }
+    
+    const data = response.data;
+    
+    if (!data) {
+      throw new Error('No data returned from LinkedIn import service');
+    }
+    
+    console.log('LinkedIn import successful');
+    
+    return data;
+  } catch (error) {
+    console.error('Error importing from LinkedIn:', error);
+    // Use the fallback method if API integration fails
+    console.log('Falling back to basic LinkedIn extraction...');
+    return extractFromLinkedIn(linkedInUrl);
+  }
 };
 
 // Re-export functions from other modules for backward compatibility

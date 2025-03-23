@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import { ResumeTemplate, ResumeData } from './types';
@@ -26,9 +25,14 @@ import { Json } from "@/integrations/supabase/types";
 interface ResumeBuilderProps {
   template: ResumeTemplate;
   onBack: () => void;
+  initialData?: ResumeData | null;
 }
 
-const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
+const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ 
+  template, 
+  onBack, 
+  initialData 
+}) => {
   const { toast: uiToast } = useToast();
   const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<string>("personal");
@@ -60,8 +64,14 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
     achievements: []
   });
 
-  // Load saved resume from local storage on first render
+  // Load saved resume from local storage or from initialData on first render
   useEffect(() => {
+    if (initialData) {
+      console.log('Using provided initial data for resume');
+      setResumeData(initialData);
+      return;
+    }
+    
     const savedResume = localStorage.getItem("savedResume");
     if (savedResume) {
       try {
@@ -70,7 +80,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({ template, onBack }) => {
         console.error("Error parsing saved resume:", error);
       }
     }
-  }, []);
+  }, [initialData]);
 
   // Handler functions
   const handlePersonalInfoChange = (personal: ResumeData['personal']) => {
