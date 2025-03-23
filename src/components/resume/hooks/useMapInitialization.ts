@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { debounce } from 'lodash';
@@ -76,7 +77,8 @@ export const useMapInitialization = ({
       return;
     }
     
-    if (!mapStyleLoaded) {
+    // IMPORTANT FIX: Only proceed if map style is fully loaded
+    if (!mapStyleLoaded || !mapRef.current.isStyleLoaded()) {
       return;
     }
     
@@ -201,7 +203,7 @@ export const useMapInitialization = ({
       .addTo(map);
     
     // Add privacy circle only if map style is loaded
-    if (mapStyleLoaded) {
+    if (mapStyleLoaded && map.isStyleLoaded()) {
       updatePrivacyCircle(lng, lat);
     }
     
@@ -254,13 +256,16 @@ export const useMapInitialization = ({
       map.on('style.load', () => {
         setMapStyleLoaded(true);
         
-        // Add initial marker and circle after style is loaded
-        if (lastValidLocationRef.current) {
-          const { lng, lat } = lastValidLocationRef.current;
-          setupMapFeatures(map, lng, lat);
-        }
-        
-        mapInitializedRef.current = true;
+        // Wait a brief moment to ensure style is fully loaded
+        setTimeout(() => {
+          // Add initial marker and circle after style is loaded
+          if (lastValidLocationRef.current && map.isStyleLoaded()) {
+            const { lng, lat } = lastValidLocationRef.current;
+            setupMapFeatures(map, lng, lat);
+          }
+          
+          mapInitializedRef.current = true;
+        }, 100);
       });
       
       // Add click handler - use proper event object destructuring
@@ -342,12 +347,15 @@ export const useMapInitialization = ({
       };
       
       // Update marker and circle
-      if (mapStyleLoaded) {
+      if (mapStyleLoaded && map.isStyleLoaded()) {
         setupMapFeatures(map, locationData.lng, locationData.lat);
       } else {
         // If style isn't loaded yet, add marker when style loads
         map.once('style.load', () => {
-          setupMapFeatures(map, locationData.lng, locationData.lat);
+          // Same small timeout to ensure style is fully loaded
+          setTimeout(() => {
+            setupMapFeatures(map, locationData.lng, locationData.lat);
+          }, 100);
         });
       }
     } catch (error) {
@@ -359,10 +367,15 @@ export const useMapInitialization = ({
   useEffect(() => {
     if (!mapStyleLoaded || !mapRef.current || !lastValidLocationRef.current) return;
     
-    if (persistentCircle) {
-      const { lng, lat } = lastValidLocationRef.current;
-      updatePrivacyCircle(lng, lat);
-    }
+    // Wait a bit to ensure the style is completely loaded
+    const timer = setTimeout(() => {
+      if (persistentCircle && mapRef.current && mapRef.current.isStyleLoaded() && lastValidLocationRef.current) {
+        const { lng, lat } = lastValidLocationRef.current;
+        updatePrivacyCircle(lng, lat);
+      }
+    }, 200);
+    
+    return () => clearTimeout(timer);
   }, [mapStyleLoaded, persistentCircle, updatePrivacyCircle]);
 
   return {
