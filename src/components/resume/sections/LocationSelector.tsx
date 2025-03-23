@@ -26,7 +26,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const [locationTab, setLocationTab] = useState<string>(coordinates ? 'map' : 'text');
   const [locationInfo, setLocationInfo] = useState<LocationData>({
     address: location || '',
-    coordinates: coordinates || undefined,
+    coordinates: coordinates ? [...coordinates] : undefined, // Create a new array to avoid referencing the original
     formattedAddress: location || ''
   });
   
@@ -34,13 +34,16 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const [mapKey, setMapKey] = useState<number>(0);
 
   useEffect(() => {
+    // Create a new copy of coordinates to ensure it's serializable
+    const newCoords = coordinates ? [...coordinates] : undefined;
+    
     if (
       location !== locationInfo.formattedAddress || 
-      JSON.stringify(coordinates) !== JSON.stringify(locationInfo.coordinates)
+      JSON.stringify(newCoords) !== JSON.stringify(locationInfo.coordinates)
     ) {
       setLocationInfo({
         address: location || '',
-        coordinates: coordinates || undefined,
+        coordinates: newCoords,
         formattedAddress: location || ''
       });
       
@@ -82,11 +85,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   }) => {
     console.log('Location selected:', locationData);
     
-    setLocationInfo(locationData);
+    // Create a new object with new arrays to ensure it's serializable
+    const serializedLocation: LocationData = {
+      address: locationData.address,
+      coordinates: [...locationData.coordinates], // Create a new array
+      formattedAddress: locationData.formattedAddress
+    };
+    
+    setLocationInfo(serializedLocation);
     
     onLocationChange(
-      locationData.formattedAddress,
-      locationData.coordinates
+      serializedLocation.formattedAddress,
+      serializedLocation.coordinates
     );
     
     toast.success("Location selected", {

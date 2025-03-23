@@ -34,8 +34,15 @@ const LocationMap: React.FC<LocationMapProps> = ({
   
   // Handle location selection from the map
   const handleLocationSelect = (location: LocationData) => {
-    setSelectedLocation(location);
-    onLocationSelect(location);
+    // Create a new object to ensure it's serializable for postMessage
+    const serializedLocation: LocationData = {
+      address: location.address,
+      coordinates: [...location.coordinates], // Create a new array
+      formattedAddress: location.formattedAddress
+    };
+    
+    setSelectedLocation(serializedLocation);
+    onLocationSelect(serializedLocation);
   };
   
   // Map initialization and interaction

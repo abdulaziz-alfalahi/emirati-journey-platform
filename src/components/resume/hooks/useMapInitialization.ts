@@ -48,9 +48,9 @@ export const useMapInitialization = ({
 
   // Parse initial location string - using try/catch to safely handle JSON parsing
   const parseInitialLocation = useCallback((locationStr: string) => {
-    console.log('Parsing initial location:', locationStr);
-    
     try {
+      console.log('Parsing initial location:', locationStr);
+      
       // Try to parse as JSON first
       const parsedLocation = JSON.parse(locationStr);
       if (parsedLocation.longitude && parsedLocation.latitude) {
@@ -68,12 +68,15 @@ export const useMapInitialization = ({
     return { lng: 55.2708, lat: 25.2048, name: locationStr || 'Dubai, UAE' };
   }, []);
   
-  // Function to add or update the privacy circle
+  // Function to add or update the privacy circle - only called when map style is loaded
   const updatePrivacyCircle = useCallback((lng: number, lat: number) => {
-    console.log('Updating privacy circle at:', lng, lat);
+    if (!mapRef.current) {
+      console.log('Map not ready yet, skipping privacy circle update');
+      return;
+    }
     
-    if (!mapRef.current || !mapStyleLoaded) {
-      console.log('Map or style not ready yet, skipping privacy circle update');
+    if (!mapStyleLoaded) {
+      console.log('Map style not loaded yet, skipping privacy circle update');
       return;
     }
     
@@ -152,9 +155,10 @@ export const useMapInitialization = ({
         console.log('Geocoded address:', placeName);
         
         // Create a new location object with properly typed coordinates
+        // Ensure the object is serializable for postMessage
         const newLocation: LocationData = {
           address: placeName,
-          coordinates: [lng, lat], // Ensure this is a tuple of [number, number]
+          coordinates: [lng, lat],
           formattedAddress: placeName
         };
         
@@ -318,7 +322,7 @@ export const useMapInitialization = ({
   
   // Update map when initialLocation changes and map is already initialized
   useEffect(() => {
-    if (!mapRef.current || !mapStyleLoaded || !initialLocation) return;
+    if (!mapRef.current || !initialLocation) return;
     
     console.log('Initial location changed, updating map:', initialLocation);
     
@@ -341,7 +345,14 @@ export const useMapInitialization = ({
       };
       
       // Update marker and circle
-      setupMapFeatures(map, locationData.lng, locationData.lat);
+      if (mapStyleLoaded) {
+        setupMapFeatures(map, locationData.lng, locationData.lat);
+      } else {
+        // If style isn't loaded yet, add marker when style loads
+        map.once('style.load', () => {
+          setupMapFeatures(map, locationData.lng, locationData.lat);
+        });
+      }
       
       // Notify about the selected location with a properly structured object
       const newLocation: LocationData = {
@@ -356,17 +367,16 @@ export const useMapInitialization = ({
     }
   }, [initialLocation, mapStyleLoaded, parseInitialLocation, setupMapFeatures, onLocationSelect]);
   
-  // If persistent circle is turned on, ensure it's visible when map is ready
+  // Effect specifically for adding the privacy circle when the style is loaded
   useEffect(() => {
-    if (!persistentCircle || !mapRef.current || !mapStyleLoaded || !lastValidLocationRef.current) return;
+    if (!mapStyleLoaded || !mapRef.current || !lastValidLocationRef.current) return;
     
-    try {
+    if (persistentCircle) {
       const { lng, lat } = lastValidLocationRef.current;
+      console.log('Map style loaded, adding privacy circle');
       updatePrivacyCircle(lng, lat);
-    } catch (error) {
-      console.error("Error updating persistent circle:", error);
     }
-  }, [persistentCircle, updatePrivacyCircle, mapStyleLoaded]);
+  }, [mapStyleLoaded, persistentCircle, updatePrivacyCircle]);
 
   return {
     mapStyleLoaded,
