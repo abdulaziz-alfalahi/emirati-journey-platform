@@ -1,16 +1,10 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LocationMap from '../LocationMap';
 import { toast } from 'sonner';
-
-interface LocationData {
-  address: string;
-  coordinates?: [number, number];
-  formattedAddress: string;
-}
+import { LocationData } from '../types/location';
 
 interface LocationSelectorProps {
   location: string;
@@ -24,9 +18,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   onLocationChange 
 }) => {
   const [locationTab, setLocationTab] = useState<string>(coordinates ? 'map' : 'text');
-  const [locationInfo, setLocationInfo] = useState<LocationData>({
+  const [locationInfo, setLocationInfo] = useState<{
+    address: string;
+    coordinates?: [number, number]; 
+    formattedAddress: string;
+  }>({
     address: location || '',
-    coordinates: coordinates ? [...coordinates] : undefined, // Create a new array to avoid referencing the original
+    coordinates: coordinates ? [coordinates[0], coordinates[1]] : undefined, // Ensure it's a proper tuple
     formattedAddress: location || ''
   });
   
@@ -34,8 +32,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const [mapKey, setMapKey] = useState<number>(0);
 
   useEffect(() => {
-    // Create a new copy of coordinates to ensure it's serializable
-    const newCoords = coordinates ? [...coordinates] : undefined;
+    // Create a new copy of coordinates to ensure it's a proper tuple
+    const newCoords = coordinates ? [coordinates[0], coordinates[1]] as [number, number] : undefined;
     
     if (
       location !== locationInfo.formattedAddress || 
@@ -78,17 +76,19 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     );
   };
 
-  const handleLocationSelect = useCallback((locationData: { 
-    address: string; 
-    coordinates: [number, number]; 
-    formattedAddress: string;
-  }) => {
+  const handleLocationSelect = useCallback((locationData: LocationData) => {
     console.log('Location selected:', locationData);
     
-    // Create a new object with new arrays to ensure it's serializable
-    const serializedLocation: LocationData = {
+    // Ensure we're working with a properly typed tuple for coordinates
+    if (!Array.isArray(locationData.coordinates) || locationData.coordinates.length !== 2) {
+      console.error('Invalid coordinates format:', locationData.coordinates);
+      return;
+    }
+    
+    // Create a new object with proper tuple typing for coordinates
+    const serializedLocation = {
       address: locationData.address,
-      coordinates: [...locationData.coordinates], // Create a new array
+      coordinates: [locationData.coordinates[0], locationData.coordinates[1]] as [number, number],
       formattedAddress: locationData.formattedAddress
     };
     
