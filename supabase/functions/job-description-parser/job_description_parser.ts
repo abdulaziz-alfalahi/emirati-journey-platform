@@ -1,11 +1,16 @@
 
 /**
- * Job Description Parser for Supabase Edge Function
+ * Job Description Parser Module
  * 
- * A TypeScript implementation of the Job Description Parser
+ * This TypeScript module handles the parsing of job descriptions to extract structured information.
+ * It is a JavaScript/TypeScript implementation of the original Python parser.
  */
 
-export interface JobDescription {
+interface SectionPatterns {
+  [key: string]: RegExp;
+}
+
+interface JobData {
   title: string;
   company: string;
   location: string;
@@ -14,182 +19,185 @@ export interface JobDescription {
   description: string;
   responsibilities: string[];
   requirements: {
-    education: EducationRequirement[];
-    experience: ExperienceRequirement[];
-    skills: SkillRequirement[];
-    languages: LanguageRequirement[];
-    certifications: CertificationRequirement[];
+    education: Array<{
+      level: string;
+      field: string;
+      required: boolean;
+    }>;
+    experience: Array<{
+      years: number;
+      field: string;
+      required: boolean;
+    }>;
+    skills: Array<{
+      name: string;
+      level: string | null;
+      required: boolean;
+    }>;
+    languages: Array<{
+      name: string;
+      proficiency: string;
+      required: boolean;
+    }>;
+    certifications: Array<{
+      name: string;
+      required: boolean;
+    }>;
   };
   benefits: string[];
-  salary: SalaryInfo;
+  salary: {
+    min?: number;
+    max?: number;
+    currency?: string;
+    period?: string;
+  };
   applicationDeadline: string;
   postedDate: string;
   keywords: string[];
 }
 
-interface EducationRequirement {
-  level: string;
-  field: string;
-  required: boolean;
-}
-
-interface ExperienceRequirement {
-  years: number;
-  field: string;
-  required: boolean;
-}
-
-interface SkillRequirement {
-  name: string;
-  level: string | null;
-  required: boolean;
-}
-
-interface LanguageRequirement {
-  name: string;
-  proficiency: string;
-  required: boolean;
-}
-
-interface CertificationRequirement {
-  name: string;
-  required: boolean;
-}
-
-interface SalaryInfo {
-  min?: number;
-  max?: number;
-  currency?: string;
-  period?: string;
-}
-
 export class JobDescriptionParser {
-  // Section patterns for identifying different parts of a job description
-  private sectionPatterns: Record<string, RegExp> = {
-    title: /(job\s+title|position|role)/i,
-    company: /(company|organization|employer)/i,
-    location: /(location|place|city|region|country)/i,
-    employment_type: /(employment\s+type|job\s+type|contract\s+type)/i,
-    work_mode: /(work\s+mode|remote|on-site|hybrid)/i,
-    description: /(job\s+description|about\s+the\s+job|about\s+the\s+role|overview)/i,
-    responsibilities: /(responsibilities|duties|key\s+responsibilities|what\s+you\'ll\s+do)/i,
-    requirements: /(requirements|qualifications|what\s+you\s+need|what\s+we\'re\s+looking\s+for)/i,
-    education: /(education|academic|qualifications|degree)/i,
-    experience: /(experience|work\s+experience|professional\s+experience)/i,
-    skills: /(skills|technical\s+skills|competencies|expertise)/i,
-    benefits: /(benefits|perks|what\s+we\s+offer|compensation)/i,
-    salary: /(salary|compensation|pay|wage)/i,
-    application: /(how\s+to\s+apply|application\s+process|next\s+steps)/i,
-    deadline: /(deadline|closing\s+date|apply\s+by)/i
-  };
+  private sectionPatterns: SectionPatterns;
+  private employmentTypes: string[];
+  private workModes: string[];
+  private commonSkills: string[];
+  private educationLevels: string[];
+  private experiencePatterns: RegExp[];
+  private salaryPatterns: RegExp[];
+  private datePatterns: RegExp[];
 
-  // Employment type patterns
-  private employmentTypes: string[] = [
-    'full-time', 'part-time', 'contract', 'temporary', 'internship',
-    'freelance', 'permanent', 'casual', 'seasonal'
-  ];
-
-  // Work mode patterns
-  private workModes: string[] = [
-    'remote', 'on-site', 'hybrid', 'flexible', 'work from home'
-  ];
-
-  // Common skills list
-  private commonSkills: string[] = [
-    // Programming Languages
-    'Python', 'Java', 'JavaScript', 'C++', 'C#', 'Ruby', 'PHP', 'Swift', 'Kotlin', 'Go', 'Rust',
-    'TypeScript', 'Scala', 'Perl', 'R', 'MATLAB', 'Bash', 'Shell', 'SQL', 'HTML', 'CSS',
+  constructor() {
+    // Section patterns
+    this.sectionPatterns = {
+      title: /(?i)(job\s+title|position|role)/,
+      company: /(?i)(company|organization|employer)/,
+      location: /(?i)(location|place|city|region|country)/,
+      employment_type: /(?i)(employment\s+type|job\s+type|contract\s+type)/,
+      work_mode: /(?i)(work\s+mode|remote|on-site|hybrid)/,
+      description: /(?i)(job\s+description|about\s+the\s+job|about\s+the\s+role|overview)/,
+      responsibilities: /(?i)(responsibilities|duties|key\s+responsibilities|what\s+you\'ll\s+do)/,
+      requirements: /(?i)(requirements|qualifications|what\s+you\s+need|what\s+we\'re\s+looking\s+for)/,
+      education: /(?i)(education|academic|qualifications|degree)/,
+      experience: /(?i)(experience|work\s+experience|professional\s+experience)/,
+      skills: /(?i)(skills|technical\s+skills|competencies|expertise)/,
+      benefits: /(?i)(benefits|perks|what\s+we\s+offer|compensation)/,
+      salary: /(?i)(salary|compensation|pay|wage)/,
+      application: /(?i)(how\s+to\s+apply|application\s+process|next\s+steps)/,
+      deadline: /(?i)(deadline|closing\s+date|apply\s+by)/
+    };
     
-    // Frameworks & Libraries
-    'React', 'Angular', 'Vue.js', 'Django', 'Flask', 'Spring', 'ASP.NET', 'Express', 'Node.js',
-    'TensorFlow', 'PyTorch', 'Keras', 'Pandas', 'NumPy', 'Scikit-learn', 'jQuery', 'Bootstrap',
+    // Employment type patterns
+    this.employmentTypes = [
+      'full-time', 'part-time', 'contract', 'temporary', 'internship', 
+      'freelance', 'permanent', 'casual', 'seasonal'
+    ];
     
-    // Tools & Platforms
-    'Git', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Jenkins', 'Travis CI', 'CircleCI',
-    'Jira', 'Confluence', 'Trello', 'Slack', 'GitHub', 'GitLab', 'Bitbucket',
+    // Work mode patterns
+    this.workModes = ['remote', 'on-site', 'hybrid', 'flexible', 'work from home'];
     
-    // Databases
-    'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Oracle', 'SQL Server', 'Redis', 'Elasticsearch',
-    'Cassandra', 'DynamoDB', 'Firebase',
+    // Common skills list (can be expanded)
+    this.commonSkills = [
+      // Programming Languages
+      'Python', 'Java', 'JavaScript', 'C++', 'C#', 'Ruby', 'PHP', 'Swift', 'Kotlin', 'Go', 'Rust',
+      'TypeScript', 'Scala', 'Perl', 'R', 'MATLAB', 'Bash', 'Shell', 'SQL', 'HTML', 'CSS',
+      
+      // Frameworks & Libraries
+      'React', 'Angular', 'Vue.js', 'Django', 'Flask', 'Spring', 'ASP.NET', 'Express', 'Node.js',
+      'TensorFlow', 'PyTorch', 'Keras', 'Pandas', 'NumPy', 'Scikit-learn', 'jQuery', 'Bootstrap',
+      
+      // Tools & Platforms
+      'Git', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Jenkins', 'Travis CI', 'CircleCI',
+      'Jira', 'Confluence', 'Trello', 'Slack', 'GitHub', 'GitLab', 'Bitbucket',
+      
+      // Databases
+      'MySQL', 'PostgreSQL', 'MongoDB', 'SQLite', 'Oracle', 'SQL Server', 'Redis', 'Elasticsearch',
+      'Cassandra', 'DynamoDB', 'Firebase',
+      
+      // Methodologies
+      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'CI/CD', 'TDD', 'BDD',
+      
+      // Soft Skills
+      'Leadership', 'Communication', 'Teamwork', 'Problem Solving', 'Critical Thinking',
+      'Time Management', 'Project Management', 'Customer Service', 'Negotiation'
+    ];
     
-    // Methodologies
-    'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'CI/CD', 'TDD', 'BDD',
+    // Education level patterns
+    this.educationLevels = [
+      'high school', 'associate', 'bachelor', 'master', 'phd', 'doctorate', 'mba',
+      'undergraduate', 'graduate', 'postgraduate', 'diploma', 'certificate'
+    ];
     
-    // Soft Skills
-    'Leadership', 'Communication', 'Teamwork', 'Problem Solving', 'Critical Thinking',
-    'Time Management', 'Project Management', 'Customer Service', 'Negotiation'
-  ];
-
-  // Education level patterns
-  private educationLevels: string[] = [
-    'high school', 'associate', 'bachelor', 'master', 'phd', 'doctorate', 'mba',
-    'undergraduate', 'graduate', 'postgraduate', 'diploma', 'certificate'
-  ];
-
-  // Experience patterns
-  private experiencePatterns: RegExp[] = [
-    /(\d+)\+?\s+years?/i,
-    /minimum\s+of\s+(\d+)\s+years?/i,
-    /at\s+least\s+(\d+)\s+years?/i,
-    /(\d+)-(\d+)\s+years?/i
-  ];
-
-  // Salary patterns
-  private salaryPatterns: RegExp[] = [
-    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*-\s*(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
-    /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)\s*-\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)/i,
-    /up\s+to\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
-    /starting\s+at\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
-    /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+per\s+(hour|year|month|week)/i
-  ];
-
-  // Date patterns
-  private datePatterns: RegExp[] = [
-    /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4}\b/i,
-    /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/i,
-    /\b\d{4}-\d{1,2}-\d{1,2}\b/i
-  ];
+    // Experience patterns
+    this.experiencePatterns = [
+      /(\d+)\+?\s+years?/,
+      /minimum\s+of\s+(\d+)\s+years?/,
+      /at\s+least\s+(\d+)\s+years?/,
+      /(\d+)-(\d+)\s+years?/
+    ];
+    
+    // Salary patterns
+    this.salaryPatterns = [
+      /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*-\s*(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
+      /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)\s*-\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?k)/,
+      /up\s+to\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
+      /starting\s+at\s+(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/,
+      /(\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+per\s+(hour|year|month|week)/
+    ];
+    
+    // Date patterns
+    this.datePatterns = [
+      /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{1,2},? \d{4}\b/,
+      /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/,
+      /\b\d{4}-\d{1,2}-\d{1,2}\b/
+    ];
+  }
 
   /**
-   * Parse a job description and extract structured information
+   * Parse a job description and extract structured information.
+   * 
+   * @param text Job description text
+   * @returns Dictionary containing structured job description data
    */
-  public parseJobDescription(text: string): JobDescription {
+  parseJobDescription(text: string): JobData {
     // Clean and normalize text
-    text = this.cleanText(text);
+    text = this._cleanText(text);
     
     // Identify sections
-    const sections = this.identifySections(text);
+    const sections = this._identifySections(text);
     
     // Extract basic job information
-    const jobData: JobDescription = {
-      title: this.extractJobTitle(text, sections),
-      company: this.extractCompany(text, sections),
-      location: this.extractLocation(text, sections),
-      employmentType: this.extractEmploymentType(text, sections),
-      workMode: this.extractWorkMode(text, sections),
-      description: this.extractDescription(text, sections),
-      responsibilities: this.extractResponsibilities(text, sections),
+    const jobData: JobData = {
+      title: this._extractJobTitle(text, sections),
+      company: this._extractCompany(text, sections),
+      location: this._extractLocation(text, sections),
+      employmentType: this._extractEmploymentType(text, sections),
+      workMode: this._extractWorkMode(text, sections),
+      description: this._extractDescription(text, sections),
+      responsibilities: this._extractResponsibilities(text, sections),
       requirements: {
-        education: this.extractEducationRequirements(text, sections),
-        experience: this.extractExperienceRequirements(text, sections),
-        skills: this.extractSkills(text, sections),
-        languages: this.extractLanguages(text, sections),
-        certifications: this.extractCertifications(text, sections),
+        education: this._extractEducationRequirements(text, sections),
+        experience: this._extractExperienceRequirements(text, sections),
+        skills: this._extractSkills(text, sections),
+        languages: this._extractLanguages(text, sections),
+        certifications: this._extractCertifications(text, sections),
       },
-      benefits: this.extractBenefits(text, sections),
-      salary: this.extractSalary(text, sections),
-      applicationDeadline: this.extractDeadline(text, sections),
-      postedDate: this.extractPostedDate(text),
-      keywords: this.extractKeywords(text),
+      benefits: this._extractBenefits(text, sections),
+      salary: this._extractSalary(text, sections),
+      applicationDeadline: this._extractDeadline(text, sections),
+      postedDate: this._extractPostedDate(text),
+      keywords: this._extractKeywords(text),
     };
     
     return jobData;
   }
 
   /**
-   * Clean and normalize the job description text
+   * Clean and normalize the job description text.
+   * 
+   * @param text Raw job description text
+   * @returns Cleaned and normalized text
    */
-  private cleanText(text: string): string {
+  private _cleanText(text: string): string {
     if (!text) {
       return "";
     }
@@ -200,28 +208,29 @@ export class JobDescriptionParser {
     // Replace multiple spaces with a single space
     text = text.replace(/ +/g, ' ');
     
-    // Remove non-printable characters (simplified for JS)
+    // Remove non-printable characters
     text = text.replace(/[^\x20-\x7E\n]/g, '');
     
     return text.trim();
   }
 
   /**
-   * Identify and extract sections from the job description
+   * Identify and extract sections from the job description.
+   * 
+   * @param text Cleaned job description text
+   * @returns Dictionary mapping section names to their content
    */
-  private identifySections(text: string): Record<string, string> {
+  private _identifySections(text: string): Record<string, string> {
     const sections: Record<string, string> = {};
     
     // Split text into lines
     const lines = text.split('\n');
     
     // Find potential section headers
-    const sectionBoundaries: [number, string][] = [];
+    const sectionBoundaries: Array<[number, string]> = [];
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      if (!line) {
-        continue;
-      }
+      if (!line) continue;
       
       // Check if line matches any section pattern
       for (const [sectionName, pattern] of Object.entries(this.sectionPatterns)) {
@@ -237,9 +246,7 @@ export class JobDescriptionParser {
       const [startIdx, sectionName] = sectionBoundaries[i];
       
       // Determine end index
-      const endIdx = i < sectionBoundaries.length - 1 
-        ? sectionBoundaries[i + 1][0] 
-        : lines.length;
+      const endIdx = i < sectionBoundaries.length - 1 ? sectionBoundaries[i + 1][0] : lines.length;
       
       // Extract content (skip the header line)
       const content = lines.slice(startIdx + 1, endIdx).join('\n').trim();
@@ -256,9 +263,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract job title from the job description
+   * Extract job title from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Job title
    */
-  private extractJobTitle(text: string, sections: Record<string, string>): string {
+  private _extractJobTitle(text: string, sections: Record<string, string>): string {
     // Check if there's a title section
     if (sections['title'] && sections['title']) {
       return sections['title'].split('\n')[0].trim();
@@ -278,9 +289,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract company name from the job description
+   * Extract company name from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Company name
    */
-  private extractCompany(text: string, sections: Record<string, string>): string {
+  private _extractCompany(text: string, sections: Record<string, string>): string {
     // Check if there's a company section
     if (sections['company'] && sections['company']) {
       return sections['company'].split('\n')[0].trim();
@@ -288,9 +303,9 @@ export class JobDescriptionParser {
     
     // Look for company patterns
     const companyPatterns = [
-      /(?:at|with|for|by)\s+([A-Z][A-Za-z0-9\s&]+)(?:,|\.|is)/i,
-      /Company\s*:\s*([^,\n]+)/i,
-      /([A-Z][A-Za-z0-9\s&]+)\s+is\s+(?:seeking|looking|hiring)/i
+      /company:?\s*([^,\n]+)/i,
+      /organization:?\s*([^,\n]+)/i,
+      /employer:?\s*([^,\n]+)/i,
     ];
     
     for (const pattern of companyPatterns) {
@@ -304,9 +319,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract location from the job description
+   * Extract location from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Location
    */
-  private extractLocation(text: string, sections: Record<string, string>): string {
+  private _extractLocation(text: string, sections: Record<string, string>): string {
     // Check if there's a location section
     if (sections['location'] && sections['location']) {
       return sections['location'].split('\n')[0].trim();
@@ -314,11 +333,9 @@ export class JobDescriptionParser {
     
     // Look for common location patterns
     const locationPatterns = [
-      /Location\s*:\s*([^,\n]+)/i,
-      /(?:in|at|near)\s+([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/i,
-      /([A-Z][A-Za-z\s]+,\s*[A-Z]{2})/i,
-      /based\s+in\s+([^,\n]+)/i,
-      /position\s+in\s+([^,\n]+)/i
+      /(?:location|place|city|region|country):\s*([^,\n]+)/i,
+      /(?:based|located)\s+in\s+([^,\n]+)/i,
+      /(?:position|job)\s+in\s+([^,\n]+)/i,
     ];
     
     for (const pattern of locationPatterns) {
@@ -332,9 +349,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract employment type from the job description
+   * Extract employment type from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Employment type
    */
-  private extractEmploymentType(text: string, sections: Record<string, string>): string {
+  private _extractEmploymentType(text: string, sections: Record<string, string>): string {
     // Check if there's an employment type section
     if (sections['employment_type'] && sections['employment_type']) {
       const content = sections['employment_type'].toLowerCase();
@@ -349,7 +370,7 @@ export class JobDescriptionParser {
     const textLower = text.toLowerCase();
     for (const empType of this.employmentTypes) {
       if (textLower.includes(empType)) {
-        // Verify it's not part of another word
+        // Verify it's not part of another word using regex
         const regex = new RegExp('\\b' + empType + '\\b', 'i');
         if (regex.test(textLower)) {
           return empType;
@@ -362,9 +383,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract work mode from the job description
+   * Extract work mode from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Work mode
    */
-  private extractWorkMode(text: string, sections: Record<string, string>): string {
+  private _extractWorkMode(text: string, sections: Record<string, string>): string {
     // Check if there's a work mode section
     if (sections['work_mode'] && sections['work_mode']) {
       const content = sections['work_mode'].toLowerCase();
@@ -382,7 +407,7 @@ export class JobDescriptionParser {
     const textLower = text.toLowerCase();
     for (const mode of this.workModes) {
       if (textLower.includes(mode)) {
-        // Verify it's not part of another word
+        // Verify it's not part of another word using regex
         const regex = new RegExp('\\b' + mode + '\\b', 'i');
         if (regex.test(textLower)) {
           if (mode === 'work from home') {
@@ -398,9 +423,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract job description from the job description text
+   * Extract job description from the job description text.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Job description
    */
-  private extractDescription(text: string, sections: Record<string, string>): string {
+  private _extractDescription(text: string, sections: Record<string, string>): string {
     // Check if there's a description section
     if (sections['description'] && sections['description']) {
       return sections['description'];
@@ -421,9 +450,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract responsibilities from the job description
+   * Extract responsibilities from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of responsibilities
    */
-  private extractResponsibilities(text: string, sections: Record<string, string>): string[] {
+  private _extractResponsibilities(text: string, sections: Record<string, string>): string[] {
     const responsibilities: string[] = [];
     
     // Check if there's a responsibilities section
@@ -431,7 +464,7 @@ export class JobDescriptionParser {
       const content = sections['responsibilities'];
       
       // Extract bullet points
-      const bulletPoints = this.extractBulletPoints(content);
+      const bulletPoints = this._extractBulletPoints(content);
       
       if (bulletPoints.length > 0) {
         return bulletPoints;
@@ -446,9 +479,12 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract bullet points from text
+   * Extract bullet points from text.
+   * 
+   * @param text Text containing bullet points
+   * @returns List of bullet points
    */
-  private extractBulletPoints(text: string): string[] {
+  private _extractBulletPoints(text: string): string[] {
     const bulletPoints: string[] = [];
     
     // Split by newlines
@@ -456,9 +492,7 @@ export class JobDescriptionParser {
     
     for (const line of lines) {
       const trimmedLine = line.trim();
-      if (!trimmedLine) {
-        continue;
-      }
+      if (!trimmedLine) continue;
       
       // Check if line starts with a bullet point marker
       if (trimmedLine.startsWith('-') || trimmedLine.startsWith('•') || 
@@ -473,10 +507,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract education requirements from the job description
+   * Extract education requirements from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of education requirements
    */
-  private extractEducationRequirements(text: string, sections: Record<string, string>): EducationRequirement[] {
-    const educationReqs: EducationRequirement[] = [];
+  private _extractEducationRequirements(text: string, sections: Record<string, string>): Array<{level: string, field: string, required: boolean}> {
+    const educationReqs: Array<{level: string, field: string, required: boolean}> = [];
     
     // Combine relevant sections
     let content = "";
@@ -496,14 +534,14 @@ export class JobDescriptionParser {
       if (regex.test(content)) {
         // Try to find the field of study
         let field = "";
-        const fieldRegex = new RegExp('\\b' + level + '(?:\'s)?\\s+(?:degree|diploma)?\\s+in\\s+([^,\\.]+)', 'i');
+        const fieldRegex = new RegExp('\\b' + level + '(?:\'s)?\\s+(?:degree|diploma)?\\s+in\\s+([^,.]+)', 'i');
         const fieldMatch = content.match(fieldRegex);
         if (fieldMatch && fieldMatch[1]) {
           field = fieldMatch[1].trim();
         }
         
         // Determine if required or preferred
-        const required = !(/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(content));
+        const required = !/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(content);
         
         educationReqs.push({
           level,
@@ -517,10 +555,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract experience requirements from the job description
+   * Extract experience requirements from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of experience requirements
    */
-  private extractExperienceRequirements(text: string, sections: Record<string, string>): ExperienceRequirement[] {
-    const experienceReqs: ExperienceRequirement[] = [];
+  private _extractExperienceRequirements(text: string, sections: Record<string, string>): Array<{years: number, field: string, required: boolean}> {
+    const experienceReqs: Array<{years: number, field: string, required: boolean}> = [];
     
     // Combine relevant sections
     let content = "";
@@ -536,35 +578,28 @@ export class JobDescriptionParser {
     
     // Look for experience patterns
     for (const pattern of this.experiencePatterns) {
-      const matches = content.match(pattern);
-      if (matches && matches.length > 1) {
-        for (let i = 0; i < matches.length; i++) {
-          const match = matches[i];
-          const yearMatch = match.match(/\d+/);
-          if (yearMatch) {
-            const years = parseInt(yearMatch[0], 10);
-          
-            // Try to find the field of experience
-            let field = "";
-            const contextStart = Math.max(0, content.indexOf(match) - 50);
-            const contextEnd = Math.min(content.length, content.indexOf(match) + match.length + 50);
-            const context = content.substring(contextStart, contextEnd);
-            
-            const fieldMatch = context.match(/experience\s+in\s+([^,\.]+)/i);
-            if (fieldMatch && fieldMatch[1]) {
-              field = fieldMatch[1].trim();
-            }
-            
-            // Determine if required or preferred
-            const required = !(/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(context));
-            
-            experienceReqs.push({
-              years,
-              field,
-              required
-            });
-          }
+      let match;
+      const regex = new RegExp(pattern, 'gi');
+      while ((match = regex.exec(content)) !== null) {
+        const years = parseInt(match[1]);
+        
+        // Try to find the field of experience
+        let field = "";
+        const context = content.substring(Math.max(0, match.index - 50), Math.min(content.length, match.index + match[0].length + 50));
+        
+        const fieldMatch = context.match(/experience\s+in\s+([^,.]+)/i);
+        if (fieldMatch && fieldMatch[1]) {
+          field = fieldMatch[1].trim();
         }
+        
+        // Determine if required or preferred
+        const required = !/\b(?:prefer|preferred|nice to have|desirable)\b/i.test(context);
+        
+        experienceReqs.push({
+          years,
+          field,
+          required
+        });
       }
     }
     
@@ -572,10 +607,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract skills from the job description
+   * Extract skills from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of skills
    */
-  private extractSkills(text: string, sections: Record<string, string>): SkillRequirement[] {
-    const skills: SkillRequirement[] = [];
+  private _extractSkills(text: string, sections: Record<string, string>): Array<{name: string, level: string | null, required: boolean}> {
+    const skills: Array<{name: string, level: string | null, required: boolean}> = [];
     
     // Combine relevant sections
     let content = "";
@@ -596,15 +635,15 @@ export class JobDescriptionParser {
         // Determine if required or preferred
         let required = true;
         const skillRegex = new RegExp('(.{0,50})\\b' + skill + '\\b(.{0,50})', 'i');
-        const skillContext = content.match(skillRegex);
-        if (skillContext && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(skillContext[0])) {
+        const skillMatch = content.match(skillRegex);
+        if (skillMatch && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(skillMatch[0])) {
           required = false;
         }
         
         // Try to determine skill level
         let level: string | null = null;
-        if (skillContext) {
-          const context = skillContext[0].toLowerCase();
+        if (skillMatch) {
+          const context = skillMatch[0].toLowerCase();
           if (/\b(?:expert|advanced|proficient|extensive)\b/.test(context)) {
             level = 'expert';
           } else if (/\b(?:intermediate|competent|familiar)\b/.test(context)) {
@@ -626,10 +665,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract language requirements from the job description
+   * Extract language requirements from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of language requirements
    */
-  private extractLanguages(text: string, sections: Record<string, string>): LanguageRequirement[] {
-    const languages: LanguageRequirement[] = [];
+  private _extractLanguages(text: string, sections: Record<string, string>): Array<{name: string, proficiency: string, required: boolean}> {
+    const languages: Array<{name: string, proficiency: string, required: boolean}> = [];
     
     // Common languages to look for
     const commonLanguages = [
@@ -658,9 +701,9 @@ export class JobDescriptionParser {
         let proficiency = 'conversational';  // Default
         
         const languageRegex = new RegExp('(.{0,50})\\b' + language + '\\b(.{0,50})', 'i');
-        const languageContext = content.match(languageRegex);
-        if (languageContext) {
-          const context = languageContext[0].toLowerCase();
+        const languageMatch = content.match(languageRegex);
+        if (languageMatch) {
+          const context = languageMatch[0].toLowerCase();
           if (/\b(?:native|fluent|proficient|advanced)\b/.test(context)) {
             proficiency = 'fluent';
           } else if (/\b(?:intermediate|conversational|working)\b/.test(context)) {
@@ -672,7 +715,7 @@ export class JobDescriptionParser {
         
         // Determine if required or preferred
         let required = true;
-        if (languageContext && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(languageContext[0])) {
+        if (languageMatch && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(languageMatch[0])) {
           required = false;
         }
         
@@ -688,10 +731,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract certification requirements from the job description
+   * Extract certification requirements from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of certification requirements
    */
-  private extractCertifications(text: string, sections: Record<string, string>): CertificationRequirement[] {
-    const certifications: CertificationRequirement[] = [];
+  private _extractCertifications(text: string, sections: Record<string, string>): Array<{name: string, required: boolean}> {
+    const certifications: Array<{name: string, required: boolean}> = [];
     
     // Common certification keywords
     const certKeywords = [
@@ -714,17 +761,16 @@ export class JobDescriptionParser {
     
     // Extract certifications
     for (const keyword of certKeywords) {
-      const regex = new RegExp('\\b' + keyword + '(?:\\s+in)?\\s+([^,\\.]+)', 'i');
-      const matches = content.match(regex);
-      
-      if (matches) {
-        const certName = matches[0].trim();
+      const regex = new RegExp('\\b' + keyword + '(?:\\s+in)?\\s+([^,.]+)', 'gi');
+      let match;
+      while ((match = regex.exec(content)) !== null) {
+        const certName = match[0].trim();
         
         // Determine if required or preferred
         let required = true;
         const certRegex = new RegExp('(.{0,50})\\b' + certName + '\\b(.{0,50})', 'i');
-        const certContext = content.match(certRegex);
-        if (certContext && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(certContext[0])) {
+        const certMatch = content.match(certRegex);
+        if (certMatch && /\b(?:prefer|preferred|nice to have|desirable)\b/i.test(certMatch[0])) {
           required = false;
         }
         
@@ -739,9 +785,13 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract benefits from the job description
+   * Extract benefits from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns List of benefits
    */
-  private extractBenefits(text: string, sections: Record<string, string>): string[] {
+  private _extractBenefits(text: string, sections: Record<string, string>): string[] {
     const benefits: string[] = [];
     
     // Check if there's a benefits section
@@ -749,7 +799,7 @@ export class JobDescriptionParser {
       const content = sections['benefits'];
       
       // Extract bullet points
-      const bulletPoints = this.extractBulletPoints(content);
+      const bulletPoints = this._extractBulletPoints(content);
       
       if (bulletPoints.length > 0) {
         return bulletPoints;
@@ -764,10 +814,14 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract salary information from the job description
+   * Extract salary information from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Dictionary containing salary information
    */
-  private extractSalary(text: string, sections: Record<string, string>): SalaryInfo {
-    const salaryInfo: SalaryInfo = {};
+  private _extractSalary(text: string, sections: Record<string, string>): {min?: number, max?: number, currency?: string, period?: string} {
+    const salaryInfo: {min?: number, max?: number, currency?: string, period?: string} = {};
     
     // Combine relevant sections
     let content = "";
@@ -787,22 +841,22 @@ export class JobDescriptionParser {
       if (match) {
         if (match.length >= 3) {
           // Salary range
-          const minSalary = this.parseSalaryAmount(match[1]);
-          const maxSalary = this.parseSalaryAmount(match[2]);
+          const minSalary = this._parseSalaryAmount(match[1]);
+          const maxSalary = this._parseSalaryAmount(match[2]);
           
-          if (minSalary !== null) {
+          if (minSalary) {
             salaryInfo.min = minSalary;
           }
-          if (maxSalary !== null) {
+          if (maxSalary) {
             salaryInfo.max = maxSalary;
           }
         } else if (match.length >= 2) {
           // Single salary figure
-          const amount = this.parseSalaryAmount(match[1]);
-          if (amount !== null) {
-            if (/up to|maximum/i.test(match[0])) {
+          const amount = this._parseSalaryAmount(match[1]);
+          if (amount) {
+            if (match[0].toLowerCase().includes('up to') || match[0].toLowerCase().includes('maximum')) {
               salaryInfo.max = amount;
-            } else if (/starting at|minimum/i.test(match[0])) {
+            } else if (match[0].toLowerCase().includes('starting at') || match[0].toLowerCase().includes('minimum')) {
               salaryInfo.min = amount;
             } else {
               salaryInfo.min = amount;
@@ -848,28 +902,35 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Parse salary amount from string
+   * Parse salary amount from string.
+   * 
+   * @param amountStr String containing salary amount
+   * @returns Parsed salary amount as integer
    */
-  private parseSalaryAmount(amountStr: string): number | null {
+  private _parseSalaryAmount(amountStr: string): number | undefined {
     try {
       // Remove currency symbols and commas
       const cleaned = amountStr.replace(/[^\d.]/g, '');
       
       // Check if it's in thousands (e.g., 50k)
-      if (/k/i.test(amountStr)) {
-        return Math.round(parseFloat(cleaned) * 1000);
+      if (amountStr.toLowerCase().includes('k')) {
+        return Math.floor(parseFloat(cleaned) * 1000);
       }
       
-      return Math.round(parseFloat(cleaned));
+      return Math.floor(parseFloat(cleaned));
     } catch {
-      return null;
+      return undefined;
     }
   }
 
   /**
-   * Extract application deadline from the job description
+   * Extract application deadline from the job description.
+   * 
+   * @param text Job description text
+   * @param sections Dictionary mapping section names to their content
+   * @returns Application deadline
    */
-  private extractDeadline(text: string, sections: Record<string, string>): string {
+  private _extractDeadline(text: string, sections: Record<string, string>): string {
     // Check if there's a deadline section
     if (sections['deadline'] && sections['deadline']) {
       const content = sections['deadline'];
@@ -885,9 +946,9 @@ export class JobDescriptionParser {
     
     // Look for deadline in the entire text
     const deadlinePatterns = [
-      /(?:deadline[:\s]+)([^\n,]+)/i,
-      /(?:apply\s+by[:\s]+)([^\n,]+)/i,
-      /(?:closing\s+date[:\s]+)([^\n,]+)/i
+      /(?:deadline):\s+([^\n,]+)/i,
+      /(?:apply\s+by):\s+([^\n,]+)/i,
+      /(?:closing\s+date):\s+([^\n,]+)/i,
     ];
     
     for (const pattern of deadlinePatterns) {
@@ -910,13 +971,16 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract posted date from the job description
+   * Extract posted date from the job description.
+   * 
+   * @param text Job description text
+   * @returns Posted date
    */
-  private extractPostedDate(text: string): string {
+  private _extractPostedDate(text: string): string {
     const postedPatterns = [
-      /(?:posted[:\s]+)([^\n,]+)/i,
-      /(?:date\s+posted[:\s]+)([^\n,]+)/i,
-      /(?:published[:\s]+)([^\n,]+)/i
+      /(?:posted):\s+([^\n,]+)/i,
+      /(?:date\s+posted):\s+([^\n,]+)/i,
+      /(?:published):\s+([^\n,]+)/i,
     ];
     
     for (const pattern of postedPatterns) {
@@ -950,9 +1014,12 @@ export class JobDescriptionParser {
   }
 
   /**
-   * Extract keywords from the job description
+   * Extract keywords from the job description.
+   * 
+   * @param text Job description text
+   * @returns List of keywords
    */
-  private extractKeywords(text: string): string[] {
+  private _extractKeywords(text: string): string[] {
     const keywords: string[] = [];
     
     // Extract skills as keywords
@@ -960,18 +1027,6 @@ export class JobDescriptionParser {
       const regex = new RegExp('\\b' + skill + '\\b', 'i');
       if (regex.test(text)) {
         keywords.push(skill);
-      }
-    }
-    
-    // Extract common job-related terms
-    const jobTerms = [
-      'experience', 'skills', 'required', 'responsibilities', 'duties',
-      'qualifications', 'education', 'degree', 'salary', 'benefits'
-    ];
-    
-    for (const term of jobTerms) {
-      if (!keywords.includes(term)) {
-        keywords.push(term);
       }
     }
     
