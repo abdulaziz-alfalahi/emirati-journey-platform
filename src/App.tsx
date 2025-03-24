@@ -15,7 +15,7 @@ import ResumeBuilderPage from "./pages/resume-builder";
 import ApiKeysPage from "./pages/api-keys";
 import JobMatchingPage from "./pages/job-matching";
 import MatchingPage from "./pages/matching";
-import JobDescriptionsPage from "./pages/job-descriptions";
+import JobDescriptionsPage from "./pages/job-descriptions.jsx";
 import React from "react"; // Add explicit React import
 
 // Create QueryClient outside of the component to avoid recreation on re-renders

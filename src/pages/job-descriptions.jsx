@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { JobDescriptionForm } from '@/components/job-matching/JobDescriptionForm';
-import { Layout } from '@/components/layout';
+import Layout from '@/components/layout/Layout';
 
 export default function JobDescriptionsPage() {
   return (
@@ -9,4 +10,3 @@ export default function JobDescriptionsPage() {
     </Layout>
   );
 }
-

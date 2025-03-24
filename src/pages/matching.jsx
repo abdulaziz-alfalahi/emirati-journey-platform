@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { MatchingDashboard } from '@/components/job-matching/MatchingDashboard';
-import { Layout } from '@/components/layout';
+import Layout from '@/components/layout/Layout';
 import { useLocation } from 'react-router-dom';
 
 export default function MatchingPage() {
