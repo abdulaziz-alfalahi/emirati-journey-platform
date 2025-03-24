@@ -42,6 +42,117 @@ export type Database = {
         }
         Relationships: []
       }
+      job_descriptions: {
+        Row: {
+          application_deadline: string | null
+          benefits: Json | null
+          company: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          employment_type: string | null
+          id: string
+          is_active: boolean | null
+          keywords: Json | null
+          location: string | null
+          posted_date: string | null
+          requirements: Json | null
+          responsibilities: Json | null
+          salary: Json | null
+          title: string
+          updated_at: string | null
+          work_mode: string | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          benefits?: Json | null
+          company: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          employment_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: Json | null
+          location?: string | null
+          posted_date?: string | null
+          requirements?: Json | null
+          responsibilities?: Json | null
+          salary?: Json | null
+          title: string
+          updated_at?: string | null
+          work_mode?: string | null
+        }
+        Update: {
+          application_deadline?: string | null
+          benefits?: Json | null
+          company?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          employment_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: Json | null
+          location?: string | null
+          posted_date?: string | null
+          requirements?: Json | null
+          responsibilities?: Json | null
+          salary?: Json | null
+          title?: string
+          updated_at?: string | null
+          work_mode?: string | null
+        }
+        Relationships: []
+      }
+      job_matches: {
+        Row: {
+          category_scores: Json | null
+          created_at: string | null
+          id: string
+          job_id: string | null
+          match_details: Json | null
+          overall_score: number | null
+          profile_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_scores?: Json | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          match_details?: Json | null
+          overall_score?: number | null
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_scores?: Json | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          match_details?: Json | null
+          overall_score?: number | null
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_matches_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
