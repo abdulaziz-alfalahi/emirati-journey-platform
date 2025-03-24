@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Briefcase } from 'lucide-react';
+import { Menu, X, Briefcase, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import UserMenu from './UserMenu';
 import { Link } from 'react-router-dom';
@@ -53,6 +53,10 @@ const Navbar: React.FC = () => {
             <Briefcase className="mr-1 h-4 w-4" />
             Job Matching
           </Link>
+          <Link to="/job-descriptions" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center">
+            <FileText className="mr-1 h-4 w-4" />
+            Job Descriptions
+          </Link>
           <UserMenu />
         </nav>
         
@@ -100,6 +104,14 @@ const Navbar: React.FC = () => {
             >
               <Briefcase className="mr-1 h-4 w-4" />
               Job Matching
+            </Link>
+            <Link 
+              to="/job-descriptions" 
+              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <FileText className="mr-1 h-4 w-4" />
+              Job Descriptions
             </Link>
           </nav>
         </div>
