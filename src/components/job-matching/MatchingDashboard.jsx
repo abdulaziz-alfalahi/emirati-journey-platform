@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function MatchingDashboard({ initialTab = 'candidates' }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -20,7 +20,6 @@ export function MatchingDashboard({ initialTab = 'candidates' }) {
   const [limit, setLimit] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
   const [matchResults, setMatchResults] = useState([]);
-  const supabase = useSupabaseClient();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -63,7 +62,7 @@ export function MatchingDashboard({ initialTab = 'candidates' }) {
     };
     
     loadData();
-  }, [supabase, toast]);
+  }, [toast]);
 
   const handleCandidateToJobsMatch = async () => {
     if (!selectedCandidate) {
