@@ -1,12 +1,13 @@
+
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, FileText, Users, Briefcase } from 'lucide-react';
 
 export function JobMatchingHome() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return (
     <div className="container mx-auto py-8">
@@ -33,7 +34,7 @@ export function JobMatchingHome() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => router.push('/resume-builder')}>
+            <Button onClick={() => navigate('/resume-builder')}>
               Go to Resume Builder
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -60,7 +61,7 @@ export function JobMatchingHome() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => router.push('/job-descriptions')}>
+            <Button onClick={() => navigate('/job-descriptions')}>
               Manage Job Descriptions
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -94,7 +95,7 @@ export function JobMatchingHome() {
                 <p className="text-sm text-gray-500 mb-4">
                   Select a candidate and find the most compatible job opportunities based on their skills, experience, education, and other factors.
                 </p>
-                <Button onClick={() => router.push('/matching?tab=candidates')}>
+                <Button onClick={() => navigate('/matching?tab=candidates')}>
                   Match Candidates to Jobs
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -107,7 +108,7 @@ export function JobMatchingHome() {
                 <p className="text-sm text-gray-500 mb-4">
                   Select a job opening and find the most compatible candidates based on the job requirements and candidate profiles.
                 </p>
-                <Button onClick={() => router.push('/matching?tab=jobs')}>
+                <Button onClick={() => navigate('/matching?tab=jobs')}>
                   Match Jobs to Candidates
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -119,4 +120,3 @@ export function JobMatchingHome() {
     </div>
   );
 }
-
