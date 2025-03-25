@@ -29,12 +29,57 @@ serve(async (req)  => {
     // Call OpenAI API to parse the job description
     const apiKey = Deno.env.get('OPENAI_API_KEY')
     if (!apiKey) {
+      console.error('OpenAI API key not configured');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        JSON.stringify({ error: 'OpenAI API key not configured', status: 'configuration_error' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
 
+    // Test validity of API key with a simple request
+    const testResponse = await fetch('https://api.openai.com/v1/models', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+      }
+    });
+    
+    if (!testResponse.ok) {
+      const testErrorData = await testResponse.json();
+      console.error('OpenAI API key validation failed:', testErrorData);
+      
+      if (testResponse.status === 401) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid OpenAI API key. Please check your API key and try again.',
+            status: 'authentication_error' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        )
+      }
+      
+      if (testErrorData.error?.type === 'insufficient_quota') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
+            status: 'quota_error' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
+        )
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          error: `OpenAI API error: ${testErrorData.error?.message || 'Unknown error'}`,
+          status: 'api_error'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    console.log('OpenAI API key validated successfully');
+
+    // Proceed with the actual parsing request
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -42,7 +87,7 @@ serve(async (req)  => {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -56,6 +101,20 @@ serve(async (req)  => {
         temperature: 0.1
       })
     })
+
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.json();
+      console.error('OpenAI API error during parsing:', errorData);
+      
+      return new Response(
+        JSON.stringify({ 
+          error: `Error during parsing: ${errorData.error?.message || 'Unknown error'}`,
+          details: errorData,
+          status: 'parsing_error'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: openaiResponse.status }
+      )
+    }
 
     const openaiData = await openaiResponse.json()
     
@@ -75,9 +134,14 @@ serve(async (req)  => {
       }
     } catch (error) {
       console.error('Error parsing JSON from OpenAI response:', error)
-      parsedJobDescription = { error: 'Failed to parse job description data', raw_response: assistantMessage }
+      parsedJobDescription = { 
+        error: 'Failed to parse job description data', 
+        raw_response: assistantMessage,
+        status: 'json_parsing_error'
+      }
     }
 
+    console.log('Successfully parsed job description');
     return new Response(
       JSON.stringify(parsedJobDescription),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -85,7 +149,10 @@ serve(async (req)  => {
   } catch (error) {
     console.error('Error processing job description:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        status: 'server_error'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
