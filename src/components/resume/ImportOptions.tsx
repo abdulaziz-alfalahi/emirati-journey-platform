@@ -1,7 +1,6 @@
-
 import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, Linkedin, Brain, Camera, AlertTriangle, AlertCircle, FileImage } from 'lucide-react';
@@ -41,18 +40,15 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     setUploadError(null);
     setUsingFallback(false);
     
-    // Show initial toast
     const toastId = toast.loading("Processing Resume", {
       description: "Analyzing your resume with Enhanced Parser...",
     });
     
     try {
-      // Check file size
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         throw new Error("File too large. Please upload a file smaller than 5MB.");
       }
       
-      // Check file type
       const supportedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
       if (!supportedTypes.includes(file.type)) {
         toast.warning("Unsupported file type", {
@@ -61,16 +57,13 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         });
       }
       
-      // Update toast to show extraction in progress
       toast.loading("Extracting Data", {
         id: toastId,
         description: "Using Enhanced Parser to extract information...",
       });
       
-      // Parse the resume
       const parsedData = await parseResumeFromFile(file);
       
-      // Check if we received data
       if (!parsedData || (
         (!parsedData.personal || Object.values(parsedData.personal).filter(Boolean).length === 0) && 
         (!parsedData.experience || parsedData.experience.length === 0) &&
@@ -79,11 +72,9 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         throw new Error("Could not extract meaningful data from your resume. Please try a different file.");
       }
 
-      // Check if the data has metadata from the enhanced parser
       const usedEnhancedParser = parsedData.hasOwnProperty('metadata') && 
                                 (parsedData as any)?.metadata?.parser === 'EnhancedResumeParser';
       
-      // Success toast
       toast.success("Resume Processed", {
         id: toastId,
         description: usedEnhancedParser 
@@ -91,11 +82,9 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           : "Your resume has been processed successfully.",
       });
       
-      // Merge the data with existing data
       const mergedData = enhancedResumeParser.mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
       
-      // Close the dialog
       setFileDialogOpen(false);
     } catch (error) {
       console.error('Error parsing resume:', error);
@@ -109,7 +98,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       });
     } finally {
       setIsUploading(false);
-      // Reset the file input
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -121,33 +109,27 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     setIsUploading(true);
     setUploadError(null);
     
-    // Show initial toast
     const toastId = toast.loading("Processing Resume Image", {
       description: "Analyzing your resume image...",
     });
     
     try {
-      // Check file size
       if (file.size > 10 * 1024 * 1024) { // 10MB limit for images
         throw new Error("Image too large. Please upload an image smaller than 10MB.");
       }
       
-      // Check file type
       const supportedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
       if (!supportedImageTypes.includes(file.type)) {
         throw new Error("Unsupported image format. Please upload JPG, PNG, WebP, or HEIC images.");
       }
       
-      // Update toast to show extraction in progress
       toast.loading("Extracting Data from Image", {
         id: toastId,
         description: "Processing image and extracting text...",
       });
       
-      // Parse the resume from the image
       const parsedData = await parseResumeFromImage(file);
       
-      // Check if we received data
       if (!parsedData || (
         (!parsedData.personal || Object.values(parsedData.personal).filter(Boolean).length === 0) && 
         (!parsedData.experience || parsedData.experience.length === 0) &&
@@ -156,17 +138,14 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
       }
       
-      // Success toast
       toast.success("Resume Image Processed", {
         id: toastId,
         description: "Your resume image has been processed successfully.",
       });
       
-      // Merge the data with existing data
       const mergedData = mergeResumeData(currentData, parsedData);
       onImportComplete(mergedData);
       
-      // Close the dialog
       setImageDialogOpen(false);
     } catch (error) {
       console.error('Error parsing resume image:', error);
@@ -180,7 +159,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       });
     } finally {
       setIsUploading(false);
-      // Reset the file input
       if (imageInputRef.current) imageInputRef.current.value = '';
     }
   };
@@ -193,7 +171,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       return;
     }
 
-    // Validate LinkedIn URL format
     if (!linkedInUrl.includes('linkedin.com/in/')) {
       toast.error("Invalid LinkedIn URL", {
         description: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile)",
@@ -207,7 +184,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     });
     
     try {
-      // Try to get the data using the enhanced method first (with API integration)
       const linkedInData = await importFromLinkedIn(linkedInUrl);
       const mergedData = mergeResumeData(currentData, linkedInData);
       onImportComplete(mergedData);
@@ -231,7 +207,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
 
   const handleLinkedInAuth = async () => {
     try {
-      // Start the LinkedIn OAuth process
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
@@ -244,7 +219,6 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         throw error;
       }
       
-      // The OAuth flow will redirect and the token will be handled in the resume-builder page
       console.log('LinkedIn auth initiated:', data);
     } catch (error) {
       console.error('LinkedIn auth error:', error);

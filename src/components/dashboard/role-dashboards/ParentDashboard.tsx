@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart4, BookOpen, Briefcase, Calendar, User, Users } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
