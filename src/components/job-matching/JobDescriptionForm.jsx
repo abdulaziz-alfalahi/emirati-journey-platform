@@ -1,21 +1,56 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, AlertTriangle, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, AlertCircle, ExternalLink, Save, List } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useNavigate } from 'react-router-dom';
 
 export function JobDescriptionForm() {
   const [jobDescription, setJobDescription] = useState('');
   const [parsedData, setParsedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [apiStatus, setApiStatus] = useState(null); // 'success', 'error', null
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Fetch current user on component mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setCurrentUser(data.user);
+    };
+    
+    fetchUser();
+  }, []);
+
+  // Validate the parsed data structure
+  const validateParsedData = (data) => {
+    if (!data) return false;
+    
+    // Check for required fields
+    const requiredFields = ['title', 'description'];
+    const missingFields = requiredFields.filter(field => !data[field]);
+    
+    if (missingFields.length > 0) {
+      console.warn('Missing required fields:', missingFields);
+      return false;
+    }
+    
+    // Check if requirements object has the expected structure
+    if (!data.requirements || typeof data.requirements !== 'object') {
+      console.warn('Requirements field is missing or not an object');
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,38 +107,11 @@ export function JobDescriptionForm() {
       setParsedData(data);
       setApiStatus('success');
       
-      // Only attempt to save to the database if we have valid data
-      if (data && data.title) {
-        // Save to database
-        const { error: saveError } = await supabase.from('job_descriptions').insert({
-          title: data.title || 'Untitled Position',
-          company: data.company || 'Unknown Company',
-          location: data.location,
-          employment_type: data.employment_type,
-          work_mode: data.work_mode,
-          description: data.description,
-          responsibilities: data.responsibilities || [],
-          requirements: data.requirements || {},
-          benefits: data.benefits || [],
-          salary: data.salary || {},
-          application_deadline: data.application_deadline,
-          posted_date: data.posted_date,
-          keywords: data.keywords || []
-        });
-        
-        if (saveError) {
-          toast({
-            title: 'Job description parsed successfully',
-            description: 'But there was an error saving to database: ' + saveError.message,
-            variant: 'warning',
-          });
-        } else {
-          toast({
-            title: 'Success',
-            description: 'Job description parsed and saved successfully',
-            variant: 'success',
-          });
-        }
+      // Validate the parsed data before saving
+      const isValid = validateParsedData(data);
+      
+      if (isValid) {
+        await saveToDatabase(data);
       } else {
         toast({
           title: 'Partial Success',
@@ -126,14 +134,91 @@ export function JobDescriptionForm() {
     }
   };
 
+  // Separate function to save to database
+  const saveToDatabase = async (data) => {
+    setIsSaving(true);
+    
+    try {
+      // Get current timestamp
+      const now = new Date().toISOString();
+      
+      // Get current user ID
+      const userId = currentUser?.id;
+      
+      // Save to database with all required fields
+      const { error: saveError } = await supabase.from('job_descriptions').insert({
+        title: data.title || 'Untitled Position',
+        company: data.company || 'Unknown Company',
+        location: data.location || '',
+        employment_type: data.employment_type || '',
+        work_mode: data.work_mode || '',
+        description: data.description || '',
+        responsibilities: data.responsibilities || [],
+        requirements: data.requirements || {},
+        benefits: data.benefits || [],
+        salary: data.salary || {},
+        application_deadline: data.application_deadline || null,
+        posted_date: data.posted_date || null,
+        keywords: data.keywords || [],
+        // Add these missing fields:
+        is_active: true,  // Set to true by default for new job descriptions
+        created_at: now,
+        updated_at: now,
+        user_id: userId || null
+      });
+      
+      if (saveError) {
+        console.error('Database save error:', saveError);
+        toast({
+          title: 'Job description parsed successfully',
+          description: 'But there was an error saving to database: ' + saveError.message,
+          variant: 'warning',
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Job description parsed and saved successfully',
+          variant: 'success',
+        });
+      }
+    } catch (error) {
+      console.error('Error saving to database:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save job description to database: ' + error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Navigate to job descriptions list page
+  const viewSavedJobDescriptions = () => {
+    // You'll need to create this page
+    navigate('/job-descriptions/list');
+  };
+
   return (
     <div className="container mx-auto py-8">
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle>Job Description Parser</CardTitle>
-          <CardDescription>
-            Parse job descriptions to extract structured information for matching with candidates
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Job Description Parser</CardTitle>
+              <CardDescription>
+                Parse job descriptions to extract structured information for matching with candidates
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={viewSavedJobDescriptions}
+              className="flex items-center gap-2"
+            >
+              <List className="h-4 w-4" />
+              View Saved Job Descriptions
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -204,7 +289,41 @@ export function JobDescriptionForm() {
           
           {parsedData && (
             <div className="mt-8">
-              <h3 className="text-lg font-medium mb-2">Parsed Job Description</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-medium">Parsed Job Description</h3>
+                {validateParsedData(parsedData) && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => saveToDatabase(parsedData)}
+                    disabled={isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save to Database
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+              
+              {!validateParsedData(parsedData) && (
+                <Alert className="mb-4 bg-amber-50 text-amber-800 border-amber-200">
+                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTitle>Incomplete Data</AlertTitle>
+                  <AlertDescription>
+                    The parsed data is missing required fields. Database save is disabled.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="bg-gray-50 p-4 rounded-md">
                 <pre className="whitespace-pre-wrap text-sm">
                   {JSON.stringify(parsedData, null, 2)}
