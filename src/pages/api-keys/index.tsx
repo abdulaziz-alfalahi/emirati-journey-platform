@@ -1,21 +1,20 @@
-import React from 'react';
-// Update the Button import to correct lowercase path
+
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ApiKeysPage: React.FC = () => {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth');
+    if (!isLoading && !user) {
+      navigate('/auth');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, navigate]);
 
-  if (loading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -39,4 +38,3 @@ const ApiKeysPage: React.FC = () => {
 };
 
 export default ApiKeysPage;
-
