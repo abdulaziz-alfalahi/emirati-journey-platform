@@ -18,7 +18,13 @@ serve(async (req)  => {
     
     if (!fileContent) {
       return new Response(
-        JSON.stringify({ error: 'Job description content is required' }),
+        JSON.stringify({ 
+          error: 'Job description content is required',
+          status: 'missing_content', 
+          title: 'Untitled Position',
+          company: 'Unknown Company',
+          description: 'No job description provided'
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
@@ -34,7 +40,10 @@ serve(async (req)  => {
         JSON.stringify({ 
           error: 'OpenAI API key not configured', 
           status: 'configuration_error',
-          userMessage: 'The OpenAI API key is not configured. Please set it in the Supabase Edge Function secrets.'
+          userMessage: 'The OpenAI API key is not configured. Please set it in the Supabase Edge Function secrets.',
+          title: 'Untitled Position',
+          company: 'Unknown Company',
+          description: 'OpenAI API key configuration error'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
@@ -58,7 +67,10 @@ serve(async (req)  => {
             JSON.stringify({ 
               error: 'Invalid OpenAI API key. Please check your API key and try again.',
               status: 'authentication_error',
-              userMessage: 'Your OpenAI API key appears to be invalid. Please check the key and try again.'
+              userMessage: 'Your OpenAI API key appears to be invalid. Please check the key and try again.',
+              title: 'Untitled Position',
+              company: 'Unknown Company',
+              description: 'Authentication error with OpenAI API'
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
           )
@@ -69,7 +81,10 @@ serve(async (req)  => {
             JSON.stringify({ 
               error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
               status: 'quota_error',
-              userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
+              userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.',
+              title: 'Untitled Position',
+              company: 'Unknown Company',
+              description: 'OpenAI API quota exceeded'
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
           )
@@ -79,7 +94,10 @@ serve(async (req)  => {
           JSON.stringify({ 
             error: `OpenAI API error: ${testErrorData.error?.message || 'Unknown error'}`,
             status: 'api_error',
-            userMessage: 'There was an error connecting to the OpenAI API. Please try again later.'
+            userMessage: 'There was an error connecting to the OpenAI API. Please try again later.',
+            title: 'Untitled Position',
+            company: 'Unknown Company',
+            description: 'Error connecting to OpenAI API'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
         )
@@ -90,7 +108,10 @@ serve(async (req)  => {
         JSON.stringify({ 
           error: `Error validating OpenAI API key: ${testError.message}`, 
           status: 'connection_error',
-          userMessage: 'Failed to validate the OpenAI API key. Please check your internet connection and try again.'
+          userMessage: 'Failed to validate the OpenAI API key. Please check your internet connection and try again.',
+          title: 'Untitled Position',
+          company: 'Unknown Company',
+          description: 'Connection error testing OpenAI API'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
@@ -131,7 +152,10 @@ serve(async (req)  => {
           JSON.stringify({ 
             error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
             status: 'quota_error',
-            userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
+            userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.',
+            title: 'Untitled Position',
+            company: 'Unknown Company',
+            description: 'OpenAI API quota exceeded'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
         )
@@ -142,7 +166,10 @@ serve(async (req)  => {
           error: `Error during parsing: ${errorData.error?.message || 'Unknown error'}`,
           details: errorData,
           status: 'parsing_error',
-          userMessage: 'An error occurred while parsing the job description. Please try again later.'
+          userMessage: 'An error occurred while parsing the job description. Please try again later.',
+          title: 'Untitled Position',
+          company: 'Unknown Company',
+          description: 'Error parsing job description'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: openaiResponse.status }
       )
@@ -165,27 +192,43 @@ serve(async (req)  => {
         parsedJobDescription = JSON.parse(assistantMessage)
       }
       
-      // Ensure the minimum required fields are present
-      parsedJobDescription = {
+      // Create a complete job description structure with default values
+      const completeJobDescription = {
         title: parsedJobDescription.title || 'Untitled Position',
         company: parsedJobDescription.company || 'Unknown Company',
         location: parsedJobDescription.location || '',
         employment_type: parsedJobDescription.employment_type || '',
         work_mode: parsedJobDescription.work_mode || '',
         description: parsedJobDescription.description || '',
-        responsibilities: Array.isArray(parsedJobDescription.responsibilities) ? parsedJobDescription.responsibilities : [],
-        requirements: parsedJobDescription.requirements || { 
-          skills: [], 
-          experience: [], 
-          education: [], 
-          languages: [] 
+        responsibilities: Array.isArray(parsedJobDescription.responsibilities) 
+          ? parsedJobDescription.responsibilities 
+          : [],
+        requirements: {
+          skills: Array.isArray(parsedJobDescription.requirements?.skills) 
+            ? parsedJobDescription.requirements.skills 
+            : [],
+          experience: Array.isArray(parsedJobDescription.requirements?.experience) 
+            ? parsedJobDescription.requirements.experience 
+            : [],
+          education: Array.isArray(parsedJobDescription.requirements?.education) 
+            ? parsedJobDescription.requirements.education 
+            : [],
+          languages: Array.isArray(parsedJobDescription.requirements?.languages) 
+            ? parsedJobDescription.requirements.languages 
+            : []
         },
-        benefits: Array.isArray(parsedJobDescription.benefits) ? parsedJobDescription.benefits : [],
+        benefits: Array.isArray(parsedJobDescription.benefits) 
+          ? parsedJobDescription.benefits 
+          : [],
         salary: parsedJobDescription.salary || {},
         application_deadline: parsedJobDescription.application_deadline || '',
         posted_date: parsedJobDescription.posted_date || '',
-        keywords: Array.isArray(parsedJobDescription.keywords) ? parsedJobDescription.keywords : []
+        keywords: Array.isArray(parsedJobDescription.keywords) 
+          ? parsedJobDescription.keywords 
+          : []
       };
+      
+      parsedJobDescription = completeJobDescription;
       
     } catch (error) {
       console.error('Error parsing JSON from OpenAI response:', error)
@@ -196,6 +239,21 @@ serve(async (req)  => {
         title: 'Untitled Position',
         company: 'Unknown Company',
         description: 'Failed to parse job description properly. Please try again with a clearer job description.',
+        location: '',
+        employment_type: '',
+        work_mode: '',
+        responsibilities: [],
+        requirements: {
+          skills: [],
+          experience: [],
+          education: [],
+          languages: []
+        },
+        benefits: [],
+        salary: {},
+        application_deadline: '',
+        posted_date: '',
+        keywords: [],
         error: 'Failed to parse job description data', 
         raw_response: assistantMessage,
         status: 'json_parsing_error',
@@ -214,7 +272,25 @@ serve(async (req)  => {
       JSON.stringify({ 
         error: error.message,
         status: 'server_error',
-        userMessage: 'An unexpected error occurred. Please try again later.'
+        userMessage: 'An unexpected error occurred. Please try again later.',
+        title: 'Untitled Position',
+        company: 'Unknown Company',
+        description: 'Server error processing job description',
+        location: '',
+        employment_type: '',
+        work_mode: '',
+        responsibilities: [],
+        requirements: {
+          skills: [],
+          experience: [],
+          education: [],
+          languages: []
+        },
+        benefits: [],
+        salary: {},
+        application_deadline: '',
+        posted_date: '',
+        keywords: []
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
