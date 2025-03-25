@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 export function JobDescriptionForm() {
   const [jobDescription, setJobDescription] = useState('');
@@ -54,7 +55,7 @@ export function JobDescriptionForm() {
         } else if (data.status === 'authentication_error') {
           setErrorMessage('Invalid OpenAI API key. Please check your API key and try again.');
         } else if (data.status === 'quota_error') {
-          setErrorMessage('Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.');
+          setErrorMessage('Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website or try using a different API key.');
         } else {
           setErrorMessage(data.error || 'An unexpected error occurred');
         }
@@ -164,8 +165,28 @@ export function JobDescriptionForm() {
                 <Alert className="bg-red-50 text-red-800 border-red-200">
                   <AlertTriangle className="h-5 w-5" />
                   <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>
+                  <AlertDescription className="flex flex-col gap-2">
                     {errorMessage || 'Error connecting to OpenAI API. Check console for details.'}
+                    
+                    {errorMessage && errorMessage.includes('quota') && (
+                      <div className="mt-2">
+                        <p className="font-medium">Possible solutions:</p>
+                        <ul className="list-disc pl-5 mt-1">
+                          <li>Check your OpenAI API key billing status</li>
+                          <li>Upgrade your OpenAI plan if needed</li>
+                          <li>Add payment method to your OpenAI account</li>
+                          <li>Generate a new API key if your current one is compromised</li>
+                        </ul>
+                        <a 
+                          href="https://platform.openai.com/account/billing/overview" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-blue-700 hover:underline mt-2"
+                        >
+                          Visit OpenAI Billing Page <ExternalLink className="ml-1 h-4 w-4" />
+                        </a>
+                      </div>
+                    )}
                   </AlertDescription>
                 </Alert>
               )}
