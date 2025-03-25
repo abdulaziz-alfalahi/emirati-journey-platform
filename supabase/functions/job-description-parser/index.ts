@@ -41,44 +41,56 @@ serve(async (req)  => {
     }
 
     // Test validity of API key with a simple request
-    const testResponse = await fetch('https://api.openai.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-      }
-    });
-    
-    if (!testResponse.ok) {
-      const testErrorData = await testResponse.json();
-      console.error('OpenAI API key validation failed:', testErrorData);
+    try {
+      const testResponse = await fetch('https://api.openai.com/v1/models', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+        }
+      });
       
-      if (testResponse.status === 401) {
+      if (!testResponse.ok) {
+        const testErrorData = await testResponse.json();
+        console.error('OpenAI API key validation failed:', testErrorData);
+        
+        if (testResponse.status === 401) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Invalid OpenAI API key. Please check your API key and try again.',
+              status: 'authentication_error',
+              userMessage: 'Your OpenAI API key appears to be invalid. Please check the key and try again.'
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+          )
+        }
+        
+        if (testErrorData.error?.type === 'insufficient_quota') {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
+              status: 'quota_error',
+              userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
+          )
+        }
+        
         return new Response(
           JSON.stringify({ 
-            error: 'Invalid OpenAI API key. Please check your API key and try again.',
-            status: 'authentication_error',
-            userMessage: 'Your OpenAI API key appears to be invalid. Please check the key and try again.'
+            error: `OpenAI API error: ${testErrorData.error?.message || 'Unknown error'}`,
+            status: 'api_error',
+            userMessage: 'There was an error connecting to the OpenAI API. Please try again later.'
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
         )
       }
-      
-      if (testErrorData.error?.type === 'insufficient_quota') {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
-            status: 'quota_error',
-            userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
-        )
-      }
-      
+    } catch (testError) {
+      console.error('Error testing OpenAI API key:', testError);
       return new Response(
         JSON.stringify({ 
-          error: `OpenAI API error: ${testErrorData.error?.message || 'Unknown error'}`,
-          status: 'api_error',
-          userMessage: 'There was an error connecting to the OpenAI API. Please try again later.'
+          error: `Error validating OpenAI API key: ${testError.message}`, 
+          status: 'connection_error',
+          userMessage: 'Failed to validate the OpenAI API key. Please check your internet connection and try again.'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
@@ -152,9 +164,38 @@ serve(async (req)  => {
       } else {
         parsedJobDescription = JSON.parse(assistantMessage)
       }
+      
+      // Ensure the minimum required fields are present
+      parsedJobDescription = {
+        title: parsedJobDescription.title || 'Untitled Position',
+        company: parsedJobDescription.company || 'Unknown Company',
+        location: parsedJobDescription.location || '',
+        employment_type: parsedJobDescription.employment_type || '',
+        work_mode: parsedJobDescription.work_mode || '',
+        description: parsedJobDescription.description || '',
+        responsibilities: Array.isArray(parsedJobDescription.responsibilities) ? parsedJobDescription.responsibilities : [],
+        requirements: parsedJobDescription.requirements || { 
+          skills: [], 
+          experience: [], 
+          education: [], 
+          languages: [] 
+        },
+        benefits: Array.isArray(parsedJobDescription.benefits) ? parsedJobDescription.benefits : [],
+        salary: parsedJobDescription.salary || {},
+        application_deadline: parsedJobDescription.application_deadline || '',
+        posted_date: parsedJobDescription.posted_date || '',
+        keywords: Array.isArray(parsedJobDescription.keywords) ? parsedJobDescription.keywords : []
+      };
+      
     } catch (error) {
       console.error('Error parsing JSON from OpenAI response:', error)
+      console.error('Raw response:', assistantMessage)
+      
+      // Create a minimal valid structure when parsing fails
       parsedJobDescription = { 
+        title: 'Untitled Position',
+        company: 'Unknown Company',
+        description: 'Failed to parse job description properly. Please try again with a clearer job description.',
         error: 'Failed to parse job description data', 
         raw_response: assistantMessage,
         status: 'json_parsing_error',
@@ -162,7 +203,7 @@ serve(async (req)  => {
       }
     }
 
-    console.log('Successfully parsed job description');
+    console.log('Successfully parsed job description with schema validation');
     return new Response(
       JSON.stringify(parsedJobDescription),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
