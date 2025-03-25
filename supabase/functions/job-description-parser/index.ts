@@ -31,7 +31,11 @@ serve(async (req)  => {
     if (!apiKey) {
       console.error('OpenAI API key not configured');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured', status: 'configuration_error' }),
+        JSON.stringify({ 
+          error: 'OpenAI API key not configured', 
+          status: 'configuration_error',
+          userMessage: 'The OpenAI API key is not configured. Please set it in the Supabase Edge Function secrets.'
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
@@ -52,7 +56,8 @@ serve(async (req)  => {
         return new Response(
           JSON.stringify({ 
             error: 'Invalid OpenAI API key. Please check your API key and try again.',
-            status: 'authentication_error' 
+            status: 'authentication_error',
+            userMessage: 'Your OpenAI API key appears to be invalid. Please check the key and try again.'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
         )
@@ -62,7 +67,8 @@ serve(async (req)  => {
         return new Response(
           JSON.stringify({ 
             error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
-            status: 'quota_error' 
+            status: 'quota_error',
+            userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
         )
@@ -71,7 +77,8 @@ serve(async (req)  => {
       return new Response(
         JSON.stringify({ 
           error: `OpenAI API error: ${testErrorData.error?.message || 'Unknown error'}`,
-          status: 'api_error'
+          status: 'api_error',
+          userMessage: 'There was an error connecting to the OpenAI API. Please try again later.'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
@@ -106,11 +113,24 @@ serve(async (req)  => {
       const errorData = await openaiResponse.json();
       console.error('OpenAI API error during parsing:', errorData);
       
+      // Check specifically for quota errors in the actual parsing request
+      if (errorData.error?.type === 'insufficient_quota') {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Your OpenAI API key has insufficient quota. Please check your usage limits.',
+            status: 'quota_error',
+            userMessage: 'Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
+        )
+      }
+      
       return new Response(
         JSON.stringify({ 
           error: `Error during parsing: ${errorData.error?.message || 'Unknown error'}`,
           details: errorData,
-          status: 'parsing_error'
+          status: 'parsing_error',
+          userMessage: 'An error occurred while parsing the job description. Please try again later.'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: openaiResponse.status }
       )
@@ -137,7 +157,8 @@ serve(async (req)  => {
       parsedJobDescription = { 
         error: 'Failed to parse job description data', 
         raw_response: assistantMessage,
-        status: 'json_parsing_error'
+        status: 'json_parsing_error',
+        userMessage: 'Failed to parse the response from OpenAI. Please try again with a clearer job description.'
       }
     }
 
@@ -151,7 +172,8 @@ serve(async (req)  => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        status: 'server_error'
+        status: 'server_error',
+        userMessage: 'An unexpected error occurred. Please try again later.'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )

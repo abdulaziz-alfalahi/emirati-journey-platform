@@ -4,14 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export function JobDescriptionForm() {
   const [jobDescription, setJobDescription] = useState('');
   const [parsedData, setParsedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [apiStatus, setApiStatus] = useState(null); // 'success', 'error', null
+  const [errorMessage, setErrorMessage] = useState('');
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -29,6 +31,7 @@ export function JobDescriptionForm() {
     setIsLoading(true);
     setApiStatus(null);
     setParsedData(null);
+    setErrorMessage('');
     
     try {
       // Call the job description parser function
@@ -36,26 +39,33 @@ export function JobDescriptionForm() {
         body: { fileContent: jobDescription }
       });
       
-      if (response.error) {
-        console.error('Supabase function error:', response.error);
-        throw new Error(response.error.message || 'Error calling job description parser');
-      }
-      
       const data = response.data;
       
       // Check if the response contains an error
       if (data && data.error) {
         console.error('Parser function returned error:', data);
+        setApiStatus('error');
         
-        if (data.status === 'configuration_error') {
-          throw new Error('OpenAI API key is not configured. Please add it to your Supabase Edge Function secrets.');
+        // Set a user-friendly error message based on the error status
+        if (data.userMessage) {
+          setErrorMessage(data.userMessage);
+        } else if (data.status === 'configuration_error') {
+          setErrorMessage('OpenAI API key is not configured. Please add it to your Supabase Edge Function secrets.');
         } else if (data.status === 'authentication_error') {
-          throw new Error('Invalid OpenAI API key. Please check your API key and try again.');
+          setErrorMessage('Invalid OpenAI API key. Please check your API key and try again.');
         } else if (data.status === 'quota_error') {
-          throw new Error('Your OpenAI API key has insufficient quota. Please check your usage limits.');
+          setErrorMessage('Your OpenAI API key has reached its usage limit. Please check your billing details on the OpenAI website.');
         } else {
-          throw new Error(data.error);
+          setErrorMessage(data.error || 'An unexpected error occurred');
         }
+        
+        toast({
+          title: 'Error',
+          description: 'Failed to parse job description. See details below.',
+          variant: 'destructive',
+        });
+        
+        return;
       }
       
       setParsedData(data);
@@ -94,9 +104,11 @@ export function JobDescriptionForm() {
     } catch (error) {
       console.error('Error parsing job description:', error);
       setApiStatus('error');
+      setErrorMessage('Failed to connect to the parser service. Please try again later.');
+      
       toast({
         title: 'Error',
-        description: 'Failed to parse job description: ' + error.message,
+        description: 'Failed to parse job description. See details below.',
         variant: 'destructive',
       });
     } finally {
@@ -139,17 +151,23 @@ export function JobDescriptionForm() {
               </Button>
               
               {apiStatus === 'success' && (
-                <div className="flex items-center px-4 py-2 bg-green-50 text-green-700 rounded-md">
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  <span>OpenAI API is working properly!</span>
-                </div>
+                <Alert className="bg-green-50 text-green-800 border-green-200">
+                  <CheckCircle className="h-5 w-5" />
+                  <AlertTitle>Success</AlertTitle>
+                  <AlertDescription>
+                    OpenAI API is working properly! Job description has been successfully parsed.
+                  </AlertDescription>
+                </Alert>
               )}
               
               {apiStatus === 'error' && (
-                <div className="flex items-center px-4 py-2 bg-red-50 text-red-700 rounded-md">
-                  <AlertTriangle className="h-5 w-5 mr-2" />
-                  <span>Error connecting to OpenAI API. Check console for details.</span>
-                </div>
+                <Alert className="bg-red-50 text-red-800 border-red-200">
+                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {errorMessage || 'Error connecting to OpenAI API. Check console for details.'}
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
           </form>
