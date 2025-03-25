@@ -1,16 +1,16 @@
+
 import React, { useState } from 'react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function JobDescriptionForm() {
   const [jobDescription, setJobDescription] = useState('');
   const [parsedData, setParsedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = useSupabaseClient();
   const { toast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -130,4 +130,3 @@ export function JobDescriptionForm() {
     </div>
   );
 }
-
