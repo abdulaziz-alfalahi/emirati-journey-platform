@@ -6,7 +6,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, AlertTriangle, CheckCircle, AlertCircle, ExternalLink, Save, List } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useNavigate } from 'react-router-dom';
 
 export function JobDescriptionForm() {
@@ -30,12 +29,67 @@ export function JobDescriptionForm() {
     fetchUser();
   }, []);
 
+  // Test database connection function
+  const testDatabaseInsert = async () => {
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData.user?.id;
+      
+      const testRecord = {
+        title: 'Test Job',
+        company: 'Test Company', // Required field
+        description: 'Test Description',
+        requirements: { skills: [] },
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: userId
+      };
+      
+      console.log('Attempting test insert with:', testRecord);
+      
+      const { data, error } = await supabase
+        .from('job_descriptions')
+        .insert(testRecord)
+        .select();
+      
+      console.log('Test insert result:', { data, error });
+      
+      if (error) {
+        console.error('Test insert error:', error);
+        toast({
+          title: 'Database Test Failed',
+          description: 'Error: ' + error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Database Test Successful',
+          description: 'Successfully inserted test record',
+          variant: 'success',
+        });
+      }
+    } catch (e) {
+      console.error('Test insert exception:', e);
+      toast({
+        title: 'Database Test Exception',
+        description: e.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Validate the parsed data structure
   const validateParsedData = (data) => {
-    if (!data) return false;
+    console.log('Validating parsed data:', data);
+    
+    if (!data) {
+      console.error('Data is null or undefined');
+      return false;
+    }
     
     // Check for required fields
-    const requiredFields = ['title', 'description'];
+    const requiredFields = ['title', 'company', 'description'];
     const missingFields = requiredFields.filter(field => !data[field]);
     
     if (missingFields.length > 0) {
@@ -49,6 +103,7 @@ export function JobDescriptionForm() {
       return false;
     }
     
+    console.log('Data validation passed');
     return true;
   };
 
@@ -75,7 +130,13 @@ export function JobDescriptionForm() {
         body: { fileContent: jobDescription }
       });
       
-      const data = response.data;
+      console.log('Raw response from parser:', response);
+      
+      // The data might be nested differently than you expect
+      // It could be response.data or response.data.data depending on your parser implementation
+      const data = response.data?.data || response.data;
+      
+      console.log('Extracted data for validation:', data);
       
       // Check if the response contains an error
       if (data && data.error) {
@@ -139,16 +200,28 @@ export function JobDescriptionForm() {
     setIsSaving(true);
     
     try {
+      // Check authentication status
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) {
+        console.error('User not authenticated');
+        toast({
+          title: 'Authentication Error',
+          description: 'You must be logged in to save job descriptions.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const userId = authData.user.id;
+      console.log('Authenticated user ID:', userId);
+      
       // Get current timestamp
       const now = new Date().toISOString();
       
-      // Get current user ID
-      const userId = currentUser?.id;
-      
-      // Save to database with all required fields
-      const { error: saveError } = await supabase.from('job_descriptions').insert({
+      // Create the record object with all required fields
+      const recordToInsert = {
         title: data.title || 'Untitled Position',
-        company: data.company || 'Unknown Company',
+        company: data.company || 'Unknown Company', // Required field in your schema
         location: data.location || '',
         employment_type: data.employment_type || '',
         work_mode: data.work_mode || '',
@@ -164,11 +237,32 @@ export function JobDescriptionForm() {
         is_active: true,  // Set to true by default for new job descriptions
         created_at: now,
         updated_at: now,
-        user_id: userId || null
-      });
+        user_id: userId
+      };
+      
+      console.log('Record to insert:', recordToInsert);
+      
+      // Save to database with all required fields
+      const { data: insertedData, error: saveError } = await supabase
+        .from('job_descriptions')
+        .insert(recordToInsert)
+        .select();
+      
+      console.log('Insert response:', { data: insertedData, error: saveError });
       
       if (saveError) {
         console.error('Database save error:', saveError);
+        // More detailed error information
+        if (saveError.code) {
+          console.error('Error code:', saveError.code);
+        }
+        if (saveError.details) {
+          console.error('Error details:', saveError.details);
+        }
+        if (saveError.hint) {
+          console.error('Error hint:', saveError.hint);
+        }
+        
         toast({
           title: 'Job description parsed successfully',
           description: 'But there was an error saving to database: ' + saveError.message,
@@ -195,7 +289,6 @@ export function JobDescriptionForm() {
 
   // Navigate to job descriptions list page
   const viewSavedJobDescriptions = () => {
-    // You'll need to create this page
     navigate('/job-descriptions/list');
   };
 
@@ -210,14 +303,23 @@ export function JobDescriptionForm() {
                 Parse job descriptions to extract structured information for matching with candidates
               </CardDescription>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={viewSavedJobDescriptions}
-              className="flex items-center gap-2"
-            >
-              <List className="h-4 w-4" />
-              View Saved Job Descriptions
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={testDatabaseInsert}
+                className="flex items-center gap-2"
+              >
+                Test DB Connection
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={viewSavedJobDescriptions}
+                className="flex items-center gap-2"
+              >
+                <List className="h-4 w-4" />
+                View Saved Job Descriptions
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -280,7 +382,7 @@ export function JobDescriptionForm() {
                           Visit OpenAI Billing Page <ExternalLink className="ml-1 h-4 w-4" />
                         </a>
                       </div>
-                    )}
+                    ) }
                   </AlertDescription>
                 </Alert>
               )}
