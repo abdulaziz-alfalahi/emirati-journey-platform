@@ -1,4 +1,3 @@
-// supabase/functions/job-description-parser/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -39,7 +38,7 @@ function validateJobDescription(data: any) : { valid: boolean; missing: string[]
   const missing: string[] = [];
   
   // Check required top-level fields
-  const requiredFields = ['title', 'description', 'requirements'];
+  const requiredFields = ['title', 'company', 'description', 'requirements'];
   for (const field of requiredFields) {
     if (!data[field]) {
       missing.push(field);
