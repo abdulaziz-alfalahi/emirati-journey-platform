@@ -72,34 +72,43 @@ export function JobDescriptionForm() {
       setParsedData(data);
       setApiStatus('success');
       
-      // Save to database
-      const { error: saveError } = await supabase.from('job_descriptions').insert({
-        title: data.title || 'Untitled Position',
-        company: data.company || 'Unknown Company',
-        location: data.location,
-        employment_type: data.employment_type,
-        work_mode: data.work_mode,
-        description: data.description,
-        responsibilities: data.responsibilities || [],
-        requirements: data.requirements || {},
-        benefits: data.benefits || [],
-        salary: data.salary || {},
-        application_deadline: data.application_deadline,
-        posted_date: data.posted_date,
-        keywords: data.keywords || []
-      });
-      
-      if (saveError) {
-        toast({
-          title: 'Job description parsed successfully',
-          description: 'But there was an error saving to database: ' + saveError.message,
-          variant: 'warning',
+      // Only attempt to save to the database if we have valid data
+      if (data && data.title) {
+        // Save to database
+        const { error: saveError } = await supabase.from('job_descriptions').insert({
+          title: data.title || 'Untitled Position',
+          company: data.company || 'Unknown Company',
+          location: data.location,
+          employment_type: data.employment_type,
+          work_mode: data.work_mode,
+          description: data.description,
+          responsibilities: data.responsibilities || [],
+          requirements: data.requirements || {},
+          benefits: data.benefits || [],
+          salary: data.salary || {},
+          application_deadline: data.application_deadline,
+          posted_date: data.posted_date,
+          keywords: data.keywords || []
         });
+        
+        if (saveError) {
+          toast({
+            title: 'Job description parsed successfully',
+            description: 'But there was an error saving to database: ' + saveError.message,
+            variant: 'warning',
+          });
+        } else {
+          toast({
+            title: 'Success',
+            description: 'Job description parsed and saved successfully',
+            variant: 'success',
+          });
+        }
       } else {
         toast({
-          title: 'Success',
-          description: 'Job description parsed and saved successfully',
-          variant: 'success',
+          title: 'Partial Success',
+          description: 'Job description was parsed but the data structure is incomplete. Database save was skipped.',
+          variant: 'warning',
         });
       }
     } catch (error) {
