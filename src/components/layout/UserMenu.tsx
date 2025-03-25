@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth, UserRole } from '@/context/AuthContext';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,

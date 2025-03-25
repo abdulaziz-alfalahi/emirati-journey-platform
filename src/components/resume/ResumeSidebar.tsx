@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { 
   User, 
@@ -12,7 +13,7 @@ import {
   Image
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
