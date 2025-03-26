@@ -1,144 +1,4 @@
-
-/**
- * Resume parser utility for extracting data from uploaded resume files
- */
-import { ResumeData } from '../types';
-import { supabase } from '@/integrations/supabase/client';
-import { extractDataFromContent } from './resumeContentParser';
-import { extractFromLinkedIn } from './parsers/linkedInParser';
-import { enhancedResumeParser } from './enhancedResumeParser';
-
-// Parse resume from uploaded file
-export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeData>> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = async (e) => {
-      try {
-        const fileContent = e.target?.result as string;
-        
-        // Check if we have content to parse
-        if (!fileContent) {
-          reject(new Error('Could not read file content'));
-          return;
-        }
-        
-        console.log('File read complete. Content length:', fileContent.length);
-        let parsedData: Partial<ResumeData> = {};
-        
-        // Try the enhanced parser first
-        try {
-          console.log('Using enhanced resume parser...');
-          parsedData = enhancedResumeParser.parseResumeContent(fileContent, file.type);
-          
-          // Check if we got meaningful data
-          if (isEmptyResumeData(parsedData)) {
-            console.warn('Enhanced parser returned empty data');
-            throw new Error('Enhanced parsing returned empty data');
-          }
-          
-          console.log('Enhanced parsing successful:', parsedData);
-        } catch (enhancedError) {
-          console.error('Enhanced parsing error:', enhancedError);
-          
-          // Fall back to the legacy extraction method
-          try {
-            console.log('Falling back to legacy regex extraction...');
-            parsedData = extractDataFromContent(fileContent, file.type);
-            
-            // Check if we got meaningful data
-            if (isEmptyResumeData(parsedData)) {
-              console.warn('Legacy extraction returned empty data');
-              throw new Error('Legacy extraction returned empty data');
-            }
-            
-            console.log('Legacy extraction successful:', parsedData);
-          } catch (localError) {
-            console.error('Legacy extraction error:', localError);
-            
-            // Try with enhanced-resume-parser edge function as a fallback
-            try {
-              console.log('Attempting enhanced edge function as fallback...');
-              
-              const response = await supabase.functions.invoke('enhanced-resume-parser', {
-                body: { 
-                  fileContent,
-                  fileType: file.type 
-                },
-              });
-              
-              if (response.error) {
-                console.error('Enhanced edge function error:', response.error);
-                throw new Error(`Enhanced edge extraction failed: ${response.error.message}`);
-              }
-              
-              const data = response.data;
-              
-              if (!data) {
-                throw new Error('No data returned from enhanced edge function');
-              }
-              
-              console.log('Enhanced edge function extraction successful');
-              parsedData = data;
-              
-            } catch (enhancedEdgeError) {
-              console.error('Enhanced edge function also failed:', enhancedEdgeError);
-              
-              // Fall back to AI extraction as a last resort
-              try {
-                console.log('Attempting AI extraction as final fallback...');
-                
-                const aiResponse = await supabase.functions.invoke('extract-resume-data', {
-                  body: { 
-                    fileContent,
-                    fileType: file.type 
-                  },
-                });
-                
-                if (aiResponse.error) {
-                  console.error('AI edge function error:', aiResponse.error);
-                  throw new Error(`AI extraction failed: ${aiResponse.error.message}`);
-                }
-                
-                const aiData = aiResponse.data;
-                
-                if (!aiData) {
-                  throw new Error('No data returned from AI extraction service');
-                }
-                
-                console.log('AI extraction successful');
-                parsedData = aiData;
-              } catch (aiError) {
-                console.error('All extraction methods failed:', aiError);
-                // If all methods fail, return the best effort from local extraction
-                parsedData = extractDataFromContent(fileContent, file.type);
-              }
-            }
-          }
-        }
-        
-        // Final check if we got meaningful data after all attempts
-        if (isEmptyResumeData(parsedData)) {
-          reject(new Error('Could not extract meaningful data from your resume. Please try a different file or format.'));
-          return;
-        }
-        
-        resolve(parsedData);
-      } catch (error) {
-        console.error('Error parsing resume:', error);
-        reject(new Error('Failed to parse resume file. Please try a different file.'));
-      }
-    };
-    
-    reader.onerror = () => {
-      reject(new Error('Error reading file. Please try again.'));
-    };
-    
-    reader.readAsText(file);
-  });
-};
-
-// Parse resume from image file
+// Updated parseResumeFromImage function in src/components/resume/utils/resumeParser.ts
 export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeData>> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -152,28 +12,55 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           return;
         }
         
-        console.log('Image read complete. Processing locally...');
+        console.log('Image read complete. Processing with Edge Function...');
         
-        // For now, return a basic structure since we don't have local OCR
-        // In a real implementation, we would call the edge function
-        const basicData: Partial<ResumeData> = {
-          personal: {
-            fullName: "",
-            jobTitle: "",
-            email: "",
-            phone: "",
-            location: "",
-            linkedin: "",
-            website: ""
-          },
-          summary: "Resume extracted from image",
-          experience: [],
-          education: [],
-          skills: [],
-          languages: []
-        };
-        
-        resolve(basicData);
+        try {
+          // Call the extract-resume-from-image Edge Function
+          const response = await supabase.functions.invoke('extract-resume-from-image', {
+            body: { 
+              imageData,
+              fileName: file.name,
+              fileType: file.type 
+            },
+          });
+          
+          if (response.error) {
+            console.error('Resume image extraction error:', response.error);
+            throw new Error(`Image extraction failed: ${response.error.message}`);
+          }
+          
+          const data = response.data;
+          
+          if (!data) {
+            throw new Error('No data returned from image extraction service');
+          }
+          
+          console.log('Image extraction successful');
+          resolve(data);
+        } catch (error) {
+          console.error('Error processing resume image with Edge Function:', error);
+          
+          // Fallback to basic structure if Edge Function fails
+          const basicData: Partial<ResumeData> = {
+            personal: {
+              fullName: "",
+              jobTitle: "",
+              email: "",
+              phone: "",
+              location: "",
+              linkedin: "",
+              website: ""
+            },
+            summary: "Resume extracted from image",
+            experience: [],
+            education: [],
+            skills: [],
+            languages: []
+          };
+          
+          console.warn('Falling back to basic structure due to Edge Function failure');
+          resolve(basicData);
+        }
       } catch (error) {
         console.error('Error processing resume image:', error);
         reject(new Error('Failed to process resume image. Please try again.'));
@@ -188,38 +75,3 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
     reader.readAsDataURL(file);
   });
 };
-
-// Helper to check if the extracted data is empty/meaningless
-const isEmptyResumeData = (data: Partial<ResumeData>): boolean => {
-  // Check if personal info is empty
-  const isPersonalEmpty = !data.personal || 
-    (!data.personal.fullName && !data.personal.email && !data.personal.phone);
-  
-  // Check if experience, education, skills are all empty
-  const hasNoExperience = !data.experience || data.experience.length === 0;
-  const hasNoEducation = !data.education || data.education.length === 0;
-  const hasNoSkills = !data.skills || data.skills.length === 0;
-  
-  // Consider the data empty if personal is empty AND at least two other sections are empty
-  return isPersonalEmpty && (
-    (hasNoExperience && hasNoEducation) || 
-    (hasNoExperience && hasNoSkills) || 
-    (hasNoEducation && hasNoSkills)
-  );
-};
-
-// Basic LinkedIn import function
-export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: string): Promise<Partial<ResumeData>> => {
-  console.log('Starting LinkedIn profile import with URL:', linkedInUrl);
-  
-  // Use the local extractor directly instead of edge function
-  const extractedData = extractFromLinkedIn(linkedInUrl);
-  console.log('LinkedIn data extracted:', extractedData);
-  
-  return extractedData;
-};
-
-// Re-export for backward compatibility
-export { extractFromLinkedIn } from './parsers/linkedInParser';
-export { mergeResumeData } from './resumeDataUtils';
-export { enhancedResumeParser };
