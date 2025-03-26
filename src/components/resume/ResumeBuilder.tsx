@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -396,7 +397,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
           activeSection={activeSection} 
           onSectionChange={setActiveSection} 
           resumeData={resumeData}
-          onImportComplete={safeSetResumeData} // Use the safe wrapper
+          onImportComplete={safeSetResumeData}
         />
         
         <div className="flex-1 p-6 overflow-auto">
