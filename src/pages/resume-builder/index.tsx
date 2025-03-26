@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useResume } from '@/context/ResumeContext';
@@ -8,6 +7,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import { ResumeTemplate } from '@/components/resume/types';
 import { toast } from 'sonner';
+
 
 const defaultTemplate: ResumeTemplate = {
   id: 'professional',
