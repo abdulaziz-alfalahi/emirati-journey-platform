@@ -32,6 +32,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
   onBack, 
   initialData 
 }) => {
+  // Log to help debug component rendering
+  console.log('ResumeBuilder rendered, initialData:', initialData ? 'present' : 'not present');
+  
   const { toast: uiToast } = useToast();
   const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<string>("personal");
@@ -63,6 +66,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
     achievements: []
   });
 
+  // Log to help debug setResumeData
+  console.log('setResumeData is a function:', typeof setResumeData === 'function');
+
   // Load saved resume from local storage or from initialData on first render
   useEffect(() => {
     if (initialData) {
@@ -74,12 +80,27 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
     const savedResume = localStorage.getItem("savedResume");
     if (savedResume) {
       try {
-        setResumeData(JSON.parse(savedResume));
+        const parsedData = JSON.parse(savedResume);
+        console.log('Loaded resume data from localStorage');
+        setResumeData(parsedData);
       } catch (error) {
         console.error("Error parsing saved resume:", error);
       }
     }
   }, [initialData]);
+
+  // Safe wrapper for setResumeData to handle potential errors
+  const safeSetResumeData = (data: ResumeData) => {
+    try {
+      console.log('safeSetResumeData called with data');
+      setResumeData(data);
+    } catch (error) {
+      console.error('Error in setResumeData:', error);
+      toast.error("Error updating resume data", {
+        description: "There was a problem updating your resume. Please try again or refresh the page.",
+      });
+    }
+  };
 
   // Handler functions
   const handlePersonalInfoChange = (personal: ResumeData['personal']) => {
@@ -375,7 +396,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
           activeSection={activeSection} 
           onSectionChange={setActiveSection} 
           resumeData={resumeData}
-          onImportComplete={setResumeData}
+          onImportComplete={safeSetResumeData} // Use the safe wrapper
         />
         
         <div className="flex-1 p-6 overflow-auto">
