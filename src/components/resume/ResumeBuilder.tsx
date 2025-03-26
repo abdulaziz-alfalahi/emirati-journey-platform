@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -172,7 +171,16 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
         throw checkError;
       }
 
-      const resumeDataAsJson = resumeData as unknown as Json;
+      // Ensure metadata is included in the saved data
+      const resumeDataWithMetadata = {
+        ...resumeData,
+        metadata: {
+          ...(resumeData.metadata || {}),
+          lastSaved: new Date().toISOString()
+        }
+      };
+
+      const resumeDataAsJson = resumeDataWithMetadata as unknown as Json;
 
       if (existingData) {
         const { error: dataUpdateError } = await supabase
@@ -318,106 +326,94 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 mt-16 sm:mt-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div className="flex items-center">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between p-4 border-b">
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft size={16} className="mr-2" />
+          Back to Templates
+        </Button>
+        <div className="flex items-center space-x-2">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
-            onClick={onBack}
-            className="mr-2"
+            onClick={() => setIsPreviewOpen(true)}
           >
-            <ArrowLeft size={16} className="mr-1" /> Back
+            <Eye size={16} className="mr-2" />
+            Preview
           </Button>
-          <h1 className="text-2xl font-bold text-primary">Resume Builder</h1>
-        </div>
-        
-        <div className="flex flex-wrap gap-3 mt-2 w-full md:w-auto justify-end">
           <Button 
             variant="outline" 
-            size="sm"
-            onClick={saveResume}
-            disabled={isSaving}
-          >
-            <Save size={16} className="mr-1" /> {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
+            size="sm" 
             onClick={downloadResume}
           >
-            <Download size={16} className="mr-1" /> Export JSON
+            <Download size={16} className="mr-2" />
+            Download JSON
           </Button>
-          
           <Button 
             variant="outline" 
-            size="sm"
+            size="sm" 
             onClick={exportToPdf}
             disabled={isExporting}
           >
-            <FileOutput size={16} className="mr-1" /> {isExporting ? 'Exporting...' : 'Export PDF'}
+            <FileOutput size={16} className="mr-2" />
+            {isExporting ? 'Exporting...' : 'Export PDF'}
           </Button>
-          
-          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={() => setIsPreviewOpen(true)}
-              >
-                <Eye size={16} className="mr-1" /> Preview
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Resume Preview</DialogTitle>
-              </DialogHeader>
-              <Tabs defaultValue={resumeTheme} className="mt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <TabsList>
-                    <TabsTrigger value="classic" onClick={() => setResumeTheme("classic")}>Classic</TabsTrigger>
-                    <TabsTrigger value="modern" onClick={() => setResumeTheme("modern")}>Modern</TabsTrigger>
-                    <TabsTrigger value="minimalist" onClick={() => setResumeTheme("minimalist")}>Minimalist</TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <TabsContent value="classic" className="mt-0">
-                  <div className="resume-preview-wrapper" ref={previewRef}>
-                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="modern" className="mt-0">
-                  <div className="resume-preview-wrapper" ref={previewRef}>
-                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="minimalist" className="mt-0">
-                  <div className="resume-preview-wrapper" ref={previewRef}>
-                    <ResumePreview template={template} data={resumeData} theme={resumeTheme} />
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={saveResume}
+            disabled={isSaving}
+          >
+            <Save size={16} className="mr-2" />
+            {isSaving ? 'Saving...' : 'Save Resume'}
+          </Button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="flex flex-1 overflow-hidden">
         <ResumeSidebar 
           activeSection={activeSection} 
-          setActiveSection={setActiveSection} 
-          template={template}
+          onSectionChange={setActiveSection} 
           resumeData={resumeData}
-          setResumeData={setResumeData}
+          onImportComplete={setResumeData}
         />
         
-        <Card className="md:col-span-3">
-          <CardContent className="p-4">
-            {renderActiveSection()}
-          </CardContent>
-        </Card>
+        <div className="flex-1 p-6 overflow-auto">
+          <Card>
+            <CardContent className="p-6">
+              <Tabs value={activeSection} onValueChange={setActiveSection}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                  <TabsTrigger value="summary">Summary</TabsTrigger>
+                  <TabsTrigger value="experience">Experience</TabsTrigger>
+                  <TabsTrigger value="education">Education</TabsTrigger>
+                  <TabsTrigger value="skills">Skills & Languages</TabsTrigger>
+                </TabsList>
+                <TabsContent value={activeSection} className="mt-0">
+                  {renderActiveSection()}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+      
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Resume Preview</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 overflow-auto max-h-[80vh]">
+            <div ref={previewRef}>
+              <ResumePreview 
+                data={resumeData} 
+                template={template} 
+                theme={resumeTheme}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
