@@ -1,327 +1,186 @@
-
-import React, { useRef, useState } from 'react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   User, 
-  Briefcase, 
   GraduationCap, 
-  Award, 
-  Book, 
+  Briefcase, 
+  Lightbulb, 
   FileText,
-  FileUp,
-  Linkedin,
-  AlignLeft,
-  Image
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { toast } from "sonner";
-import { ResumeTemplate, ResumeData } from './types';
-import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from './utils/resumeParser';
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+  ChevronRight
+} from 'lucide-react';
+import { ResumeData } from './types';
+import ImportOptions from './ImportOptions';
 
 interface ResumeSidebarProps {
   activeSection: string;
-  setActiveSection: (section: string) => void;
-  template: ResumeTemplate;
+  onSectionChange: (section: string) => void;
   resumeData: ResumeData;
-  setResumeData: React.Dispatch<React.SetStateAction<ResumeData>>;
+  onImportComplete: (data: ResumeData) => void;
 }
 
-const ResumeSidebar: React.FC<ResumeSidebarProps> = ({ 
-  activeSection, 
-  setActiveSection, 
-  template,
+const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
+  activeSection,
+  onSectionChange,
   resumeData,
-  setResumeData
+  onImportComplete
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
-  const { toast: uiToast } = useToast();
-  const { user } = useAuth();
-  const [isProcessing, setIsProcessing] = useState(false);
+  // Log to help debug the onImportComplete prop
+  console.log('ResumeSidebar rendered, onImportComplete type:', typeof onImportComplete);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const sections = [
+    { id: 'personal', label: 'Personal Info', icon: <User size={16} /> },
+    { id: 'summary', label: 'Summary', icon: <FileText size={16} /> },
+    { id: 'experience', label: 'Experience', icon: <Briefcase size={16} /> },
+    { id: 'education', label: 'Education', icon: <GraduationCap size={16} /> },
+    { id: 'skills', label: 'Skills & Languages', icon: <Lightbulb size={16} /> },
+  ];
 
-    setIsProcessing(true);
-    toast.loading("Processing Resume", {
-      description: "Analyzing your resume file...",
-    });
-
-    try {
-      // Determine if this is an image file
-      const isImage = file.type.startsWith('image/');
+  // Helper function to get completion status
+  const getSectionCompletionStatus = (sectionId: string): 'complete' | 'partial' | 'empty' => {
+    switch (sectionId) {
+      case 'personal':
+        const personalFields = Object.values(resumeData.personal).filter(Boolean).length;
+        const totalPersonalFields = Object.keys(resumeData.personal).length;
+        if (personalFields === 0) return 'empty';
+        return personalFields >= totalPersonalFields / 2 ? 'complete' : 'partial';
       
-      // Process the file using the appropriate parser
-      const extractedData = isImage
-        ? await parseResumeFromImage(file)
-        : await parseResumeFromFile(file);
+      case 'summary':
+        return resumeData.summary && resumeData.summary.length > 10 ? 'complete' : 'empty';
       
-      if (extractedData) {
-        // Update the resume data with the extracted information
-        setResumeData(current => {
-          // Merge with current data to preserve any existing data
-          return {
-            ...current,
-            ...extractedData,
-            // Ensure we handle nested objects properly
-            personal: {
-              ...current.personal,
-              ...extractedData.personal
-            }
-          };
-        });
-        
-        // Save to localStorage
-        const updatedData = {
-          ...resumeData,
-          ...extractedData,
-          personal: {
-            ...resumeData.personal,
-            ...extractedData.personal
-          }
-        };
-        localStorage.setItem("savedResume", JSON.stringify(updatedData));
-        
-        toast.success("Resume Processed", {
-          description: "Data from your resume has been extracted successfully!"
-        });
-      }
-    } catch (error) {
-      console.error("Error processing resume:", error);
-      toast.error("Processing Failed", {
-        description: error instanceof Error ? error.message : "Failed to process your resume file",
-      });
-    } finally {
-      setIsProcessing(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsProcessing(true);
-    toast.loading("Processing Resume Image", {
-      description: "Extracting text from your resume image...",
-    });
-
-    try {
-      const extractedData = await parseResumeFromImage(file);
+      case 'experience':
+        return resumeData.experience.length > 0 ? 'complete' : 'empty';
       
-      if (extractedData) {
-        setResumeData(current => {
-          const updatedData = {
-            ...current,
-            ...extractedData,
-            personal: {
-              ...current.personal,
-              ...extractedData.personal
-            }
-          };
-          
-          // Save to localStorage
-          localStorage.setItem("savedResume", JSON.stringify(updatedData));
-          
-          return updatedData;
-        });
-        
-        toast.success("Image Processed", {
-          description: "Data from your resume image has been extracted successfully!"
-        });
-      }
-    } catch (error) {
-      console.error("Error processing resume image:", error);
-      toast.error("Image Processing Failed", {
-        description: error instanceof Error ? error.message : "Failed to extract data from your resume image",
-      });
-    } finally {
-      setIsProcessing(false);
-      // Reset file input
-      if (imageInputRef.current) {
-        imageInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleLinkedInImport = async () => {
-    // If user is not logged in
-    if (!user) {
-      toast.warning("Authentication Required", {
-        description: "Please log in to import data from LinkedIn",
-        duration: 5000,
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-    toast.loading("LinkedIn Integration", {
-      description: "Connecting to LinkedIn...",
-    });
-
-    try {
-      // For simplicity, we'll use a basic redirectless approach
-      const dummyLinkedInUrl = user.email ? 
-        `https://linkedin.com/in/${user.email.split('@')[0]}` : 
-        'https://linkedin.com/in/example';
+      case 'education':
+        return resumeData.education.length > 0 ? 'complete' : 'empty';
       
-      // Import data using local parser (fallback method)
-      const extractedData = await importFromLinkedIn(dummyLinkedInUrl);
+      case 'skills':
+        const hasSkills = resumeData.skills.length > 0;
+        const hasLanguages = resumeData.languages.length > 0;
+        if (!hasSkills && !hasLanguages) return 'empty';
+        return hasSkills && hasLanguages ? 'complete' : 'partial';
       
-      if (extractedData) {
-        setResumeData(current => {
-          const updatedData = {
-            ...current,
-            ...extractedData,
-            personal: {
-              ...current.personal,
-              ...extractedData.personal
-            }
-          };
-          
-          // Save to localStorage
-          localStorage.setItem("savedResume", JSON.stringify(updatedData));
-          
-          return updatedData;
-        });
-        
-        toast.success("LinkedIn Data Imported", {
-          description: "Sample LinkedIn data has been imported successfully!"
-        });
-      }
-    } catch (error) {
-      console.error("LinkedIn import error:", error);
-      // Fall back to OAuth approach
-      try {
-        const { data, error: authError } = await supabase.auth.signInWithOAuth({
-          provider: 'linkedin_oidc',
-          options: {
-            redirectTo: window.location.origin + '/resume-builder?linkedin_auth=true',
-          },
-        });
-
-        if (authError) {
-          throw authError;
-        }
-      } catch (oauthError) {
-        console.error("LinkedIn authentication error:", oauthError);
-        toast.error("LinkedIn Connection Failed", {
-          description: oauthError instanceof Error ? oauthError.message : "Failed to connect to LinkedIn",
-        });
-      }
-    } finally {
-      setIsProcessing(false);
+      default:
+        return 'empty';
     }
   };
 
   return (
-    <Card className="md:col-span-1">
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-primary mb-4">Sections</h2>
-          
-          <div className="flex flex-col space-y-1">
-            <Button 
-              variant={activeSection === "personal" ? "default" : "ghost"}
-              className={activeSection === "personal" ? "bg-primary text-white justify-start" : "justify-start"}
-              onClick={() => setActiveSection("personal")}
-            >
-              <User size={16} className="mr-2" /> Personal Info
-            </Button>
-            
-            <Button 
-              variant={activeSection === "summary" ? "default" : "ghost"}
-              className={activeSection === "summary" ? "bg-primary text-white justify-start" : "justify-start"}
-              onClick={() => setActiveSection("summary")}
-            >
-              <AlignLeft size={16} className="mr-2" /> Summary
-            </Button>
-            
-            <Button 
-              variant={activeSection === "education" ? "default" : "ghost"}
-              className={activeSection === "education" ? "bg-primary text-white justify-start" : "justify-start"}
-              onClick={() => setActiveSection("education")}
-            >
-              <GraduationCap size={16} className="mr-2" /> Education
-            </Button>
-            
-            <Button 
-              variant={activeSection === "experience" ? "default" : "ghost"}
-              className={activeSection === "experience" ? "bg-primary text-white justify-start" : "justify-start"}
-              onClick={() => setActiveSection("experience")}
-            >
-              <Briefcase size={16} className="mr-2" /> Experience
-            </Button>
-            
-            <Button 
-              variant={activeSection === "skills" ? "default" : "ghost"}
-              className={activeSection === "skills" ? "bg-primary text-white justify-start" : "justify-start"}
-              onClick={() => setActiveSection("skills")}
-            >
-              <Award size={16} className="mr-2" /> Skills & Languages
-            </Button>
-          </div>
+    <div className="w-64 border-r bg-muted/40 p-4 flex flex-col h-full">
+      <div className="mb-4">
+        <h3 className="text-sm font-medium mb-2">Import Options</h3>
+        <ImportOptions 
+          onImportComplete={(data) => {
+            console.log('ImportOptions callback triggered with data:', data);
+            if (typeof onImportComplete === 'function') {
+              onImportComplete(data);
+            } else {
+              console.error('Error: onImportComplete is not a function in ResumeSidebar');
+            }
+          }} 
+          currentData={resumeData} 
+        />
+      </div>
+      
+      <Separator className="my-4" />
+      
+      <div className="mb-2">
+        <h3 className="text-sm font-medium">Resume Sections</h3>
+        <p className="text-xs text-muted-foreground">
+          Complete all sections for best results
+        </p>
+      </div>
+      
+      <ScrollArea className="flex-1 -mx-4 px-4">
+        <div className="space-y-1">
+          {sections.map((section) => {
+            const status = getSectionCompletionStatus(section.id);
+            return (
+              <Button
+                key={section.id}
+                variant={activeSection === section.id ? "secondary" : "ghost"}
+                size="sm"
+                className="w-full justify-start relative"
+                onClick={() => onSectionChange(section.id)}
+              >
+                <span className="mr-2">{section.icon}</span>
+                {section.label}
+                
+                {/* Status indicator */}
+                <div className="ml-auto flex items-center">
+                  {status === 'complete' && (
+                    <div className="w-2 h-2 rounded-full bg-green-500" title="Complete" />
+                  )}
+                  {status === 'partial' && (
+                    <div className="w-2 h-2 rounded-full bg-amber-500" title="Partially complete" />
+                  )}
+                  {activeSection === section.id && (
+                    <ChevronRight size={14} className="ml-1" />
+                  )}
+                </div>
+              </Button>
+            );
+          })}
         </div>
-        
-        <Separator className="my-4" />
-        
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-primary">Import Data</h2>
-          
-          <div className="space-y-2">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start" 
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isProcessing}
-            >
-              <FileUp size={16} className="mr-2" /> Upload Resume
-            </Button>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept=".pdf,.doc,.docx,.json,.txt"
-              onChange={handleFileUpload}
+      </ScrollArea>
+      
+      <div className="mt-auto pt-4">
+        <div className="text-xs text-muted-foreground">
+          <p className="mb-1">Resume completion:</p>
+          <div className="w-full bg-muted rounded-full h-2 mb-2">
+            <div 
+              className="bg-primary rounded-full h-2" 
+              style={{ 
+                width: `${calculateCompletionPercentage(resumeData)}%` 
+              }}
             />
-            
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => imageInputRef.current?.click()}
-              disabled={isProcessing}
-            >
-              <Image size={16} className="mr-2" /> Scan Resume Image
-            </Button>
-            <input 
-              type="file" 
-              ref={imageInputRef} 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleImageUpload}
-            />
-            
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={handleLinkedInImport}
-              disabled={isProcessing}
-            >
-              <Linkedin size={16} className="mr-2" /> Import from LinkedIn
-            </Button>
           </div>
+          <p>{calculateCompletionPercentage(resumeData)}% complete</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
+};
+
+// Helper function to calculate overall completion percentage
+const calculateCompletionPercentage = (data: ResumeData): number => {
+  let totalPoints = 0;
+  let earnedPoints = 0;
+  
+  // Personal info (max 7 points)
+  const personalFields = Object.values(data.personal).filter(Boolean).length;
+  totalPoints += 7;
+  earnedPoints += personalFields;
+  
+  // Summary (max 5 points)
+  totalPoints += 5;
+  if (data.summary) {
+    const summaryLength = data.summary.length;
+    earnedPoints += Math.min(5, Math.floor(summaryLength / 20));
+  }
+  
+  // Experience (max 15 points, 5 per experience up to 3)
+  totalPoints += 15;
+  const experiencePoints = Math.min(3, data.experience.length) * 5;
+  earnedPoints += experiencePoints;
+  
+  // Education (max 10 points, 5 per education up to 2)
+  totalPoints += 10;
+  const educationPoints = Math.min(2, data.education.length) * 5;
+  earnedPoints += educationPoints;
+  
+  // Skills (max 5 points, 1 per skill up to 5)
+  totalPoints += 5;
+  const skillsPoints = Math.min(5, data.skills.length);
+  earnedPoints += skillsPoints;
+  
+  // Languages (max 3 points, 1 per language up to 3)
+  totalPoints += 3;
+  const languagesPoints = Math.min(3, data.languages.length);
+  earnedPoints += languagesPoints;
+  
+  return Math.round((earnedPoints / totalPoints) * 100);
 };
 
 export default ResumeSidebar;
