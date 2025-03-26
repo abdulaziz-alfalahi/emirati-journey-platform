@@ -11,7 +11,7 @@ import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function MatchingDashboard({ initialTab = 'candidates' }) {
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(initialTab || 'candidates');
   const [candidates, setCandidates] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [selectedCandidate, setSelectedCandidate] = useState('');

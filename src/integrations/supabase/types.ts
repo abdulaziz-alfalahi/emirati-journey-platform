@@ -46,7 +46,7 @@ export type Database = {
         Row: {
           application_deadline: string | null
           benefits: Json | null
-          company: string
+          company: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -67,7 +67,7 @@ export type Database = {
         Insert: {
           application_deadline?: string | null
           benefits?: Json | null
-          company: string
+          company?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -88,7 +88,7 @@ export type Database = {
         Update: {
           application_deadline?: string | null
           benefits?: Json | null
-          company?: string
+          company?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null

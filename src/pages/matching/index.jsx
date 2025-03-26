@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 export default function MatchingPage() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const tab = searchParams.get('tab');
+  const tab = searchParams.get('tab') || 'candidates';
   
   return (
     <Layout>
