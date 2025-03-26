@@ -1,11 +1,12 @@
-
+import React, { useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useResume } from '@/context/ResumeContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
-import { ResumeTemplate, ResumeData } from '@/components/resume/types';
+import { ResumeTemplate } from '@/components/resume/types';
 import { toast } from 'sonner';
 
 const defaultTemplate: ResumeTemplate = {
@@ -15,23 +16,12 @@ const defaultTemplate: ResumeTemplate = {
   sections: ['personal', 'summary', 'experience', 'education', 'skills', 'languages', 'certifications']
 };
 
-const getSavedResume = (): ResumeData | null => {
-  try {
-    const savedResume = localStorage.getItem("savedResume");
-    return savedResume ? JSON.parse(savedResume) : null;
-  } catch (error) {
-    console.error("Error accessing localStorage:", error);
-    return null;
-  }
-};
-
 const ResumeBuilderPage = () => {
   const { user, isLoading } = useAuth();
+  const { resumeData, setResumeData, isResumeEmpty } = useResume();
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
-  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
-  const [isResumeLoading, setIsResumeLoading] = useState(false);
 
   useEffect(() => {
     const checkForLinkedInAuth = async () => {
@@ -42,9 +32,8 @@ const ResumeBuilderPage = () => {
         setIsProcessingLinkedIn(true);
         
         try {
-          const savedResume = getSavedResume();
-          if (savedResume) {
-            setResumeData(savedResume);
+          // The context already loads from localStorage, so we don't need to do it again
+          if (!isResumeEmpty) {
             toast.success("Resume Data Loaded", {
               description: "Your saved resume data has been loaded successfully.",
               duration: 3000,
@@ -66,20 +55,12 @@ const ResumeBuilderPage = () => {
     if (!isLoading) {
       checkForLinkedInAuth();
     }
-  }, [location, isLoading, navigate]);
+  }, [location, isLoading, navigate, isResumeEmpty]);
 
-  useEffect(() => {
-    if (!resumeData && !isProcessingLinkedIn) {
-      setIsResumeLoading(true);
-      const savedResume = getSavedResume();
-      if (savedResume) {
-        setResumeData(savedResume);
-      }
-      setIsResumeLoading(false);
-    }
-  }, [resumeData, isProcessingLinkedIn]);
+  // No need for the second useEffect that loads from localStorage
+  // as the ResumeContext now handles that automatically
 
-  if (isLoading || isProcessingLinkedIn || isResumeLoading) {
+  if (isLoading || isProcessingLinkedIn) {
     return (
       <Layout>
         <div className="flex justify-center items-center min-h-[60vh]">
