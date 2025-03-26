@@ -21,6 +21,9 @@ interface ImportOptionsProps {
 }
 
 const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, currentData }) => {
+  // Log to help debug the onImportComplete prop
+  console.log('ImportOptions rendered, onImportComplete type:', typeof onImportComplete);
+
   const [isUploading, setIsUploading] = useState(false);
   const [linkedInUrl, setLinkedInUrl] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
@@ -87,8 +90,18 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           : `Your resume has been processed successfully using ${parsingMethod}.`,
       });
       
-      const mergedData = enhancedResumeParser.mergeResumeData(currentData, parsedData);
-      onImportComplete(mergedData);
+      console.log('About to call onImportComplete, type:', typeof onImportComplete);
+      if (typeof onImportComplete === 'function') {
+        const mergedData = enhancedResumeParser.mergeResumeData(currentData, parsedData);
+        onImportComplete(mergedData);
+        console.log('onImportComplete called successfully');
+      } else {
+        console.error('Error: onImportComplete is not a function');
+        toast.error("Application Error", {
+          id: toastId,
+          description: "There was a problem updating the resume data. Please refresh the page and try again.",
+        });
+      }
       
       setFileDialogOpen(false);
     } catch (error) {
@@ -160,8 +173,18 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         });
       }
       
-      const mergedData = mergeResumeData(currentData, parsedData);
-      onImportComplete(mergedData);
+      console.log('About to call onImportComplete for image, type:', typeof onImportComplete);
+      if (typeof onImportComplete === 'function') {
+        const mergedData = mergeResumeData(currentData, parsedData);
+        onImportComplete(mergedData);
+        console.log('onImportComplete called successfully for image');
+      } else {
+        console.error('Error: onImportComplete is not a function for image upload');
+        toast.error("Application Error", {
+          id: toastId,
+          description: "There was a problem updating the resume data. Please refresh the page and try again.",
+        });
+      }
       
       setImageDialogOpen(false);
     } catch (error) {
@@ -202,13 +225,24 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     
     try {
       const linkedInData = await importFromLinkedIn(linkedInUrl);
-      const mergedData = mergeResumeData(currentData, linkedInData);
-      onImportComplete(mergedData);
       
-      toast.success("LinkedIn Import Complete", {
-        id: toastId,
-        description: "Your LinkedIn profile data has been imported and merged with your current resume.",
-      });
+      console.log('About to call onImportComplete for LinkedIn, type:', typeof onImportComplete);
+      if (typeof onImportComplete === 'function') {
+        const mergedData = mergeResumeData(currentData, linkedInData);
+        onImportComplete(mergedData);
+        console.log('onImportComplete called successfully for LinkedIn');
+        
+        toast.success("LinkedIn Import Complete", {
+          id: toastId,
+          description: "Your LinkedIn profile data has been imported and merged with your current resume.",
+        });
+      } else {
+        console.error('Error: onImportComplete is not a function for LinkedIn import');
+        toast.error("Application Error", {
+          id: toastId,
+          description: "There was a problem updating the resume data. Please refresh the page and try again.",
+        });
+      }
       
       setLinkedInDialogOpen(false);
     } catch (error) {
