@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import ResumeSummarySection from './sections/ResumeSummarySection';
 import ResumeSidebar from './ResumeSidebar';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { useResume } from "@/context/ResumeContext";
 import { v4 as uuidv4 } from 'uuid';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -38,6 +38,8 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
   
   const { toast: uiToast } = useToast();
   const { user } = useAuth();
+  const { resumeData, setResumeData, updateResumeSection } = useResume();
+  
   const [activeSection, setActiveSection] = useState<string>("personal");
   const [resumeTheme, setResumeTheme] = useState<"classic" | "modern" | "minimalist">("classic");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -45,92 +47,46 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
-  
-  // Initialize resume data
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personal: {
-      fullName: "",
-      jobTitle: "",
-      email: "",
-      phone: "",
-      location: "",
-      linkedin: "",
-      website: ""
-    },
-    summary: "",
-    experience: [],
-    education: [],
-    skills: [],
-    languages: [],
-    certifications: [],
-    projects: [],
-    achievements: []
-  });
 
   // Log to help debug setResumeData
   console.log('setResumeData is a function:', typeof setResumeData === 'function');
 
-  // Load saved resume from local storage or from initialData on first render
+  // Use initialData only for first load if needed
   useEffect(() => {
-    if (initialData) {
+    if (initialData && Object.keys(initialData).length > 0) {
       console.log('Using provided initial data for resume');
       setResumeData(initialData);
-      return;
     }
-    
-    const savedResume = localStorage.getItem("savedResume");
-    if (savedResume) {
-      try {
-        const parsedData = JSON.parse(savedResume);
-        console.log('Loaded resume data from localStorage');
-        setResumeData(parsedData);
-      } catch (error) {
-        console.error("Error parsing saved resume:", error);
-      }
-    }
-  }, [initialData]);
-
-  // Safe wrapper for setResumeData to handle potential errors
-  const safeSetResumeData = (data: ResumeData) => {
-    try {
-      console.log('safeSetResumeData called with data');
-      setResumeData(data);
-    } catch (error) {
-      console.error('Error in setResumeData:', error);
-      toast.error("Error updating resume data", {
-        description: "There was a problem updating your resume. Please try again or refresh the page.",
-      });
-    }
-  };
+  }, [initialData, setResumeData]);
 
   // Handler functions
   const handlePersonalInfoChange = (personal: ResumeData['personal']) => {
-    setResumeData(prev => ({ ...prev, personal }));
+    updateResumeSection('personal', personal);
   };
 
   const handleSummaryChange = (summary: string) => {
-    setResumeData(prev => ({ ...prev, summary }));
+    updateResumeSection('summary', summary);
   };
 
   const handleExperienceChange = (experience: ResumeData['experience']) => {
-    setResumeData(prev => ({ ...prev, experience }));
+    updateResumeSection('experience', experience);
   };
 
   const handleEducationChange = (education: ResumeData['education']) => {
-    setResumeData(prev => ({ ...prev, education }));
+    updateResumeSection('education', education);
   };
 
   const handleSkillsChange = (skills: ResumeData['skills']) => {
-    setResumeData(prev => ({ ...prev, skills }));
+    updateResumeSection('skills', skills);
   };
 
   const handleLanguagesChange = (languages: ResumeData['languages']) => {
-    setResumeData(prev => ({ ...prev, languages }));
+    updateResumeSection('languages', languages);
   };
 
   const saveResume = async () => {
-    localStorage.setItem("savedResume", JSON.stringify(resumeData));
-
+    // No need to save to localStorage here as the context handles it
+    
     if (!user) {
       toast.warning("Authentication required", {
         description: "Please log in to save your resume to the cloud",
@@ -397,7 +353,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
           activeSection={activeSection} 
           onSectionChange={setActiveSection} 
           resumeData={resumeData}
-          onImportComplete={safeSetResumeData}
+          onImportComplete={setResumeData} // Use context's setResumeData directly
         />
         
         <div className="flex-1 p-6 overflow-auto">
