@@ -17,6 +17,20 @@ export interface ResumeData {
   certifications?: Certification[];
   projects?: Project[];
   achievements?: Achievement[];
+  metadata?: {
+    parsingMethod?: string;
+    parsedAt?: string;
+    fileType?: string;
+    fileSize?: number;
+    sectionCount?: number;
+    sectionNames?: string[];
+    parser?: string;
+    validation?: any;
+    linkedInUrl?: string;
+    error?: string;
+    lastSaved?: string;
+    [key: string]: any;
+  };
 }
 
 export interface PersonalInfo {
