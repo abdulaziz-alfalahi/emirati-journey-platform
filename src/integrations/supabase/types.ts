@@ -61,6 +61,7 @@ export type Database = {
           salary: Json | null
           title: string
           updated_at: string | null
+          user_id: string | null
           work_mode: string | null
         }
         Insert: {
@@ -81,6 +82,7 @@ export type Database = {
           salary?: Json | null
           title: string
           updated_at?: string | null
+          user_id?: string | null
           work_mode?: string | null
         }
         Update: {
@@ -101,6 +103,7 @@ export type Database = {
           salary?: Json | null
           title?: string
           updated_at?: string | null
+          user_id?: string | null
           work_mode?: string | null
         }
         Relationships: []
