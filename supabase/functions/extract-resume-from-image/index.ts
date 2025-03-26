@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY') ;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,7 +19,10 @@ serve(async (req) => {
     
     if (!imageData) {
       return new Response(
-        JSON.stringify({ error: 'No image data provided' }),
+        JSON.stringify({ 
+          error: 'No image data provided',
+          errorCode: 'NO_IMAGE_DATA'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -31,6 +34,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'OpenAI API key is not configured. Please add it to your Supabase secrets.',
+          errorCode: 'API_KEY_MISSING',
           fallbackToRegex: true 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -128,7 +132,7 @@ serve(async (req) => {
             }
           ],
           temperature: 0.2, // Lower temperature for more deterministic results
-        }),
+        }) ,
       });
 
       console.log('OpenAI API response status:', openAIResponse.status);
@@ -142,7 +146,9 @@ serve(async (req) => {
           console.error('OpenAI API quota exceeded');
           return new Response(
             JSON.stringify({ 
-              error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.'
+              error: 'OpenAI API quota exceeded. Please update your API key or upgrade your plan.',
+              errorCode: 'QUOTA_EXCEEDED',
+              fallbackToRegex: true 
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
@@ -153,7 +159,9 @@ serve(async (req) => {
           console.error('Invalid OpenAI API key');
           return new Response(
             JSON.stringify({ 
-              error: 'Invalid OpenAI API key. Please check your API key and try again.'
+              error: 'Invalid OpenAI API key. Please check your API key and try again.',
+              errorCode: 'INVALID_API_KEY',
+              fallbackToRegex: true 
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
@@ -163,7 +171,9 @@ serve(async (req) => {
         console.error(`General OpenAI API error: ${JSON.stringify(errorData)}`);
         return new Response(
           JSON.stringify({ 
-            error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}`
+            error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}`,
+            errorCode: 'API_ERROR',
+            fallbackToRegex: true 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -175,7 +185,9 @@ serve(async (req) => {
         console.error('Unexpected response format from OpenAI:', JSON.stringify(data));
         return new Response(
           JSON.stringify({ 
-            error: 'Unexpected response format from OpenAI'
+            error: 'Unexpected response format from OpenAI',
+            errorCode: 'UNEXPECTED_FORMAT',
+            fallbackToRegex: true 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -205,6 +217,15 @@ serve(async (req) => {
           parsedData.languages = parsedData.languages.map(lang => ({...lang, id: crypto.randomUUID()}));
         }
         
+        // Add metadata about the parsing process
+        parsedData.metadata = {
+          parsingMethod: 'image-edge-function',
+          parsedAt: new Date().toISOString(),
+          model: 'gpt-4o',
+          fileType: fileType || 'unknown',
+          fileName: fileName || 'unknown'
+        };
+        
         console.log('Successfully parsed resume data from image');
         return new Response(
           JSON.stringify(parsedData),
@@ -215,7 +236,9 @@ serve(async (req) => {
         console.error('Response content:', generatedContent);
         return new Response(
           JSON.stringify({ 
-            error: 'Failed to parse AI response as JSON'
+            error: 'Failed to parse AI response as JSON',
+            errorCode: 'JSON_PARSE_ERROR',
+            fallbackToRegex: true 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -225,7 +248,9 @@ serve(async (req) => {
       console.error('Error in OpenAI API call:', apiError);
       return new Response(
         JSON.stringify({ 
-          error: apiError.message || 'Error in OpenAI API call'
+          error: apiError.message || 'Error in OpenAI API call',
+          errorCode: 'API_CALL_ERROR',
+          fallbackToRegex: true 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -234,7 +259,9 @@ serve(async (req) => {
     console.error('Error in extract-resume-from-image function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Unknown error occurred'
+        error: error.message || 'Unknown error occurred',
+        errorCode: 'GENERAL_ERROR',
+        fallbackToRegex: true 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
