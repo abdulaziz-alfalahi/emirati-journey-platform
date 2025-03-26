@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,10 +14,10 @@ import DashboardPage from "./pages/dashboard";
 import ResumeBuilderPage from "./pages/resume-builder";
 import ApiKeysPage from "./pages/api-keys";
 import JobMatchingPage from "./pages/job-matching";
-import MatchingPage from "./pages/matching";
+import MatchingPage from "./pages/matching/index";
 import JobDescriptionsPage from "./pages/job-descriptions.jsx";
-import JobDescriptionsListPage from "./pages/job-descriptions/list.jsx"; // Add this import
-import React from "react"; // Add explicit React import
+import JobDescriptionsListPage from "./pages/job-descriptions/list.jsx";
+import React from "react";
 
 // Create QueryClient outside of the component to avoid recreation on re-renders
 const queryClient = new QueryClient();
@@ -45,7 +46,7 @@ const App = () => (
                 <Route path="/job-matching" element={<JobMatchingPage />} />
                 <Route path="/matching" element={<MatchingPage />} />
                 <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-                <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} /> {/* Add this new route */}
+                <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
