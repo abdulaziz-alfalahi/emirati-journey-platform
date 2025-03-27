@@ -1,4 +1,3 @@
-
 /**
  * Resume file parser utility for extracting data from uploaded resume files
  */
@@ -47,6 +46,11 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           error.code = 'EMPTY_CONTENT';
           reject(error);
           return;
+        }
+        
+        // Early check for PDF raw headers
+        if (file.type === 'application/pdf' && fileContent.startsWith('%PDF')) {
+          console.warn('Detected PDF header in text content - this may indicate a scanned PDF without extractable text');
         }
         
         console.log('File read complete. Content length:', fileContent.length);
@@ -114,6 +118,21 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           } catch (localError) {
             console.error('Legacy extraction error:', localError);
             
+            // If all methods fail, try to detect if it's a scanned PDF
+            if (file.type === 'application/pdf' && fileContent.startsWith('%PDF') && fileContent.length < 1000) {
+              const error = new Error('This appears to be a scanned PDF without extractable text. Please try the Image Upload option instead.') as ParsingError;
+              error.code = 'SCANNED_PDF';
+              error.details = {
+                fileType: file.type,
+                fileSize: file.size
+              };
+              error.parserType = 'file';
+              
+              reject(error);
+              return;
+            }
+            
+            // Continue with the existing error handling and additional parsers
             try {
               // 3. Try with enhanced-resume-parser edge function
               console.log('Attempting enhanced edge function...');

@@ -94,6 +94,7 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
           <DialogTitle>Upload Resume Image</DialogTitle>
           <DialogDescription>
             Upload an image of your resume to extract information using AI.
+            This is ideal for scanned PDFs and other documents where the text cannot be selected.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">

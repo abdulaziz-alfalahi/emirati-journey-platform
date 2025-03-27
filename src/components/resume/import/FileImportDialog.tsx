@@ -48,6 +48,11 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       const { parsedData, parsingMethod, usedFallback } = await processResumeFile(file);
       console.log('Parsed resume data:', parsedData);
       
+      // Check if we've parsed PDF headers instead of actual content
+      if (parsedData.personal?.fullName?.startsWith('%PDF')) {
+        throw new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try uploading a text-based PDF or use the Image Upload option instead.");
+      }
+      
       setUsingFallback(usedFallback);
       
       toast.success("Resume Processed", {
@@ -128,6 +133,9 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
             />
             <p className="text-xs text-muted-foreground mt-1">
               Supported formats: PDF, DOC, DOCX, TXT (max 5MB)
+            </p>
+            <p className="text-xs text-muted-foreground">
+              For scanned PDFs without selectable text, use the Image Upload option instead.
             </p>
           </div>
           
