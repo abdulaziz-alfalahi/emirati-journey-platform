@@ -8,7 +8,6 @@ import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import { ResumeTemplate } from '@/components/resume/types';
 import { toast } from 'sonner';
 
-
 const defaultTemplate: ResumeTemplate = {
   id: 'professional',
   name: 'Professional',
@@ -22,6 +21,9 @@ const ResumeBuilderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
+
+  // Debug log to verify data
+  console.log('ResumeBuilderPage: Current resumeData:', resumeData);
 
   useEffect(() => {
     const checkForLinkedInAuth = async () => {
