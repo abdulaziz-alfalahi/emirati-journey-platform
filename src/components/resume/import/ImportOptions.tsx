@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Upload, Linkedin, Brain, Camera } from 'lucide-react';
+import { Upload, Linkedin, Camera, Brain } from 'lucide-react';
 import { ResumeData } from '../types';
 import FileImportDialog from './FileImportDialog';
 import ImageImportDialog from './ImageImportDialog';
 import LinkedInImportDialog from './LinkedInImportDialog';
+import '../../ui/animations.css';
 
 interface ImportOptionsProps {
   onImportComplete: (data: ResumeData) => void;
@@ -19,25 +19,40 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
-      <Button variant="outline" size="sm" onClick={() => setFileDialogOpen(true)}>
+      <button 
+        onClick={() => setFileDialogOpen(true)}
+        className="import-button bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-md px-4 py-2 text-sm flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:shadow-md animate-fade-in"
+      >
         <Upload size={16} className="mr-2" />
         Upload Resume
-      </Button>
+      </button>
       
-      <Button variant="outline" size="sm" onClick={() => setImageDialogOpen(true)}>
+      <button 
+        onClick={() => setImageDialogOpen(true)}
+        className="import-button bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-md px-4 py-2 text-sm flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:shadow-md animate-fade-in"
+        style={{ animationDelay: '100ms' }}
+      >
         <Camera size={16} className="mr-2" />
-        Resume from Image
-      </Button>
+        Image Upload
+      </button>
       
-      <Button variant="outline" size="sm" onClick={() => setLinkedInDialogOpen(true)}>
+      <button 
+        onClick={() => setLinkedInDialogOpen(true)}
+        className="import-button bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-md px-4 py-2 text-sm flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:shadow-md animate-fade-in"
+        style={{ animationDelay: '200ms' }}
+      >
         <Linkedin size={16} className="mr-2" />
-        Import from LinkedIn
-      </Button>
+        LinkedIn
+      </button>
       
-      <Button variant="outline" size="sm" onClick={() => window.open('https://www.emirati-journey.ae/resume-builder-help', '_blank')}>
+      <button 
+        onClick={() => window.open('https://www.emirati-journey.ae/resume-builder-help', '_blank')}
+        className="import-button bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-md px-4 py-2 text-sm flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:shadow-md animate-fade-in"
+        style={{ animationDelay: '300ms' }}
+      >
         <Brain size={16} className="mr-2" />
-        Resume Builder Help
-      </Button>
+        Help
+      </button>
 
       <FileImportDialog 
         open={fileDialogOpen}
