@@ -64,7 +64,8 @@ export const validateResumeImageType = (fileType: string): {
     'image/jpeg', 
     'image/png', 
     'image/webp', 
-    'image/heic'
+    'image/heic',
+    'application/pdf'
   ];
   
   const isValid = supportedTypes.includes(fileType);

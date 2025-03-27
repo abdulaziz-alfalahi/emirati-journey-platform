@@ -114,12 +114,12 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
               id="resume-image"
               type="file"
               ref={imageInputRef}
-              accept="image/jpeg,image/png,image/webp,image/heic"
+              accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
               onChange={handleImageUpload}
               disabled={isUploading}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Supported formats: JPG, PNG, WebP, HEIC (max 10MB)
+              Supported formats: JPG, PNG, WebP, HEIC, PDF (max 10MB)
             </p>
             <p className="text-xs text-muted-foreground">
               For best results, ensure the image is clear and all text is readable.
