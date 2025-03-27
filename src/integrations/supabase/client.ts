@@ -11,8 +11,8 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Also export the URL and key as environment variables so they can be used in other places
-if (import.meta && import.meta.env) {
-  import.meta.env.VITE_SUPABASE_URL = SUPABASE_URL;
-  import.meta.env.VITE_SUPABASE_ANON_KEY = SUPABASE_PUBLISHABLE_KEY;
-}
+// Export the URL and key as constants so they can be used in other places
+export const VITE_SUPABASE_URL = SUPABASE_URL;
+export const VITE_SUPABASE_ANON_KEY = SUPABASE_PUBLISHABLE_KEY;
+
+// Don't try to modify import.meta.env directly - it's read-only

@@ -84,13 +84,11 @@ export default function Index() {
           </div>
         }>
           {/* Hero section with get started button */}
-          <div className="relative">
-            <Hero />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16">
-              <button onClick={handleGetStartedClick} className="premium-button px-8 py-4 text-base">
-                Get Started Today
-              </button>
-            </div>
+          <Hero />
+          <div className="flex justify-center mt-8 mb-16">
+            <button onClick={handleGetStartedClick} className="premium-button px-8 py-4 text-base">
+              Get Started Today
+            </button>
           </div>
           
           {/* Our existing sections */}
