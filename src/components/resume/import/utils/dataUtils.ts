@@ -1,6 +1,6 @@
-
 import { ResumeData } from '../../types';
 import { sanitizeResumeData } from '../../utils/helpers/validation';
+import { mergeResumeData as mergeResumeDataFromUtils } from '../../utils/resumeDataUtils';
 
 /**
  * Merge resume data with better validation
@@ -12,7 +12,6 @@ export const mergeResumeData = (currentData: ResumeData, parsedData: Partial<Res
   // Sanitize data before merging
   const sanitizedData = sanitizeResumeData(parsedData);
   
-  // Import and use the utility function for the actual merging
-  const { mergeResumeData: mergeResumeDataFromUtils } = require('../../utils/resumeDataUtils');
+  // Use the imported utility function for the actual merging
   return mergeResumeDataFromUtils(currentData, sanitizedData);
 };
