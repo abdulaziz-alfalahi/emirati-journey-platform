@@ -39,19 +39,6 @@ export default function Index() {
     } finally {
       setIsLoading(false);
     }
-
-    // Add event listener for unhandled promise rejections
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error("Unhandled promise rejection:", event.reason);
-      // Prevent the default browser behavior (which might show an error)
-      event.preventDefault();
-    };
-
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-
-    return () => {
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-    };
   }, []);
 
   const handleGetStartedClick = () => {
