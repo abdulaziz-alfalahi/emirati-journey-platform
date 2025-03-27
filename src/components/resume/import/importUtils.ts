@@ -1,4 +1,3 @@
-
 import { ResumeData } from '../types';
 import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from '../utils/resumeParser';
 import { 
@@ -30,7 +29,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
   // Validate file size
   const sizeValidation = validateFileSize(file.size);
   if (!sizeValidation.isValid) {
-    throw new Error(`File too large. Please upload a file smaller than ${sizeValidation.maxSizeInMB}MB.`);
+    throw new Error(`File too large. Please upload a file smaller than ${sizeValidation.maxSizeInMB}.`);
   }
   
   // Validate file type
@@ -121,7 +120,7 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
   // Validate file size
   const sizeValidation = validateFileSize(file.size, 10 * 1024 * 1024); // 10MB limit for images
   if (!sizeValidation.isValid) {
-    throw new Error(`Image too large. Please upload an image smaller than ${sizeValidation.maxSizeInMB}MB.`);
+    throw new Error(`Image too large. Please upload an image smaller than ${sizeValidation.maxSizeInMB}.`);
   }
   
   // PDF special handling
@@ -233,37 +232,4 @@ export const mergeResumeData = (currentData: ResumeData, parsedData: Partial<Res
   return mergeResumeDataFromUtils(currentData, sanitizedData);
 };
 
-/**
- * Helper function to sanitize parsed resume data
- * @param data Resume data to sanitize
- * @returns Sanitized resume data
- */
-const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeData> => {
-  if (!data) return {};
-  
-  // Make a deep copy to avoid modifying the original
-  const sanitizedData = JSON.parse(JSON.stringify(data));
-  
-  // Check for PDF artifacts in personal info
-  if (sanitizedData.personal) {
-    // Check if name contains PDF artifacts
-    if (sanitizedData.personal.fullName && 
-        (sanitizedData.personal.fullName.includes('%PDF') || 
-         sanitizedData.personal.fullName.startsWith('PDF'))) {
-      sanitizedData.personal.fullName = '';
-    }
-    
-    // Check other personal fields for artifacts
-    Object.keys(sanitizedData.personal).forEach(key => {
-      const value = sanitizedData.personal[key];
-      if (typeof value === 'string' && 
-          (value.includes('%PDF') || 
-           value.includes('endobj') || 
-           value.includes('xref'))) {
-        sanitizedData.personal[key] = '';
-      }
-    });
-  }
-  
-  return sanitizedData;
-};
+// Removing the local sanitizeResumeData function definition since we're importing it
