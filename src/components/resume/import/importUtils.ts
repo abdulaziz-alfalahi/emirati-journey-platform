@@ -1,8 +1,9 @@
 
 import { ResumeData } from '../types';
 import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from '../utils/resumeParser';
-import { isEmptyResumeData, validateResumeFileType, validateResumeImageType, validateFileSize, validateLinkedInUrl } from '../utils/helpers/validation';
+import { isEmptyResumeData, validateResumeFileType, validateResumeImageType, validateFileSize, validateLinkedInUrl, isLikelyScannedPdf } from '../utils/helpers/validation';
 import { mergeResumeData as mergeResumeDataFromUtils } from '../utils/resumeDataUtils';
+import { checkIfScannedPdf, determineParsingStrategy } from '../utils/parsers/pdfUtils';
 import { toast } from 'sonner';
 
 export interface ProcessedResult {
@@ -33,11 +34,17 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     });
   }
   
-  // Quick pre-check for PDFs
+  // PDF-specific pre-checks
   if (file.type === 'application/pdf') {
-    const isLikelyScanned = await checkIfScannedPdf(file);
-    if (isLikelyScanned) {
-      throw new Error("This appears to be a scanned PDF without extractable text. Please use the Image Upload option instead.");
+    const parsingStrategy = await determineParsingStrategy(file);
+    console.log(`Determined PDF parsing strategy: ${parsingStrategy}`);
+    
+    if (parsingStrategy === 'image') {
+      throw new Error("This appears to be a scanned PDF without extractable text. Please use the Image Upload option instead for better results.");
+    } else if (parsingStrategy === 'dual') {
+      toast.info("PDF Processing", {
+        description: "This PDF contains scanned images with OCR text. For best results, try both text and image parsing options.",
+      });
     }
   }
   
@@ -47,7 +54,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
   
   // Validate parsed data
   if (!parsedData || isEmptyResumeData(parsedData)) {
-    throw new Error("Could not extract meaningful data from your resume. Please try a different file.");
+    throw new Error("Could not extract meaningful data from your resume. Please try a different file or the Image Upload option.");
   }
 
   // Check which parsing method was used
@@ -74,31 +81,55 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
     throw new Error(`Image too large. Please upload an image smaller than ${sizeValidation.maxSizeInMB}MB.`);
   }
   
-  // Validate image type
-  const typeValidation = validateResumeImageType(file.type);
-  if (typeValidation.isUnsupported) {
-    throw new Error(`Unsupported image format. Please upload ${typeValidation.supportedTypes.join(', ')} images.`);
+  // PDF special handling
+  if (file.type === 'application/pdf') {
+    toast.info("PDF Processing", {
+      description: "Converting PDF to images for processing. This may take a moment...",
+    });
+  } else {
+    // Validate image type for non-PDFs
+    const typeValidation = validateResumeImageType(file.type);
+    if (typeValidation.isUnsupported) {
+      throw new Error(`Unsupported image format. Please upload ${typeValidation.supportedTypes.join(', ')} images or a PDF.`);
+    }
   }
   
   const startTime = Date.now();
-  const parsedData = await parseResumeFromImage(file);
-  const processingTime = Date.now() - startTime;
-  
-  // Validate parsed data
-  if (!parsedData || isEmptyResumeData(parsedData)) {
-    throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
+  try {
+    const parsedData = await parseResumeFromImage(file);
+    const processingTime = Date.now() - startTime;
+    
+    // Validate parsed data
+    if (!parsedData || isEmptyResumeData(parsedData)) {
+      throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
+    }
+    
+    // Check which parsing method was used
+    const parsingMethod = parsedData.metadata?.parsingMethod || 'unknown';
+    const usedFallback = parsingMethod === 'image-fallback';
+    
+    return {
+      parsedData,
+      parsingMethod,
+      usedFallback,
+      processingTime
+    };
+  } catch (error) {
+    // If error includes OpenAI API format error for PDFs, provide clearer guidance
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (file.type === 'application/pdf' && errorMessage.includes('Invalid MIME type')) {
+      console.error('PDF format error with OpenAI:', errorMessage);
+      
+      // Create a descriptive but simplified error for the user
+      throw new Error(
+        "PDF format not directly supported by our AI image service. We're working on converting PDFs to images automatically. " +
+        "For now, please convert your PDF to JPG or PNG before uploading."
+      );
+    }
+    
+    // Re-throw original error
+    throw error;
   }
-  
-  // Check which parsing method was used
-  const parsingMethod = parsedData.metadata?.parsingMethod || 'unknown';
-  const usedFallback = parsingMethod === 'image-fallback';
-  
-  return {
-    parsedData,
-    parsingMethod,
-    usedFallback,
-    processingTime
-  };
 };
 
 /**
@@ -172,55 +203,4 @@ const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeData> => {
   }
   
   return sanitizedData;
-};
-
-/**
- * Helper function to check if a PDF is likely scanned
- * @param file PDF file to check
- * @returns Promise resolving to boolean indicating if the PDF is likely scanned
- */
-const checkIfScannedPdf = async (file: File): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      if (!content) {
-        resolve(false);
-        return;
-      }
-      
-      // Check if content has PDF header
-      if (!content.startsWith('%PDF')) {
-        resolve(false);
-        return;
-      }
-      
-      // Check for text extraction markers
-      const hasTextContent = content.includes('/Text') || 
-                             content.includes('/Font') || 
-                             content.includes('/Contents');
-      
-      // Check for image indicators
-      const hasImageContent = content.includes('/Image') && 
-                              content.includes('/XObject');
-      
-      // Check text to PDF marker ratio
-      const textMarkers = (content.match(/\/Text/g) || []).length + 
-                          (content.match(/\/Font/g) || []).length;
-      const imageMarkers = (content.match(/\/Image/g) || []).length;
-      
-      // If there are significantly more image markers than text markers
-      const isLikelyScanned = hasImageContent && 
-                             (!hasTextContent || imageMarkers > textMarkers * 2);
-      
-      resolve(isLikelyScanned);
-    };
-    
-    reader.onerror = () => resolve(false);
-    
-    // Read just the first 5KB to check header and markers
-    const blob = file.slice(0, 5 * 1024);
-    reader.readAsText(blob);
-  });
 };

@@ -64,8 +64,8 @@ export const validateResumeImageType = (fileType: string): {
     'image/jpeg', 
     'image/png', 
     'image/webp', 
-    'image/heic',
-    'application/pdf'  // Allow PDFs to be processed as images
+    'image/heic'
+    // Removed 'application/pdf' as OpenAI's vision API doesn't accept PDFs directly
   ];
   
   const isValid = supportedTypes.includes(fileType);
@@ -166,4 +166,32 @@ export const sanitizePdfArtifacts = (text: string): string => {
     .replace(/\b\d+\s+\d+\s+obj\b/g, '')
     .replace(/stream[\s\S]*?endstream/g, '')
     .trim();
+};
+
+/**
+ * Determines if a PDF is likely scanned (image-based) rather than text-based
+ * @param fileContent First portion of PDF content as string
+ * @returns Boolean indicating if PDF is likely scanned
+ */
+export const isLikelyScannedPdf = (fileContent: string): boolean => {
+  if (!fileContent.startsWith('%PDF')) return false;
+  
+  // Check for text extraction markers versus image markers
+  const hasTextMarkers = fileContent.includes('/Text') || 
+                        fileContent.includes('/Font') || 
+                        fileContent.includes('/TJ') ||
+                        fileContent.includes('/Tj');
+  
+  // Check for image indicators
+  const hasImageMarkers = fileContent.includes('/Image') && 
+                         fileContent.includes('/XObject');
+  
+  // Count text vs image markers
+  const textMarkerCount = (fileContent.match(/\/Text|\/Font|\/TJ|\/Tj/g) || []).length;
+  const imageMarkerCount = (fileContent.match(/\/Image/g) || []).length * 2; // Weight images higher
+  
+  // If content has primarily image markers and few text markers, likely scanned
+  return (hasImageMarkers && (!hasTextMarkers || imageMarkerCount > textMarkerCount)) ||
+         // Or if it has PDF structure but no text extraction methods
+         (fileContent.length > 500 && !hasTextMarkers);
 };

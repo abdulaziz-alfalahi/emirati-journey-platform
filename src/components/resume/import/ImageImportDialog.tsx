@@ -42,7 +42,7 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     setUploadError(null);
     
     const toastDescription = file.type === 'application/pdf'
-      ? "Processing PDF as an image with AI..."
+      ? "Converting PDF to images for processing with AI..."
       : "Analyzing your resume image with AI...";
     
     const toastId = toast.loading("Processing Resume Image", {
@@ -130,10 +130,10 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-md flex items-start space-x-2">
               <FileImage size={18} className="text-blue-500 mt-0.5" />
               <div className="text-sm text-blue-700">
-                <p className="font-medium mb-1">Processing PDF as Image</p>
+                <p className="font-medium mb-1">Converting PDF for Processing</p>
                 <p>
-                  We'll process your PDF using our image recognition AI. 
-                  This works well for scanned documents and can extract text from images within the PDF.
+                  We're converting your PDF to images for AI processing.
+                  This works well for scanned documents and can extract text from images.
                 </p>
               </div>
             </div>
