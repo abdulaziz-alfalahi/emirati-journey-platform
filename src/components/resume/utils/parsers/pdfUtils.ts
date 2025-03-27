@@ -65,6 +65,13 @@ export const cleanPdfContent = (content: string): string => {
 };
 
 /**
+ * Alias for cleanPdfContent for backward compatibility
+ * @param content PDF content as string
+ * @returns Cleaned content
+ */
+export const cleanPdfArtifacts = cleanPdfContent;
+
+/**
  * Determine the best parsing strategy for a PDF
  * @param file PDF file to analyze
  * @returns Promise resolving to parsing strategy
