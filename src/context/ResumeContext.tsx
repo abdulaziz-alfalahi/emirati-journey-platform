@@ -76,7 +76,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
   // Safe wrapper for setResumeData to handle potential errors
   const setResumeData = (data: ResumeData) => {
     try {
-      console.log('setResumeData called with data');
+      console.log('Context: setResumeData called with data:', data);
       setResumeDataState(data);
       
       // Save to localStorage
@@ -91,6 +91,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
 
   // Helper to update just one section of the resume
   const updateResumeSection = <K extends keyof ResumeData>(section: K, data: ResumeData[K]) => {
+    console.log(`Updating resume section "${section}" with:`, data);
     setResumeData({
       ...resumeData,
       [section]: data,
@@ -137,4 +138,3 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
 };
 
 export default ResumeProvider;
-
