@@ -290,8 +290,8 @@ export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: stri
   console.log('Starting LinkedIn profile import with URL:', linkedInUrl);
   
   try {
-    // Use the local extractor directly instead of edge function
-    const extractedData = extractFromLinkedIn(linkedInUrl);
+    // Use the local extractor directly instead of edge function - properly await the Promise
+    const extractedData = await extractFromLinkedIn(linkedInUrl);
     console.log('LinkedIn data extracted:', extractedData);
     
     // Add metadata
