@@ -48,19 +48,20 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Log to help debug setResumeData
-  console.log('setResumeData is a function:', typeof setResumeData === 'function');
+  // Log to help debug resumeData
+  console.log('ResumeBuilder: Current resumeData:', resumeData);
 
   // Use initialData only for first load if needed
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
-      console.log('Using provided initial data for resume');
+      console.log('Using provided initial data for resume:', initialData);
       setResumeData(initialData);
     }
   }, [initialData, setResumeData]);
 
   // Handler functions
   const handlePersonalInfoChange = (personal: ResumeData['personal']) => {
+    console.log('Updating personal info:', personal);
     updateResumeSection('personal', personal);
   };
 
@@ -303,6 +304,23 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
     }
   };
 
+  // Add a test button for debugging
+  const setTestData = () => {
+    const testData = {
+      ...resumeData,
+      personal: {
+        ...resumeData.personal,
+        fullName: "Test User",
+        jobTitle: "Software Developer",
+        email: "test@example.com",
+        phone: "123-456-7890",
+        location: "Dubai, UAE"
+      }
+    };
+    console.log('Setting test data:', testData);
+    setResumeData(testData);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b">
@@ -344,6 +362,14 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
           >
             <Save size={16} className="mr-2" />
             {isSaving ? 'Saving...' : 'Save Resume'}
+          </Button>
+          {/* Test button for debugging */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={setTestData}
+          >
+            Test Data
           </Button>
         </div>
       </div>
