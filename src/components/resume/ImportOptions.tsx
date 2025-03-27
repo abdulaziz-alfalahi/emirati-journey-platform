@@ -66,6 +66,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       });
       
       const parsedData = await parseResumeFromFile(file);
+      console.log('Parsed resume data:', parsedData);
       
       // Check if we got meaningful data
       if (!parsedData || (
@@ -92,9 +93,36 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       console.log('About to call onImportComplete, type:', typeof onImportComplete);
       if (typeof onImportComplete === 'function') {
-        const mergedData = enhancedResumeParser.mergeResumeData(currentData, parsedData);
+        // Log the data before merging
+        console.log('About to merge data:', { current: currentData, parsed: parsedData });
+        
+        // Create a more explicit merge that prioritizes parsed data
+        const mergedData = {
+          ...currentData,
+          ...parsedData,
+          personal: {
+            ...currentData.personal,
+            ...parsedData.personal
+          },
+          experience: [...(parsedData.experience || [])],
+          education: [...(parsedData.education || [])],
+          skills: [...(parsedData.skills || [])],
+          languages: [...(parsedData.languages || [])],
+          metadata: {
+            ...(currentData.metadata || {}),
+            ...(parsedData.metadata || {}),
+            lastUpdated: new Date().toISOString()
+          }
+        };
+        
+        console.log('Explicitly merged data:', mergedData);
         onImportComplete(mergedData);
         console.log('onImportComplete called successfully');
+        
+        // Check after a timeout to see if the data was updated
+        setTimeout(() => {
+          console.log('Checking data after timeout:', currentData);
+        }, 1000);
       } else {
         console.error('Error: onImportComplete is not a function');
         toast.error("Application Error", {
@@ -147,6 +175,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       });
       
       const parsedData = await parseResumeFromImage(file);
+      console.log('Parsed resume image data:', parsedData);
       
       // Check if we got meaningful data
       if (!parsedData || (
@@ -175,7 +204,26 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       console.log('About to call onImportComplete for image, type:', typeof onImportComplete);
       if (typeof onImportComplete === 'function') {
-        const mergedData = mergeResumeData(currentData, parsedData);
+        // Create a more explicit merge that prioritizes parsed data
+        const mergedData = {
+          ...currentData,
+          ...parsedData,
+          personal: {
+            ...currentData.personal,
+            ...parsedData.personal
+          },
+          experience: [...(parsedData.experience || [])],
+          education: [...(parsedData.education || [])],
+          skills: [...(parsedData.skills || [])],
+          languages: [...(parsedData.languages || [])],
+          metadata: {
+            ...(currentData.metadata || {}),
+            ...(parsedData.metadata || {}),
+            lastUpdated: new Date().toISOString()
+          }
+        };
+        
+        console.log('Explicitly merged image data:', mergedData);
         onImportComplete(mergedData);
         console.log('onImportComplete called successfully for image');
       } else {
@@ -225,10 +273,30 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
     
     try {
       const linkedInData = await importFromLinkedIn(linkedInUrl);
+      console.log('LinkedIn data extracted:', linkedInData);
       
       console.log('About to call onImportComplete for LinkedIn, type:', typeof onImportComplete);
       if (typeof onImportComplete === 'function') {
-        const mergedData = mergeResumeData(currentData, linkedInData);
+        // Create a more explicit merge that prioritizes LinkedIn data
+        const mergedData = {
+          ...currentData,
+          ...linkedInData,
+          personal: {
+            ...currentData.personal,
+            ...linkedInData.personal
+          },
+          experience: [...(linkedInData.experience || [])],
+          education: [...(linkedInData.education || [])],
+          skills: [...(linkedInData.skills || [])],
+          languages: [...(linkedInData.languages || [])],
+          metadata: {
+            ...(currentData.metadata || {}),
+            ...(linkedInData.metadata || {}),
+            lastUpdated: new Date().toISOString()
+          }
+        };
+        
+        console.log('Explicitly merged LinkedIn data:', mergedData);
         onImportComplete(mergedData);
         console.log('onImportComplete called successfully for LinkedIn');
         
