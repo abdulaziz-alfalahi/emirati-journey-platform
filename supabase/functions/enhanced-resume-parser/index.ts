@@ -23,12 +23,18 @@ serve(async (req)  => {
       )
     }
 
-    // Extract text content from the file
-    const textContent = fileContent
+    // Clean up PDF header content if present (filter out PDF artifacts)
+    let textContent = fileContent
+    if (textContent.startsWith('%PDF')) {
+      console.log('PDF header detected, cleaning up content')
+      // Remove PDF header markers and other non-text content
+      textContent = textContent.replace(/%PDF-[\d.]+/, '')
+                              .replace(/\b\d+\s+\d+\s+obj\b/g, '')
+                              .replace(/endobj|endstream|xref|trailer|startxref/g, '')
+                              .replace(/<<.*?>>/gs, '')
+    }
 
     // Call OpenAI API to parse the resume
-    // Note: We're using OpenAI here as a fallback since we can't implement the full
-    // spaCy-based parser in an Edge Function environment
     const apiKey = Deno.env.get('OPENAI_API_KEY')
     if (!apiKey) {
       return new Response(
@@ -55,7 +61,7 @@ serve(async (req)  => {
           },
           {
             role: 'user',
-            content: `Parse the following resume and extract structured information in JSON format. Include the following fields if available: personal_info (name, email, phone, location) , summary, experience (array of positions with company, title, dates, description), education (array with institution, degree, dates), skills (array), languages (array with language and proficiency), certifications (array), projects (array). Resume text: ${textContent}`
+            content: `Parse the following resume and extract structured information in JSON format. Include the following fields if available: personal_info (name, email, phone, location) , summary, experience (array of positions with company, title, dates, description), education (array with institution, degree, dates), skills (array), languages (array with language and proficiency), certifications (array), projects (array). If you encounter content that appears to be PDF artifacts or non-textual content, ignore it and focus only on extracting valid resume information. Resume text: ${textContent}`
           }
         ],
         temperature: 0.1
@@ -92,6 +98,35 @@ serve(async (req)  => {
         parsedResume = JSON.parse(assistantMessage)
       }
       
+      // Ensure personal info doesn't contain PDF artifacts
+      if (parsedResume.personal_info) {
+        // Convert to our expected format and clean up name field
+        parsedResume.personal = {
+          fullName: cleanPersonalField(parsedResume.personal_info.name),
+          jobTitle: cleanPersonalField(parsedResume.personal_info.title || ''),
+          email: parsedResume.personal_info.email || '',
+          phone: parsedResume.personal_info.phone || '',
+          location: parsedResume.personal_info.location || '',
+          linkedin: parsedResume.personal_info.linkedin || '',
+          website: parsedResume.personal_info.website || ''
+        }
+        delete parsedResume.personal_info
+      } else if (!parsedResume.personal) {
+        parsedResume.personal = {
+          fullName: '',
+          jobTitle: '',
+          email: '',
+          phone: '',
+          location: '',
+          linkedin: '',
+          website: ''
+        }
+      } else {
+        // Clean existing personal fields if present
+        parsedResume.personal.fullName = cleanPersonalField(parsedResume.personal.fullName || '')
+        parsedResume.personal.jobTitle = cleanPersonalField(parsedResume.personal.jobTitle || '')
+      }
+      
       // Add IDs to array items
       if (parsedResume.experience) {
         parsedResume.experience = parsedResume.experience.map((exp: any) => ({...exp, id: crypto.randomUUID()}))
@@ -100,10 +135,22 @@ serve(async (req)  => {
         parsedResume.education = parsedResume.education.map((edu: any) => ({...edu, id: crypto.randomUUID()}))
       }
       if (parsedResume.skills) {
-        parsedResume.skills = parsedResume.skills.map((skill: any) => ({...skill, id: crypto.randomUUID()}))
+        parsedResume.skills = parsedResume.skills.map((skill: any) => {
+          // If skill is just a string, convert to object with id
+          if (typeof skill === 'string') {
+            return { name: skill, level: 'intermediate', id: crypto.randomUUID() }
+          }
+          return {...skill, id: crypto.randomUUID()}
+        })
       }
       if (parsedResume.languages) {
-        parsedResume.languages = parsedResume.languages.map((lang: any) => ({...lang, id: crypto.randomUUID()}))
+        parsedResume.languages = parsedResume.languages.map((lang: any) => {
+          // If language is just a string, convert to object with id
+          if (typeof lang === 'string') {
+            return { language: lang, proficiency: 'conversational', id: crypto.randomUUID() }
+          }
+          return {...lang, id: crypto.randomUUID()}
+        })
       }
       
       // Add metadata
@@ -140,3 +187,16 @@ serve(async (req)  => {
     )
   }
 })
+
+// Helper function to clean personal fields from PDF artifacts
+function cleanPersonalField(value: string): string {
+  if (!value) return '';
+  
+  // Remove PDF artifacts and common unwanted patterns
+  return value
+    .replace(/%PDF-[\d.]+/g, '')
+    .replace(/\b\d+\s+\d+\s+obj\b/g, '')
+    .replace(/endobj|endstream|xref|trailer|startxref/g, '')
+    .replace(/<<.*?>>/g, '')
+    .trim();
+}

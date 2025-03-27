@@ -1,4 +1,3 @@
-
 /**
  * Resume parser utility for extracting data from uploaded resume files
  */
@@ -124,7 +123,11 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           }
         }
         
-        // Add metadata about which parsing method was used
+        // Add metadata about which parsing method was used - create it if it doesn't exist
+        if (!parsedData.metadata) {
+          parsedData.metadata = {};
+        }
+        
         parsedData.metadata = {
           ...(parsedData.metadata || {}),
           parsingMethod,
