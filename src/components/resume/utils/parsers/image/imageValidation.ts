@@ -40,9 +40,15 @@ export const validateImageFile = (file: File): {
     }
     
     // Check if there are any format-specific warnings to display
-    // (If validateResumeImageType doesn't return a warning property, we'll skip this)
-    if (typeof (typeValidation as any).warning === 'string' && (typeValidation as any).warning) {
-      fileTypeWarning = (typeValidation as any).warning;
+    // Define a type that extends the base validation result with an optional warning
+    interface ExtendedValidationResult extends ReturnType<typeof validateResumeImageType> {
+      warning?: string;
+    }
+    
+    // Safely check if the warning property exists and has a value
+    const extendedValidation = typeValidation as ExtendedValidationResult;
+    if (extendedValidation.warning) {
+      fileTypeWarning = extendedValidation.warning;
     }
   }
   
