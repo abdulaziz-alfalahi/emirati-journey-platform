@@ -1,4 +1,3 @@
-
 import { ResumeData } from '../../types';
 
 /**
@@ -59,6 +58,7 @@ export const validateResumeImageType = (fileType: string): {
   isValid: boolean; 
   supportedTypes: string[];
   isUnsupported: boolean;
+  warning?: string;
 } => {
   const supportedTypes = [
     'image/jpeg', 
@@ -80,10 +80,18 @@ export const validateResumeImageType = (fileType: string): {
   const isValid = supportedTypes.includes(fileType);
   const isUnsupported = !isValid;
   
+  let warning: string | undefined;
+  
+  // Add warnings for specific image formats if needed
+  if (fileType === 'image/heic') {
+    warning = "HEIC format may have limited compatibility. Consider using JPEG or PNG for best results.";
+  }
+  
   return {
     isValid,
     supportedTypes,
-    isUnsupported
+    isUnsupported,
+    warning
   };
 };
 
@@ -128,7 +136,7 @@ export const validateLinkedInUrl = (url: string): {
   if (!url.includes('linkedin.com/in/')) {
     return {
       isValid: false,
-      errorMessage: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile)"
+      errorMessage: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile) "
     };
   }
   
