@@ -2,7 +2,7 @@
 import { ResumeData } from '../types';
 import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from '../utils/resumeParser';
 import { isEmptyResumeData, validateResumeFileType, validateResumeImageType, validateFileSize, validateLinkedInUrl } from '../utils/helpers/validation';
-import { mergeResumeData } from '../utils/resumeDataUtils';
+import { mergeResumeData as mergeResumeDataFromUtils } from '../utils/resumeDataUtils';
 import { toast } from 'sonner';
 
 export interface ProcessedResult {
@@ -124,25 +124,6 @@ export const processLinkedInProfile = async (linkedInUrl: string): Promise<Proce
  * @returns Merged resume data
  */
 export const mergeResumeData = (currentData: ResumeData, parsedData: Partial<ResumeData>): ResumeData => {
-  // Add metadata about the merging process
-  const mergedData = {
-    ...currentData,
-    ...parsedData,
-    personal: {
-      ...currentData.personal,
-      ...parsedData.personal
-    },
-    experience: [...(parsedData.experience || [])],
-    education: [...(parsedData.education || [])],
-    skills: [...(parsedData.skills || [])],
-    languages: [...(parsedData.languages || [])],
-    metadata: {
-      ...(currentData.metadata || {}),
-      ...(parsedData.metadata || {}),
-      lastUpdated: new Date().toISOString(),
-      mergeSource: parsedData.metadata?.parsingMethod || 'manual'
-    }
-  };
-  
-  return mergedData;
+  // Use the utility function instead of redefining the merge logic
+  return mergeResumeDataFromUtils(currentData, parsedData);
 };
