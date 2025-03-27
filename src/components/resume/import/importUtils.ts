@@ -1,70 +1,83 @@
 
 import { ResumeData } from '../types';
 import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from '../utils/resumeParser';
+import { isEmptyResumeData, validateResumeFileType, validateResumeImageType, validateFileSize, validateLinkedInUrl } from '../utils/helpers/validation';
+import { mergeResumeData } from '../utils/resumeDataUtils';
 import { toast } from 'sonner';
 
 export interface ProcessedResult {
   parsedData: Partial<ResumeData>;
   parsingMethod: string;
   usedFallback: boolean;
+  processingTime?: number;
   error?: string;
 }
 
-// Handle file upload and parsing
+/**
+ * Handle file upload and parsing
+ * @param file File to parse
+ * @returns Promise resolving to processed resume data
+ */
 export const processResumeFile = async (file: File): Promise<ProcessedResult> => {
-  if (file.size > 5 * 1024 * 1024) { // 5MB limit
-    throw new Error("File too large. Please upload a file smaller than 5MB.");
+  // Validate file size
+  const sizeValidation = validateFileSize(file.size);
+  if (!sizeValidation.isValid) {
+    throw new Error(`File too large. Please upload a file smaller than ${sizeValidation.maxSizeInMB}MB.`);
   }
   
-  const supportedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
-  const isUnsupportedType = !supportedTypes.includes(file.type);
-  
-  if (isUnsupportedType) {
+  // Validate file type
+  const typeValidation = validateResumeFileType(file.type);
+  if (typeValidation.isUnsupported) {
     toast.warning("Unsupported file type", {
-      description: "For best results, use PDF, DOC, DOCX, or TXT files.",
+      description: `For best results, use ${typeValidation.supportedTypes.join(', ')} files.`,
     });
   }
   
+  const startTime = Date.now();
   const parsedData = await parseResumeFromFile(file);
+  const processingTime = Date.now() - startTime;
   
-  if (!parsedData || (
-    (!parsedData.personal || Object.values(parsedData.personal).filter(Boolean).length === 0) && 
-    (!parsedData.experience || parsedData.experience.length === 0) &&
-    (!parsedData.education || parsedData.education.length === 0)
-  )) {
+  // Validate parsed data
+  if (!parsedData || isEmptyResumeData(parsedData)) {
     throw new Error("Could not extract meaningful data from your resume. Please try a different file.");
   }
 
   // Check which parsing method was used
   const parsingMethod = parsedData.metadata?.parsingMethod || 'unknown';
-  const usedEnhancedParser = parsingMethod === 'enhanced-local';
   const usedFallback = parsingMethod === 'legacy-regex' || parsingMethod === 'enhanced-edge' || parsingMethod === 'ai-edge';
   
   return {
     parsedData,
     parsingMethod,
-    usedFallback
+    usedFallback,
+    processingTime
   };
 };
 
-// Handle image upload and parsing
+/**
+ * Handle image upload and parsing
+ * @param file Image file to parse
+ * @returns Promise resolving to processed resume data
+ */
 export const processResumeImage = async (file: File): Promise<ProcessedResult> => {
-  if (file.size > 10 * 1024 * 1024) { // 10MB limit for images
-    throw new Error("Image too large. Please upload an image smaller than 10MB.");
+  // Validate file size
+  const sizeValidation = validateFileSize(file.size, 10 * 1024 * 1024); // 10MB limit for images
+  if (!sizeValidation.isValid) {
+    throw new Error(`Image too large. Please upload an image smaller than ${sizeValidation.maxSizeInMB}MB.`);
   }
   
-  const supportedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
-  if (!supportedImageTypes.includes(file.type)) {
-    throw new Error("Unsupported image format. Please upload JPG, PNG, WebP, or HEIC images.");
+  // Validate image type
+  const typeValidation = validateResumeImageType(file.type);
+  if (typeValidation.isUnsupported) {
+    throw new Error(`Unsupported image format. Please upload ${typeValidation.supportedTypes.join(', ')} images.`);
   }
   
+  const startTime = Date.now();
   const parsedData = await parseResumeFromImage(file);
+  const processingTime = Date.now() - startTime;
   
-  if (!parsedData || (
-    (!parsedData.personal || Object.values(parsedData.personal).filter(Boolean).length === 0) && 
-    (!parsedData.experience || parsedData.experience.length === 0) &&
-    (!parsedData.education || parsedData.education.length === 0)
-  )) {
+  // Validate parsed data
+  if (!parsedData || isEmptyResumeData(parsedData)) {
     throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
   }
   
@@ -75,32 +88,44 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
   return {
     parsedData,
     parsingMethod,
-    usedFallback
+    usedFallback,
+    processingTime
   };
 };
 
-// Process LinkedIn profile import
+/**
+ * Process LinkedIn profile import
+ * @param linkedInUrl LinkedIn profile URL
+ * @returns Promise resolving to processed LinkedIn data
+ */
 export const processLinkedInProfile = async (linkedInUrl: string): Promise<ProcessedResult> => {
-  if (!linkedInUrl.trim()) {
-    throw new Error("Please enter your LinkedIn profile URL");
+  // Validate LinkedIn URL
+  const urlValidation = validateLinkedInUrl(linkedInUrl);
+  if (!urlValidation.isValid) {
+    throw new Error(urlValidation.errorMessage || "Invalid LinkedIn URL");
   }
 
-  if (!linkedInUrl.includes('linkedin.com/in/')) {
-    throw new Error("Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile)");
-  }
-
+  const startTime = Date.now();
   const linkedInData = await importFromLinkedIn(linkedInUrl);
+  const processingTime = Date.now() - startTime;
   
   return {
     parsedData: linkedInData,
     parsingMethod: linkedInData.metadata?.parsingMethod || 'linkedin-import',
-    usedFallback: false
+    usedFallback: false,
+    processingTime
   };
 };
 
-// Merge resume data
+/**
+ * Merge resume data with better validation
+ * @param currentData Current resume data
+ * @param parsedData New parsed data to merge
+ * @returns Merged resume data
+ */
 export const mergeResumeData = (currentData: ResumeData, parsedData: Partial<ResumeData>): ResumeData => {
-  return {
+  // Add metadata about the merging process
+  const mergedData = {
     ...currentData,
     ...parsedData,
     personal: {
@@ -114,7 +139,10 @@ export const mergeResumeData = (currentData: ResumeData, parsedData: Partial<Res
     metadata: {
       ...(currentData.metadata || {}),
       ...(parsedData.metadata || {}),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      mergeSource: parsedData.metadata?.parsingMethod || 'manual'
     }
   };
+  
+  return mergedData;
 };

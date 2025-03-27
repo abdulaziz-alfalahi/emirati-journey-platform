@@ -6,11 +6,35 @@ import { ResumeData } from '../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { extractDataFromContent } from '../resumeContentParser';
 import { enhancedResumeParser } from '../enhancedResumeParser';
-import { isEmptyResumeData } from '../helpers/validation';
+import { isEmptyResumeData, validateResumeFileType, validateFileSize } from '../helpers/validation';
+import { ParsingResult, ParsingError } from '../resumeParser';
 
-// Parse resume from uploaded file
+/**
+ * Parse resume from uploaded file
+ * @param file File object to parse
+ * @returns Promise resolving to parsed resume data
+ */
 export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeData>> => {
   return new Promise((resolve, reject) => {
+    // Validate file size first
+    const sizeValidation = validateFileSize(file.size);
+    if (!sizeValidation.isValid) {
+      const error = new Error(`File too large. Please upload a file smaller than ${sizeValidation.maxSizeInMB}MB.`) as ParsingError;
+      error.code = 'FILE_TOO_LARGE';
+      error.details = sizeValidation;
+      reject(error);
+      return;
+    }
+    
+    // Validate file type
+    const typeValidation = validateResumeFileType(file.type);
+    let fileTypeWarning = null;
+    
+    if (typeValidation.isUnsupported) {
+      fileTypeWarning = `Unsupported file type. For best results, use ${typeValidation.supportedTypes.join(', ')} files.`;
+      console.warn(fileTypeWarning);
+    }
+    
     const reader = new FileReader();
     
     reader.onload = async (e) => {
@@ -19,13 +43,16 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         
         // Check if we have content to parse
         if (!fileContent) {
-          reject(new Error('Could not read file content'));
+          const error = new Error('Could not read file content') as ParsingError;
+          error.code = 'EMPTY_CONTENT';
+          reject(error);
           return;
         }
         
         console.log('File read complete. Content length:', fileContent.length);
         let parsedData: Partial<ResumeData> = {};
         let parsingMethod = '';
+        const startTime = Date.now();
         
         // Try each parsing method in sequence, with consistent error handling
         try {
@@ -46,7 +73,11 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           parsedData.metadata = {
             ...(parsedData.metadata || {}),
             parsingMethod,
-            parsedAt: new Date().toISOString()
+            parsedAt: new Date().toISOString(),
+            processingTime: Date.now() - startTime,
+            fileType: file.type,
+            fileSize: file.size,
+            fileTypeWarning
           };
           
           resolve(parsedData);
@@ -71,7 +102,12 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             parsedData.metadata = {
               ...(parsedData.metadata || {}),
               parsingMethod,
-              parsedAt: new Date().toISOString()
+              parsedAt: new Date().toISOString(),
+              processingTime: Date.now() - startTime,
+              fileType: file.type,
+              fileSize: file.size,
+              fileTypeWarning,
+              fallbackReason: enhancedError instanceof Error ? enhancedError.message : 'Enhanced parsing failed'
             };
             
             resolve(parsedData);
@@ -108,7 +144,12 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
               parsedData.metadata = {
                 ...(parsedData.metadata || {}),
                 parsingMethod,
-                parsedAt: new Date().toISOString()
+                parsedAt: new Date().toISOString(),
+                processingTime: Date.now() - startTime,
+                fileType: file.type,
+                fileSize: file.size,
+                fileTypeWarning,
+                fallbackReason: 'Local parsing methods failed'
               };
               
               resolve(parsedData);
@@ -145,14 +186,29 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
                 parsedData.metadata = {
                   ...(parsedData.metadata || {}),
                   parsingMethod,
-                  parsedAt: new Date().toISOString()
+                  parsedAt: new Date().toISOString(),
+                  processingTime: Date.now() - startTime,
+                  fileType: file.type,
+                  fileSize: file.size,
+                  fileTypeWarning,
+                  fallbackReason: 'All local and enhanced edge parsing methods failed'
                 };
                 
                 resolve(parsedData);
               } catch (aiError) {
                 console.error('All extraction methods failed:', aiError);
+                
                 // If all methods fail, return a more informative error
-                reject(new Error('All parsing methods failed. Please try a different file format or check if the resume contains extractable text.'));
+                const error = new Error('All parsing methods failed. Please try a different file format or check if the resume contains extractable text.') as ParsingError;
+                error.code = 'ALL_METHODS_FAILED';
+                error.details = {
+                  fileType: file.type,
+                  fileSize: file.size,
+                  attemptedMethods: ['enhanced-local', 'legacy-regex', 'enhanced-edge', 'ai-edge']
+                };
+                error.parserType = 'file';
+                
+                reject(error);
                 return;
               }
             }
@@ -160,12 +216,26 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         }
       } catch (error) {
         console.error('Error parsing resume:', error);
-        reject(new Error('Failed to parse resume file. Please try a different file.'));
+        
+        const parsingError = new Error('Failed to parse resume file. Please try a different file.') as ParsingError;
+        parsingError.code = 'PARSING_FAILED';
+        parsingError.details = {
+          originalError: error instanceof Error ? error.message : String(error),
+          fileType: file.type
+        };
+        parsingError.parserType = 'file';
+        
+        reject(parsingError);
       }
     };
     
-    reader.onerror = () => {
-      reject(new Error('Error reading file. Please try again.'));
+    reader.onerror = (event) => {
+      const error = new Error('Error reading file. Please try again.') as ParsingError;
+      error.code = 'FILE_READ_ERROR';
+      error.details = { event };
+      error.parserType = 'file';
+      
+      reject(error);
     };
     
     reader.readAsText(file);
