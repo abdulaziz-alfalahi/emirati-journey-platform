@@ -1,3 +1,4 @@
+
 /**
  * Resume file parser utility for extracting data from uploaded resume files
  */
@@ -51,6 +52,25 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         // Early check for PDF raw headers
         if (file.type === 'application/pdf' && fileContent.startsWith('%PDF')) {
           console.warn('Detected PDF header in text content - this may indicate a scanned PDF without extractable text');
+          
+          // Check if the first 500 characters have mostly PDF artifacts
+          const firstChunk = fileContent.substring(0, 500);
+          const textContentRatio = firstChunk.replace(/[^a-zA-Z0-9]/g, '').length / firstChunk.length;
+          
+          if (textContentRatio < 0.3) {
+            console.error('This appears to be a scanned PDF without proper text content');
+            const error = new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try uploading a text-based PDF or use the Image Upload option instead.") as ParsingError;
+            error.code = 'SCANNED_PDF';
+            error.details = {
+              fileType: file.type,
+              fileSize: file.size,
+              textContentRatio
+            };
+            error.parserType = 'file';
+            
+            reject(error);
+            return;
+          }
         }
         
         console.log('File read complete. Content length:', fileContent.length);
@@ -63,6 +83,12 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           // 1. First try the enhanced parser
           console.log('Using enhanced resume parser...');
           parsedData = enhancedResumeParser.parseResumeContent(fileContent, file.type);
+          
+          // Check if we parsed mostly PDF artifacts
+          if (parsedData.personal?.fullName?.startsWith('%PDF')) {
+            console.error('Enhanced parser returned PDF artifacts as personal info');
+            throw new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try uploading a text-based PDF or use the Image Upload option instead.");
+          }
           
           // Check if we got meaningful data
           if (isEmptyResumeData(parsedData)) {

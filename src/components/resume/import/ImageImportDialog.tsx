@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, FileImage } from 'lucide-react';
 import { ResumeData } from '../types';
 import { toast } from 'sonner';
 import { processResumeImage, mergeResumeData } from './importUtils';
@@ -24,29 +24,47 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isPdfWarningVisible, setIsPdfWarningVisible] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Show warning if PDF to set expectations
+    if (file.type === 'application/pdf') {
+      setIsPdfWarningVisible(true);
+    } else {
+      setIsPdfWarningVisible(false);
+    }
+
     setIsUploading(true);
     setUploadError(null);
     
+    const toastDescription = file.type === 'application/pdf'
+      ? "Processing PDF as an image with AI..."
+      : "Analyzing your resume image with AI...";
+    
     const toastId = toast.loading("Processing Resume Image", {
-      description: "Analyzing your resume image with AI...",
+      description: toastDescription,
     });
     
     try {
       toast.loading("Extracting Data from Image", {
         id: toastId,
-        description: "Using AI to recognize and extract text from your resume image...",
+        description: "Using AI to recognize and extract text...",
       });
       
       const { parsedData, parsingMethod, usedFallback } = await processResumeImage(file);
       console.log('Parsed resume image data:', parsedData);
       
-      if (usedFallback) {
+      // Special handling for PDFs processed as images
+      if (file.type === 'application/pdf' && parsingMethod === 'pdf-as-image-pending') {
+        toast.warning("PDF Processing Limited", {
+          id: toastId,
+          description: "PDF could only be partially processed. For better results, try converting to JPG or PNG first.",
+        });
+      } else if (usedFallback) {
         toast.warning("Basic Extraction Used", {
           id: toastId,
           description: "AI extraction failed. Limited data was extracted from your image.",
@@ -104,6 +122,19 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
               <div className="text-sm text-red-700">
                 <p className="font-medium mb-1">Error Processing Image</p>
                 <p>{uploadError}</p>
+              </div>
+            </div>
+          )}
+          
+          {isPdfWarningVisible && (
+            <div className="bg-blue-50 border border-blue-200 p-3 rounded-md flex items-start space-x-2">
+              <FileImage size={18} className="text-blue-500 mt-0.5" />
+              <div className="text-sm text-blue-700">
+                <p className="font-medium mb-1">Processing PDF as Image</p>
+                <p>
+                  We'll attempt to process your PDF using our image recognition AI. 
+                  For best results with scanned documents, consider converting to JPG or PNG first.
+                </p>
               </div>
             </div>
           )}

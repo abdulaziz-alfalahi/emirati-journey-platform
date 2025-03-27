@@ -65,7 +65,7 @@ export const validateResumeImageType = (fileType: string): {
     'image/png', 
     'image/webp', 
     'image/heic',
-    'application/pdf'
+    'application/pdf'  // Allow PDFs to be processed as images
   ];
   
   const isValid = supportedTypes.includes(fileType);

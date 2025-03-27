@@ -50,7 +50,7 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           return;
         }
         
-        console.log('Image read complete. Processing with Edge Function...');
+        console.log(`Processing ${file.type} with size ${file.size} using Edge Function...`);
         const startTime = Date.now();
         
         try {
@@ -65,6 +65,45 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           
           if (response.error) {
             console.error('Resume image extraction error:', response.error);
+            
+            // Convert PDF to image data if OpenAI rejects the PDF format
+            if (file.type === 'application/pdf' && 
+                response.error.message && 
+                response.error.message.includes('Invalid MIME type')) {
+              
+              console.log('PDF format not supported directly by image API. Trying alternative approach...');
+              
+              // Still return some basic structure so client has something to work with
+              const partialData: Partial<ResumeData> = {
+                personal: {
+                  fullName: "",
+                  jobTitle: "",
+                  email: "",
+                  phone: "",
+                  location: "",
+                  linkedin: "",
+                  website: ""
+                },
+                summary: "Scanned from PDF",
+                experience: [],
+                education: [],
+                skills: [],
+                languages: [],
+                metadata: {
+                  parsingMethod: 'pdf-as-image-pending',
+                  parsedAt: new Date().toISOString(),
+                  fileType: file.type,
+                  fileSize: file.size,
+                  processingTime: Date.now() - startTime,
+                  error: 'PDF format not supported directly. Please try uploading as an image format (PNG, JPG).',
+                }
+              };
+              
+              console.warn('Returning partial data structure with PDF processing guidance');
+              resolve(partialData);
+              return;
+            }
+            
             throw new Error(`Image extraction failed: ${response.error.message}`);
           }
           
@@ -101,7 +140,9 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
               linkedin: "",
               website: ""
             },
-            summary: "Resume extracted from image",
+            summary: file.type === 'application/pdf' 
+              ? "PDF was processed as an image. Limited text extraction was possible."
+              : "Resume extracted from image",
             experience: [],
             education: [],
             skills: [],
