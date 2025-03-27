@@ -1,4 +1,3 @@
-
 /**
  * Resume file parser utility for extracting data from uploaded resume files
  */
@@ -6,7 +5,14 @@ import { ResumeData } from '../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { extractDataFromContent } from '../resumeContentParser';
 import { enhancedResumeParser } from '../enhancedResumeParser';
-import { isEmptyResumeData, validateResumeFileType, validateFileSize } from '../helpers/validation';
+import { 
+  isEmptyResumeData, 
+  validateResumeFileType, 
+  validateFileSize, 
+  containsPdfArtifacts,
+  sanitizePdfArtifacts
+} from '../helpers/validation';
+import { cleanPdfArtifacts } from '../parsers/pdfUtils';
 import { ParsingResult, ParsingError } from '../resumeParser';
 
 /**
@@ -51,15 +57,15 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
         
         // Early check for PDF raw headers
         if (file.type === 'application/pdf' && fileContent.startsWith('%PDF')) {
-          console.warn('Detected PDF header in text content - this may indicate a scanned PDF without extractable text');
+          console.log('Detected PDF file, cleaning artifacts before parsing...');
           
           // Check if the first 500 characters have mostly PDF artifacts
           const firstChunk = fileContent.substring(0, 500);
           const textContentRatio = firstChunk.replace(/[^a-zA-Z0-9]/g, '').length / firstChunk.length;
           
           if (textContentRatio < 0.3) {
-            console.error('This appears to be a scanned PDF without proper text content');
-            const error = new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try uploading a text-based PDF or use the Image Upload option instead.") as ParsingError;
+            console.warn('This appears to be a scanned PDF without proper text content');
+            const error = new Error("This appears to be a scanned PDF without proper text content. Please use the Image Upload option instead for better results.") as ParsingError;
             error.code = 'SCANNED_PDF';
             error.details = {
               fileType: file.type,
@@ -71,62 +77,65 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             reject(error);
             return;
           }
+          
+          // Clean PDF artifacts from the content before parsing
+          const cleanedContent = cleanPdfArtifacts(fileContent);
+          console.log(`Cleaned PDF content. Original length: ${fileContent.length}, Cleaned length: ${cleanedContent.length}`);
+          
+          // If cleaning removed too much content, probably a scanned PDF
+          if (cleanedContent.length < fileContent.length * 0.2) {
+            console.warn('Cleaning removed most content, likely a scanned PDF');
+            const error = new Error("This PDF appears to contain mostly images rather than text. Please use the Image Upload option instead.") as ParsingError;
+            error.code = 'SCANNED_PDF';
+            error.parserType = 'file';
+            
+            reject(error);
+            return;
+          }
+          
+          // Use the cleaned content for parsing
+          parseContent(cleanedContent);
+        } else {
+          // For non-PDF files, proceed with original content
+          parseContent(fileContent);
         }
         
-        console.log('File read complete. Content length:', fileContent.length);
-        let parsedData: Partial<ResumeData> = {};
-        let parsingMethod = '';
-        const startTime = Date.now();
-        
-        // Try each parsing method in sequence, with consistent error handling
-        try {
-          // 1. First try the enhanced parser
-          console.log('Using enhanced resume parser...');
-          parsedData = enhancedResumeParser.parseResumeContent(fileContent, file.type);
+        // Inner function to handle the actual parsing
+        async function parseContent(content: string) {
+          let parsedData: Partial<ResumeData> = {};
+          let parsingMethod = '';
+          const startTime = Date.now();
           
-          // Check if we parsed mostly PDF artifacts
-          if (parsedData.personal?.fullName?.startsWith('%PDF')) {
-            console.error('Enhanced parser returned PDF artifacts as personal info');
-            throw new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try uploading a text-based PDF or use the Image Upload option instead.");
-          }
-          
-          // Check if we got meaningful data
-          if (isEmptyResumeData(parsedData)) {
-            console.warn('Enhanced parser returned empty data');
-            throw new Error('Enhanced parsing returned empty data');
-          }
-          
-          console.log('Enhanced parsing successful');
-          parsingMethod = 'enhanced-local';
-          
-          // Add metadata about parsing method
-          parsedData.metadata = {
-            ...(parsedData.metadata || {}),
-            parsingMethod,
-            parsedAt: new Date().toISOString(),
-            processingTime: Date.now() - startTime,
-            fileType: file.type,
-            fileSize: file.size,
-            fileTypeWarning
-          };
-          
-          resolve(parsedData);
-        } catch (enhancedError) {
-          console.error('Enhanced parsing error:', enhancedError);
-          
+          // Try each parsing method in sequence, with consistent error handling
           try {
-            // 2. Fall back to the legacy extraction method
-            console.log('Falling back to legacy regex extraction...');
-            parsedData = extractDataFromContent(fileContent, file.type);
+            // 1. First try the enhanced parser
+            console.log('Using enhanced resume parser...');
+            parsedData = enhancedResumeParser.parseResumeContent(content, file.type);
+            
+            // Check if we parsed mostly PDF artifacts
+            if (parsedData.personal?.fullName && containsPdfArtifacts(parsedData.personal.fullName)) {
+              console.warn('Enhanced parser returned PDF artifacts as personal info, cleaning data...');
+              
+              // Clean the parsed data
+              Object.keys(parsedData.personal).forEach(key => {
+                if (typeof parsedData.personal[key] === 'string' && containsPdfArtifacts(parsedData.personal[key])) {
+                  parsedData.personal[key] = '';
+                }
+              });
+              
+              if (typeof parsedData.summary === 'string' && containsPdfArtifacts(parsedData.summary)) {
+                parsedData.summary = '';
+              }
+            }
             
             // Check if we got meaningful data
             if (isEmptyResumeData(parsedData)) {
-              console.warn('Legacy extraction returned empty data');
-              throw new Error('Legacy extraction returned empty data');
+              console.warn('Enhanced parser returned empty data');
+              throw new Error('Enhanced parsing returned empty data');
             }
             
-            console.log('Legacy extraction successful');
-            parsingMethod = 'legacy-regex';
+            console.log('Enhanced parsing successful');
+            parsingMethod = 'enhanced-local';
             
             // Add metadata about parsing method
             parsedData.metadata = {
@@ -136,54 +145,27 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
               processingTime: Date.now() - startTime,
               fileType: file.type,
               fileSize: file.size,
-              fileTypeWarning,
-              fallbackReason: enhancedError instanceof Error ? enhancedError.message : 'Enhanced parsing failed'
+              fileTypeWarning
             };
             
             resolve(parsedData);
-          } catch (localError) {
-            console.error('Legacy extraction error:', localError);
+          } catch (enhancedError) {
+            console.error('Enhanced parsing error:', enhancedError);
             
-            // If all methods fail, try to detect if it's a scanned PDF
-            if (file.type === 'application/pdf' && fileContent.startsWith('%PDF') && fileContent.length < 1000) {
-              const error = new Error('This appears to be a scanned PDF without extractable text. Please try the Image Upload option instead.') as ParsingError;
-              error.code = 'SCANNED_PDF';
-              error.details = {
-                fileType: file.type,
-                fileSize: file.size
-              };
-              error.parserType = 'file';
-              
-              reject(error);
-              return;
-            }
-            
-            // Continue with the existing error handling and additional parsers
+            // Continue with fallback methods
             try {
-              // 3. Try with enhanced-resume-parser edge function
-              console.log('Attempting enhanced edge function...');
+              // 2. Fall back to the legacy regex extraction method
+              console.log('Falling back to legacy regex extraction...');
+              parsedData = extractDataFromContent(content, file.type);
               
-              const response = await supabase.functions.invoke('enhanced-resume-parser', {
-                body: { 
-                  fileContent,
-                  fileType: file.type 
-                },
-              });
-              
-              if (response.error) {
-                console.error('Enhanced edge function error:', response.error);
-                throw new Error(`Enhanced edge extraction failed: ${response.error.message}`);
+              // Check if we got meaningful data
+              if (isEmptyResumeData(parsedData)) {
+                console.warn('Legacy extraction returned empty data');
+                throw new Error('Legacy extraction returned empty data');
               }
               
-              const data = response.data;
-              
-              if (!data || isEmptyResumeData(data)) {
-                throw new Error('No meaningful data returned from enhanced edge function');
-              }
-              
-              console.log('Enhanced edge function extraction successful');
-              parsedData = data;
-              parsingMethod = 'enhanced-edge';
+              console.log('Legacy extraction successful');
+              parsingMethod = 'legacy-regex';
               
               // Add metadata about parsing method
               parsedData.metadata = {
@@ -194,38 +176,53 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
                 fileType: file.type,
                 fileSize: file.size,
                 fileTypeWarning,
-                fallbackReason: 'Local parsing methods failed'
+                fallbackReason: enhancedError instanceof Error ? enhancedError.message : 'Enhanced parsing failed'
               };
               
               resolve(parsedData);
-            } catch (enhancedEdgeError) {
-              console.error('Enhanced edge function failed:', enhancedEdgeError);
+            } catch (localError) {
+              console.error('Legacy extraction error:', localError);
               
-              try {
-                // 4. Fall back to AI extraction as a last resort
-                console.log('Attempting AI extraction as final fallback...');
+              // If all methods fail, try to detect if it's a scanned PDF
+              if (file.type === 'application/pdf' && fileContent.startsWith('%PDF') && fileContent.length < 1000) {
+                const error = new Error('This appears to be a scanned PDF without extractable text. Please try the Image Upload option instead.') as ParsingError;
+                error.code = 'SCANNED_PDF';
+                error.details = {
+                  fileType: file.type,
+                  fileSize: file.size
+                };
+                error.parserType = 'file';
                 
-                const aiResponse = await supabase.functions.invoke('extract-resume-data', {
+                reject(error);
+                return;
+              }
+              
+              // Continue with the existing error handling and additional parsers
+              try {
+                // 3. Try with enhanced-resume-parser edge function
+                console.log('Attempting enhanced edge function...');
+                
+                const response = await supabase.functions.invoke('enhanced-resume-parser', {
                   body: { 
                     fileContent,
                     fileType: file.type 
                   },
                 });
                 
-                if (aiResponse.error) {
-                  console.error('AI edge function error:', aiResponse.error);
-                  throw new Error(`AI extraction failed: ${aiResponse.error.message}`);
+                if (response.error) {
+                  console.error('Enhanced edge function error:', response.error);
+                  throw new Error(`Enhanced edge extraction failed: ${response.error.message}`);
                 }
                 
-                const aiData = aiResponse.data;
+                const data = response.data;
                 
-                if (!aiData || isEmptyResumeData(aiData)) {
-                  throw new Error('No meaningful data returned from AI extraction service');
+                if (!data || isEmptyResumeData(data)) {
+                  throw new Error('No meaningful data returned from enhanced edge function');
                 }
                 
-                console.log('AI extraction successful');
-                parsedData = aiData;
-                parsingMethod = 'ai-edge';
+                console.log('Enhanced edge function extraction successful');
+                parsedData = data;
+                parsingMethod = 'enhanced-edge';
                 
                 // Add metadata about parsing method
                 parsedData.metadata = {
@@ -236,25 +233,68 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
                   fileType: file.type,
                   fileSize: file.size,
                   fileTypeWarning,
-                  fallbackReason: 'All local and enhanced edge parsing methods failed'
+                  fallbackReason: 'Local parsing methods failed'
                 };
                 
                 resolve(parsedData);
-              } catch (aiError) {
-                console.error('All extraction methods failed:', aiError);
+              } catch (enhancedEdgeError) {
+                console.error('Enhanced edge function failed:', enhancedEdgeError);
                 
-                // If all methods fail, return a more informative error
-                const error = new Error('All parsing methods failed. Please try a different file format or check if the resume contains extractable text.') as ParsingError;
-                error.code = 'ALL_METHODS_FAILED';
-                error.details = {
-                  fileType: file.type,
-                  fileSize: file.size,
-                  attemptedMethods: ['enhanced-local', 'legacy-regex', 'enhanced-edge', 'ai-edge']
-                };
-                error.parserType = 'file';
-                
-                reject(error);
-                return;
+                try {
+                  // 4. Fall back to AI extraction as a last resort
+                  console.log('Attempting AI extraction as final fallback...');
+                  
+                  const aiResponse = await supabase.functions.invoke('extract-resume-data', {
+                    body: { 
+                      fileContent,
+                      fileType: file.type 
+                    },
+                  });
+                  
+                  if (aiResponse.error) {
+                    console.error('AI edge function error:', aiResponse.error);
+                    throw new Error(`AI extraction failed: ${aiResponse.error.message}`);
+                  }
+                  
+                  const aiData = aiResponse.data;
+                  
+                  if (!aiData || isEmptyResumeData(aiData)) {
+                    throw new Error('No meaningful data returned from AI extraction service');
+                  }
+                  
+                  console.log('AI extraction successful');
+                  parsedData = aiData;
+                  parsingMethod = 'ai-edge';
+                  
+                  // Add metadata about parsing method
+                  parsedData.metadata = {
+                    ...(parsedData.metadata || {}),
+                    parsingMethod,
+                    parsedAt: new Date().toISOString(),
+                    processingTime: Date.now() - startTime,
+                    fileType: file.type,
+                    fileSize: file.size,
+                    fileTypeWarning,
+                    fallbackReason: 'All local and enhanced edge parsing methods failed'
+                  };
+                  
+                  resolve(parsedData);
+                } catch (aiError) {
+                  console.error('All extraction methods failed:', aiError);
+                  
+                  // If all methods fail, return a more informative error
+                  const error = new Error('All parsing methods failed. Please try a different file format or check if the resume contains extractable text.') as ParsingError;
+                  error.code = 'ALL_METHODS_FAILED';
+                  error.details = {
+                    fileType: file.type,
+                    fileSize: file.size,
+                    attemptedMethods: ['enhanced-local', 'legacy-regex', 'enhanced-edge', 'ai-edge']
+                  };
+                  error.parserType = 'file';
+                  
+                  reject(error);
+                  return;
+                }
               }
             }
           }

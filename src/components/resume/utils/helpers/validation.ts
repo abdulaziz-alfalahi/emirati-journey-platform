@@ -68,6 +68,15 @@ export const validateResumeImageType = (fileType: string): {
     // Removed 'application/pdf' as OpenAI's vision API doesn't accept PDFs directly
   ];
   
+  // Special handling for PDFs - we'll convert them to images server-side
+  if (fileType === 'application/pdf') {
+    return {
+      isValid: true,
+      supportedTypes: [...supportedTypes, 'application/pdf'],
+      isUnsupported: false
+    };
+  }
+  
   const isValid = supportedTypes.includes(fileType);
   const isUnsupported = !isValid;
   
@@ -132,7 +141,7 @@ export const validateLinkedInUrl = (url: string): {
  * @returns Boolean indicating if content contains PDF artifacts
  */
 export const containsPdfArtifacts = (content: string): boolean => {
-  if (!content) return false;
+  if (!content || typeof content !== 'string') return false;
   
   const pdfArtifacts = [
     '%PDF',
@@ -147,7 +156,16 @@ export const containsPdfArtifacts = (content: string): boolean => {
     '/Contents'
   ];
   
-  return pdfArtifacts.some(artifact => content.includes(artifact));
+  // Check if content resembles a raw PDF structure
+  const hasArtifacts = pdfArtifacts.some(artifact => content.includes(artifact));
+  
+  // Check for PDF header percentage
+  const pdfHeaderRatio = content.startsWith('%PDF') ? 1 : 0;
+  
+  // Check if content is mostly symbols rather than text
+  const symbolRatio = (content.match(/[^a-zA-Z0-9\s]/g) || []).length / content.length;
+  
+  return hasArtifacts || pdfHeaderRatio > 0 || symbolRatio > 0.4;
 };
 
 /**
@@ -188,10 +206,42 @@ export const isLikelyScannedPdf = (fileContent: string): boolean => {
   
   // Count text vs image markers
   const textMarkerCount = (fileContent.match(/\/Text|\/Font|\/TJ|\/Tj/g) || []).length;
-  const imageMarkerCount = (fileContent.match(/\/Image/g) || []).length * 2; // Weight images higher
+  const imageMarkerCount = (fileContent.match(/\/Image/g) || []).length * 3; // Weight images higher
   
   // If content has primarily image markers and few text markers, likely scanned
   return (hasImageMarkers && (!hasTextMarkers || imageMarkerCount > textMarkerCount)) ||
          // Or if it has PDF structure but no text extraction methods
          (fileContent.length > 500 && !hasTextMarkers);
+};
+
+/**
+ * Sanitizes resume data to remove PDF artifacts
+ * @param data Resume data to sanitize
+ * @returns Sanitized resume data
+ */
+export const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeData> => {
+  if (!data) return {};
+  
+  // Make a deep copy to avoid modifying the original
+  const sanitized = JSON.parse(JSON.stringify(data));
+  
+  // Clean personal information fields
+  if (sanitized.personal) {
+    Object.keys(sanitized.personal).forEach(key => {
+      const value = sanitized.personal[key];
+      if (typeof value === 'string') {
+        // Check for PDF artifacts
+        if (containsPdfArtifacts(value)) {
+          sanitized.personal[key] = '';
+        }
+      }
+    });
+  }
+  
+  // Clean summary
+  if (typeof sanitized.summary === 'string' && containsPdfArtifacts(sanitized.summary)) {
+    sanitized.summary = '';
+  }
+  
+  return sanitized;
 };

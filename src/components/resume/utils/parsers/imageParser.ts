@@ -4,8 +4,9 @@
  */
 import { ResumeData } from '../../types';
 import { supabase } from '@/integrations/supabase/client';
-import { isEmptyResumeData, validateResumeImageType, validateFileSize } from '../helpers/validation';
+import { isEmptyResumeData, validateResumeImageType, validateFileSize, sanitizeResumeData } from '../helpers/validation';
 import { ParsingError } from '../resumeParser';
+import { toast } from 'sonner';
 
 /**
  * Parse resume from image file
@@ -27,6 +28,8 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
     
     // Validate image type
     const typeValidation = validateResumeImageType(file.type);
+    let fileTypeWarning = null;
+    
     if (typeValidation.isUnsupported) {
       const error = new Error(`Unsupported image format. Please upload ${typeValidation.supportedTypes.join(', ')} images.`) as ParsingError;
       error.code = 'UNSUPPORTED_IMAGE_FORMAT';
@@ -66,41 +69,24 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           if (response.error) {
             console.error('Resume image extraction error:', response.error);
             
-            // Convert PDF to image data if OpenAI rejects the PDF format
+            // Handle specific PDF errors from OpenAI vision API
             if (file.type === 'application/pdf' && 
                 response.error.message && 
                 response.error.message.includes('Invalid MIME type')) {
               
-              console.log('PDF format not supported directly by image API. Trying alternative approach...');
+              console.log('PDF format not supported directly by image API. Providing guidance to user...');
+              toast.error("PDF Format Not Supported", {
+                description: "Our AI vision service doesn't accept PDFs directly. Please convert your PDF to JPG or PNG first.",
+              });
               
-              // Still return some basic structure so client has something to work with
-              const partialData: Partial<ResumeData> = {
-                personal: {
-                  fullName: "",
-                  jobTitle: "",
-                  email: "",
-                  phone: "",
-                  location: "",
-                  linkedin: "",
-                  website: ""
-                },
-                summary: "Scanned from PDF",
-                experience: [],
-                education: [],
-                skills: [],
-                languages: [],
-                metadata: {
-                  parsingMethod: 'pdf-as-image-pending',
-                  parsedAt: new Date().toISOString(),
-                  fileType: file.type,
-                  fileSize: file.size,
-                  processingTime: Date.now() - startTime,
-                  error: 'PDF format not supported directly. Please try uploading as an image format (PNG, JPG).',
-                }
+              // Create a specific error for PDF format issues
+              const error = new Error("PDF format not directly supported by our image AI. Please convert your PDF to JPG or PNG first.") as ParsingError;
+              error.code = 'PDF_FORMAT_NOT_SUPPORTED';
+              error.parserType = 'image';
+              error.details = {
+                originalError: response.error.message
               };
-              
-              console.warn('Returning partial data structure with PDF processing guidance');
-              resolve(partialData);
+              reject(error);
               return;
             }
             
@@ -115,9 +101,12 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           
           console.log('Image extraction successful');
           
+          // Sanitize the data to remove any artifacts
+          const sanitizedData = sanitizeResumeData(data);
+          
           // Add metadata about the parsing
-          data.metadata = {
-            ...(data.metadata || {}),
+          sanitizedData.metadata = {
+            ...(sanitizedData.metadata || {}),
             parsingMethod: 'image-edge-function',
             parsedAt: new Date().toISOString(),
             fileType: file.type,
@@ -125,9 +114,24 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
             processingTime: Date.now() - startTime
           };
           
-          resolve(data);
+          resolve(sanitizedData);
         } catch (error) {
           console.error('Error processing resume image with Edge Function:', error);
+          
+          // Special handling for PDF upload errors
+          if (file.type === 'application/pdf' && error instanceof Error && 
+              error.message.includes('Invalid MIME type')) {
+            
+            toast.error("PDF Format Not Supported", {
+              description: "Our AI vision service doesn't accept PDFs directly. Please convert your PDF to JPG or PNG first.",
+            });
+            
+            const pdfError = new Error("PDF format not directly supported by our image AI. Please convert your PDF to JPG or PNG first.") as ParsingError;
+            pdfError.code = 'PDF_FORMAT_NOT_SUPPORTED';
+            pdfError.parserType = 'image';
+            reject(pdfError);
+            return;
+          }
           
           // Fallback to basic structure if Edge Function fails
           const basicData: Partial<ResumeData> = {
