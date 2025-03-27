@@ -39,8 +39,10 @@ export const validateImageFile = (file: File): {
       return { isValid: false, error, isPdf: false };
     }
     
-    if (typeValidation.warning) {
-      fileTypeWarning = typeValidation.warning;
+    // Check if there are any format-specific warnings to display
+    // (If validateResumeImageType doesn't return a warning property, we'll skip this)
+    if (typeof (typeValidation as any).warning === 'string' && (typeValidation as any).warning) {
+      fileTypeWarning = (typeValidation as any).warning;
     }
   }
   
