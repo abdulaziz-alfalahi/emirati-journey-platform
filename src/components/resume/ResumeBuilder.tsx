@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -323,18 +324,19 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="sm" onClick={onBack}>
+      {/* Fixed header with proper padding and spacing */}
+      <div className="flex items-center justify-between p-4 border-b bg-white z-10">
+        <Button variant="ghost" size="sm" onClick={onBack} className="mr-2">
           <ArrowLeft size={16} className="mr-2" />
           Back to Templates
         </Button>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setIsPreviewOpen(true)}
           >
-            <Eye size={16} className="mr-2" />
+            <Eye size={16} className="mr-1" />
             Preview
           </Button>
           <Button 
@@ -342,7 +344,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
             size="sm" 
             onClick={downloadResume}
           >
-            <Download size={16} className="mr-2" />
+            <Download size={16} className="mr-1" />
             Download JSON
           </Button>
           <Button 
@@ -351,7 +353,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
             onClick={exportToPdf}
             disabled={isExporting}
           >
-            <FileOutput size={16} className="mr-2" />
+            <FileOutput size={16} className="mr-1" />
             {isExporting ? 'Exporting...' : 'Export PDF'}
           </Button>
           <Button 
@@ -360,7 +362,7 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
             onClick={saveResume}
             disabled={isSaving}
           >
-            <Save size={16} className="mr-2" />
+            <Save size={16} className="mr-1" />
             {isSaving ? 'Saving...' : 'Save Resume'}
           </Button>
           {/* Test button for debugging */}
