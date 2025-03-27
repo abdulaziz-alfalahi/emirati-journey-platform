@@ -32,7 +32,10 @@ serve(async (req)  => {
     const apiKey = Deno.env.get('OPENAI_API_KEY')
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        JSON.stringify({ 
+          error: 'OpenAI API key not configured',
+          fallbackToRegex: true
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
@@ -44,7 +47,7 @@ serve(async (req)  => {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
@@ -58,6 +61,19 @@ serve(async (req)  => {
         temperature: 0.1
       })
     })
+
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.json()
+      console.error('OpenAI API error:', JSON.stringify(errorData))
+      
+      return new Response(
+        JSON.stringify({ 
+          error: `OpenAI API error: ${errorData.error?.message || 'Unknown error'}`,
+          fallbackToRegex: true 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     const openaiData = await openaiResponse.json()
     
@@ -75,9 +91,38 @@ serve(async (req)  => {
       } else {
         parsedResume = JSON.parse(assistantMessage)
       }
+      
+      // Add IDs to array items
+      if (parsedResume.experience) {
+        parsedResume.experience = parsedResume.experience.map((exp: any) => ({...exp, id: crypto.randomUUID()}))
+      }
+      if (parsedResume.education) {
+        parsedResume.education = parsedResume.education.map((edu: any) => ({...edu, id: crypto.randomUUID()}))
+      }
+      if (parsedResume.skills) {
+        parsedResume.skills = parsedResume.skills.map((skill: any) => ({...skill, id: crypto.randomUUID()}))
+      }
+      if (parsedResume.languages) {
+        parsedResume.languages = parsedResume.languages.map((lang: any) => ({...lang, id: crypto.randomUUID()}))
+      }
+      
+      // Add metadata
+      parsedResume.metadata = {
+        parsingMethod: 'enhanced-edge-function',
+        parsedAt: new Date().toISOString(),
+        model: 'gpt-3.5-turbo'
+      }
+      
     } catch (error) {
       console.error('Error parsing JSON from OpenAI response:', error)
-      parsedResume = { error: 'Failed to parse resume data', raw_response: assistantMessage }
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to parse resume data', 
+          raw_response: assistantMessage,
+          fallbackToRegex: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     return new Response(
@@ -87,7 +132,10 @@ serve(async (req)  => {
   } catch (error) {
     console.error('Error processing resume:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || 'Unknown error occurred',
+        fallbackToRegex: true 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

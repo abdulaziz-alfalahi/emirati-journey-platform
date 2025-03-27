@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -183,21 +184,57 @@ serve(async (req) => {
         // Find JSON object in the response (in case there's any extra text)
         const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
         const jsonString = jsonMatch ? jsonMatch[0] : generatedContent;
-        const parsedData = JSON.parse(jsonString);
+        let parsedData = JSON.parse(jsonString);
         
         // Add ids to each item in arrays
         if (parsedData.experience) {
           parsedData.experience = parsedData.experience.map(exp => ({...exp, id: crypto.randomUUID()}));
+        } else {
+          parsedData.experience = [];
         }
+        
         if (parsedData.education) {
           parsedData.education = parsedData.education.map(edu => ({...edu, id: crypto.randomUUID()}));
+        } else {
+          parsedData.education = [];
         }
+        
         if (parsedData.skills) {
           parsedData.skills = parsedData.skills.map(skill => ({...skill, id: crypto.randomUUID()}));
+        } else {
+          parsedData.skills = [];
         }
+        
         if (parsedData.languages) {
           parsedData.languages = parsedData.languages.map(lang => ({...lang, id: crypto.randomUUID()}));
+        } else {
+          parsedData.languages = [];
         }
+        
+        // Make sure personal exists even if empty
+        if (!parsedData.personal) {
+          parsedData.personal = {
+            fullName: "",
+            jobTitle: "",
+            email: "",
+            phone: "",
+            location: "",
+            linkedin: "",
+            website: ""
+          };
+        }
+        
+        // Ensure website is present in personal
+        if (!parsedData.personal.website) {
+          parsedData.personal.website = "";
+        }
+        
+        // Add metadata
+        parsedData.metadata = {
+          parsingMethod: 'ai-edge-function',
+          parsedAt: new Date().toISOString(),
+          model: 'gpt-4o-mini'
+        };
         
         console.log('Successfully parsed resume data');
         return new Response(
