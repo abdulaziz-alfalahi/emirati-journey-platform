@@ -11,14 +11,14 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
   
   // Check if personal section has any valid values (not PDF artifacts)
   const hasPersonalData = data.personal && Object.values(data.personal).some(val => 
-    val && typeof val === 'string' && val.trim().length > 0 && !val.includes('%PDF')
+    val && typeof val === 'string' && val.trim().length > 0 && !containsPdfArtifacts(val)
   );
   
   // Check if any sections have content
   const hasExperience = data.experience && data.experience.length > 0;
   const hasEducation = data.education && data.education.length > 0;
   const hasSkills = data.skills && data.skills.length > 0;
-  const hasSummary = data.summary && data.summary.trim().length > 0 && !data.summary.includes('%PDF');
+  const hasSummary = data.summary && data.summary.trim().length > 0 && !containsPdfArtifacts(data.summary);
   
   return !hasPersonalData && !hasExperience && !hasEducation && !hasSkills && !hasSummary;
 };
