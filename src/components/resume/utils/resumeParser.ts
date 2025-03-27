@@ -40,6 +40,15 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
           
           console.log('Enhanced parsing successful');
           parsingMethod = 'enhanced-local';
+          
+          // Add metadata about parsing method
+          parsedData.metadata = {
+            ...(parsedData.metadata || {}),
+            parsingMethod,
+            parsedAt: new Date().toISOString()
+          };
+          
+          resolve(parsedData);
         } catch (enhancedError) {
           console.error('Enhanced parsing error:', enhancedError);
           
@@ -56,6 +65,15 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             
             console.log('Legacy extraction successful');
             parsingMethod = 'legacy-regex';
+            
+            // Add metadata about parsing method
+            parsedData.metadata = {
+              ...(parsedData.metadata || {}),
+              parsingMethod,
+              parsedAt: new Date().toISOString()
+            };
+            
+            resolve(parsedData);
           } catch (localError) {
             console.error('Legacy extraction error:', localError);
             
@@ -85,6 +103,14 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
               parsedData = data;
               parsingMethod = 'enhanced-edge';
               
+              // Add metadata about parsing method
+              parsedData.metadata = {
+                ...(parsedData.metadata || {}),
+                parsingMethod,
+                parsedAt: new Date().toISOString()
+              };
+              
+              resolve(parsedData);
             } catch (enhancedEdgeError) {
               console.error('Enhanced edge function failed:', enhancedEdgeError);
               
@@ -113,6 +139,15 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
                 console.log('AI extraction successful');
                 parsedData = aiData;
                 parsingMethod = 'ai-edge';
+                
+                // Add metadata about parsing method
+                parsedData.metadata = {
+                  ...(parsedData.metadata || {}),
+                  parsingMethod,
+                  parsedAt: new Date().toISOString()
+                };
+                
+                resolve(parsedData);
               } catch (aiError) {
                 console.error('All extraction methods failed:', aiError);
                 // If all methods fail, return a more informative error
@@ -122,27 +157,6 @@ export const parseResumeFromFile = async (file: File): Promise<Partial<ResumeDat
             }
           }
         }
-        
-        // Add metadata about which parsing method was used - create it if it doesn't exist
-        if (!parsedData.metadata) {
-          parsedData.metadata = {};
-        }
-        
-        parsedData.metadata = {
-          ...(parsedData.metadata || {}),
-          parsingMethod,
-          parsedAt: new Date().toISOString(),
-          fileType: file.type,
-          fileSize: file.size
-        };
-        
-        // Final check if we got meaningful data after all attempts
-        if (isEmptyResumeData(parsedData)) {
-          reject(new Error('Could not extract meaningful data from your resume. Please try a different file or format.'));
-          return;
-        }
-        
-        resolve(parsedData);
       } catch (error) {
         console.error('Error parsing resume:', error);
         reject(new Error('Failed to parse resume file. Please try a different file.'));
