@@ -30,7 +30,7 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
     const typeValidation = validateResumeImageType(file.type);
     let fileTypeWarning = null;
     
-    if (typeValidation.isUnsupported) {
+    if (typeValidation.isUnsupported && file.type !== 'application/pdf') {
       const error = new Error(`Unsupported image format. Please upload ${typeValidation.supportedTypes.join(', ')} images.`) as ParsingError;
       error.code = 'UNSUPPORTED_IMAGE_FORMAT';
       error.details = typeValidation;
@@ -104,6 +104,11 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
           // Sanitize the data to remove any artifacts
           const sanitizedData = sanitizeResumeData(data);
           
+          // Check if data is empty
+          if (isEmptyResumeData(sanitizedData)) {
+            throw new Error('No meaningful data could be extracted from the image');
+          }
+          
           // Add metadata about the parsing
           sanitizedData.metadata = {
             ...(sanitizedData.metadata || {}),
@@ -133,7 +138,53 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
             return;
           }
           
-          // Fallback to basic structure if Edge Function fails
+          // Try fallback to extract-resume-data Edge Function for PDFs
+          if (file.type === 'application/pdf') {
+            console.log('Attempting fallback to extract-resume-data for PDF...');
+            
+            try {
+              // Convert PDF to text
+              const pdfText = await readPdfAsText(file);
+              
+              if (!pdfText || pdfText.length < 100) {
+                throw new Error('Could not extract sufficient text from PDF');
+              }
+              
+              // Call the extract-resume-data Edge Function
+              const textResponse = await supabase.functions.invoke('extract-resume-data', {
+                body: { fileContent: pdfText },
+              });
+              
+              if (textResponse.error) {
+                throw new Error(`Text extraction fallback failed: ${textResponse.error.message}`);
+              }
+              
+              const textData = textResponse.data;
+              
+              if (!textData || isEmptyResumeData(textData)) {
+                throw new Error('No meaningful data returned from text extraction fallback');
+              }
+              
+              // Sanitize and add metadata
+              const sanitizedTextData = sanitizeResumeData(textData);
+              sanitizedTextData.metadata = {
+                ...(sanitizedTextData.metadata || {}),
+                parsingMethod: 'pdf-text-fallback',
+                parsedAt: new Date().toISOString(),
+                fileType: file.type,
+                fileSize: file.size,
+                processingTime: Date.now() - startTime
+              };
+              
+              resolve(sanitizedTextData);
+              return;
+            } catch (fallbackError) {
+              console.error('Fallback extraction also failed:', fallbackError);
+              // Continue to final fallback below
+            }
+          }
+          
+          // Fallback to basic structure if all approaches fail
           const basicData: Partial<ResumeData> = {
             personal: {
               fullName: "",
@@ -145,8 +196,8 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
               website: ""
             },
             summary: file.type === 'application/pdf' 
-              ? "PDF was processed as an image. Limited text extraction was possible."
-              : "Resume extracted from image",
+              ? "Could not extract text from this PDF. It might be password-protected or corrupted."
+              : "Limited information could be extracted from this image.",
             experience: [],
             education: [],
             skills: [],
@@ -158,17 +209,17 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
               fileSize: file.size,
               processingTime: Date.now() - startTime,
               error: error instanceof Error ? error.message : 'Unknown error',
-              fallbackReason: 'Edge Function failed'
+              fallbackReason: 'All extraction methods failed'
             }
           };
           
-          console.warn('Falling back to basic structure due to Edge Function failure');
+          console.warn('Falling back to basic structure due to extraction failures');
           resolve(basicData);
         }
       } catch (error) {
         console.error('Error processing resume image:', error);
         
-        const parsingError = new Error('Failed to process resume image. Please try again.') as ParsingError;
+        const parsingError = new Error('Failed to process resume image. Please try again with a different file.') as ParsingError;
         parsingError.code = 'IMAGE_PROCESSING_FAILED';
         parsingError.details = {
           originalError: error instanceof Error ? error.message : String(error),
@@ -187,7 +238,37 @@ export const parseResumeFromImage = async (file: File): Promise<Partial<ResumeDa
       reject(error);
     };
     
-    // Read image file as Data URL
-    reader.readAsDataURL(file);
+    // Read as appropriate format based on file type
+    if (file.type === 'application/pdf') {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
+  });
+};
+
+/**
+ * Helper function to read PDF as text
+ * @param file PDF file
+ * @returns Promise resolving to text content
+ */
+const readPdfAsText = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        resolve(content || '');
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    reader.onerror = () => {
+      reject(new Error('Failed to read PDF as text'));
+    };
+    
+    reader.readAsText(file);
   });
 };

@@ -1,3 +1,4 @@
+
 import { ResumeData } from '../types';
 import { parseResumeFromFile, parseResumeFromImage, importFromLinkedIn } from '../utils/resumeParser';
 import { 
@@ -9,7 +10,7 @@ import {
   sanitizeResumeData 
 } from '../utils/helpers/validation';
 import { mergeResumeData as mergeResumeDataFromUtils } from '../utils/resumeDataUtils';
-import { checkIfScannedPdf, determineParsingStrategy } from '../utils/parsers/pdfUtils';
+import { checkIfScannedPdf, determineParsingStrategy, processPdfForResumeParsing } from '../utils/parsers/pdfUtils';
 import { toast } from 'sonner';
 
 export interface ProcessedResult {
@@ -42,20 +43,18 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
   
   // PDF-specific pre-checks
   if (file.type === 'application/pdf') {
-    const parsingStrategy = await determineParsingStrategy(file);
-    console.log(`Determined PDF parsing strategy: ${parsingStrategy}`);
-    
-    if (parsingStrategy === 'image') {
-      toast.info("PDF Detection", {
-        description: "This appears to be a scanned PDF without extractable text. Using image-based extraction instead.",
-      });
+    try {
+      console.log("Processing PDF file to determine parsing strategy");
+      const { strategy, shouldUseImageParser } = await processPdfForResumeParsing(file);
+      console.log(`Determined PDF parsing strategy: ${strategy}, use image parser: ${shouldUseImageParser}`);
       
-      // For scanned PDFs, redirect to image parsing route
-      return processResumeImage(file);
-    } else if (parsingStrategy === 'dual') {
-      toast.info("PDF Processing", {
-        description: "This PDF contains scanned images with OCR text. For best results, try both text and image parsing options.",
-      });
+      if (shouldUseImageParser) {
+        // For scanned PDFs, redirect to image parsing route
+        return processResumeImage(file);
+      }
+    } catch (error) {
+      console.error("Error during PDF preprocessing:", error);
+      // Continue with standard parsing if preprocessing fails
     }
   }
   
@@ -70,7 +69,15 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     // Validate parsed data
     if (!sanitizedData || isEmptyResumeData(sanitizedData)) {
       if (file.type === 'application/pdf') {
-        throw new Error("Could not extract meaningful data from your PDF. It might be scanned or image-based. Please try the Image Upload option instead.");
+        // If standard parsing fails for PDF, try image parsing as fallback
+        toast.info("Attempting image-based extraction", {
+          description: "Text extraction failed. Trying image-based extraction as fallback.",
+        });
+        
+        // Add some delay to allow toast to display
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        return processResumeImage(file);
       } else {
         throw new Error("Could not extract meaningful data from your resume. Please try a different file format.");
       }
@@ -99,13 +106,25 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
       processingTime
     };
   } catch (error) {
-    // For PDF files that fail with text extraction, suggest image parsing
-    if (file.type === 'application/pdf' && error instanceof Error) {
-      toast.error("PDF Parsing Failed", {
-        description: "Text extraction failed. This may be a scanned PDF. Try the Image Upload option instead.",
+    console.error("Error in standard file parsing:", error);
+    
+    // For PDF files that fail with text extraction, try image parsing
+    if (file.type === 'application/pdf') {
+      toast.info("Trying image-based extraction", {
+        description: "Text extraction failed. Trying image-based extraction...",
       });
-      throw new Error("PDF parsing failed. This appears to be a scanned PDF without proper text content. Please use the Image Upload option for better results.");
+      
+      try {
+        // Add some delay to allow toast to display
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        return processResumeImage(file);
+      } catch (imageError) {
+        console.error("Image parsing also failed:", imageError);
+        throw new Error("Both text and image extraction methods failed for this PDF. The file may be corrupted or password-protected.");
+      }
     }
+    
     // Re-throw original error for other file types
     throw error;
   }
@@ -138,8 +157,15 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
   
   const startTime = Date.now();
   try {
+    toast.loading("Processing your resume...", {
+      id: "resume-processing",
+      duration: 30000 // 30 seconds max
+    });
+    
     const parsedData = await parseResumeFromImage(file);
     const processingTime = Date.now() - startTime;
+    
+    toast.dismiss("resume-processing");
     
     // Sanitize the data to remove any PDF artifacts
     const sanitizedData = sanitizeResumeData(parsedData);
@@ -147,8 +173,14 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
     // Validate parsed data
     if (!sanitizedData || isEmptyResumeData(sanitizedData)) {
       if (file.type === 'application/pdf') {
+        toast.error("PDF Processing Failed", {
+          description: "Could not extract data from this PDF. The file may be corrupted or password-protected."
+        });
         throw new Error("Could not extract meaningful data from your PDF. The file may be corrupted or password-protected.");
       } else {
+        toast.error("Image Processing Failed", {
+          description: "Could not extract data from this image. Please try a clearer image."
+        });
         throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
       }
     }
@@ -162,6 +194,10 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
       };
     }
     
+    toast.success("Resume Processed", {
+      description: "Successfully extracted data from your resume."
+    });
+    
     // Check which parsing method was used
     const parsingMethod = sanitizedData.metadata?.parsingMethod || 'unknown';
     const usedFallback = parsingMethod.includes('fallback');
@@ -173,6 +209,9 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
       processingTime
     };
   } catch (error) {
+    toast.dismiss("resume-processing");
+    console.error("Error in image parsing:", error);
+    
     // If error includes OpenAI API format error for PDFs, provide clearer guidance
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (file.type === 'application/pdf' && errorMessage.includes('Invalid MIME type')) {

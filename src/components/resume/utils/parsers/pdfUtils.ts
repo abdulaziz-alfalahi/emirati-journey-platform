@@ -1,18 +1,16 @@
 
 /**
- * Utility functions for handling PDF files during resume parsing
+ * Utility functions for working with PDF files
  */
+import { type ResumeData } from '../../types';
+import { toast } from 'sonner';
 
 /**
- * Checks if the file is likely a scanned PDF (image-based rather than text-based)
- * This is a client-side check to determine if we should use the image API instead
- * 
+ * Check if a PDF appears to be scanned (image-based)
  * @param file PDF file to check
- * @returns Promise resolving to boolean indicating if the file is likely a scanned PDF
+ * @returns Promise resolving to boolean
  */
 export const checkIfScannedPdf = async (file: File): Promise<boolean> => {
-  if (file.type !== 'application/pdf') return false;
-  
   return new Promise((resolve) => {
     const reader = new FileReader();
     
@@ -23,147 +21,122 @@ export const checkIfScannedPdf = async (file: File): Promise<boolean> => {
         return;
       }
       
-      // Check if content has PDF header
-      if (!content.startsWith('%PDF')) {
-        resolve(false);
-        return;
-      }
+      // Look for indicators of a scanned PDF
+      const hasLimitedText = content.length < 1000; // Very little text content
+      const hasPdfObjects = content.includes('/Image') || content.includes('/XObject');
+      const hasLimitedTextObjects = !content.includes('/Text') || content.split('/Text').length < 5;
       
-      // Check for text extraction markers
-      const hasTextContent = content.includes('/Text') || 
-                             content.includes('/Font') || 
-                             content.includes('/TJ') ||
-                             content.includes('/Tj');
+      // Check if cleaning would remove most content
+      const cleanedLength = cleanPdfContent(content).length;
+      const originalLength = content.length;
+      const significantReduction = cleanedLength / originalLength < 0.1; // 90% reduction
       
-      // Check for image indicators
-      const hasImageContent = content.includes('/Image') && 
-                             content.includes('/XObject');
+      console.log(`PDF check - Original length: ${originalLength}, Cleaned length: ${cleanedLength}`);
+      console.log(`PDF indicators - Limited text: ${hasLimitedText}, PDF objects: ${hasPdfObjects}, Limited text objects: ${hasLimitedTextObjects}`);
       
-      // Check text to PDF marker ratio
-      const textMarkers = (content.match(/\/Text|\/Font|\/TJ|\/Tj/g) || []).length;
-      const imageMarkers = (content.match(/\/Image/g) || []).length * 3; // Weight images more heavily
-      
-      // Look specifically for PDF artifacts in the first 10KB
-      const firstPortion = content.substring(0, 10 * 1024);
-      const artifactMarkers = (firstPortion.match(/%PDF|\/Page|\/Contents|\/Resources|endobj|stream/g) || []).length;
-      
-      // If there are significantly more image markers than text markers or high artifact ratio
-      const isLikelyScanned = (hasImageContent && (!hasTextContent || imageMarkers > textMarkers)) || 
-                              (artifactMarkers > 30 && textMarkers < 10);
+      // PDF is likely scanned if it has image objects and limited text content
+      const isLikelyScanned = significantReduction || (hasPdfObjects && (hasLimitedText || hasLimitedTextObjects));
       
       resolve(isLikelyScanned);
     };
     
-    reader.onerror = () => resolve(false);
-    
-    // Read just the first 10KB to check header and markers
-    const blob = file.slice(0, 10 * 1024);
-    reader.readAsText(blob);
-  });
-};
-
-/**
- * Determines if the PDF has been OCR'd already
- * This checks for presence of actual text content despite being image-based
- * 
- * @param file PDF file to check
- * @returns Promise resolving to boolean indicating if the PDF has OCR content
- */
-export const hasOcrContent = async (file: File): Promise<boolean> => {
-  if (file.type !== 'application/pdf') return false;
-  
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      if (!content) {
-        resolve(false);
-        return;
-      }
-      
-      // Check for OCR indicators - specific patterns found in OCR'd PDFs
-      const hasOcrIndicators = 
-        content.includes('/ActualText') || 
-        content.includes('/Alt') ||
-        (content.includes('/Image') && content.includes('/Text'));
-      
-      // Look for actual text content (not just PDF markers)
-      // A real text PDF should have substantial text outside of PDF markers
-      const pdfMarkers = '%PDF /Type /Page /Contents /Resources obj endobj stream endstream xref trailer'.split(' ');
-      let cleanContent = content;
-      
-      // Remove PDF markers from content
-      pdfMarkers.forEach(marker => {
-        cleanContent = cleanContent.replace(new RegExp(marker, 'g'), ' ');
-      });
-      
-      // Check if there's meaningful text remaining
-      const hasSubstantialText = cleanContent.replace(/\s+/g, ' ').trim().length > 500;
-      
-      resolve(hasOcrIndicators || hasSubstantialText);
+    reader.onerror = () => {
+      resolve(false);
     };
     
-    reader.onerror = () => resolve(false);
-    
-    // Read a larger chunk for OCR detection
-    const blob = file.slice(0, 20 * 1024);
-    reader.readAsText(blob);
+    reader.readAsText(file);
   });
 };
 
 /**
- * Helper to determine the best parsing approach for a PDF
- * @param file PDF file to analyze
- * @returns Promise resolving to recommended approach: 'text', 'image', or 'dual'
+ * Clean PDF content by removing unwanted artifacts
+ * @param content PDF content as string
+ * @returns Cleaned content
  */
-export const determineParsingStrategy = async (file: File): Promise<'text' | 'image' | 'dual'> => {
-  if (file.type !== 'application/pdf') return 'text';
-  
-  const isScanned = await checkIfScannedPdf(file);
-  const hasOcr = await hasOcrContent(file);
-  
-  if (isScanned) {
-    return hasOcr ? 'dual' : 'image';
-  }
-  
-  return 'text';
+export const cleanPdfContent = (content: string): string => {
+  // Remove PDF-specific markers and objects
+  return content
+    .replace(/%PDF-[\d.]+/g, '')
+    .replace(/\b\d+\s+\d+\s+obj\b/g, '')
+    .replace(/endobj|endstream|xref|trailer|startxref/g, '')
+    .replace(/<<.*?>>/gs, '')
+    .replace(/stream[\s\S]*?endstream/g, '')
+    .trim();
 };
 
 /**
- * Extracts pure text content from PDF by removing PDF artifacts
- * @param content Raw text content from PDF
- * @returns Cleaned text content
+ * Determine the best parsing strategy for a PDF
+ * @param file PDF file to analyze
+ * @returns Promise resolving to parsing strategy
  */
-export const cleanPdfArtifacts = (content: string): string => {
-  if (!content) return '';
+export const determineParsingStrategy = async (file: File): Promise<'text' | 'image' | 'dual'> => {
+  const isScanned = await checkIfScannedPdf(file);
   
-  // Skip if not a PDF
-  if (!content.startsWith('%PDF')) return content;
+  if (isScanned) {
+    return 'image';
+  }
   
-  // Remove common PDF artifact patterns
-  let cleaned = content;
+  // Read a portion of the file to check for image and text elements
+  const buffer = await file.slice(0, Math.min(file.size, 100000)).arrayBuffer();
+  const content = new TextDecoder().decode(buffer);
   
-  // Remove PDF header and binary data
-  cleaned = cleaned.replace(/%PDF-[\d.]+[\s\S]*?(?=\w{2,})/i, '');
+  const hasTextContent = content.includes('/Text') || !content.includes('/Image');
+  const hasImageContent = content.includes('/Image') || content.includes('/XObject');
   
-  // Remove PDF object definitions
-  cleaned = cleaned.replace(/\d+ \d+ obj[\s\S]*?endobj/g, ' ');
+  if (hasTextContent && hasImageContent) {
+    return 'dual';
+  } else if (hasTextContent) {
+    return 'text';
+  } else {
+    return 'image';
+  }
+};
+
+/**
+ * Extract text content from a PDF
+ * @param fileContent PDF content as string
+ * @returns Extracted text content
+ */
+export const extractTextFromPdf = (fileContent: string): string => {
+  // This is a simplified extraction - in practice would need a proper PDF text extractor
+  let text = fileContent;
   
-  // Remove stream content
-  cleaned = cleaned.replace(/stream[\s\S]*?endstream/g, ' ');
+  // Clean PDF artifacts
+  text = cleanPdfContent(text);
   
-  // Remove PDF operators
-  cleaned = cleaned.replace(/\/\w+\s+/g, ' ');
+  // Try to extract text blocks
+  const textBlocks = text.match(/\(([^)]+)\)/g) || [];
+  if (textBlocks.length > 0) {
+    // Join text blocks without parentheses
+    return textBlocks.map(block => block.slice(1, -1)).join(' ');
+  }
   
-  // Remove xref tables
-  cleaned = cleaned.replace(/xref[\s\S]*?trailer/g, ' ');
+  // Return cleaned content if no text blocks found
+  return text;
+};
+
+/**
+ * Process a PDF file for resume parsing
+ * @param file PDF file to process
+ * @returns Promise resolving to best processing approach
+ */
+export const processPdfForResumeParsing = async (file: File): Promise<{
+  strategy: 'text' | 'image' | 'dual',
+  shouldUseImageParser: boolean
+}> => {
+  const strategy = await determineParsingStrategy(file);
+  const shouldUseImageParser = strategy === 'image' || strategy === 'dual';
   
-  // Remove other common artifacts
-  cleaned = cleaned.replace(/startxref[\s\S]*?%%EOF/g, ' ');
+  // Display guidance based on strategy
+  if (strategy === 'image') {
+    toast.info("Scanned PDF Detected", {
+      description: "This appears to be a scanned PDF. Using image-based extraction.",
+    });
+  } else if (strategy === 'dual') {
+    toast.info("Mixed Content PDF", {
+      description: "This PDF contains both text and images. Using optimal extraction method.",
+    });
+  }
   
-  // Remove excessive whitespace
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
-  
-  return cleaned;
+  return { strategy, shouldUseImageParser };
 };

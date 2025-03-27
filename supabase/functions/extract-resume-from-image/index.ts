@@ -53,8 +53,10 @@ serve(async (req) => {
           "email": "string",
           "phone": "string",
           "location": "string",
-          "linkedin": "string (optional)"
+          "linkedin": "string (optional)",
+          "website": "string (optional)"
         },
+        "summary": "string summarizing professional profile",
         "experience": [
           {
             "company": "string",
@@ -106,7 +108,7 @@ serve(async (req) => {
     console.log('Sending image to OpenAI for processing...');
 
     try {
-      // Call OpenAI API with vision capabilities
+      // Call OpenAI API with vision capabilities - using GPT-4o for better quality
       const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -114,25 +116,25 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4o', // Use best model for vision tasks
           messages: [
             { role: 'system', content: systemPrompt },
             { 
               role: 'user', 
               content: [
-                { type: 'text', text: 'Extract the resume data from this image:' },
+                { type: 'text', text: 'Extract the complete resume data from this image:' },
                 { 
                   type: 'image_url', 
                   image_url: {
                     url: imageData,
-                    detail: 'high'
+                    detail: 'high' // Request high detail for better extraction
                   }
                 }
               ]
             }
           ],
-          temperature: 0.2, // Lower temperature for more deterministic results
-        }) ,
+          temperature: 0.1, // Lower temperature for more deterministic results
+        }),
       });
 
       console.log('OpenAI API response status:', openAIResponse.status);
@@ -161,6 +163,22 @@ serve(async (req) => {
             JSON.stringify({ 
               error: 'Invalid OpenAI API key. Please check your API key and try again.',
               errorCode: 'INVALID_API_KEY',
+              fallbackToRegex: true 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Check if PDF format is unsupported
+        if (fileType === 'application/pdf' && 
+            errorData.error && 
+            (errorData.error.message?.includes('Invalid MIME type') || 
+             errorData.error.message?.includes('format is not supported'))) {
+          console.error('PDF format not supported by OpenAI Vision API');
+          return new Response(
+            JSON.stringify({ 
+              error: 'PDF format not directly supported by the OpenAI Vision API. Please convert your PDF to an image format first.',
+              errorCode: 'PDF_FORMAT_UNSUPPORTED',
               fallbackToRegex: true 
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -206,15 +224,50 @@ serve(async (req) => {
         // Add ids to each item in arrays
         if (parsedData.experience) {
           parsedData.experience = parsedData.experience.map(exp => ({...exp, id: crypto.randomUUID()}));
+        } else {
+          parsedData.experience = [];
         }
+        
         if (parsedData.education) {
           parsedData.education = parsedData.education.map(edu => ({...edu, id: crypto.randomUUID()}));
+        } else {
+          parsedData.education = [];
         }
+        
         if (parsedData.skills) {
           parsedData.skills = parsedData.skills.map(skill => ({...skill, id: crypto.randomUUID()}));
+        } else {
+          parsedData.skills = [];
         }
+        
         if (parsedData.languages) {
           parsedData.languages = parsedData.languages.map(lang => ({...lang, id: crypto.randomUUID()}));
+        } else {
+          parsedData.languages = [];
+        }
+        
+        // Ensure personal contains all required fields
+        if (!parsedData.personal) {
+          parsedData.personal = {
+            fullName: "",
+            jobTitle: "",
+            email: "",
+            phone: "",
+            location: "",
+            linkedin: "",
+            website: ""
+          };
+        } else {
+          // Ensure all fields exist in personal
+          parsedData.personal = {
+            fullName: parsedData.personal.fullName || "",
+            jobTitle: parsedData.personal.jobTitle || "",
+            email: parsedData.personal.email || "",
+            phone: parsedData.personal.phone || "",
+            location: parsedData.personal.location || "",
+            linkedin: parsedData.personal.linkedin || "",
+            website: parsedData.personal.website || ""
+          };
         }
         
         // Add metadata about the parsing process
@@ -238,7 +291,8 @@ serve(async (req) => {
           JSON.stringify({ 
             error: 'Failed to parse AI response as JSON',
             errorCode: 'JSON_PARSE_ERROR',
-            fallbackToRegex: true 
+            fallbackToRegex: true,
+            rawContent: generatedContent.substring(0, 500) + '...' // Include part of the raw response for debugging
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
