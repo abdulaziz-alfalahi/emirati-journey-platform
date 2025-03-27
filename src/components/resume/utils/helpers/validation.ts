@@ -9,16 +9,16 @@ import { ResumeData } from '../../types';
 export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined): boolean => {
   if (!data) return true;
   
-  // Check if personal section has any values
+  // Check if personal section has any valid values (not PDF artifacts)
   const hasPersonalData = data.personal && Object.values(data.personal).some(val => 
-    val && typeof val === 'string' && val.trim().length > 0
+    val && typeof val === 'string' && val.trim().length > 0 && !val.includes('%PDF')
   );
   
   // Check if any sections have content
   const hasExperience = data.experience && data.experience.length > 0;
   const hasEducation = data.education && data.education.length > 0;
   const hasSkills = data.skills && data.skills.length > 0;
-  const hasSummary = data.summary && data.summary.trim().length > 0;
+  const hasSummary = data.summary && data.summary.trim().length > 0 && !data.summary.includes('%PDF');
   
   return !hasPersonalData && !hasExperience && !hasEducation && !hasSkills && !hasSummary;
 };
@@ -124,4 +124,46 @@ export const validateLinkedInUrl = (url: string): {
   }
   
   return { isValid: true };
+};
+
+/**
+ * Checks if content contains PDF artifacts
+ * @param content Text content to check
+ * @returns Boolean indicating if content contains PDF artifacts
+ */
+export const containsPdfArtifacts = (content: string): boolean => {
+  if (!content) return false;
+  
+  const pdfArtifacts = [
+    '%PDF',
+    'endobj',
+    'endstream',
+    'xref',
+    'trailer',
+    'startxref',
+    '<<', 
+    '>>',
+    '/Type /Page',
+    '/Contents'
+  ];
+  
+  return pdfArtifacts.some(artifact => content.includes(artifact));
+};
+
+/**
+ * Sanitizes text to remove PDF artifacts
+ * @param text Text to sanitize
+ * @returns Sanitized text
+ */
+export const sanitizePdfArtifacts = (text: string): string => {
+  if (!text) return '';
+  
+  // Replace PDF header/trailer content
+  return text
+    .replace(/%PDF-[\d.]+/g, '')
+    .replace(/endobj|endstream|xref|trailer|startxref/g, '')
+    .replace(/<<[\s\S]*?>>/g, '')
+    .replace(/\b\d+\s+\d+\s+obj\b/g, '')
+    .replace(/stream[\s\S]*?endstream/g, '')
+    .trim();
 };

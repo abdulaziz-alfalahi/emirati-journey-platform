@@ -59,10 +59,10 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       console.log('Parsed resume image data:', parsedData);
       
       // Special handling for PDFs processed as images
-      if (file.type === 'application/pdf' && parsingMethod === 'pdf-as-image-pending') {
-        toast.warning("PDF Processing Limited", {
+      if (file.type === 'application/pdf' && parsingMethod.includes('pdf-as-image')) {
+        toast.warning("PDF Processing", {
           id: toastId,
-          description: "PDF could only be partially processed. For better results, try converting to JPG or PNG first.",
+          description: "Processing PDF as an image. This may take longer but should work for scanned documents.",
         });
       } else if (usedFallback) {
         toast.warning("Basic Extraction Used", {
@@ -132,8 +132,8 @@ const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
               <div className="text-sm text-blue-700">
                 <p className="font-medium mb-1">Processing PDF as Image</p>
                 <p>
-                  We'll attempt to process your PDF using our image recognition AI. 
-                  For best results with scanned documents, consider converting to JPG or PNG first.
+                  We'll process your PDF using our image recognition AI. 
+                  This works well for scanned documents and can extract text from images within the PDF.
                 </p>
               </div>
             </div>

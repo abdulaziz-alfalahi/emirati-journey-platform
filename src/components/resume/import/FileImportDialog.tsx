@@ -44,6 +44,22 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
     });
     
     try {
+      // Pre-check if this might be a scanned PDF
+      if (file.type === 'application/pdf') {
+        const isScanned = await checkIfScannedPdf(file);
+        if (isScanned) {
+          setIsScannedPdf(true);
+          
+          toast.warning("Scanned PDF Detected", {
+            id: toastId,
+            description: "This appears to be a scanned PDF. Please switch to Image Upload for better results.",
+          });
+          
+          setIsUploading(false);
+          return;
+        }
+      }
+      
       toast.loading("Extracting Data", {
         id: toastId,
         description: "Using Enhanced Parser to extract information...",
@@ -52,7 +68,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       const { parsedData, parsingMethod, usedFallback } = await processResumeFile(file);
       console.log('Parsed resume data:', parsedData);
       
-      // Check if we've parsed PDF headers instead of actual content
+      // Extra verification for PDF artifacts in the extracted content
       if (parsedData.personal?.fullName?.startsWith('%PDF')) {
         setIsScannedPdf(true);
         throw new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try the Image Upload option instead.");
@@ -107,6 +123,47 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       onOpenChange(false);
       onSwitchToImageUpload();
     }
+  };
+  
+  // Helper function to check if PDF is likely scanned
+  const checkIfScannedPdf = async (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        if (!content) {
+          resolve(false);
+          return;
+        }
+        
+        // Check PDF header and look for text content markers
+        const isPdf = content.startsWith('%PDF');
+        if (!isPdf) {
+          resolve(false);
+          return;
+        }
+        
+        // Check for common PDF text encoding patterns
+        const hasTextContent = content.includes('/Text') || 
+                              content.includes('/Font') || 
+                              content.includes('/Contents');
+                              
+        // Check for scanned image indicators
+        const likelyScanned = content.includes('/Image') && content.includes('/XObject') && 
+                             !content.includes('/Encoding') && !content.includes('/ActualText');
+                             
+        // Check text content ratio
+        const firstChunk = content.substring(0, 1000);
+        const textContentRatio = firstChunk.replace(/[^a-zA-Z0-9]/g, '').length / firstChunk.length;
+        
+        // Combine factors to decide
+        resolve(likelyScanned || textContentRatio < 0.3);
+      };
+      
+      reader.onerror = () => resolve(false);
+      reader.readAsText(file);
+    });
   };
 
   return (

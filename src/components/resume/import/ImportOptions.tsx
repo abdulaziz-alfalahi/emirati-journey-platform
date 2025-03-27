@@ -17,7 +17,16 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
 
+  // Enhanced logging to help troubleshoot callback issues
   console.log('ImportOptions rendered, onImportComplete type:', typeof onImportComplete);
+  console.log('currentData structure:', Object.keys(currentData).join(', '));
+
+  const handleSwitchToImageUpload = () => {
+    setFileDialogOpen(false);
+    setTimeout(() => {
+      setImageDialogOpen(true);
+    }, 100); // Small delay to ensure first dialog closes
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -56,9 +65,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
         onOpenChange={setFileDialogOpen}
         onImportComplete={onImportComplete}
         currentData={currentData}
-        onSwitchToImageUpload={() => {
-          setImageDialogOpen(true);
-        }}
+        onSwitchToImageUpload={handleSwitchToImageUpload}
       />
 
       <ImageImportDialog 
