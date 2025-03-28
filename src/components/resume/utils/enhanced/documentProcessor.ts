@@ -71,20 +71,27 @@ export const cleanText = (text: string): string => {
   return text.trim();
 };
 
-// New helper function specifically for Word documents
+// Enhanced helper function specifically for Word documents
 export const cleanWordDocument = (content: string): string => {
   if (!content) return "";
   
-  // Check if content appears to be XML/Word document metadata
+  // First, check if this is actually Word XML content
   const hasXmlMarkers = content.includes('<?xml') || 
-                        content.includes('[Content_Types]') ||
-                        content.includes('PK!') ||
-                        content.includes('_rels') ||
-                        content.includes('docProps');
+                         content.includes('[Content_Types]') ||
+                         content.includes('PK!') ||
+                         content.includes('_rels') ||
+                         content.includes('docProps');
   
   if (hasXmlMarkers) {
-    // This is likely raw XML data from a .docx file, not actual text content
-    // Extract only meaningful text content if possible
+    console.log("Word document contains XML markers, applying specialized cleaning");
+    
+    // Check if content seems totally corrupted (common with some DOCX files)
+    if (content.length > 1000 && 
+        !content.match(/[a-zA-Z]{5,}/g) && 
+        (content.includes('PK!') || content.includes('[Content_Types]'))) {
+      console.error("DOCX file appears to be corrupted or binary content");
+      return "Could not extract text from this Word document. The file might be corrupted or in an unsupported format.";
+    }
     
     // Remove XML tags and common Word XML artifacts
     let cleaned = content
@@ -105,15 +112,48 @@ export const cleanWordDocument = (content: string): string => {
         .join('\n');
     }
     
-    // If we still have obvious XML artifacts, consider the document invalid
-    if (cleaned.includes('<?xml') || cleaned.includes('[Content_Types]')) {
-      return "Could not extract text from this Word document. The file might be corrupted or in an unsupported format.";
+    // Extract and clean word xml document paragraphs
+    const paragraphs = content.match(/<w:p[\s\S]*?<\/w:p>/g);
+    if (paragraphs && paragraphs.length > 0) {
+      const paragraphTexts = paragraphs
+        .map(p => {
+          // Extract text runs within each paragraph
+          const runs = p.match(/<w:t[\s\S]*?<\/w:t>/g);
+          if (runs && runs.length > 0) {
+            return runs
+              .map(r => r.replace(/<w:t[^>]*>([\s\S]*?)<\/w:t>/, '$1'))
+              .join(' ');
+          }
+          return '';
+        })
+        .filter(text => text.trim().length > 0);
+      
+      if (paragraphTexts.length > 0) {
+        cleaned = paragraphTexts.join('\n\n');
+      }
+    }
+    
+    // Additional cleaning for obvious binary/XML artifacts that made it through
+    cleaned = cleaned
+      .replace(/PK!/g, '')
+      .replace(/\[Content_Types\]/g, '')
+      .replace(/docProps/g, '')
+      .replace(/_rels/g, '')
+      .replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove control characters
+    
+    // Special check for still-corrupted content
+    const wordCount = cleaned.split(/\s+/).filter(w => w.length > 1).length;
+    const nonTextRatio = (cleaned.replace(/[a-zA-Z0-9\s.,;:'"!?()-]/g, '').length / cleaned.length);
+    
+    if (wordCount < 5 || nonTextRatio > 0.3) {
+      console.error("After cleaning, document still contains too many non-text characters");
+      return "Could not properly extract text from this Word document. The file may be corrupted or in an unsupported format.";
     }
     
     return cleanText(cleaned);
   }
   
-  // If no XML markers, treat as normal text
+  // For normal text content (not XML), apply standard cleaning
   return cleanText(content);
 };
 

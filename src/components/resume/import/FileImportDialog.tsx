@@ -28,6 +28,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
   const [isScannedPdf, setIsScannedPdf] = useState(false);
+  const [documentParsingIssue, setDocumentParsingIssue] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +39,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
     setUploadError(null);
     setUsingFallback(false);
     setIsScannedPdf(false);
+    setDocumentParsingIssue(false);
     
     const toastId = toast.loading("Processing Resume", {
       description: "Analyzing your resume with Enhanced Parser...",
@@ -68,7 +70,26 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       const { parsedData, parsingMethod, usedFallback } = await processResumeFile(file);
       console.log('Parsed resume data:', parsedData);
       
-      // Extra verification for PDF artifacts in the extracted content
+      // Extra verification for document parsing artifacts in the extracted content
+      const hasDocumentArtifacts = 
+        parsedData?.personal?.fullName?.includes('PK!') || 
+        parsedData?.personal?.fullName?.includes('[Content_Types]') ||
+        parsedData?.summary?.includes('Could not extract text from this Word document') ||
+        parsedData?.summary?.includes('Could not extract text from this PDF');
+      
+      if (hasDocumentArtifacts) {
+        console.error("Document contains parsing artifacts, suggesting alternative import method");
+        setDocumentParsingIssue(true);
+        
+        toast.warning("Document Parsing Issue", {
+          id: toastId,
+          description: "Had trouble extracting clean text from this document. Please try converting to PDF or use Image Upload.",
+        });
+        
+        // Still continue with the data but flag it as problematic
+      }
+      
+      // Check specifically for PDF artifacts
       if (parsedData.personal?.fullName?.startsWith('%PDF')) {
         setIsScannedPdf(true);
         throw new Error("Could not properly extract text content from this PDF. The file may be scanned or contain only images. Please try the Image Upload option instead.");
@@ -76,12 +97,14 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       
       setUsingFallback(usedFallback);
       
-      toast.success("Resume Processed", {
-        id: toastId,
-        description: parsingMethod === 'enhanced-local'
-          ? "Your resume has been processed successfully using the Enhanced Parser."
-          : `Your resume has been processed successfully using ${parsingMethod}.`,
-      });
+      if (!hasDocumentArtifacts) {
+        toast.success("Resume Processed", {
+          id: toastId,
+          description: parsingMethod === 'enhanced-local'
+            ? "Your resume has been processed successfully using the Enhanced Parser."
+            : `Your resume has been processed successfully using ${parsingMethod}.`,
+        });
+      }
       
       if (typeof onImportComplete === 'function') {
         const mergedData = mergeResumeData(currentData, parsedData);
@@ -101,9 +124,13 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume file";
       const isScannedPdfError = errorMessage.includes("scanned or contain only images");
+      const isDocumentParsingError = errorMessage.includes("corrupted") || 
+                                    errorMessage.includes("unsupported format");
       
       if (isScannedPdfError) {
         setIsScannedPdf(true);
+      } else if (isDocumentParsingError) {
+        setDocumentParsingIssue(true);
       }
       
       setUploadError(errorMessage);
@@ -207,7 +234,28 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
             </div>
           )}
           
-          {usingFallback && !uploadError && !isScannedPdf && (
+          {documentParsingIssue && !isScannedPdf && (
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle size={24} className="text-amber-600 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-amber-800">Document Parsing Issue</h3>
+                  <p className="text-sm text-amber-700 mb-3">
+                    The document format may be corrupted or in an unsupported format.
+                    Please try converting your document to PDF first or use Image Upload.
+                  </p>
+                  <Button 
+                    onClick={handleSwitchToImageUpload}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                  >
+                    Switch to Image Upload
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {usingFallback && !uploadError && !isScannedPdf && !documentParsingIssue && (
             <div className="bg-amber-50 border border-amber-200 p-3 rounded-md flex items-start space-x-2">
               <AlertTriangle size={18} className="text-amber-500 mt-0.5" />
               <div className="text-sm text-amber-700">
