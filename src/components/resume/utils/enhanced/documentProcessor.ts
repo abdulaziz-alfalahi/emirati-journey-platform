@@ -11,6 +11,8 @@ export interface DocumentMetadata {
   processedAt: string;
   textLength: number;
   processingMethod: string;
+  error?: string;
+  fallbackReason?: string;
 }
 
 // Advanced document processor functionality
@@ -33,8 +35,25 @@ export const processDocument = (fileContent: string, fileType: string): { text: 
   } 
   else if (fileType.includes('word') || fileType.includes('doc')) {
     // For Word document content - enhanced processing to remove XML artifacts
-    text = cleanWordDocument(fileContent);
-    metadata.processingMethod = 'text-extraction-from-doc';
+    try {
+      text = cleanWordDocument(fileContent);
+      metadata.processingMethod = 'text-extraction-from-doc';
+      
+      // Check if the processed content looks valid
+      if (!text || text.length < 20) {
+        throw new Error("Insufficient text extracted from Word document");
+      }
+      
+      // Check for binary content indicators even after cleaning
+      if (text.includes('PK!') || text.includes('[Content_Types]')) {
+        throw new Error("Document appears to be binary format, not text");
+      }
+    } catch (error) {
+      console.error("Error processing Word document:", error);
+      text = "";
+      metadata.error = error instanceof Error ? error.message : "Unknown processing error";
+      metadata.fallbackReason = "Word document processing failed";
+    }
   } 
   else if (fileType.includes('text/plain')) {
     // For plain text
@@ -77,28 +96,27 @@ export const cleanWordDocument = (content: string): string => {
   
   // First, check if this is actually Word XML content
   const hasXmlMarkers = content.includes('<?xml') || 
-                         content.includes('[Content_Types]') ||
-                         content.includes('PK!') ||
-                         content.includes('_rels') ||
-                         content.includes('docProps');
+                       content.includes('[Content_Types]') ||
+                       content.includes('PK!') ||
+                       content.includes('_rels') ||
+                       content.includes('docProps');
   
   if (hasXmlMarkers) {
     console.log("Word document contains XML markers, applying specialized cleaning");
     
-    // Check if content seems totally corrupted (common with some DOCX files)
+    // Check if content seems totally corrupted (common with binary DOCX files)
     if (content.length > 1000 && 
-        !content.match(/[a-zA-Z]{5,}/g) && 
+        (!content.match(/[a-zA-Z]{5,}/g) || content.match(/[a-zA-Z]{5,}/g)?.length < 10) && 
         (content.includes('PK!') || content.includes('[Content_Types]'))) {
       console.error("DOCX file appears to be corrupted or binary content");
-      // Instead of returning error message, return empty string to indicate failure
-      return "";
+      throw new Error("This Word document appears to be in binary format and cannot be parsed directly. Please save it as PDF first.");
     }
     
     // If we detect a binary DOCX file (which is actually a ZIP archive) 
     // this simple text extraction won't work - fail early
-    if (content.substring(0, 100).includes('PK')) {
-      console.error("Binary DOCX detected, cannot process as text");
-      return "";
+    if (content.substring(0, 200).includes('PK') && !content.substring(0, 5000).includes('<w:p')) {
+      console.error("Binary DOCX detected without XML text content, cannot process as text");
+      throw new Error("Binary DOCX format detected without extractable text content. Please save as PDF first.");
     }
     
     // Extract text parts that look like actual content
@@ -120,13 +138,25 @@ export const cleanWordDocument = (content: string): string => {
         })
         .filter(p => p.trim().length > 0)
         .join('\n\n');
+        
+      // If we have very little text, this might not be valid content
+      if (textContent.length < 50 && content.length > 10000) {
+        console.warn("Very little text extracted from large document, might be corrupted");
+      }
     }
     
     // If we found no content with XML parsing but it has XML markers, 
     // it's likely corrupted or a binary file
     if (!textContent && hasXmlMarkers) {
       console.error("Could not extract text from Word XML structure");
-      return "";
+      
+      // Try one last approach - look for plain text in the mess
+      const plainTextMatches = content.match(/[A-Za-z]{5,}[\s\S]{0,10}[A-Za-z]{5,}/g);
+      if (plainTextMatches && plainTextMatches.length > 10) {
+        textContent = plainTextMatches.join(' ');
+      } else {
+        throw new Error("Unable to extract text content from this Word document. Please save as PDF and try again.");
+      }
     }
     
     // If we have content, return it after cleaning
@@ -153,7 +183,7 @@ export const cleanWordDocument = (content: string): string => {
     
     if (wordCount < 10 || nonTextCharRatio > 0.3) {
       console.error("Cleaned content still appears to be corrupted");
-      return "";
+      throw new Error("Document contains mostly non-text content or binary data. Please save as PDF or use Image upload.");
     }
     
     return cleanText(cleaned);

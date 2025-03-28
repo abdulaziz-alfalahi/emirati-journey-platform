@@ -39,7 +39,8 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       /\uFFFD/,  // Unicode replacement character
       /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
       /[!@#$%^&*()]{3,}/,  // Multiple special characters in a row
-      /^\s*l"%\d+/  // Specific pattern seen in corrupted Word docs
+      /^\s*l"%\d+/,  // Specific pattern seen in corrupted Word docs
+      /^\s*l"%.+%=/   // Extended pattern for Word corruptions
     ];
     
     let isCorrupted = false;
@@ -59,6 +60,22 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       
       // Check for "Not found" values when metadata indicates parsing failure
       if (value === "Not found" && metadata?.error) {
+        isCorrupted = true;
+      }
+    }
+    
+    // Special check for Word documents with DOCX metadata
+    if (metadata?.fileType?.includes('word') || 
+        metadata?.fileType?.includes('officedocument') ||
+        metadata?.fileType?.includes('docx')) {
+      // If there are multiple "Not found" values and strange jobTitle, likely corruption
+      const notFoundCount = Object.values(personal).filter(v => v === "Not found").length;
+      if (notFoundCount >= 3 && 
+          (personal.jobTitle && 
+           (personal.jobTitle.includes('%') || 
+            personal.jobTitle.includes('"') || 
+            personal.jobTitle.includes('\\')))) {
+        console.warn('Word document corruption pattern detected');
         isCorrupted = true;
       }
     }
@@ -92,7 +109,14 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Document Parsing Issue</AlertTitle>
           <AlertDescription className="text-xs">
-            {parsingError || "Your document contains formatting that couldn't be properly parsed. If you're uploading a Word document (.docx), please try saving it as PDF first or use the image upload option for better results."}
+            {parsingError || 
+              (currentData.metadata?.fileType?.includes('word') || 
+               currentData.metadata?.fileType?.includes('officedocument') || 
+               currentData.metadata?.fileType?.includes('docx') 
+                ? "We're having trouble parsing your Word document. Word files can sometimes contain formatting that makes extraction difficult. Please save your document as a PDF and try again, or use the Image Upload option for better results."
+                : "Your document contains formatting that couldn't be properly parsed. If you're uploading a Word document (.docx), please try saving it as PDF first or use the image upload option for better results."
+              )
+            }
           </AlertDescription>
         </Alert>
       )}
