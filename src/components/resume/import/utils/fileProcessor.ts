@@ -1,67 +1,12 @@
 
 import { ResumeData } from '../../types';
 import { parseResumeFromFile } from '../../utils/parsers/fileParser';
-import { 
-  isEmptyResumeData, 
-  validateResumeFileType, 
-  validateFileSize, 
-  sanitizeResumeData 
-} from '../../utils/helpers/validation';
+import { sanitizeResumeData } from '../../utils/helpers/validation';
 import { checkIfScannedPdf, processPdfForResumeParsing } from '../../utils/parsers/pdfUtils';
 import { toast } from 'sonner';
-import * as mammoth from 'mammoth';
-import { extractDataFromContent } from '../../utils/resumeContentParser';
-
-export interface ProcessedResult {
-  parsedData: Partial<ResumeData>;
-  parsingMethod: string;
-  usedFallback: boolean;
-  processingTime?: number;
-  error?: string;
-}
-
-/**
- * Process Word document as binary data using mammoth.js
- * @param file The DOCX file to process
- * @returns Promise resolving to extracted text
- */
-const extractTextFromDocx = async (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = async (event) => {
-      try {
-        if (!event.target || !event.target.result) {
-          throw new Error("Failed to read file");
-        }
-        
-        // Convert the ArrayBuffer to a Uint8Array that mammoth can process
-        const arrayBuffer = event.target.result as ArrayBuffer;
-        
-        // Extract text using mammoth
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        console.log("Mammoth extraction result:", result);
-        
-        if (!result.value) {
-          throw new Error("No text content extracted from DOCX");
-        }
-        
-        resolve(result.value);
-      } catch (error) {
-        console.error("Error extracting text from DOCX:", error);
-        reject(error);
-      }
-    };
-    
-    reader.onerror = (error) => {
-      console.error("File reading error:", error);
-      reject(new Error("Failed to read DOCX file"));
-    };
-    
-    // Read the file as an ArrayBuffer for binary processing
-    reader.readAsArrayBuffer(file);
-  });
-};
+import { ProcessedResult } from './processorTypes';
+import { processDocxFile } from './docxProcessor';
+import { validateResumeFile, isDocxFile, isPdfFile } from './fileValidators';
 
 /**
  * Handle file upload and parsing
@@ -69,71 +14,21 @@ const extractTextFromDocx = async (file: File): Promise<string> => {
  * @returns Promise resolving to processed resume data
  */
 export const processResumeFile = async (file: File): Promise<ProcessedResult> => {
-  // Validate file size
-  const sizeValidation = validateFileSize(file.size);
-  if (!sizeValidation.isValid) {
-    throw new Error(`File too large. Please upload a file smaller than ${sizeValidation.maxSizeInMB}.`);
-  }
-  
-  // Validate file type
-  const typeValidation = validateResumeFileType(file.type);
-  if (typeValidation.isUnsupported) {
-    toast.warning("Unsupported file type", {
-      description: `For best results, use ${typeValidation.supportedTypes.join(', ')} files.`,
-    });
+  // Validate the file first
+  const validation = validateResumeFile(file);
+  if (!validation.isValid) {
+    throw new Error(validation.errorMessage);
   }
   
   const startTime = Date.now();
   
-  // Special handling for DOCX files
-  if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
-      file.name.toLowerCase().endsWith('.docx')) {
-    console.log("Processing DOCX file with mammoth");
-    try {
-      // Extract text from binary DOCX using mammoth
-      const docxText = await extractTextFromDocx(file);
-      console.log("Extracted text from DOCX:", docxText.substring(0, 200) + "...");
-      
-      if (!docxText || docxText.length < 50) {
-        throw new Error("Insufficient text content extracted from Word document");
-      }
-      
-      // Use the extract function with the extracted text
-      const parsedData = extractDataFromContent(docxText, "text/plain");
-      
-      const processingTime = Date.now() - startTime;
-      
-      // Add metadata
-      parsedData.metadata = {
-        ...(parsedData.metadata || {}),
-        fileType: file.type,
-        fileSize: file.size,
-        processingTime,
-        parsingMethod: 'mammoth-docx-extraction'
-      };
-      
-      return {
-        parsedData: sanitizeResumeData(parsedData),
-        parsingMethod: 'mammoth-docx-extraction',
-        usedFallback: false,
-        processingTime
-      };
-    } catch (docxError) {
-      console.error("Mammoth DOCX extraction failed:", docxError);
-      toast.error("Word Document Processing Failed", {
-        description: "Unable to process the Word document. Please save as PDF and try again.",
-      });
-      
-      throw new Error(
-        docxError instanceof Error 
-          ? docxError.message 
-          : "Failed to process Word document. Please save as PDF and try again."
-      );
-    }
+  // Special handling for DOCX files using mammoth.js
+  if (isDocxFile(file)) {
+    return processDocxFile(file);
   }
   
   // PDF-specific pre-checks
-  if (file.type === 'application/pdf') {
+  if (isPdfFile(file)) {
     try {
       console.log("Processing PDF file to determine parsing strategy");
       const { strategy, shouldUseImageParser } = await processPdfForResumeParsing(file);
@@ -158,8 +53,8 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     const sanitizedData = sanitizeResumeData(parsedData);
     
     // Validate parsed data
-    if (!sanitizedData || isEmptyResumeData(sanitizedData)) {
-      if (file.type === 'application/pdf') {
+    if (!sanitizedData || Object.keys(sanitizedData).length === 0) {
+      if (isPdfFile(file)) {
         // If standard parsing fails for PDF, try image parsing as fallback
         toast.info("Attempting image-based extraction", {
           description: "Text extraction failed. Trying image-based extraction as fallback.",
@@ -201,7 +96,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     console.error("Error in standard file parsing:", error);
     
     // For PDF files that fail with text extraction, try image parsing
-    if (file.type === 'application/pdf') {
+    if (isPdfFile(file)) {
       toast.info("Trying image-based extraction", {
         description: "Text extraction failed. Trying image-based extraction...",
       });
