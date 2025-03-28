@@ -19,19 +19,31 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
   const [showScannedPdfAlert, setShowScannedPdfAlert] = useState(false);
+  const [showDocumentAlert, setShowDocumentAlert] = useState(false);
 
   // Enhanced logging to help troubleshoot callback issues
   console.log('ImportOptions rendered, onImportComplete type:', typeof onImportComplete);
   console.log('currentData structure:', Object.keys(currentData).join(', '));
 
-  // Check if we recently tried to parse a scanned PDF
+  // Check for parsing issues
   useEffect(() => {
-    if (currentData?.metadata?.fallbackReason?.includes('scanned')) {
-      setShowScannedPdfAlert(true);
-    } else if (currentData?.personal?.fullName && containsPdfArtifacts(currentData.personal.fullName)) {
+    // Check for scanned PDFs
+    if (currentData?.metadata?.fallbackReason?.includes('scanned') ||
+        (currentData?.personal?.fullName && containsPdfArtifacts(currentData.personal.fullName))) {
       setShowScannedPdfAlert(true);
     } else {
       setShowScannedPdfAlert(false);
+    }
+    
+    // Check for document parsing issues (Word, PDF artifacts)
+    if (currentData?.summary?.includes('Could not extract text from this Word document') ||
+        currentData?.summary?.includes('Could not extract text from this PDF') ||
+        (currentData?.personal?.fullName && 
+         (currentData.personal.fullName.includes('[Content_Types]') || 
+          currentData.personal.fullName.includes('PK!')))) {
+      setShowDocumentAlert(true);
+    } else {
+      setShowDocumentAlert(false);
     }
   }, [currentData]);
 
@@ -50,6 +62,24 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-xs">
             Detected a scanned PDF. For better results, please try using 
+            <Button 
+              variant="link" 
+              className="h-auto p-0 px-1 text-xs font-medium text-amber-700" 
+              onClick={handleSwitchToImageUpload}
+            >
+              Image Upload
+            </Button> 
+            instead.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {showDocumentAlert && (
+        <Alert variant="warning" className="mb-2 bg-amber-50">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-xs">
+            Document parsing issue detected. The file may be corrupted or in an unsupported format.
+            Please try converting your document to PDF first or use 
             <Button 
               variant="link" 
               className="h-auto p-0 px-1 text-xs font-medium text-amber-700" 
