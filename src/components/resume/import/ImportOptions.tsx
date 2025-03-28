@@ -1,13 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileUp, FileImage, Linkedin, AlertTriangle } from 'lucide-react';
+import { FileText, Image, Linkedin, Upload, AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ResumeData } from '../types';
+import LinkedInImportDialog from './LinkedInImportDialog';
 import FileImportDialog from './FileImportDialog';
 import ImageImportDialog from './ImageImportDialog';
-import LinkedInImportDialog from './LinkedInImportDialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { containsPdfArtifacts } from '../utils/helpers/validation';
+import { toast } from 'sonner';
 
 interface ImportOptionsProps {
   onImportComplete: (data: ResumeData) => void;
@@ -15,131 +15,133 @@ interface ImportOptionsProps {
 }
 
 const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, currentData }) => {
-  const [fileDialogOpen, setFileDialogOpen] = useState(false);
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const [linkedInDialogOpen, setLinkedInDialogOpen] = useState(false);
-  const [showScannedPdfAlert, setShowScannedPdfAlert] = useState(false);
-  const [showDocumentAlert, setShowDocumentAlert] = useState(false);
-
-  // Enhanced logging to help troubleshoot callback issues
+  // Debug logging to verify onImportComplete
   console.log('ImportOptions rendered, onImportComplete type:', typeof onImportComplete);
   console.log('currentData structure:', Object.keys(currentData).join(', '));
-
-  // Check for parsing issues
-  useEffect(() => {
-    // Check for scanned PDFs
-    if (currentData?.metadata?.fallbackReason?.includes('scanned') ||
-        (currentData?.personal?.fullName && containsPdfArtifacts(currentData.personal.fullName))) {
-      setShowScannedPdfAlert(true);
-    } else {
-      setShowScannedPdfAlert(false);
-    }
+  
+  const [fileImportOpen, setFileImportOpen] = useState(false);
+  const [imageImportOpen, setImageImportOpen] = useState(false);
+  const [linkedInImportOpen, setLinkedInImportOpen] = useState(false);
+  const [parsingError, setParsingError] = useState<string | null>(null);
+  
+  // Check if current data contains obvious corruption
+  const hasCorruptedData = React.useMemo(() => {
+    const { personal } = currentData;
+    if (!personal) return false;
     
-    // Check for document parsing issues (Word, PDF artifacts)
-    if (currentData?.summary?.includes('Could not extract text from this Word document') ||
-        currentData?.summary?.includes('Could not extract text from this PDF') ||
-        (currentData?.personal?.fullName && 
-         (currentData.personal.fullName.includes('[Content_Types]') || 
-          currentData.personal.fullName.includes('PK!')))) {
-      setShowDocumentAlert(true);
-    } else {
-      setShowDocumentAlert(false);
-    }
+    // Check for suspicious strings in personal info fields
+    const suspiciousPatterns = [
+      /PK!/,
+      /\[Content_Types\]/,
+      /docProps/,
+      /<%/,
+      /%>/,
+      /\uFFFD/,  // Unicode replacement character
+      /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
+      /[!@#$%^&*()]{3,}/  // Multiple special characters in a row
+    ];
+    
+    return Object.values(personal).some(value => {
+      if (typeof value !== 'string') return false;
+      return suspiciousPatterns.some(pattern => pattern.test(value));
+    });
   }, [currentData]);
-
-  const handleSwitchToImageUpload = () => {
-    setFileDialogOpen(false);
-    setShowScannedPdfAlert(false);
-    setTimeout(() => {
-      setImageDialogOpen(true);
-    }, 100); // Small delay to ensure first dialog closes
+  
+  // Handler for when parsing fails
+  const handleParsingError = (error: Error) => {
+    setParsingError(error.message);
+    toast.error("Parsing Failed", {
+      description: error.message,
+      duration: 5000
+    });
+  };
+  
+  // Clear error when dialogs are closed
+  const handleDialogClose = () => {
+    setParsingError(null);
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      {showScannedPdfAlert && (
-        <Alert variant="warning" className="mb-2 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
+    <div className="space-y-3">
+      {(parsingError || hasCorruptedData) && (
+        <Alert variant="destructive" className="mb-3">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Document Parsing Issue</AlertTitle>
           <AlertDescription className="text-xs">
-            Detected a scanned PDF. For better results, please try using 
-            <Button 
-              variant="link" 
-              className="h-auto p-0 px-1 text-xs font-medium text-amber-700" 
-              onClick={handleSwitchToImageUpload}
-            >
-              Image Upload
-            </Button> 
-            instead.
+            {parsingError || "Your document contains formatting that couldn't be properly parsed. Try uploading a PDF instead, or use the image upload option for better results."}
           </AlertDescription>
         </Alert>
       )}
       
-      {showDocumentAlert && (
-        <Alert variant="warning" className="mb-2 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-xs">
-            Document parsing issue detected. The file may be corrupted or in an unsupported format.
-            Please try converting your document to PDF first or use 
-            <Button 
-              variant="link" 
-              className="h-auto p-0 px-1 text-xs font-medium text-amber-700" 
-              onClick={handleSwitchToImageUpload}
-            >
-              Image Upload
-            </Button> 
-            instead.
-          </AlertDescription>
-        </Alert>
-      )}
+      <div className="grid grid-cols-2 gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full" 
+          onClick={() => setFileImportOpen(true)}
+        >
+          <FileText size={16} className="mr-2" />
+          Import from File
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full" 
+          onClick={() => setImageImportOpen(true)}
+        >
+          <Image size={16} className="mr-2" />
+          Import from Image
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full" 
+          onClick={() => setLinkedInImportOpen(true)}
+        >
+          <Linkedin size={16} className="mr-2" />
+          Import from LinkedIn
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full" 
+          disabled
+        >
+          <Upload size={16} className="mr-2" />
+          More Options
+        </Button>
+      </div>
       
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="justify-start" 
-        onClick={() => setFileDialogOpen(true)}
-      >
-        <FileUp size={16} className="mr-2" />
-        <span>Import from File</span>
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="justify-start" 
-        onClick={() => setImageDialogOpen(true)}
-      >
-        <FileImage size={16} className="mr-2" />
-        <span>Import from Image</span>
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="justify-start" 
-        onClick={() => setLinkedInDialogOpen(true)}
-      >
-        <Linkedin size={16} className="mr-2" />
-        <span>Import from LinkedIn</span>
-      </Button>
-
       <FileImportDialog 
-        open={fileDialogOpen}
-        onOpenChange={setFileDialogOpen}
+        open={fileImportOpen} 
+        onOpenChange={(open) => {
+          setFileImportOpen(open);
+          if (!open) handleDialogClose();
+        }}
         onImportComplete={onImportComplete}
+        onError={handleParsingError}
         currentData={currentData}
-        onSwitchToImageUpload={handleSwitchToImageUpload}
       />
-
+      
       <ImageImportDialog 
-        open={imageDialogOpen}
-        onOpenChange={setImageDialogOpen}
+        open={imageImportOpen} 
+        onOpenChange={(open) => {
+          setImageImportOpen(open);
+          if (!open) handleDialogClose();
+        }}
         onImportComplete={onImportComplete}
         currentData={currentData}
       />
-
+      
       <LinkedInImportDialog 
-        open={linkedInDialogOpen}
-        onOpenChange={setLinkedInDialogOpen}
+        open={linkedInImportOpen}
+        onOpenChange={(open) => {
+          setLinkedInImportOpen(open);
+          if (!open) handleDialogClose();
+        }}
         onImportComplete={onImportComplete}
         currentData={currentData}
       />
