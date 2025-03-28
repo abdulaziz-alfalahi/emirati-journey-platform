@@ -10,6 +10,7 @@ import {
 import { checkIfScannedPdf, processPdfForResumeParsing } from '../../utils/parsers/pdfUtils';
 import { toast } from 'sonner';
 import * as mammoth from 'mammoth';
+import { extractDataFromContent } from '../../utils/resumeContentParser';
 
 export interface ProcessedResult {
   parsedData: Partial<ResumeData>;
@@ -97,9 +98,8 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
         throw new Error("Insufficient text content extracted from Word document");
       }
       
-      // Use the resume parsers with the extracted text
-      const { parseResumeFromContent } = await import('../../utils/resumeContentParser');
-      const parsedData = parseResumeFromContent(docxText, "text/plain");
+      // Use the extract function with the extracted text
+      const parsedData = extractDataFromContent(docxText, "text/plain");
       
       const processingTime = Date.now() - startTime;
       
