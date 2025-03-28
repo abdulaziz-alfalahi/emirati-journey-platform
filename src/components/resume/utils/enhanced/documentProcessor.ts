@@ -4,6 +4,7 @@
  * Handles document preprocessing based on file type
  */
 import { v4 as uuidv4 } from 'uuid';
+import * as mammoth from 'mammoth';
 
 // Define the metadata type to include processingMethod
 export interface DocumentMetadata {

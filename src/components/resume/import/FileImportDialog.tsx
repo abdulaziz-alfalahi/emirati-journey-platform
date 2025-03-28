@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertCircle, FileText } from 'lucide-react';
+import { AlertCircle, FileText, FileUp } from 'lucide-react';
 import { ResumeData } from '../types';
 import { toast } from 'sonner';
 import { processResumeFile, mergeResumeData } from './importUtils';
@@ -26,6 +26,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Helper function to validate parsed data
@@ -75,9 +76,26 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
     return true;
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    // Store the selected file without uploading yet
+    setSelectedFile(file);
+    setUploadError(null);
+    
+    // Check file extension for Word documents and provide pre-warning for .docx files
+    if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
+      console.log('Word document detected, informing user about special handling');
+      toast.info("Word Document Detected", {
+        description: "We'll use special processing for your Word document. For best results, consider using PDF format.",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) return;
 
     setIsUploading(true);
     setUploadError(null);
@@ -87,16 +105,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
     });
     
     try {
-      // Check file extension for Word documents and provide pre-warning for .docx files
-      if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
-        console.log('Word document detected, warning user about potential issues');
-        toast.info("Word Document Detected", {
-          description: "Word documents may not parse correctly. If you have issues, please save as PDF first.",
-          duration: 5000,
-        });
-      }
-      
-      const { parsedData, usedFallback } = await processResumeFile(file);
+      const { parsedData, usedFallback } = await processResumeFile(selectedFile);
       
       // Validate parsed data to ensure it's not corrupted
       const isDataValid = validateParsedData(parsedData);
@@ -131,6 +140,8 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
         });
       }
       
+      // Reset the state
+      setSelectedFile(null);
       onOpenChange(false);
     } catch (error) {
       console.error('Error parsing resume:', error);
@@ -138,7 +149,7 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume";
       
       // Make the error message more user-friendly for Word documents
-      if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
+      if (selectedFile.name.toLowerCase().endsWith('.doc') || selectedFile.name.toLowerCase().endsWith('.docx')) {
         errorMessage = "Word document parsing failed. Please save your document as PDF and try again, or use the Image Upload option.";
       }
       
@@ -187,15 +198,15 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
               type="file"
               ref={fileInputRef}
               accept=".pdf,.doc,.docx,.txt,.rtf"
-              onChange={handleFileUpload}
+              onChange={handleFileChange}
               disabled={isUploading}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              PDF files work best. For Word documents, save as PDF first for better results.
+              PDF files work best. We now have improved support for Word documents.
             </p>
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex justify-between">
             <Button 
               variant="ghost" 
               onClick={() => onOpenChange(false)}
@@ -203,6 +214,17 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
             >
               Cancel
             </Button>
+            
+            {selectedFile && (
+              <Button 
+                variant="default" 
+                onClick={handleFileUpload}
+                disabled={isUploading}
+              >
+                <FileUp size={16} className="mr-2" />
+                {isUploading ? "Processing..." : "Import Resume"}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
