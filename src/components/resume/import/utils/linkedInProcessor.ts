@@ -2,7 +2,7 @@
 import { ResumeData } from '../../types';
 import { importFromLinkedIn } from '../../utils/parsers/linkedInImporter';
 import { validateLinkedInUrl } from '../../utils/helpers/validation';
-import { ProcessedResult } from './fileProcessor';
+import { ProcessedResult } from './processorTypes';
 import { toast } from 'sonner';
 
 /**

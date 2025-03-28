@@ -1,4 +1,3 @@
-
 import { ResumeData } from '../../types';
 import { parseResumeFromImage } from '../../utils/parsers/imageParser';
 import { 
@@ -8,7 +7,7 @@ import {
   sanitizeResumeData 
 } from '../../utils/helpers/validation';
 import { toast } from 'sonner';
-import { ProcessedResult } from './fileProcessor';
+import { ProcessedResult } from './processorTypes';
 
 /**
  * Handle image upload and parsing
