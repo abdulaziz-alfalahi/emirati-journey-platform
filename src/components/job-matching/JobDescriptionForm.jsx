@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2, AlertTriangle, CheckCircle, AlertCircle, ExternalLink, Save, List } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 export function JobDescriptionForm() {
   const [jobDescription, setJobDescription] = useState('');
@@ -19,6 +21,13 @@ export function JobDescriptionForm() {
   const [currentUser, setCurrentUser] = useState(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Adding manual fields to ensure required fields are populated
+  const [manualFields, setManualFields] = useState({
+    title: '',
+    company: '',
+    location: ''
+  });
 
   // Fetch current user on component mount
   useEffect(() => {
@@ -29,6 +38,17 @@ export function JobDescriptionForm() {
     
     fetchUser();
   }, []);
+
+  // Update manual fields when parsed data changes
+  useEffect(() => {
+    if (parsedData) {
+      setManualFields({
+        title: parsedData.title || '',
+        company: parsedData.company || '',
+        location: parsedData.location || ''
+      });
+    }
+  }, [parsedData]);
 
   // Test database connection function
   const testDatabaseInsert = async () => {
@@ -89,19 +109,13 @@ export function JobDescriptionForm() {
       return false;
     }
     
-    // Check for required fields
-    const requiredFields = ['title', 'company', 'description'];
-    const missingFields = requiredFields.filter(field => !data[field]);
-    
-    if (missingFields.length > 0) {
-      console.warn('Missing required fields:', missingFields);
-      return false;
-    }
+    // Check for required fields - we'll handle these manually now
+    // The form will ensure they're provided before saving
     
     // Check if requirements object has the expected structure
     if (!data.requirements || typeof data.requirements !== 'object') {
       console.warn('Requirements field is missing or not an object');
-      return false;
+      return true; // Allow save without requirements
     }
     
     console.log('Data validation passed');
@@ -169,15 +183,26 @@ export function JobDescriptionForm() {
       setParsedData(data);
       setApiStatus('success');
       
+      // Initialize manual fields with parsed data
+      setManualFields({
+        title: data.title || '',
+        company: data.company || '',
+        location: data.location || ''
+      });
+      
       // Validate the parsed data before saving
       const isValid = validateParsedData(data);
       
       if (isValid) {
-        await saveToDatabase(data);
+        toast({
+          title: 'Success',
+          description: 'Job description parsed successfully. Please review and save.',
+          variant: 'success',
+        });
       } else {
         toast({
           title: 'Partial Success',
-          description: 'Job description was parsed but the data structure is incomplete. Database save was skipped.',
+          description: 'Job description was parsed but the data structure is incomplete.',
           variant: 'warning',
         });
       }
@@ -197,7 +222,17 @@ export function JobDescriptionForm() {
   };
 
   // Separate function to save to database
-  const saveToDatabase = async (data) => {
+  const handleSaveToDatabase = async () => {
+    // Check if required fields are populated
+    if (!manualFields.title || !manualFields.company) {
+      toast({
+        title: 'Missing Required Fields',
+        description: 'Please ensure Title and Company fields are filled in',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSaving(true);
     
     try {
@@ -219,21 +254,29 @@ export function JobDescriptionForm() {
       // Get current timestamp
       const now = new Date().toISOString();
       
+      // Merge parsed data with manual fields
+      const mergedData = {
+        ...(parsedData || {}),
+        title: manualFields.title,
+        company: manualFields.company,
+        location: manualFields.location
+      };
+      
       // Create the record object with all required fields
       const recordToInsert = {
-        title: data.title || 'Untitled Position',
-        company: data.company || 'Unknown Company', // Required field in your schema
-        location: data.location || '',
-        employment_type: data.employment_type || '',
-        work_mode: data.work_mode || '',
-        description: data.description || '',
-        responsibilities: data.responsibilities || [],
-        requirements: data.requirements || {},
-        benefits: data.benefits || [],
-        salary: data.salary || {},
-        application_deadline: data.application_deadline || null,
-        posted_date: data.posted_date || null,
-        keywords: data.keywords || [],
+        title: mergedData.title,
+        company: mergedData.company, // Required field in your schema
+        location: mergedData.location || '',
+        employment_type: mergedData.employment_type || '',
+        work_mode: mergedData.work_mode || '',
+        description: mergedData.description || '',
+        responsibilities: mergedData.responsibilities || [],
+        requirements: mergedData.requirements || {},
+        benefits: mergedData.benefits || [],
+        salary: mergedData.salary || {},
+        application_deadline: mergedData.application_deadline || null,
+        posted_date: mergedData.posted_date || null,
+        keywords: mergedData.keywords || [],
         // Add these missing fields:
         is_active: true,  // Set to true by default for new job descriptions
         created_at: now,
@@ -275,6 +318,9 @@ export function JobDescriptionForm() {
           description: 'Job description parsed and saved successfully',
           variant: 'success',
         });
+        
+        // Navigate to the list view
+        navigate('/job-descriptions/list');
       }
     } catch (error) {
       console.error('Error saving to database:', error);
@@ -394,41 +440,75 @@ export function JobDescriptionForm() {
             <div className="mt-8">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-medium">Parsed Job Description</h3>
-                {validateParsedData(parsedData) && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => saveToDatabase(parsedData)}
-                    disabled={isSaving}
-                    className="flex items-center gap-2"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Save to Database
-                      </>
-                    )}
-                  </Button>
-                )}
               </div>
               
-              {!validateParsedData(parsedData) && (
-                <Alert className="mb-4 bg-amber-50 text-amber-800 border-amber-200">
-                  <AlertTriangle className="h-5 w-5" />
-                  <AlertTitle>Incomplete Data</AlertTitle>
+              <div className="space-y-4 mb-6 border p-4 rounded-md">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Required fields with manual input */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Title <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={manualFields.title}
+                      onChange={(e) => setManualFields({...manualFields, title: e.target.value})}
+                      placeholder="Job Title"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Company <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={manualFields.company}
+                      onChange={(e) => setManualFields({...manualFields, company: e.target.value})}
+                      placeholder="Company Name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Location
+                    </label>
+                    <Input
+                      value={manualFields.location}
+                      onChange={(e) => setManualFields({...manualFields, location: e.target.value})}
+                      placeholder="Job Location"
+                    />
+                  </div>
+                </div>
+                
+                <Alert className="bg-amber-50 text-amber-800 border-amber-200">
+                  <AlertCircle className="h-5 w-5" />
+                  <AlertTitle>Review Required</AlertTitle>
                   <AlertDescription>
-                    The parsed data is missing required fields. Database save is disabled.
+                    Please review and complete any missing required fields before saving.
                   </AlertDescription>
                 </Alert>
-              )}
+                
+                <Button 
+                  onClick={handleSaveToDatabase}
+                  disabled={isSaving || !manualFields.title || !manualFields.company}
+                  className="w-full mt-4"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save to Database
+                    </>
+                  )}
+                </Button>
+              </div>
               
               <div className="bg-gray-50 p-4 rounded-md">
-                <pre className="whitespace-pre-wrap text-sm">
+                <h4 className="text-sm font-medium mb-2">Raw Parsed Data</h4>
+                <pre className="whitespace-pre-wrap text-sm overflow-auto max-h-[400px]">
                   {JSON.stringify(parsedData, null, 2)}
                 </pre>
               </div>
