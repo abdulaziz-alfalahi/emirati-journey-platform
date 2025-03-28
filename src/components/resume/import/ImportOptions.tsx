@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, Image, Linkedin, Upload, AlertCircle } from 'lucide-react';
+import { FileText, Image, Linkedin, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ResumeData } from '../types';
 import LinkedInImportDialog from './LinkedInImportDialog';
@@ -26,7 +26,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   
   // Check if current data contains obvious corruption
   const hasCorruptedData = React.useMemo(() => {
-    const { personal } = currentData;
+    const { personal, metadata } = currentData;
     if (!personal) return false;
     
     // Check for suspicious strings in personal info fields
@@ -38,13 +38,37 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
       /%>/,
       /\uFFFD/,  // Unicode replacement character
       /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
-      /[!@#$%^&*()]{3,}/  // Multiple special characters in a row
+      /[!@#$%^&*()]{3,}/,  // Multiple special characters in a row
+      /^\s*l"%\d+/  // Specific pattern seen in corrupted Word docs
     ];
     
-    return Object.values(personal).some(value => {
-      if (typeof value !== 'string') return false;
-      return suspiciousPatterns.some(pattern => pattern.test(value));
-    });
+    let isCorrupted = false;
+    
+    // Check each field in personal
+    for (const key in personal) {
+      const value = personal[key];
+      if (typeof value !== 'string') continue;
+      
+      for (const pattern of suspiciousPatterns) {
+        if (pattern.test(value)) {
+          console.error(`Corrupted data detected in ${key}:`, value);
+          isCorrupted = true;
+          break;
+        }
+      }
+      
+      // Check for "Not found" values when metadata indicates parsing failure
+      if (value === "Not found" && metadata?.error) {
+        isCorrupted = true;
+      }
+    }
+    
+    // Check if metadata indicates parsing issues
+    if (metadata?.error || metadata?.fallbackReason) {
+      isCorrupted = true;
+    }
+    
+    return isCorrupted;
   }, [currentData]);
   
   // Handler for when parsing fails
@@ -68,7 +92,7 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Document Parsing Issue</AlertTitle>
           <AlertDescription className="text-xs">
-            {parsingError || "Your document contains formatting that couldn't be properly parsed. Try uploading a PDF instead, or use the image upload option for better results."}
+            {parsingError || "Your document contains formatting that couldn't be properly parsed. If you're uploading a Word document (.docx), please try saving it as PDF first or use the image upload option for better results."}
           </AlertDescription>
         </Alert>
       )}

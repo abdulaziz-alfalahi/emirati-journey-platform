@@ -28,6 +28,53 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Helper function to validate parsed data
+  const validateParsedData = (data: Partial<ResumeData>): boolean => {
+    // Check for corrupt personal data patterns
+    const suspiciousPatterns = [
+      /PK!/,
+      /\[Content_Types\]/,
+      /docProps/,
+      /<%/,
+      /%>/,
+      /\uFFFD/,  // Unicode replacement character
+      /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
+      /[!@#$%^&*()]{3,}/,  // Multiple special characters in a row
+      /^\s*l"%\d+/  // Specific pattern seen in corrupted Word docs
+    ];
+    
+    // Check personal info fields
+    if (data.personal) {
+      for (const key in data.personal) {
+        const value = data.personal[key];
+        if (typeof value !== 'string') continue;
+        
+        for (const pattern of suspiciousPatterns) {
+          if (pattern.test(value)) {
+            console.error(`Corrupted data detected in ${key}:`, value);
+            return false;
+          }
+        }
+      }
+    }
+    
+    // Ensure we have at least some meaningful data
+    const hasValidName = data.personal?.fullName && 
+                        data.personal.fullName !== "Not found" && 
+                        data.personal.fullName.length > 1;
+                        
+    // If we have almost no data and it's all "Not found", it's likely an error
+    const allNotFound = data.personal?.fullName === "Not found" &&
+                       data.personal?.email === "Not found" &&
+                       data.personal?.phone === "Not found";
+                       
+    if (allNotFound) {
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -40,19 +87,24 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
     });
     
     try {
+      // Check file extension for Word documents and provide pre-warning for .docx files
+      if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
+        console.log('Word document detected, warning user about potential issues');
+        toast.info("Word Document Detected", {
+          description: "Word documents may not parse correctly. If you have issues, please save as PDF first.",
+          duration: 5000,
+        });
+      }
+      
       const { parsedData, usedFallback } = await processResumeFile(file);
       
-      // Check for obviously corrupted data before proceeding
-      const corruptionCheck = Object.values(parsedData.personal || {}).some(value => {
-        if (typeof value !== 'string') return false;
-        // Check for suspicious patterns that indicate binary/XML content
-        return /PK!|Content_Types|docProps|\uFFFD|[^\x20-\x7E\s]/g.test(value as string);
-      });
+      // Validate parsed data to ensure it's not corrupted
+      const isDataValid = validateParsedData(parsedData);
       
-      if (corruptionCheck) {
+      if (!isDataValid) {
         throw new Error(
-          "Document contains formatting that couldn't be properly parsed. " +
-          "For Microsoft Word documents, we recommend saving as PDF first, or use the image upload option."
+          "Your document contains formatting that couldn't be properly parsed. " +
+          "For Word documents (.docx/.doc), please save as PDF first or use the image upload option instead."
         );
       }
       
@@ -84,6 +136,12 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
       console.error('Error parsing resume:', error);
       
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume";
+      
+      // Make the error message more user-friendly for Word documents
+      if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
+        errorMessage = "Word document parsing failed. Please save your document as PDF and try again, or use the Image Upload option.";
+      }
+      
       setUploadError(errorMessage);
       
       toast.error("Error Processing Resume", {
