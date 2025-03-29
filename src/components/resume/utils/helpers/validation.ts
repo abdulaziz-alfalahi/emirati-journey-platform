@@ -8,6 +8,9 @@ import { ResumeData } from '../../types';
 export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined): boolean => {
   if (!data) return true;
   
+  // Log the data for debugging
+  console.log('Checking if resume data is empty:', JSON.stringify(data, null, 2));
+  
   // Check if personal section has any valid values (not PDF artifacts)
   const hasPersonalData = data.personal && Object.values(data.personal).some(val => 
     val && typeof val === 'string' && val.trim().length > 0 && !containsPdfArtifacts(val)
@@ -16,10 +19,32 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
   // Check if any sections have content
   const hasExperience = data.experience && data.experience.length > 0;
   const hasEducation = data.education && data.education.length > 0;
-  const hasSkills = data.skills && data.skills.length > 0;
-  const hasSummary = data.summary && data.summary.trim().length > 0 && !containsPdfArtifacts(data.summary);
   
-  return !hasPersonalData && !hasExperience && !hasEducation && !hasSkills && !hasSummary;
+  // Check skills - handle both formats (array of strings or array of objects)
+  const hasSkills = data.skills && data.skills.length > 0 && data.skills.some(skill => {
+    if (typeof skill === 'string') {
+      return skill.trim().length > 0;
+    } else if (typeof skill === 'object' && skill !== null) {
+      return skill.name && typeof skill.name === 'string' && skill.name.trim().length > 0;
+    }
+    return false;
+  });
+  
+  // Check if summary exists and is not empty
+  const hasSummary = data.summary && typeof data.summary === 'string' && 
+                    data.summary.trim().length > 0 && !containsPdfArtifacts(data.summary);
+  
+  // Log validation results for debugging
+  console.log('Validation results:', {
+    hasPersonalData,
+    hasExperience,
+    hasEducation,
+    hasSkills,
+    hasSummary
+  });
+  
+  // Consider data valid if ANY section has content
+  return !(hasPersonalData || hasExperience || hasEducation || hasSkills || hasSummary);
 };
 
 /**
@@ -33,10 +58,12 @@ export const validateResumeFileType = (fileType: string): {
   isUnsupported: boolean;
 } => {
   const supportedTypes = [
-    'application/pdf', 
-    'application/msword', 
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
-    'text/plain'
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'text/rtf',
+    'application/rtf'
   ];
   
   const isValid = supportedTypes.includes(fileType);
@@ -50,8 +77,8 @@ export const validateResumeFileType = (fileType: string): {
 };
 
 /**
- * Validates image file types for resume parsing
- * @param fileType MIME type of the image file
+ * Validates image types for resume parsing
+ * @param fileType MIME type of the image
  * @returns Object with validation result and supported types
  */
 export const validateResumeImageType = (fileType: string): { 
@@ -61,21 +88,13 @@ export const validateResumeImageType = (fileType: string): {
   warning?: string;
 } => {
   const supportedTypes = [
-    'image/jpeg', 
-    'image/png', 
-    'image/webp', 
-    'image/heic'
-    // Removed 'application/pdf' as OpenAI's vision API doesn't accept PDFs directly
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'application/pdf'
   ];
-  
-  // Special handling for PDFs - we'll convert them to images server-side
-  if (fileType === 'application/pdf') {
-    return {
-      isValid: true,
-      supportedTypes: [...supportedTypes, 'application/pdf'],
-      isUnsupported: false
-    };
-  }
   
   const isValid = supportedTypes.includes(fileType);
   const isUnsupported = !isValid;
@@ -96,128 +115,81 @@ export const validateResumeImageType = (fileType: string): {
 };
 
 /**
- * Validates file size for resume parsing
+ * Validates file size
  * @param fileSize Size of the file in bytes
  * @param maxSize Maximum allowed size in bytes
- * @returns Object with validation result
+ * @returns Object with validation result and max size in MB
  */
-export const validateFileSize = (fileSize: number, maxSize: number = 5 * 1024 * 1024): {
+export const validateFileSize = (fileSize: number, maxSize: number): {
   isValid: boolean;
   maxSizeInMB: number;
-  fileSizeInMB: number;
 } => {
-  const isValid = fileSize <= maxSize;
   const maxSizeInMB = maxSize / (1024 * 1024);
-  const fileSizeInMB = fileSize / (1024 * 1024);
-  
   return {
-    isValid,
-    maxSizeInMB,
-    fileSizeInMB
+    isValid: fileSize <= maxSize,
+    maxSizeInMB
   };
 };
 
 /**
- * Validates LinkedIn URL format
- * @param url LinkedIn profile URL to validate
- * @returns Object with validation result and error message if invalid
+ * Checks if text contains PDF artifacts
+ * @param text Text to check for PDF artifacts
+ * @returns boolean indicating if text contains PDF artifacts
  */
-export const validateLinkedInUrl = (url: string): {
-  isValid: boolean;
-  errorMessage?: string;
-} => {
-  if (!url || !url.trim()) {
-    return {
-      isValid: false,
-      errorMessage: "Please enter your LinkedIn profile URL"
-    };
-  }
+export const containsPdfArtifacts = (text: string): boolean => {
+  if (!text || typeof text !== 'string') return false;
   
-  if (!url.includes('linkedin.com/in/')) {
-    return {
-      isValid: false,
-      errorMessage: "Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/yourprofile) "
-    };
-  }
-  
-  return { isValid: true };
-};
-
-/**
- * Checks if content contains PDF artifacts
- * @param content Text content to check
- * @returns Boolean indicating if content contains PDF artifacts
- */
-export const containsPdfArtifacts = (content: string): boolean => {
-  if (!content || typeof content !== 'string') return false;
-  
-  const pdfArtifacts = [
-    '%PDF',
-    'endobj',
-    'endstream',
-    'xref',
-    'trailer',
-    'startxref',
-    '<<', 
-    '>>',
-    '/Type /Page',
-    '/Contents'
+  // Common PDF artifact patterns
+  const pdfArtifactPatterns = [
+    /PDF_ARTIFACT_/i,
+    /\[\d+\]\s*$/,
+    /^\s*\[\d+\]/,
+    /\bpage\s+\d+\s+of\s+\d+\b/i,
+    /\u0000/,  // Null character
+    /\uFFFD/,  // Replacement character
+    /\u00A0{3,}/  // Multiple non-breaking spaces
   ];
   
-  // Check if content resembles a raw PDF structure
-  const hasArtifacts = pdfArtifacts.some(artifact => content.includes(artifact));
+  // Check for unusually long single "words" which are often PDF artifacts
+  const hasLongWord = text.split(/\s+/).some(word => word.length > 40);
   
-  // Check for PDF header percentage
-  const pdfHeaderRatio = content.startsWith('%PDF') ? 1 : 0;
+  // Check for patterns
+  const hasPatterns = pdfArtifactPatterns.some(pattern => pattern.test(text));
   
-  // Check if content is mostly symbols rather than text
-  const symbolRatio = (content.match(/[^a-zA-Z0-9\s]/g) || []).length / content.length;
-  
-  return hasArtifacts || pdfHeaderRatio > 0 || symbolRatio > 0.4;
+  return hasLongWord || hasPatterns;
 };
 
 /**
- * Sanitizes text to remove PDF artifacts
- * @param text Text to sanitize
- * @returns Sanitized text
+ * Checks if content appears to be a PDF with binary data
+ * @param fileContent Content to check
+ * @returns boolean indicating if content appears to be a PDF
  */
-export const sanitizePdfArtifacts = (text: string): string => {
-  if (!text) return '';
+export const isPdfBinary = (fileContent: string): boolean => {
+  if (!fileContent || typeof fileContent !== 'string') return false;
   
-  // Replace PDF header/trailer content
-  return text
-    .replace(/%PDF-[\d.]+/g, '')
-    .replace(/endobj|endstream|xref|trailer|startxref/g, '')
-    .replace(/<<[\s\S]*?>>/g, '')
-    .replace(/\b\d+\s+\d+\s+obj\b/g, '')
-    .replace(/stream[\s\S]*?endstream/g, '')
-    .trim();
-};
-
-/**
- * Determines if a PDF is likely scanned (image-based) rather than text-based
- * @param fileContent First portion of PDF content as string
- * @returns Boolean indicating if PDF is likely scanned
- */
-export const isLikelyScannedPdf = (fileContent: string): boolean => {
-  if (!fileContent.startsWith('%PDF')) return false;
+  // Check for PDF header
+  const isPdfHeader = fileContent.startsWith('%PDF-');
   
-  // Check for text extraction markers versus image markers
-  const hasTextMarkers = fileContent.includes('/Text') || 
-                        fileContent.includes('/Font') || 
-                        fileContent.includes('/TJ') ||
-                        fileContent.includes('/Tj');
+  // Check for binary content markers
+  const binaryMarkers = ['\u0000', '\u0001', '\u0002', '\u0003'];
+  const hasBinaryMarkers = binaryMarkers.some(marker => fileContent.includes(marker));
   
-  // Check for image indicators
-  const hasImageMarkers = fileContent.includes('/Image') && 
-                         fileContent.includes('/XObject');
+  // Check for image markers vs text markers
+  const imageMarkers = ['JFIF', 'PNG', 'GIF', 'JPEG', 'TIFF'];
+  const textMarkers = ['DOCTYPE', '<html', '<body', '<div', '<p>', '<span'];
   
-  // Count text vs image markers
-  const textMarkerCount = (fileContent.match(/\/Text|\/Font|\/TJ|\/Tj/g) || []).length;
-  const imageMarkerCount = (fileContent.match(/\/Image/g) || []).length * 3; // Weight images higher
+  const hasImageMarkers = imageMarkers.some(marker => fileContent.includes(marker));
+  const hasTextMarkers = textMarkers.some(marker => fileContent.includes(marker));
   
-  // If content has primarily image markers and few text markers, likely scanned
-  return (hasImageMarkers && (!hasTextMarkers || imageMarkerCount > textMarkerCount)) ||
+  const imageMarkerCount = imageMarkers.filter(marker => fileContent.includes(marker)).length;
+  const textMarkerCount = textMarkers.filter(marker => fileContent.includes(marker)).length;
+  
+  // It's likely a PDF binary if:
+  return isPdfHeader || 
+         // Either it has binary markers
+         hasBinaryMarkers || 
+         // Or it has more image markers than text markers
+         (hasImageMarkers && (!hasTextMarkers || imageMarkerCount > textMarkerCount)) ||
          // Or if it has PDF structure but no text extraction methods
          (fileContent.length > 500 && !hasTextMarkers);
 };
@@ -230,15 +202,18 @@ export const isLikelyScannedPdf = (fileContent: string): boolean => {
 export const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeData> => {
   if (!data) return {};
   
+  // Log before sanitization
+  console.log('Data before sanitization:', JSON.stringify(data, null, 2));
+  
   // Make a deep copy to avoid modifying the original
   const sanitized = JSON.parse(JSON.stringify(data));
   
-  // Clean personal information fields
+  // Clean personal information fields but be less aggressive
   if (sanitized.personal) {
     Object.keys(sanitized.personal).forEach(key => {
       const value = sanitized.personal[key];
       if (typeof value === 'string') {
-        // Check for PDF artifacts
+        // Only remove obvious PDF artifacts, not all content
         if (containsPdfArtifacts(value)) {
           sanitized.personal[key] = '';
         }
@@ -246,10 +221,38 @@ export const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeDat
     });
   }
   
-  // Clean summary
+  // Clean summary but be less aggressive
   if (typeof sanitized.summary === 'string' && containsPdfArtifacts(sanitized.summary)) {
     sanitized.summary = '';
   }
+  
+  // Handle skills array - ensure it's in the expected format
+  if (sanitized.skills && Array.isArray(sanitized.skills)) {
+    sanitized.skills = sanitized.skills.map(skill => {
+      // If skill is an object with a name property, keep the object structure
+      if (typeof skill === 'object' && skill !== null && skill.name) {
+        return skill;
+      }
+      // If skill is a string, keep it as is
+      if (typeof skill === 'string') {
+        return skill;
+      }
+      // Otherwise, convert to empty string
+      return '';
+    }).filter(skill => {
+      // Filter out empty skills
+      if (typeof skill === 'string') {
+        return skill.trim().length > 0;
+      }
+      if (typeof skill === 'object' && skill !== null) {
+        return skill.name && typeof skill.name === 'string' && skill.name.trim().length > 0;
+      }
+      return false;
+    });
+  }
+  
+  // Log after sanitization
+  console.log('Data after sanitization:', JSON.stringify(sanitized, null, 2));
   
   return sanitized;
 };
