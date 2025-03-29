@@ -1,3 +1,6 @@
 
-// Export all import components
-export { default as ImportOptions } from './ImportOptions';
+import ImportOptions from './ImportOptions';
+
+export {
+  ImportOptions
+};

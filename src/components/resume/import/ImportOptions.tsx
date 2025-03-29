@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { FileText, Image, Linkedin, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { ResumeData } from '../types';
 import LinkedInImportDialog from './LinkedInImportDialog';
 import FileImportDialog from './FileImportDialog';
 import ImageImportDialog from './ImageImportDialog';
+import { ImportAlert } from './components/ImportAlert';
+import { ImportButtons } from './components/ImportButtons';
 import { toast } from 'sonner';
 
 interface ImportOptionsProps {
@@ -101,67 +100,24 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, current
   const handleDialogClose = () => {
     setParsingError(null);
   };
+  
+  const isWordDocument = currentData.metadata?.fileType?.includes('word') || 
+                         currentData.metadata?.fileType?.includes('officedocument') || 
+                         currentData.metadata?.fileType?.includes('docx');
 
   return (
     <div className="space-y-3">
-      {(parsingError || hasCorruptedData) && (
-        <Alert variant="destructive" className="mb-3">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Document Parsing Issue</AlertTitle>
-          <AlertDescription className="text-xs">
-            {parsingError || 
-              (currentData.metadata?.fileType?.includes('word') || 
-               currentData.metadata?.fileType?.includes('officedocument') || 
-               currentData.metadata?.fileType?.includes('docx') 
-                ? "We're having trouble parsing your Word document. Word files can sometimes contain formatting that makes extraction difficult. Please save your document as a PDF and try again, or use the Image Upload option for better results."
-                : "Your document contains formatting that couldn't be properly parsed. If you're uploading a Word document (.docx), please try saving it as PDF first or use the image upload option for better results."
-              )
-            }
-          </AlertDescription>
-        </Alert>
-      )}
+      <ImportAlert 
+        parsingError={parsingError}
+        hasCorruptedData={hasCorruptedData}
+        isWordDocument={isWordDocument}
+      />
       
-      <div className="grid grid-cols-2 gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full" 
-          onClick={() => setFileImportOpen(true)}
-        >
-          <FileText size={16} className="mr-2" />
-          Import from File
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full" 
-          onClick={() => setImageImportOpen(true)}
-        >
-          <Image size={16} className="mr-2" />
-          Import from Image
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full" 
-          onClick={() => setLinkedInImportOpen(true)}
-        >
-          <Linkedin size={16} className="mr-2" />
-          Import from LinkedIn
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full" 
-          disabled
-        >
-          <Upload size={16} className="mr-2" />
-          More Options
-        </Button>
-      </div>
+      <ImportButtons
+        onOpenFileImport={() => setFileImportOpen(true)}
+        onOpenImageImport={() => setImageImportOpen(true)}
+        onOpenLinkedInImport={() => setLinkedInImportOpen(true)}
+      />
       
       <FileImportDialog 
         open={fileImportOpen} 
