@@ -18,6 +18,9 @@ import MatchingPage from "./pages/matching/index";
 import JobDescriptionsPage from "./pages/job-descriptions.jsx";
 import JobDescriptionsListPage from "./pages/job-descriptions/list.jsx";
 import React from "react";
+// Import PDF.js worker
+import 'pdfjs-dist/build/pdf.worker.entry';
+
 
 // Create QueryClient outside of the component to avoid recreation on re-renders
 const queryClient = new QueryClient();
