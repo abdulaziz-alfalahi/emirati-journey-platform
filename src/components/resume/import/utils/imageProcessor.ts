@@ -7,7 +7,7 @@ import {
   sanitizeResumeData 
 } from '../../utils/helpers/validation';
 import { toast } from 'sonner';
-import { ProcessedResult } from './processorTypes';
+import { ProcessedResult } from './fileProcessor';
 
 /**
  * Handle image upload and parsing
@@ -36,12 +36,20 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
   
   const startTime = Date.now();
   try {
+    // Increase timeout duration for processing
     toast.loading("Processing your resume...", {
       id: "resume-processing",
-      duration: 30000 // 30 seconds max
+      duration: 60000 // Increase to 60 seconds from 30 seconds
     });
     
-    const parsedData = await parseResumeFromImage(file);
+    // Create a timeout promise to handle long-running processes
+    const processingPromise = parseResumeFromImage(file);
+    const timeoutPromise = new Promise<Partial<ResumeData>>((_, reject) => {
+      setTimeout(() => reject(new Error('Processing timed out after 55 seconds')), 55000);
+    });
+    
+    // Race the processing against the timeout
+    const parsedData = await Promise.race([processingPromise, timeoutPromise]);
     const processingTime = Date.now() - startTime;
     
     toast.dismiss("resume-processing");
@@ -53,12 +61,14 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
     if (!sanitizedData || isEmptyResumeData(sanitizedData)) {
       if (file.type === 'application/pdf') {
         toast.error("PDF Processing Failed", {
-          description: "Could not extract data from this PDF. The file may be corrupted or password-protected."
+          description: "Could not extract data from this PDF. The file may be corrupted or password-protected.",
+          duration: 8000 // Give users more time to read the message
         });
         throw new Error("Could not extract meaningful data from your PDF. The file may be corrupted or password-protected.");
       } else {
         toast.error("Image Processing Failed", {
-          description: "Could not extract data from this image. Please try a clearer image."
+          description: "Could not extract data from this image. Please try a clearer image with better lighting and contrast.",
+          duration: 8000 // Give users more time to read the message
         });
         throw new Error("Could not extract meaningful data from your resume image. Please try a clearer image or a different format.");
       }
@@ -91,13 +101,31 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
     toast.dismiss("resume-processing");
     console.error("Error in image parsing:", error);
     
-    // If error includes OpenAI API format error for PDFs, provide clearer guidance
+    // Enhanced error handling with more specific messages
     const errorMessage = error instanceof Error ? error.message : String(error);
-    if (file.type === 'application/pdf' && errorMessage.includes('Invalid MIME type')) {
+    let userFriendlyMessage = "Failed to process your resume.";
+    let actionSuggestion = "Please try again with a different file.";
+    
+    // Provide more specific guidance based on error type
+    if (errorMessage.includes('timed out')) {
+      userFriendlyMessage = "Processing took too long to complete.";
+      actionSuggestion = "Try a simpler document or a different format.";
+      
+      toast.error("Processing Timeout", {
+        description: `${userFriendlyMessage} ${actionSuggestion}`,
+        duration: 8000
+      });
+      
+      throw new Error(`Resume processing timed out. ${actionSuggestion}`);
+    } else if (file.type === 'application/pdf' && errorMessage.includes('Invalid MIME type')) {
       console.error('PDF format error with OpenAI:', errorMessage);
       
+      userFriendlyMessage = "PDF format not directly supported by our AI service.";
+      actionSuggestion = "Please convert to JPG or PNG first.";
+      
       toast.error("PDF Format Issue", {
-        description: "PDF format not directly supported by our AI service. Please convert to JPG/PNG first.",
+        description: `${userFriendlyMessage} ${actionSuggestion}`,
+        duration: 8000
       });
       
       // Create a descriptive but simplified error for the user
@@ -105,9 +133,24 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
         "PDF format not directly supported by our AI image service. We're working on converting PDFs to images automatically. " +
         "For now, please convert your PDF to JPG or PNG before uploading."
       );
+    } else if (errorMessage.includes('No meaningful data')) {
+      userFriendlyMessage = "The AI couldn't extract information from your document.";
+      actionSuggestion = "Try uploading a clearer image with better lighting and contrast.";
+      
+      toast.error("Data Extraction Failed", {
+        description: `${userFriendlyMessage} ${actionSuggestion}`,
+        duration: 8000
+      });
+      
+      throw new Error(`${userFriendlyMessage} ${actionSuggestion}`);
     }
     
-    // Re-throw original error
+    // Re-throw original error with enhanced message
+    toast.error("Resume Processing Error", {
+      description: `${userFriendlyMessage} ${actionSuggestion}`,
+      duration: 8000
+    });
+    
     throw error;
   }
 };
