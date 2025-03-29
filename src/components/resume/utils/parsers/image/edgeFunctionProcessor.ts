@@ -1,4 +1,3 @@
-
 import { ResumeData, PersonalInfo } from '../../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { isEmptyResumeData, sanitizeResumeData } from '../../helpers/validation';
