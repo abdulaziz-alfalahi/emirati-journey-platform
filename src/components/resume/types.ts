@@ -1,107 +1,200 @@
-// Resume template definition
-export interface ResumeTemplate {
-  id: string;
+// src/components/resume/types.ts
+
+/**
+ * Skill interface to support both object and string formats
+ */
+export interface Skill {
+  id?: string;
   name: string;
-  description: string;
-  sections: string[];
+  level?: string;
 }
 
-// Resume data structure
-export interface ResumeData {
-  personal: PersonalInfo;
-  summary?: string;
-  experience: WorkExperience[];
-  education: Education[];
-  skills: Skill[];
-  languages: Language[];
-  certifications?: Certification[];
-  projects?: Project[];
-  achievements?: Achievement[];
-  metadata?: {
-    parsingMethod?: string;
-    parsedAt?: string;
-    fileType?: string;
-    fileSize?: number;
-    sectionCount?: number;
-    sectionNames?: string[];
-    parser?: string;
-    validation?: any;
-    linkedInUrl?: string;
-    error?: string;
-    lastSaved?: string;
-    [key: string]: any;
-  };
+/**
+ * Language interface for language proficiency
+ */
+export interface Language {
+  id?: string;
+  name: string;
+  proficiency: string;
 }
 
-export interface PersonalInfo {
-  fullName: string;
-  jobTitle: string;
-  email: string;
-  phone: string;
-  location: string;
-  coordinates?: [number, number]; // Add coordinates for map location
-  linkedin: string;
-  website: string;
-  photo?: string;
-}
-
-export interface WorkExperience {
-  id: string;
+/**
+ * Experience entry interface
+ */
+export interface Experience {
+  id?: string;
   company: string;
   position: string;
   location?: string;
   startDate: string;
-  endDate?: string;
-  current: boolean;
+  endDate: string | null;
+  current?: boolean;
   description: string;
-  achievements?: string[];
 }
 
+/**
+ * Education entry interface
+ */
 export interface Education {
-  id: string;
+  id?: string;
   institution: string;
   degree: string;
   field: string;
   location?: string;
   startDate: string;
-  endDate?: string;
-  current: boolean;
+  endDate: string | null;
+  current?: boolean;
   description?: string;
 }
 
-export interface Skill {
-  id: string;
-  name: string;
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+/**
+ * Personal information interface
+ */
+export interface Personal {
+  fullName: string;
+  jobTitle: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin?: string;
+  website?: string;
+  profileImage?: string;
 }
 
-export interface Language {
-  id: string;
-  name: string;
-  proficiency: 'basic' | 'conversational' | 'fluent' | 'native';
+/**
+ * Metadata for tracking resume processing
+ */
+export interface ResumeMetadata {
+  parsingMethod?: string;
+  parsedAt?: string;
+  fileType?: string;
+  fileSize?: number;
+  fileName?: string;
+  processingTime?: number;
+  processingId?: string;
+  sanitized?: boolean;
+  sanitizedAt?: string;
+  conversionMethod?: string;
+  originalFileType?: string;
+  originalFileName?: string;
+  note?: string;
+  failedAttempts?: string[];
+  [key: string]: any; // Allow for additional metadata properties
 }
 
-export interface Certification {
-  id: string;
-  name: string;
-  issuer: string;
-  date: string;
-  expires?: string;
-  credential?: string;
+/**
+ * Complete resume data structure
+ */
+export interface ResumeData {
+  personal: Personal;
+  summary: string;
+  experience: Experience[];
+  education: Education[];
+  skills: Array<Skill | string>; // Support both object and string formats
+  languages?: Language[];
+  certifications?: Array<{
+    id?: string;
+    name: string;
+    issuer?: string;
+    date?: string;
+    expiryDate?: string;
+    url?: string;
+  }>;
+  projects?: Array<{
+    id?: string;
+    name: string;
+    description: string;
+    url?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
+  interests?: string[];
+  references?: Array<{
+    id?: string;
+    name: string;
+    position?: string;
+    company?: string;
+    contact?: string;
+    relationship?: string;
+  }>;
+  metadata?: ResumeMetadata;
 }
 
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  url?: string;
-  startDate?: string;
-  endDate?: string;
+/**
+ * Resume section types for UI navigation
+ */
+export type ResumeSection = 
+  | 'personal'
+  | 'summary'
+  | 'experience'
+  | 'education'
+  | 'skills'
+  | 'languages'
+  | 'certifications'
+  | 'projects'
+  | 'interests'
+  | 'references';
+
+/**
+ * Resume template options
+ */
+export type ResumeTemplate = 
+  | 'modern'
+  | 'professional'
+  | 'creative'
+  | 'minimal'
+  | 'executive';
+
+/**
+ * Resume color scheme options
+ */
+export type ResumeColorScheme =
+  | 'default'
+  | 'blue'
+  | 'green'
+  | 'red'
+  | 'purple'
+  | 'orange'
+  | 'teal'
+  | 'custom';
+
+/**
+ * Resume format options for export
+ */
+export type ResumeFormat = 'pdf' | 'docx' | 'txt';
+
+/**
+ * Resume settings interface
+ */
+export interface ResumeSettings {
+  template: ResumeTemplate;
+  colorScheme: ResumeColorScheme;
+  customColor?: string;
+  fontSize: 'small' | 'medium' | 'large';
+  fontFamily: string;
+  showProfileImage: boolean;
+  pageSize: 'a4' | 'letter' | 'legal';
+  margins: 'narrow' | 'normal' | 'wide';
+  sectionOrder: ResumeSection[];
+  hiddenSections: ResumeSection[];
 }
 
-export interface Achievement {
-  id: string;
-  title: string;
-  date?: string;
-  description: string;
-}
+/**
+ * Resume import source options
+ */
+export type ResumeImportSource = 
+  | 'file'
+  | 'image'
+  | 'linkedin'
+  | 'url'
+  | 'text';
+
+/**
+ * Resume parsing status
+ */
+export type ResumeParsingStatus = 
+  | 'idle'
+  | 'processing'
+  | 'success'
+  | 'error'
+  | 'partial';
