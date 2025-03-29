@@ -11,8 +11,9 @@ interface EdgeFunctionError {
   context?: any;
 }
 
+// Define the response structure from the edge function
 interface EdgeFunctionResponse {
-  data: any;
+  data: any;  // This will contain the actual ResumeData
   error: EdgeFunctionError | null;
 }
 
@@ -83,36 +84,37 @@ export const processWithEdgeFunction = async (
       throw new Error(`Image extraction failed: ${response.error.message}`);
     }
     
-    const data = response.data;
+    // The response.data should contain the parsed resume data
+    const extractedData = response.data;
     
     // Log response information for debugging
     console.log('Edge function response:', {
       success: true,
-      dataReceived: !!data,
-      dataKeys: data ? Object.keys(data) : [],
+      dataReceived: !!extractedData,
+      dataKeys: extractedData ? Object.keys(extractedData) : [],
       processingTime: Date.now() - startTime
     });
     
-    if (!data) {
+    if (!extractedData) {
       throw new Error('No data returned from image extraction service');
     }
     
     console.log('Image extraction successful');
-    console.log('Raw data from edge function:', JSON.stringify(data, null, 2));
+    console.log('Raw data from edge function:', JSON.stringify(extractedData, null, 2));
     
     // Sanitize the data to remove any artifacts
-    const sanitizedData = sanitizeResumeData(data);
+    const sanitizedData = sanitizeResumeData(extractedData);
     console.log('Sanitized data:', JSON.stringify(sanitizedData, null, 2));
     
     // MODIFIED SECTION: Bypass strict validation check
     if (isEmptyResumeData(sanitizedData)) {
       console.warn('Extracted data appears empty after sanitization, but proceeding anyway');
-      console.log('Original data keys:', Object.keys(data));
+      console.log('Original data keys:', Object.keys(extractedData));
       console.log('Sanitized data keys:', Object.keys(sanitizedData));
       
       // Log detailed information about the data structure
-      if (data.personal) {
-        console.log('Personal data before sanitization:', data.personal);
+      if (extractedData.personal) {
+        console.log('Personal data before sanitization:', extractedData.personal);
       }
       
       if (sanitizedData.personal) {
