@@ -1,4 +1,3 @@
-
 import { ResumeData } from '../../types';
 
 /**
@@ -17,6 +16,7 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
     // Add strict type checking before calling trim()
     if (val === null || val === undefined) return false;
     if (typeof val !== 'string') return false;
+    // Now it's safe to call trim() because we've confirmed val is a string
     return val.trim().length > 0 && !containsPdfArtifacts(val);
   });
   
