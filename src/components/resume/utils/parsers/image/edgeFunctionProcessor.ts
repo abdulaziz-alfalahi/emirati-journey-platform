@@ -13,7 +13,7 @@ interface EdgeFunctionError {
 
 // Define the response structure from the edge function
 interface EdgeFunctionResponse {
-  data: any;  // This will contain the actual ResumeData
+  data: Partial<ResumeData>;  // This will contain the actual ResumeData
   error: EdgeFunctionError | null;
 }
 
