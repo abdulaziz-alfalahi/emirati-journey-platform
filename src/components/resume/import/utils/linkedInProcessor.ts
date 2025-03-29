@@ -1,30 +1,42 @@
 
 import { ResumeData } from '../../types';
 import { importFromLinkedIn } from '../../utils/parsers/linkedInImporter';
-import { validateLinkedInUrl } from '../../utils/helpers/validation';
+import { sanitizeResumeData } from '../../utils/helpers/validation';
 import { ProcessedResult } from './processorTypes';
-import { toast } from 'sonner';
 
 /**
- * Process LinkedIn profile import
- * @param linkedInUrl LinkedIn profile URL
- * @returns Promise resolving to processed LinkedIn data
+ * Process LinkedIn profile data
+ * @param linkedInData Raw LinkedIn data
+ * @returns Processed resume data
  */
-export const processLinkedInProfile = async (linkedInUrl: string): Promise<ProcessedResult> => {
-  // Validate LinkedIn URL
-  const urlValidation = validateLinkedInUrl(linkedInUrl);
-  if (!urlValidation.isValid) {
-    throw new Error(urlValidation.errorMessage || "Invalid LinkedIn URL");
-  }
-
+export const processLinkedInData = async (linkedInData: string): Promise<ProcessedResult> => {
   const startTime = Date.now();
-  const linkedInData = await importFromLinkedIn(linkedInUrl);
-  const processingTime = Date.now() - startTime;
   
-  return {
-    parsedData: linkedInData,
-    parsingMethod: linkedInData.metadata?.parsingMethod || 'linkedin-import',
-    usedFallback: false,
-    processingTime
-  };
+  try {
+    console.log('Processing LinkedIn data...');
+    
+    // Call the LinkedIn parser
+    const parsedData = await importFromLinkedIn(linkedInData);
+    const processingTime = Date.now() - startTime;
+    
+    // Sanitize the data
+    const sanitizedData = sanitizeResumeData(parsedData);
+    
+    // Add metadata
+    sanitizedData.metadata = {
+      ...(sanitizedData.metadata || {}),
+      parsingMethod: 'linkedin',
+      parsedAt: new Date().toISOString(),
+      processingTime
+    };
+    
+    return {
+      parsedData: sanitizedData,
+      parsingMethod: 'linkedin',
+      processingTime
+    };
+  } catch (error) {
+    console.error('LinkedIn processing error:', error);
+    throw error;
+  }
 };

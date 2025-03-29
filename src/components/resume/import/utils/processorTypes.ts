@@ -1,13 +1,15 @@
 
 import { ResumeData } from '../../types';
 
-/**
- * Interface representing the result of resume processing
- */
+// Define the result interface for all processors
 export interface ProcessedResult {
   parsedData: Partial<ResumeData>;
   parsingMethod: string;
-  usedFallback: boolean;
+  usedFallback?: boolean;
   processingTime?: number;
-  error?: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
 }

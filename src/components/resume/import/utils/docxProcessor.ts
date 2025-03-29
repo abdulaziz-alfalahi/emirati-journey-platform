@@ -1,102 +1,51 @@
 
 import { ResumeData } from '../../types';
-import { toast } from 'sonner';
-import * as mammoth from 'mammoth';
+import mammoth from 'mammoth';
 import { extractDataFromContent } from '../../utils/resumeContentParser';
 import { sanitizeResumeData } from '../../utils/helpers/validation';
 import { ProcessedResult } from './processorTypes';
 
 /**
- * Process Word document as binary data using mammoth.js
- * @param file The DOCX file to process
- * @returns Promise resolving to extracted text
- */
-export const extractTextFromDocx = async (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = async (event) => {
-      try {
-        if (!event.target || !event.target.result) {
-          throw new Error("Failed to read file");
-        }
-        
-        // Convert the ArrayBuffer to a Uint8Array that mammoth can process
-        const arrayBuffer = event.target.result as ArrayBuffer;
-        
-        // Extract text using mammoth
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        console.log("Mammoth extraction result:", result);
-        
-        if (!result.value) {
-          throw new Error("No text content extracted from DOCX");
-        }
-        
-        resolve(result.value);
-      } catch (error) {
-        console.error("Error extracting text from DOCX:", error);
-        reject(error);
-      }
-    };
-    
-    reader.onerror = (error) => {
-      console.error("File reading error:", error);
-      reject(new Error("Failed to read DOCX file"));
-    };
-    
-    // Read the file as an ArrayBuffer for binary processing
-    reader.readAsArrayBuffer(file);
-  });
-};
-
-/**
- * Process a DOCX file into resume data
- * @param file The DOCX file to process
+ * Process DOCX file using mammoth.js
+ * @param file DOCX file to process
  * @returns Promise resolving to processed resume data
  */
 export const processDocxFile = async (file: File): Promise<ProcessedResult> => {
-  console.log("Processing DOCX file with mammoth");
+  console.log("Processing DOCX file with mammoth.js");
   const startTime = Date.now();
   
   try {
-    // Extract text from binary DOCX using mammoth
-    const docxText = await extractTextFromDocx(file);
-    console.log("Extracted text from DOCX:", docxText.substring(0, 200) + "...");
+    // Use mammoth.js to extract text from DOCX
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const text = result.value;
     
-    if (!docxText || docxText.length < 50) {
-      throw new Error("Insufficient text content extracted from Word document");
-    }
+    console.log(`Extracted ${text.length} characters from DOCX`);
     
-    // Use the extract function with the extracted text
-    const parsedData = extractDataFromContent(docxText, "text/plain");
-    
+    // Extract structured data from text content
+    const parsedData = extractDataFromContent(text, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     const processingTime = Date.now() - startTime;
     
+    // Sanitize the data
+    const sanitizedData = sanitizeResumeData(parsedData);
+    
     // Add metadata
-    parsedData.metadata = {
-      ...(parsedData.metadata || {}),
+    sanitizedData.metadata = {
+      ...(sanitizedData.metadata || {}),
+      parsingMethod: 'docx-mammoth',
+      parsedAt: new Date().toISOString(),
       fileType: file.type,
       fileSize: file.size,
-      processingTime,
-      parsingMethod: 'mammoth-docx-extraction'
+      processingTime
     };
     
     return {
-      parsedData: sanitizeResumeData(parsedData),
-      parsingMethod: 'mammoth-docx-extraction',
-      usedFallback: false,
+      parsedData: sanitizedData,
+      parsingMethod: 'docx-mammoth',
       processingTime
     };
-  } catch (docxError) {
-    console.error("Mammoth DOCX extraction failed:", docxError);
-    toast.error("Word Document Processing Failed", {
-      description: "Unable to process the Word document. Please save as PDF and try again.",
-    });
-    
-    throw new Error(
-      docxError instanceof Error 
-        ? docxError.message 
-        : "Failed to process Word document. Please save as PDF and try again."
-    );
+  } catch (error) {
+    console.error("Error processing DOCX file:", error);
+    throw new Error(`Failed to process DOCX file: ${error instanceof Error ? error.message : String(error)}`);
   }
 };
