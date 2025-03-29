@@ -1,3 +1,4 @@
+
 import { ResumeData } from '../../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { ParsingError } from '../../resumeParser';
@@ -69,16 +70,19 @@ export const processPdfWithTextFallback = async (
     });
     
     // Race the API call against the timeout
-    const textResponse = await Promise.race([apiPromise, timeoutPromise]);
+    const textResponse = await Promise.race([apiPromise, timeoutPromise]) as {
+      data?: any;
+      error?: { message: string }
+    };
     
     toast.dismiss("pdf-fallback");
     
-    if (textResponse.error) {
+    if (textResponse && textResponse.error) {
       console.error('Text extraction API error:', textResponse.error);
       throw new Error(`Text extraction fallback failed: ${textResponse.error.message}`);
     }
     
-    const textData = textResponse.data;
+    const textData = textResponse && textResponse.data;
     
     if (!textData || isEmptyResumeData(textData)) {
       console.error('Text extraction returned empty or invalid data');

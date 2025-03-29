@@ -1,3 +1,4 @@
+
 import { ResumeData } from '../../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { isEmptyResumeData, sanitizeResumeData } from '../../helpers/validation';
@@ -41,9 +42,12 @@ export const processWithEdgeFunction = async (
     });
     
     // Race the API call against the timeout
-    const response = await Promise.race([apiPromise, timeoutPromise]);
+    const response = await Promise.race([apiPromise, timeoutPromise]) as { 
+      data?: any; 
+      error?: { message: string; status?: number; context?: any }
+    };
     
-    if (response.error) {
+    if (response && response.error) {
       console.error('Resume image extraction error:', response.error);
       
       // Log detailed error information
@@ -70,7 +74,7 @@ export const processWithEdgeFunction = async (
       throw new Error(`Image extraction failed: ${response.error.message}`);
     }
     
-    const data = response.data;
+    const data = response && response.data;
     
     // Log response information for debugging
     console.log('Edge function response:', {

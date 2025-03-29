@@ -9,14 +9,14 @@ import { ProcessedResult } from './processorTypes';
  * @param linkedInData Raw LinkedIn data
  * @returns Processed resume data
  */
-export const processLinkedInData = async (linkedInData: string): Promise<ProcessedResult> => {
+export const processLinkedInData = async (linkedInUrl: string): Promise<ProcessedResult> => {
   const startTime = Date.now();
   
   try {
     console.log('Processing LinkedIn data...');
     
     // Call the LinkedIn parser
-    const parsedData = await importFromLinkedIn(linkedInData);
+    const parsedData = await importFromLinkedIn(linkedInUrl);
     const processingTime = Date.now() - startTime;
     
     // Sanitize the data
@@ -40,3 +40,8 @@ export const processLinkedInData = async (linkedInData: string): Promise<Process
     throw error;
   }
 };
+
+/**
+ * Process LinkedIn profile - alias for processLinkedInData for backward compatibility
+ */
+export const processLinkedInProfile = processLinkedInData;
