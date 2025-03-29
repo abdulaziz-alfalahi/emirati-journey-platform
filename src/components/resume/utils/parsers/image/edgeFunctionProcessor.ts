@@ -1,4 +1,3 @@
-
 import { ResumeData } from '../../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { isEmptyResumeData, sanitizeResumeData } from '../../helpers/validation';
@@ -42,12 +41,9 @@ export const processWithEdgeFunction = async (
     });
     
     // Race the API call against the timeout
-    const response = await Promise.race([apiPromise, timeoutPromise]) as { 
-      data?: any; 
-      error?: { message: string; status?: number; context?: any }
-    };
+    const response = await Promise.race([apiPromise, timeoutPromise]);
     
-    if (response && response.error) {
+    if (response.error) {
       console.error('Resume image extraction error:', response.error);
       
       // Log detailed error information
@@ -74,7 +70,7 @@ export const processWithEdgeFunction = async (
       throw new Error(`Image extraction failed: ${response.error.message}`);
     }
     
-    const data = response && response.data;
+    const data = response.data;
     
     // Log response information for debugging
     console.log('Edge function response:', {
@@ -89,16 +85,19 @@ export const processWithEdgeFunction = async (
     }
     
     console.log('Image extraction successful');
+    console.log('Raw data from edge function:', JSON.stringify(data, null, 2));
     
     // Sanitize the data to remove any artifacts
     const sanitizedData = sanitizeResumeData(data);
+    console.log('Sanitized data:', JSON.stringify(sanitizedData, null, 2));
     
-    // Check if data is empty
+    // MODIFIED SECTION: Bypass strict validation check
     if (isEmptyResumeData(sanitizedData)) {
-      console.error('Extracted data is empty or invalid after sanitization');
+      console.warn('Extracted data appears empty after sanitization, but proceeding anyway');
       console.log('Original data keys:', Object.keys(data));
       console.log('Sanitized data keys:', Object.keys(sanitizedData));
       
+      // Log detailed information about the data structure
       if (data.personal) {
         console.log('Personal data before sanitization:', data.personal);
       }
@@ -107,7 +106,19 @@ export const processWithEdgeFunction = async (
         console.log('Personal data after sanitization:', sanitizedData.personal);
       }
       
-      throw new Error('No meaningful data could be extracted from the image');
+      // Ensure at least empty structures exist for required fields
+      if (!sanitizedData.personal) sanitizedData.personal = {};
+      if (!sanitizedData.experience) sanitizedData.experience = [];
+      if (!sanitizedData.education) sanitizedData.education = [];
+      if (!sanitizedData.skills) sanitizedData.skills = [];
+      
+      // Don't throw error, continue with whatever data we have
+      toast.warning("Limited Data Extracted", {
+        description: "We could only extract limited information. You may need to fill in some details manually.",
+        duration: 8000
+      });
+    } else {
+      console.log('Data validation passed successfully');
     }
     
     // Add metadata about the parsing
