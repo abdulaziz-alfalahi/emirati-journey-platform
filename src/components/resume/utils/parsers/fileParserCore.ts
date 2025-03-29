@@ -34,7 +34,9 @@ export const parseFileContent = async (file: File, fileContent: string): Promise
     let contentToProcess = fileContent;
     if (file.type === 'application/pdf' && fileContent.startsWith('%PDF')) {
       try {
-        contentToProcess = await handlePdfParsing(file, fileContent);
+        // Fixed type issue: handlePdfParsing now returns the processed text content
+        const processedPdfContent = await handlePdfParsing(file, fileContent);
+        contentToProcess = processedPdfContent;
       } catch (pdfError) {
         throw pdfError;
       }

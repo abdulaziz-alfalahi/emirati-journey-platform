@@ -5,18 +5,17 @@
 import { ResumeData } from '../../../types';
 import { ParsingError } from '../../resumeParser';
 import { checkIfScannedPdf, processPdfForResumeParsing } from '../pdfUtils';
-import { processResumeImage } from '../../../import/utils/imageProcessor';
 
 /**
  * Parse PDF content with specialized handling for different PDF types
  * @param file PDF file to parse
- * @param reader FileReader instance
- * @returns Promise resolving to parsed data
+ * @param fileContent String content of the PDF
+ * @returns Promise resolving to processed PDF text content
  */
 export const handlePdfParsing = async (
   file: File,
   fileContent: string
-): Promise<Partial<ResumeData>> => {
+): Promise<string> => {
   console.log('Detected PDF file, cleaning artifacts before parsing...');
   
   // Check if the first 500 characters have mostly PDF artifacts
@@ -51,7 +50,7 @@ export const handlePdfParsing = async (
     throw error;
   }
   
-  // Use the cleaned content for parsing
+  // Return the cleaned content for parsing
   return cleanedContent;
 };
 

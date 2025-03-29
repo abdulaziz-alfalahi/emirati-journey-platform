@@ -1,3 +1,4 @@
+
 import { ResumeData } from '../../types';
 import { parseResumeFromImage } from '../../utils/parsers/imageParser';
 import { 
@@ -7,7 +8,8 @@ import {
   sanitizeResumeData 
 } from '../../utils/helpers/validation';
 import { toast } from 'sonner';
-import { ProcessedResult } from './fileProcessor';
+import { ProcessedResult } from './processorTypes';
+import { processPdfWithPdfJs } from '../../utils/parsers/pdf/pdfJsProcessor';
 
 /**
  * Handle image upload and parsing
@@ -35,11 +37,41 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
     throw new Error(errorMessage);
   }
   
-  // PDF special handling
+  // PDF special handling with PDF.js for better text extraction
   if (file.type === 'application/pdf') {
     toast.info("PDF Processing", {
-      description: "Processing PDF as an image. This may take a moment...",
+      description: "Processing PDF. This may take a moment...",
     });
+    
+    try {
+      // First try to extract text with PDF.js for better results
+      const pdfText = await processPdfWithPdfJs(file);
+      
+      if (pdfText && pdfText.length > 200) {
+        // If we got good text from PDF.js, use our text parsers
+        console.log('Successfully extracted text from PDF using PDF.js, length:', pdfText.length);
+        
+        // Parse the PDF text content using our file parsers
+        const { parseFileContent } = await import('../../utils/parsers/fileParserCore');
+        const parsedData = await parseFileContent(file, pdfText);
+        
+        toast.success("PDF Processed", {
+          description: "Successfully extracted data from your PDF resume."
+        });
+        
+        return {
+          parsedData,
+          parsingMethod: 'pdf-js-text-extraction',
+          usedFallback: false,
+          processingTime: 0
+        };
+      } else {
+        console.log('PDF.js extracted minimal text, falling back to image-based processing');
+      }
+    } catch (pdfJsError) {
+      console.error('PDF.js extraction failed, falling back to image processing:', pdfJsError);
+      // Continue with image-based processing as fallback
+    }
   } else {
     // Validate image type for non-PDFs
     const typeValidation = validateResumeImageType(file.type);
