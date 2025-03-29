@@ -1,7 +1,20 @@
-import { ResumeData } from '../../../types';
+
+import { ResumeData, PersonalInfo } from '../../../types';
 import { supabase } from '@/integrations/supabase/client';
 import { isEmptyResumeData, sanitizeResumeData } from '../../helpers/validation';
 import { toast } from 'sonner';
+
+// Define TypeScript interfaces for the response
+interface EdgeFunctionError {
+  message: string;
+  status?: number;
+  context?: any;
+}
+
+interface EdgeFunctionResponse {
+  data: any;
+  error: EdgeFunctionError | null;
+}
 
 /**
  * Process image with Edge Function
@@ -28,7 +41,7 @@ export const processWithEdgeFunction = async (
     });
     
     // Create a timeout promise to handle long-running edge function calls
-    const apiPromise = supabase.functions.invoke('extract-resume-from-image', {
+    const apiPromise = supabase.functions.invoke<EdgeFunctionResponse>('extract-resume-from-image', {
       body: { 
         imageData,
         fileName: file.name,
@@ -36,7 +49,7 @@ export const processWithEdgeFunction = async (
       },
     });
     
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Edge function processing timed out after 50 seconds')), 50000);
     });
     
@@ -106,8 +119,19 @@ export const processWithEdgeFunction = async (
         console.log('Personal data after sanitization:', sanitizedData.personal);
       }
       
+      // Initialize empty PersonalInfo object with required fields
+      const emptyPersonalInfo: PersonalInfo = {
+        fullName: "",
+        jobTitle: "",
+        email: "",
+        phone: "",
+        location: "",
+        linkedin: "",
+        website: ""
+      };
+      
       // Ensure at least empty structures exist for required fields
-      if (!sanitizedData.personal) sanitizedData.personal = {};
+      if (!sanitizedData.personal) sanitizedData.personal = emptyPersonalInfo;
       if (!sanitizedData.experience) sanitizedData.experience = [];
       if (!sanitizedData.education) sanitizedData.education = [];
       if (!sanitizedData.skills) sanitizedData.skills = [];

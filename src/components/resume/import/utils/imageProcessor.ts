@@ -1,5 +1,5 @@
 
-import { ResumeData } from '../../types';
+import { ResumeData, PersonalInfo } from '../../types';
 import { parseResumeFromImage } from '../../utils/parsers/imageParser';
 import { 
   isEmptyResumeData, 
@@ -114,8 +114,19 @@ export const processResumeImage = async (file: File): Promise<ProcessedResult> =
       console.log('Original data keys:', Object.keys(parsedData));
       console.log('Sanitized data keys:', Object.keys(sanitizedData));
       
+      // Initialize empty PersonalInfo object with required fields
+      const emptyPersonalInfo: PersonalInfo = {
+        fullName: "",
+        jobTitle: "",
+        email: "",
+        phone: "",
+        location: "",
+        linkedin: "",
+        website: ""
+      };
+      
       // Ensure at least empty structures exist for required fields
-      if (!sanitizedData.personal) sanitizedData.personal = {};
+      if (!sanitizedData.personal) sanitizedData.personal = emptyPersonalInfo;
       if (!sanitizedData.experience) sanitizedData.experience = [];
       if (!sanitizedData.education) sanitizedData.education = [];
       if (!sanitizedData.skills) sanitizedData.skills = [];

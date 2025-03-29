@@ -107,12 +107,28 @@ export const getPdfMetadata = async (file: File): Promise<Record<string, string>
     // Get the metadata
     const metadata = await pdfDocument.getMetadata();
     
-    return {
-      ...metadata.info,
-      pageCount: pdfDocument.numPages.toString(),
-      isTagged: (!!metadata.metadata?.has('pdfaid:part')).toString(),
-      isEncrypted: pdfDocument.isEncrypted.toString()
-    };
+    // Create a clean metadata object with only string values
+    const result: Record<string, string> = {};
+    
+    // Add document info
+    if (metadata.info) {
+      Object.entries(metadata.info).forEach(([key, value]) => {
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          result[key] = String(value);
+        }
+      });
+    }
+    
+    // Add page count
+    result.pageCount = pdfDocument.numPages.toString();
+    
+    // Add PDF/A compliance info if available
+    result.isTagged = String(!!metadata.metadata?.has('pdfaid:part'));
+    
+    // Check if document is encrypted - using hasOwnProperty to check for property
+    result.isEncrypted = String('encrypt' in pdfDocument);
+    
+    return result;
   } catch (error) {
     console.error('Error getting PDF metadata:', error);
     return { error: 'Failed to extract metadata' };
