@@ -124,7 +124,23 @@ export const validateFileSize = (fileSize: number, maxSize: number): {
   isValid: boolean;
   maxSizeInMB: number;
 } => {
-  const maxSizeInMB = maxSize / (1024 * 1024);
+  // Ensure maxSize is a valid number
+  if (!maxSize || isNaN(maxSize) || maxSize <= 0) {
+    maxSize = 10 * 1024 * 1024; // Default to 10MB if invalid
+    console.warn('Invalid maxSize provided to validateFileSize, using default 10MB');
+  }
+  
+  // Calculate MB with fixed decimal places
+  const maxSizeInMB = parseFloat((maxSize / (1024 * 1024)).toFixed(2));
+  
+  // Log validation details for debugging
+  console.log('File size validation:', {
+    fileSize,
+    maxSize,
+    maxSizeInMB,
+    isValid: fileSize <= maxSize
+  });
+  
   return {
     isValid: fileSize <= maxSize,
     maxSizeInMB
