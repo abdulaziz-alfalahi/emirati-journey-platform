@@ -1,4 +1,4 @@
-import { ResumeData } from '../../types';
+import { ResumeData, Skill } from '../../types';
 
 /**
  * Checks if a resume data object is effectively empty
@@ -12,13 +12,9 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
   console.log('Checking if resume data is empty:', JSON.stringify(data, null, 2));
   
   // Check if personal section has any valid values (not PDF artifacts)
-  const hasPersonalData = data.personal && Object.values(data.personal).some(val => {
-    // Add strict type checking before calling trim()
-    if (val === null || val === undefined) return false;
-    if (typeof val !== 'string') return false;
-    // Now it's safe to call trim() because we've confirmed val is a string
-    return val.trim().length > 0 && !containsPdfArtifacts(val);
-  });
+  const hasPersonalData = data.personal && Object.values(data.personal).some(val => 
+    val && typeof val === 'string' && val.trim().length > 0 && !containsPdfArtifacts(val)
+  );
   
   // Check if any sections have content
   const hasExperience = data.experience && data.experience.length > 0;
@@ -28,8 +24,9 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
   const hasSkills = data.skills && data.skills.length > 0 && data.skills.some(skill => {
     if (typeof skill === 'string') {
       return skill.trim().length > 0;
-    } else if (typeof skill === 'object' && skill !== null) {
-      return skill.name && typeof skill.name === 'string' && skill.name.trim().length > 0;
+    } else if (typeof skill === 'object' && skill !== null && 'name' in skill) {
+      const name = skill.name;
+      return typeof name === 'string' && name.trim().length > 0;
     }
     return false;
   });
@@ -250,7 +247,7 @@ export const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeDat
   if (sanitized.skills && Array.isArray(sanitized.skills)) {
     sanitized.skills = sanitized.skills.map(skill => {
       // If skill is an object with a name property, keep the object structure
-      if (typeof skill === 'object' && skill !== null && skill.name) {
+      if (typeof skill === 'object' && skill !== null && 'name' in skill) {
         return skill;
       }
       // If skill is a string, keep it as is
@@ -264,8 +261,9 @@ export const sanitizeResumeData = (data: Partial<ResumeData>): Partial<ResumeDat
       if (typeof skill === 'string') {
         return skill.trim().length > 0;
       }
-      if (typeof skill === 'object' && skill !== null) {
-        return skill.name && typeof skill.name === 'string' && skill.name.trim().length > 0;
+      if (typeof skill === 'object' && skill !== null && 'name' in skill) {
+        const name = skill.name;
+        return typeof name === 'string' && name.trim().length > 0;
       }
       return false;
     });
