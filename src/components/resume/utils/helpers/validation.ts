@@ -14,8 +14,10 @@ export const isEmptyResumeData = (data: Partial<ResumeData> | null | undefined):
   
   // Check if personal section has any valid values (not PDF artifacts)
   const hasPersonalData = data.personal && Object.values(data.personal).some(val => {
-    // Add type guard to ensure val is a string before calling trim()
-    return val && typeof val === 'string' && val.trim().length > 0 && !containsPdfArtifacts(val);
+    // Add strict type checking before calling trim()
+    if (val === null || val === undefined) return false;
+    if (typeof val !== 'string') return false;
+    return val.trim().length > 0 && !containsPdfArtifacts(val);
   });
   
   // Check if any sections have content

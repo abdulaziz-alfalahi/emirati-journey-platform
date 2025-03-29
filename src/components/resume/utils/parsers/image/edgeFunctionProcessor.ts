@@ -13,8 +13,9 @@ interface EdgeFunctionError {
 
 // Define the response structure from the edge function
 interface EdgeFunctionResponse {
-  data: Partial<ResumeData>;  // This will contain the actual ResumeData
   error: EdgeFunctionError | null;
+  // Make sure the data field is explicitly a ResumeData object
+  [key: string]: any; // Allow any other properties
 }
 
 /**
@@ -84,8 +85,9 @@ export const processWithEdgeFunction = async (
       throw new Error(`Image extraction failed: ${response.error.message}`);
     }
     
-    // The response.data should contain the parsed resume data
-    const extractedData = response.data;
+    // The response data should contain the parsed resume data
+    // Cast the response data directly to ResumeData (since the Edge function returns this shape)
+    const extractedData = response.data as Partial<ResumeData>;
     
     // Log response information for debugging
     console.log('Edge function response:', {
