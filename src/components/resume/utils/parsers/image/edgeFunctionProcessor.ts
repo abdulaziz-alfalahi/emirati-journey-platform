@@ -14,7 +14,7 @@ interface EdgeFunctionError {
 // Define the response structure from the edge function
 interface EdgeFunctionResponse {
   error: EdgeFunctionError | null;
-  // Make sure the data field is explicitly a ResumeData object
+  data?: Partial<ResumeData>; // Explicitly define data as optional ResumeData
   [key: string]: any; // Allow any other properties
 }
 
@@ -73,7 +73,7 @@ export const processWithEdgeFunction = async (
           response.error.message && 
           response.error.message.includes('Invalid MIME type')) {
         
-        console.log('PDF format not supported directly by image API. Providing guidance to user...');
+        console.log('PDF format not supported by image API. Providing guidance to user...');
         toast.error("PDF Format Not Supported", {
           description: "Our AI vision service doesn't accept PDFs directly. Please convert your PDF to JPG or PNG first.",
           duration: 8000
@@ -86,7 +86,6 @@ export const processWithEdgeFunction = async (
     }
     
     // The response data should contain the parsed resume data
-    // Cast the response data directly to ResumeData (since the Edge function returns this shape)
     const extractedData = response.data as Partial<ResumeData>;
     
     // Log response information for debugging
