@@ -64,7 +64,14 @@ export const enhanceSkills = (skills: (string | Skill)[]): Skill[] => {
       return {
         id: uuidv4(),
         name: skill,
-        level: 3 // Default to intermediate level
+        level: "3" // Default to intermediate level as a string
+      };
+    }
+    // If level is a number, convert it to string
+    if (typeof skill.level === 'number') {
+      return {
+        ...skill,
+        level: String(skill.level)
       };
     }
     return skill;

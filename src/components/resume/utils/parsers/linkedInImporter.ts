@@ -4,7 +4,7 @@
  */
 import { ResumeData } from '../../types';
 import { supabase } from '@/integrations/supabase/client';
-import { extractFromLinkedIn as extractLinkedInData } from './linkedInParser';
+import { extractFromLinkedIn } from './linkedInParser';
 
 // Import data from LinkedIn profile
 export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: string): Promise<Partial<ResumeData>> => {
@@ -12,7 +12,7 @@ export const importFromLinkedIn = async (linkedInUrl: string, accessToken?: stri
   
   try {
     // Use the local extractor directly instead of edge function - properly await the Promise
-    const extractedData = await extractLinkedInData(linkedInUrl);
+    const extractedData = await extractFromLinkedIn(linkedInUrl);
     console.log('LinkedIn data extracted:', extractedData);
     
     // Add metadata

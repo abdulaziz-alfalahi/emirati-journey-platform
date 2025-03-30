@@ -9,6 +9,7 @@ import { parseResumeFromFile } from './parsers/fileParser';
 import { parseResumeFromImage } from './parsers/imageParser';
 import { importFromLinkedIn } from './parsers/linkedInImporter';
 import { isEmptyResumeData } from './helpers/validation';
+import { extractFromLinkedIn } from './parsers/linkedInParser';
 
 // Define parsing result types for better type safety
 export interface ParsingResult {
@@ -30,7 +31,6 @@ export interface ParsingError extends Error {
 }
 
 // Re-export for backward compatibility
-export { extractFromLinkedIn } from './parsers/linkedInParser';
 export { mergeResumeData } from './resumeDataUtils';
 export { enhancedResumeParser } from './enhancedResumeParser';
 
@@ -39,5 +39,6 @@ export {
   parseResumeFromFile,
   parseResumeFromImage,
   importFromLinkedIn,
-  isEmptyResumeData
+  isEmptyResumeData,
+  extractFromLinkedIn
 };

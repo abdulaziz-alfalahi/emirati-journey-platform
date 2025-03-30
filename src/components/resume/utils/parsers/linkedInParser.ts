@@ -49,6 +49,57 @@ export function parseLinkedInData(jsonData: any): Partial<ResumeData> {
   }
 }
 
+/**
+ * Extract data from LinkedIn profile URL
+ * @param linkedInUrl LinkedIn profile URL
+ * @returns Promise resolving to parsed resume data
+ */
+export async function extractFromLinkedIn(linkedInUrl: string): Promise<Partial<ResumeData>> {
+  try {
+    console.log(`Extracting data from LinkedIn URL: ${linkedInUrl}`);
+    
+    // Mock implementation for local development
+    // In a real app, this would call a server function to scrape LinkedIn
+    const mockData = {
+      profile: {
+        firstName: "LinkedIn",
+        lastName: "User",
+        headline: "Software Developer",
+        email: "linkedin@example.com",
+        location: "San Francisco Bay Area",
+        profileUrl: linkedInUrl
+      },
+      experience: [
+        {
+          title: "Software Developer",
+          companyName: "Tech Company",
+          location: "San Francisco, CA",
+          startDate: { month: 1, year: 2020 },
+          description: "Developing amazing software"
+        }
+      ],
+      education: [
+        {
+          schoolName: "University of Technology",
+          degree: "Bachelor's Degree",
+          fieldOfStudy: "Computer Science",
+          startDate: { year: 2016 },
+          endDate: { year: 2020 }
+        }
+      ],
+      skills: ["JavaScript", "React", "Node.js", "TypeScript"]
+    };
+    
+    // Parse the mock data using our parser
+    const parsedData = parseLinkedInData(mockData);
+    
+    return parsedData;
+  } catch (error) {
+    console.error('LinkedIn extraction error:', error);
+    throw error;
+  }
+}
+
 // Helper function to extract experience data
 function extractExperience(jsonData: any) {
   try {
@@ -70,7 +121,7 @@ function extractExperience(jsonData: any) {
         position: exp.title || '',
         location: exp.locationName || exp.location || '',
         startDate: startDate,
-        endDate: endDate,
+        endDate: endDate || null, // Ensure endDate is null if empty string
         current: !exp.endDate || !exp.endDate.year,
         description: exp.description || ''
       };
@@ -135,7 +186,7 @@ function extractEducation(jsonData: any) {
         degree: edu.degree || '',
         field: edu.fieldOfStudy || '',
         startDate: startDate,
-        endDate: endDate,
+        endDate: endDate || null, // Ensure endDate is null if empty string
         current: !edu.endDate || !edu.endDate.year,
         description: edu.activities || ''
       };
@@ -153,7 +204,7 @@ function extractSkills(jsonData: any) {
     return skills.map((skill: any) => ({
       id: uuidv4(),
       name: skill.name || skill,
-      level: 3 // Default to intermediate level
+      level: "3" // Default to intermediate level as a string
     }));
   } catch (error) {
     console.error('Error extracting skills:', error);

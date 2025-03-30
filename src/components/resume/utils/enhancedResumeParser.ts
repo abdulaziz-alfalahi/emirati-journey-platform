@@ -13,7 +13,7 @@ export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
     const parser = new EnhancedResumeParser();
     
     // Process the content
-    const result = parser.parse(content);
+    const result = parser.parseResumeContent(content, 'text/plain');
     
     // Return the parsed data
     return result;
