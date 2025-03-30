@@ -11,6 +11,7 @@ export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
   try {
     console.log('enhancedResumeParser: Starting parsing process');
     console.log(`enhancedResumeParser: Content length: ${content.length} chars`);
+    console.log('enhancedResumeParser: First 100 chars of content:', content.substring(0, 100));
     
     // First, perform a basic validation to detect obviously corrupted PDF data
     const corruptionPatterns = [
@@ -59,6 +60,27 @@ export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
     return result;
   } catch (error) {
     console.error('Enhanced parser error:', error);
-    throw error;
+    
+    // Return a graceful error response
+    return {
+      personal: {
+        fullName: "",
+        jobTitle: "",
+        email: "",
+        phone: "",
+        location: "",
+        linkedin: "",
+        website: ""
+      },
+      summary: "An error occurred while parsing your resume. Please try a different file format.",
+      experience: [],
+      education: [],
+      skills: [],
+      languages: [],
+      metadata: {
+        processingError: error instanceof Error ? error.message : "unknown_error",
+        parsingMethod: "enhanced-parser-error-handling"
+      }
+    };
   }
 };
