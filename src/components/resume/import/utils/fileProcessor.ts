@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { ProcessedResult } from './processorTypes';
 import { processDocxFile } from './docxProcessor';
 import { validateResumeFile, isDocxFile, isPdfFile } from './fileValidators';
+import { processResumeWithAffinda } from './affindaProcessor';
 
 /**
  * Handle file upload and parsing
@@ -28,7 +29,34 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     description: "Analyzing your resume file...",
   });
   
+  // Try to use Affinda parser first if API key is available
+  const affindaApiKey = import.meta.env.VITE_AFFINDA_API_KEY;
+  
   try {
+    if (affindaApiKey) {
+      console.log('processResumeFile: Affinda API key found, attempting to use Affinda');
+      toast.loading("Using Affinda AI Parser", {
+        id: toastId,
+        description: "Processing your resume with professional-grade AI..."
+      });
+      
+      try {
+        const result = await processResumeWithAffinda(file, affindaApiKey);
+        toast.success("Resume Processed", {
+          id: toastId,
+          description: "Your resume has been processed successfully with Affinda.",
+        });
+        return result;
+      } catch (affindaError) {
+        console.error("Affinda processing failed:", affindaError);
+        toast.error("Affinda Processing Failed", {
+          id: toastId,
+          description: "Falling back to standard processing methods..."
+        });
+        // Fall through to standard processing
+      }
+    }
+    
     // Special handling for DOCX files using mammoth.js
     if (isDocxFile(file)) {
       console.log('processResumeFile: Detected DOCX file, using specialized processor');
