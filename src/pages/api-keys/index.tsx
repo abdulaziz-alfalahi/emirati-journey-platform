@@ -72,8 +72,9 @@ const ApiKeysPage: React.FC = () => {
     setIsSaving(true);
     
     // Show loading toast
+    const loadingToastId = 'saving-api-keys';
     sonnerToast.loading('Saving API keys...', {
-      id: 'saving-api-keys',
+      id: loadingToastId,
       duration: 10000,
     });
     
@@ -85,7 +86,7 @@ const ApiKeysPage: React.FC = () => {
       });
       
       // Dismiss loading toast
-      sonnerToast.dismiss('saving-api-keys');
+      sonnerToast.dismiss(loadingToastId);
       
       if (error) {
         console.error('Error updating API keys:', error);
@@ -99,7 +100,7 @@ const ApiKeysPage: React.FC = () => {
       console.error('Error in handleSaveApiKeys:', error);
       
       // Dismiss loading toast
-      sonnerToast.dismiss('saving-api-keys');
+      sonnerToast.dismiss(loadingToastId);
       
       sonnerToast.error('An unexpected error occurred while saving API keys.');
     } finally {

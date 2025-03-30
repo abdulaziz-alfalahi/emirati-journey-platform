@@ -27,7 +27,7 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: 'true' // Using 'true' as string since the API expects a string
+      wait: 'true' // Using string instead of boolean for Affinda API
     });
     
     console.log('Affinda response:', response.data);

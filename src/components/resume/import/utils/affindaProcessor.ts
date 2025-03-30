@@ -113,7 +113,7 @@ export const processResumeWithAffinda = async (
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: 'true' // Using 'true' as string since the API expects a string
+      wait: 'true' // Using string instead of boolean for Affinda API
     });
     
     console.log('Received Affinda parsing response:', response);

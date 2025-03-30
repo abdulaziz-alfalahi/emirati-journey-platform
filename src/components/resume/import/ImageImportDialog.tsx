@@ -29,8 +29,10 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
     
     setIsUploading(true);
     
-    // Show loading toast using sonner instead
+    // Show loading toast using sonner
+    const toastId = 'processing-resume';
     sonnerToast.loading("Processing your resume...", {
+      id: toastId,
       description: "Please wait while we analyze your document.",
       duration: 60000 // 60 seconds timeout
     });
@@ -56,7 +58,7 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
       });
       
       // Dismiss loading toast
-      sonnerToast.dismiss();
+      sonnerToast.dismiss(toastId);
       
       if (response.error) {
         throw new Error(response.error.message || 'Failed to parse resume');
@@ -89,7 +91,7 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
       });
     } catch (error) {
       // Dismiss loading toast
-      sonnerToast.dismiss();
+      sonnerToast.dismiss(toastId);
       
       console.error('Error uploading resume:', error);
       

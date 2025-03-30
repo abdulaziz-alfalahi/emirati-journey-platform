@@ -25,43 +25,38 @@ serve(async (req)  => {
       }
     );
     
-    // Get the Affinda API key from your settings table
+    // Get the Affinda API key from either the database or environment variables
     const { data: apiKeys, error: apiKeysError } = await supabaseClient
-      .from('api_keys') // Replace with your actual table name
+      .from('api_keys')
       .select('*')
-      .single();
+      .maybeSingle();
     
+    // First try to get the API key from the database
     let affindaApiKey = '';
     
-    if (apiKeysError || !apiKeys) {
-      console.error('Error fetching API keys:', apiKeysError);
-      // Try with the environment variable as fallback
-      affindaApiKey = Deno.env.get('AFFINDA_API_KEY') || '';
-      
-      if (!affindaApiKey) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Affinda API key not found. Please add it in API Keys settings.' 
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        );
-      }
-    } else {
+    if (apiKeys) {
       // Check in various formats since different naming conventions might be used
       affindaApiKey = 
         apiKeys.affinda_api_key || 
         apiKeys.affindaApiKey || 
         apiKeys.AFFINDA_API_KEY || 
         '';
-      
-      if (!affindaApiKey) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Affinda API key not found in the database. Please add it in API Keys settings.' 
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        );
-      }
+    }
+    
+    // If not found in database, try the environment variable as fallback
+    if (!affindaApiKey) {
+      affindaApiKey = Deno.env.get('AFFINDA_API_KEY') || '';
+      console.log('Using Affinda API key from environment:', affindaApiKey ? 'Key found' : 'Key not found');
+    }
+    
+    // If still no API key, return error
+    if (!affindaApiKey) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Affinda API key not found. Please add it in API Keys settings or as a Supabase secret.' 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
     
     // Get the file data from the request
@@ -75,6 +70,7 @@ serve(async (req)  => {
     }
     
     // Call Affinda API
+    console.log('Calling Affinda API for file:', fileName);
     const affindaResponse = await fetch('https://api.affinda.com/v3/documents', {
       method: 'POST',
       headers: {
@@ -89,17 +85,21 @@ serve(async (req)  => {
       })
     });
     
-    const affindaData = await affindaResponse.json();
-    
     if (!affindaResponse.ok) {
+      const errorText = await affindaResponse.text();
+      console.error('Affinda API error:', affindaResponse.status, errorText);
+      
       return new Response(
         JSON.stringify({ 
-          error: 'Error calling Affinda API', 
-          details: affindaData 
+          error: `Error calling Affinda API (${affindaResponse.status})`, 
+          details: errorText 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
+    
+    const affindaData = await affindaResponse.json();
+    console.log('Affinda API response received for:', fileName);
     
     // Map Affinda response to your ResumeData structure
     const resumeData = {
@@ -134,6 +134,7 @@ serve(async (req)  => {
         current: edu.dates?.isCurrent || false
       })),
       skills: (affindaData.data.skills || []).map(skill => ({
+        id: Math.random().toString(36).substring(2, 9),
         name: skill.name,
         level: ''
       })),
@@ -155,6 +156,7 @@ serve(async (req)  => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Error in parse-resume function:', error);
     return new Response(
       JSON.stringify({ 
         error: 'Error processing resume', 
