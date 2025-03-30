@@ -1,66 +1,77 @@
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload } from 'lucide-react';
-import { useResume } from '@/context/ResumeContext';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/use-toast';
+import { useResumeContext } from '@/context/ResumeContext';
+import { parseResumeWithAffinda } from '@/services/resumeParser';
 import { ResumeData } from '../types';
 
 interface ImageImportDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onImportComplete: (data: ResumeData) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onImportComplete: (data: Partial<ResumeData>) => void;
 }
 
-export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
-  isOpen,
-  onClose,
-  onImportComplete
-}) => {
+export function ImageImportDialog({ open, onOpenChange, onImportComplete }: ImageImportDialogProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const { resumeData } = useResume();
+  const { toast } = useToast();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      toast.error("No file selected", {
-        description: "Please select an image file to upload"
-      });
-      return;
-    }
-
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    console.log('File selected for upload:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+    
     setIsUploading(true);
     
+    // Show loading toast
+    toast.loading("Processing your resume...", {
+      id: "resume-processing",
+      duration: 60000 // 60 seconds timeout
+    });
+    
     try {
-      // Mock implementation - in a real app we'd call the actual API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const startTime = Date.now();
       
-      // Mock successful parsing
-      const updatedData: ResumeData = {
-        ...resumeData,
-        personal: {
-          ...resumeData.personal,
-          fullName: "John Doe (Imported)",
-          jobTitle: "Software Engineer",
-          email: "john@example.com",
-          phone: "+1 555-123-4567",
-          location: "San Francisco, CA"
-        }
-      };
+      // Use Affinda to parse the resume
+      const parsedData = await parseResumeWithAffinda(file);
       
-      onImportComplete(updatedData);
-      toast.success("Image imported successfully");
-      onClose();
+      // Update processing time in metadata
+      if (parsedData.metadata) {
+        parsedData.metadata.processingTime = Date.now() - startTime;
+      }
+      
+      console.log('Resume parsing result:', {
+        success: true,
+        parsingMethod: parsedData.metadata?.parsingMethod,
+        processingTime: parsedData.metadata?.processingTime,
+        dataKeys: Object.keys(parsedData)
+      });
+      
+      // Dismiss loading toast
+      toast.dismiss("resume-processing");
+      
+      // Call the onImportComplete callback with the parsed data
+      onImportComplete(parsedData);
+      
+      // Close the dialog
+      onOpenChange(false);
+      
+      toast.success("Resume Imported", {
+        description: "Your resume has been successfully imported.",
+      });
     } catch (error) {
-      toast.error("Import failed", {
-        description: error instanceof Error ? error.message : "Failed to import resume from image"
+      // Dismiss loading toast
+      toast.dismiss("resume-processing");
+      
+      console.error('Error uploading resume:', error);
+      
+      toast.error("Import Failed", {
+        description: error instanceof Error ? error.message : "Failed to import resume. Please try again.",
       });
     } finally {
       setIsUploading(false);
@@ -68,47 +79,35 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => !isUploading && onClose()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Import Resume from Image</DialogTitle>
+          <DialogTitle>Import Resume</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Upload your resume in PDF, Word, or image format. We'll extract the information automatically.
+          </p>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <label htmlFor="resume-file" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {isUploading ? "Uploading..." : "Upload Resume"}
+            </label>
             <input
+              id="resume-file"
               type="file"
-              accept="image/png,image/jpeg,image/jpg"
-              onChange={handleFileChange}
-              className="hidden"
-              id="image-upload"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              onChange={handleFileUpload}
               disabled={isUploading}
             />
-            <label
-              htmlFor="image-upload"
-              className="cursor-pointer flex flex-col items-center justify-center"
-            >
-              <Upload className="h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600 mb-1">
-                {file ? file.name : "Click to upload an image of your resume"}
-              </p>
-              <p className="text-xs text-gray-500">
-                Supports: JPG, JPEG, PNG (max 10MB)
-              </p>
-            </label>
           </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose} disabled={isUploading}>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
               Cancel
-            </Button>
-            <Button onClick={handleUpload} disabled={!file || isUploading}>
-              {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isUploading ? "Processing..." : "Import Resume"}
             </Button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-};
+}
