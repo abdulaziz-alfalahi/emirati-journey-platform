@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { parseResumeWithAffinda } from '@/services/resumeParser';
+import { useResumeContext } from '@/context/ResumeContext';
 import { ResumeData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,26 +14,7 @@ interface ImageImportDialogProps {
 
 export function ImageImportDialog({ open, onOpenChange, onImportComplete }: ImageImportDialogProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [apiKeyAvailable, setApiKeyAvailable] = useState(false);
   const { toast } = useToast();
-
-  // Check if the Affinda API key is available
-  useEffect(() => {
-    const checkApiKey = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('get-api-keys');
-        if (!error && data && data.affinda_api_key) {
-          setApiKeyAvailable(true);
-        }
-      } catch (err) {
-        console.error('Error checking API key:', err);
-      }
-    };
-
-    if (open) {
-      checkApiKey();
-    }
-  }, [open]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,16 +29,39 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
     setIsUploading(true);
     
     // Show loading toast
-    const loadingToastId = toast({
-      title: "Processing your resume...",
-      description: "Please wait while we analyze your document.",
+    toast.loading("Processing your resume...", {
+      id: "resume-processing",
+      duration: 60000 // 60 seconds timeout
     });
     
     try {
       const startTime = Date.now();
       
-      // Use Affinda to parse the resume
-      const parsedData = await parseResumeWithAffinda(file);
+      // Convert file to base64
+      const fileData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = (e) => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+      
+      // Call your Edge Function
+      const response = await supabase.functions.invoke('parse-resume', {
+        body: {
+          fileData,
+          fileName: file.name,
+          fileType: file.type
+        }
+      });
+      
+      // Dismiss loading toast
+      toast.dismiss("resume-processing");
+      
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to parse resume');
+      }
+      
+      const parsedData = response.data;
       
       // Update processing time in metadata
       if (parsedData.metadata) {
@@ -78,17 +81,17 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
       // Close the dialog
       onOpenChange(false);
       
-      toast({
-        title: "Resume Imported",
+      toast.success("Resume Imported", {
         description: "Your resume has been successfully imported.",
       });
     } catch (error) {
+      // Dismiss loading toast
+      toast.dismiss("resume-processing");
+      
       console.error('Error uploading resume:', error);
       
-      toast({
-        title: "Import Failed",
+      toast.error("Import Failed", {
         description: error instanceof Error ? error.message : "Failed to import resume. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsUploading(false);
@@ -105,16 +108,6 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
           <p className="text-sm text-muted-foreground">
             Upload your resume in PDF, Word, or image format. We'll extract the information automatically.
           </p>
-          
-          {!apiKeyAvailable && (
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-              <p className="text-sm text-amber-800">
-                Affinda API key is not configured. Resume parsing may be limited. 
-                <a href="/api-keys" className="underline ml-1">Configure API keys</a>
-              </p>
-            </div>
-          )}
-          
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <label htmlFor="resume-file" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {isUploading ? "Uploading..." : "Upload Resume"}
