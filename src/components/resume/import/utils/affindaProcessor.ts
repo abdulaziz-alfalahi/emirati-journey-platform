@@ -12,10 +12,8 @@ const createAffindaClient = (apiKey?: string) => {
     return null;
   }
   
-  return new AffindaAPI({
-    credential: new AffindaCredential(key),
-    baseUrl: 'https://api.affinda.com/v3'
-  });
+  const credential = new AffindaCredential(key);
+  return new AffindaAPI(credential);
 };
 
 // Map Affinda resume data to our internal format
@@ -41,7 +39,7 @@ const mapAffindaDataToResumeData = (affindaData: any): Partial<ResumeData> => {
         location: exp.location?.text || '',
         startDate: exp.dates?.startDate || '',
         endDate: exp.dates?.endDate || '',
-        current: exp.dates?.isCurrent || false,
+        current: Boolean(exp.dates?.isCurrent) || false,
         description: exp.jobDescription?.text || ''
       })),
       education: (affindaData.education || []).map((edu: any) => ({
@@ -52,7 +50,7 @@ const mapAffindaDataToResumeData = (affindaData: any): Partial<ResumeData> => {
         location: edu.location?.text || '',
         startDate: edu.dates?.startDate || '',
         endDate: edu.dates?.endDate || '',
-        current: edu.dates?.isCurrent || false
+        current: Boolean(edu.dates?.isCurrent) || false
       })),
       skills: (affindaData.skills || []).map((skill: any) => ({
         id: crypto.randomUUID(),
@@ -71,7 +69,7 @@ const mapAffindaDataToResumeData = (affindaData: any): Partial<ResumeData> => {
       parsingMethod: 'affinda',
       parsedAt: new Date().toISOString(),
       confidence: affindaData.confidence || 0,
-      processingTime: affindaData.processingTime || 0
+      processingTime: affindaData.extraData?.processingTime || 0
     };
     
     return data;
@@ -111,7 +109,7 @@ export const processResumeWithAffinda = async (
     
     // Upload and parse resume
     const response = await client.createDocument({
-      file: new Uint8Array(fileBuffer),
+      file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
       wait: true
@@ -135,7 +133,7 @@ export const processResumeWithAffinda = async (
       parsedData,
       parsingMethod: 'affinda',
       usedFallback: false,
-      processingTime: response.data.processingTime || 0
+      processingTime: response.extraData?.processingTime || 0
     };
   } catch (error) {
     console.error('Error processing resume with Affinda:', error);

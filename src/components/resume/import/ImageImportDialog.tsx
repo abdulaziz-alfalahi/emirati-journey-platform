@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { useResumeContext } from '@/context/ResumeContext';
 import { parseResumeWithAffinda } from '@/services/resumeParser';
 import { ResumeData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,9 +49,9 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
     setIsUploading(true);
     
     // Show loading toast
-    toast.loading("Processing your resume...", {
-      id: "resume-processing",
-      duration: 60000 // 60 seconds timeout
+    const loadingToastId = toast({
+      title: "Processing your resume...",
+      description: "Please wait while we analyze your document.",
     });
     
     try {
@@ -73,26 +72,23 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
         dataKeys: Object.keys(parsedData)
       });
       
-      // Dismiss loading toast
-      toast.dismiss("resume-processing");
-      
       // Call the onImportComplete callback with the parsed data
       onImportComplete(parsedData);
       
       // Close the dialog
       onOpenChange(false);
       
-      toast.success("Resume Imported", {
+      toast({
+        title: "Resume Imported",
         description: "Your resume has been successfully imported.",
       });
     } catch (error) {
-      // Dismiss loading toast
-      toast.dismiss("resume-processing");
-      
       console.error('Error uploading resume:', error);
       
-      toast.error("Import Failed", {
+      toast({
+        title: "Import Failed",
         description: error instanceof Error ? error.message : "Failed to import resume. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsUploading(false);

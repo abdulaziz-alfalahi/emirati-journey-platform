@@ -23,9 +23,10 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
     const fileBuffer = await file.arrayBuffer();
     
     // Call Affinda API
-    const response = await client.createResume({
+    const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
+      collection: 'resumes',
       wait: true // Wait for processing to complete
     });
     

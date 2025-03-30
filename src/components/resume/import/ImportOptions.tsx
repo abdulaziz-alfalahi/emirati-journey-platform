@@ -64,8 +64,8 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({
       </Button>
 
       <ImageImportDialog 
-        isOpen={isImageDialogOpen}
-        onClose={() => setIsImageDialogOpen(false)}
+        open={isImageDialogOpen}
+        onOpenChange={setIsImageDialogOpen}
         onImportComplete={onImportComplete}
       />
       
