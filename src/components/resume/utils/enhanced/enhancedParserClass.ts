@@ -14,6 +14,34 @@ import { validateResumeData, structureResumeData } from './dataValidator';
 // Main parser class
 export class EnhancedResumeParser {
   /**
+   * Detects if the text appears to be corrupted PDF data rather than resume content
+   * @param text The text to check
+   * @returns True if the text appears to be corrupted PDF data
+   */
+  private isCorruptedPdfData(text: string): boolean {
+    // Common patterns found in corrupted PDF data
+    const corruptionPatterns = [
+      /%PDF-/i, // PDF header
+      /\/Type\s*\/\w+/i, // PDF type declarations
+      /\/Metadata\s+\d+\s+\d+\s+R/i, // PDF metadata references
+      /\/ObjStm/i, // PDF object streams
+      /endobj|endstream/i, // PDF object markers
+      /xref|startxref/i, // PDF cross references
+      /\/Contents\s+\d+\s+\d+/i, // PDF content references
+      /\/Linearized/i, // Linearized PDF marker
+      /\/Outlines/i, // PDF outlines
+      /\/OpenAction/i, // PDF open action
+      /\/Page\s+\/\w+/i, // PDF page declarations
+    ];
+    
+    // Check if any corruption patterns are found
+    const corruptionMatches = corruptionPatterns.filter(pattern => pattern.test(text));
+    
+    // If we find multiple corruption patterns, it's likely corrupted PDF data
+    return corruptionMatches.length >= 3;
+  }
+
+  /**
    * Parse resume content and extract structured information
    * 
    * @param fileContent Content of the resume file
@@ -23,6 +51,32 @@ export class EnhancedResumeParser {
   parseResumeContent(fileContent: string, fileType: string): Partial<ResumeData> {
     try {
       console.log('Starting enhanced resume parsing...');
+      
+      // Check for corrupted PDF data
+      if (this.isCorruptedPdfData(fileContent)) {
+        console.error('Detected corrupted PDF data instead of resume content');
+        return {
+          personal: {
+            fullName: "",
+            jobTitle: "",
+            email: "",
+            phone: "",
+            location: "",
+            linkedin: "",
+            website: ""
+          },
+          summary: "Could not extract text from this PDF. It might be password-protected or corrupted. Please try using a different PDF or convert it to another format first.",
+          experience: [],
+          education: [],
+          skills: [],
+          languages: [],
+          metadata: {
+            processingError: "corrupted_pdf_data",
+            parsingMethod: "enhanced-parser-error-detection",
+            processingMessage: "The PDF appears to contain binary or corrupted data rather than extractable text."
+          }
+        };
+      }
       
       // Step 1: Process document and extract text
       const { text, metadata } = processDocument(fileContent, fileType);
@@ -79,11 +133,16 @@ export class EnhancedResumeParser {
           linkedin: "",
           website: ""
         },
-        summary: "",
+        summary: "An error occurred while parsing your resume. Please try again or use a different file format.",
         experience: [],
         education: [],
         skills: [],
-        languages: []
+        languages: [],
+        metadata: {
+          processingError: error instanceof Error ? error.message : "unknown_error",
+          parsingMethod: "enhanced-parser-error-handling",
+          processingTimestamp: new Date().toISOString()
+        }
       };
     }
   }

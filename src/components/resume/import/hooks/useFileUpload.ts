@@ -28,13 +28,17 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       /\uFFFD/,  // Unicode replacement character
       /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
       /[!@#$%^&*()]{3,}/,  // Multiple special characters in a row
-      /^\s*l"%\d+/  // Specific pattern seen in corrupted Word docs
+      /^\s*l"%\d+/,  // Specific pattern seen in corrupted Word docs
+      /%PDF-/i,      // PDF header
+      /\/Metadata\s+\d+\s+\d+\s+R/i, // PDF metadata references
+      /endobj|endstream/i, // PDF object markers
+      /xref|startxref/i, // PDF cross references
     ];
     
     // Check personal info fields
     if (data.personal) {
       for (const key in data.personal) {
-        const value = data.personal[key];
+        const value = data.personal[key as keyof typeof data.personal];
         if (typeof value !== 'string') continue;
         
         for (const pattern of suspiciousPatterns) {
@@ -43,7 +47,23 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
             return false;
           }
         }
+        
+        // Check for PDF internal data in field values
+        if ((value.includes('/R') || value.includes('Metadata') || 
+             value.includes('endobj') || value.includes('%%EOF')) && 
+            key !== 'summary') {
+          console.error(`Likely PDF internal data found in ${key}:`, value);
+          return false;
+        }
       }
+    }
+    
+    // Check if summary contains error message about PDF
+    if (data.summary && typeof data.summary === 'string' && 
+        (data.summary.includes('PDF') || data.summary.includes('corrupted'))) {
+      // This is likely an error message, not actual resume data
+      console.warn('Summary contains error message about PDF:', data.summary);
+      // But we'll still accept it, as it's a valid error state
     }
     
     // Ensure we have at least some meaningful data
@@ -93,6 +113,53 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
     
     try {
       const { parsedData, usedFallback } = await processResumeFile(selectedFile);
+      
+      // Check for obvious PDF corruption markers in the personal data
+      const hasPdfCorruption = parsedData.personal && 
+                              (parsedData.personal.fullName?.includes('%') || 
+                               parsedData.personal.jobTitle?.includes('/') ||
+                               parsedData.personal.jobTitle?.includes('Metadata') ||
+                               parsedData.personal.email?.includes('xref'));
+      
+      if (hasPdfCorruption) {
+        console.error('Detected corrupted PDF data in parsed result:', parsedData.personal);
+        toast.error("PDF Processing Error", {
+          id: toastId,
+          description: "This PDF contains internal formatting that prevents proper text extraction. Please try converting it to a different format or use our image upload option.",
+        });
+        
+        // Create a clean version without corrupted data
+        const cleanData: Partial<ResumeData> = {
+          ...parsedData,
+          personal: {
+            fullName: "",
+            jobTitle: "",
+            email: "",
+            phone: "",
+            location: "",
+            linkedin: "",
+            website: ""
+          },
+          summary: "We couldn't extract text properly from this PDF. It might contain formatting that prevents text extraction. Please try uploading a different format or use our image upload option.",
+          metadata: {
+            ...(parsedData.metadata || {}),
+            processingError: "detected_corrupted_data",
+            cleanedAt: new Date().toISOString()
+          }
+        };
+        
+        // Still return the cleaned data so the user can edit manually
+        if (typeof onImportComplete === 'function') {
+          const mergedData = mergeResumeData(currentData, cleanData);
+          onImportComplete(mergedData);
+        }
+        
+        // Reset the state
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        
+        return true;
+      }
       
       // Validate parsed data to ensure it's not corrupted
       const isDataValid = validateParsedData(parsedData);
