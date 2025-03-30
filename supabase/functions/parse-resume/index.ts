@@ -1,3 +1,4 @@
+
 // supabase/functions/parse-resume/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
@@ -62,9 +63,9 @@ serve(async (req)  => {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        data: fileData.split(',') [1], // Remove the data:application/pdf;base64, part
+        data: fileData.split(',')[1], // Remove the data:application/pdf;base64, part
         file_name: fileName,
-        wait: true
+        wait: 'true' // Wait for the processing to complete
       })
     });
     
