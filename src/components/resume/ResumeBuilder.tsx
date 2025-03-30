@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Eye, Save, Download, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -288,9 +287,9 @@ const ResumeBuilder: React.FC<ResumeBuilderProps> = ({
       case "summary":
         return <ResumeSummarySection value={resumeData.summary || ""} onChange={handleSummaryChange} />;
       case "experience":
-        return <ResumeExperienceSection experiences={resumeData.experience} onChange={handleExperienceChange} />;
+        return <ResumeExperienceSection data={resumeData.experience} onChange={handleExperienceChange} />;
       case "education":
-        return <ResumeEducationSection education={resumeData.education} onChange={handleEducationChange} />;
+        return <ResumeEducationSection data={resumeData.education} onChange={handleEducationChange} />;
       case "skills":
         return (
           <ResumeSkillsSection 

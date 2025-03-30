@@ -51,10 +51,11 @@ export const mergeResumeData = (currentData: ResumeData, newData: Partial<Resume
   
   // Skills
   if (newData.skills && newData.skills.length > 0) {
-    result.skills = newData.skills.map(skill => ({
-      ...skill,
-      id: skill.id || uuidv4()
-    }));
+    result.skills = newData.skills.map(skill => 
+      typeof skill === 'string' 
+        ? { id: uuidv4(), name: skill, level: '' }
+        : { ...skill, id: skill.id || uuidv4() }
+    );
   }
   
   // Languages
@@ -78,14 +79,6 @@ export const mergeResumeData = (currentData: ResumeData, newData: Partial<Resume
     result.projects = newData.projects.map(project => ({
       ...project,
       id: project.id || uuidv4()
-    }));
-  }
-  
-  // Achievements
-  if (newData.achievements && newData.achievements.length > 0) {
-    result.achievements = newData.achievements.map(achievement => ({
-      ...achievement,
-      id: achievement.id || uuidv4()
     }));
   }
   
@@ -122,7 +115,6 @@ export const createEmptyResumeData = (): ResumeData => {
     languages: [],
     certifications: [],
     projects: [],
-    achievements: [],
     metadata: {
       lastUpdated: new Date().toISOString(),
       createdAt: new Date().toISOString()
@@ -167,10 +159,11 @@ export const validateAndCompleteMissingFields = (data: Partial<ResumeData>): Res
     id: edu.id || uuidv4()
   }));
   
-  validData.skills = validData.skills.map(skill => ({
-    ...skill,
-    id: skill.id || uuidv4()
-  }));
+  validData.skills = validData.skills.map(skill => 
+    typeof skill === 'string' 
+      ? { id: uuidv4(), name: skill, level: '' } 
+      : { ...skill, id: skill.id || uuidv4() }
+  );
   
   validData.languages = validData.languages.map(lang => ({
     ...lang,
@@ -189,13 +182,6 @@ export const validateAndCompleteMissingFields = (data: Partial<ResumeData>): Res
     validData.projects = validData.projects.map(project => ({
       ...project,
       id: project.id || uuidv4()
-    }));
-  }
-  
-  if (validData.achievements) {
-    validData.achievements = validData.achievements.map(achievement => ({
-      ...achievement,
-      id: achievement.id || uuidv4()
     }));
   }
   

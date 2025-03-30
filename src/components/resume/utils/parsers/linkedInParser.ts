@@ -131,6 +131,7 @@ export const extractFromLinkedIn = async (linkedInUrl: string): Promise<Partial<
               position: 'Current Position',
               location: 'Dubai, UAE',
               startDate: '2022-01',
+              endDate: '',
               current: true,
               description: 'Details extracted from LinkedIn profile for current position.'
             },

@@ -1,3 +1,4 @@
+
 /**
  * Parsing methods module
  * Contains various parsing methods for extracting resume data
@@ -8,7 +9,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { enhancedResumeParser } from '../enhancedResumeParser';
 import { legacyResumeParser } from '../legacyResumeParser';
 import { sanitizeResumeData } from '../helpers/validation';
-import { containsPdfArtifacts } from '../helpers/validation';
+
+// Custom function to check for PDF artifacts
+const containsPdfArtifacts = (content: string): boolean => {
+  // Look for typical PDF artifacts
+  return /^%PDF/.test(content) || 
+         content.includes('obj\nendobj') || 
+         content.includes('stream\nendstream');
+};
 
 /**
  * Enhanced parser method
@@ -29,7 +37,8 @@ export const parseWithEnhancedParser = async (fileContent: string, file: File, s
       throw error;
     }
     
-    const parsedData = await enhancedResumeParser(fileContent);
+    // Fix: enhancedResumeParser is likely a class instance with parseResumeContent method
+    const parsedData = enhancedResumeParser.parseResumeContent(fileContent, file.type);
     const processingTime = Date.now() - startTime;
     
     // Sanitize the data to ensure it's clean

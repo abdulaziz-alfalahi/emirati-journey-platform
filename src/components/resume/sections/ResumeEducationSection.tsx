@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FormField } from '@/components/ui/form';
 
 interface ResumeEducationSectionProps {
   data: Education[];
@@ -26,7 +26,7 @@ const ResumeEducationSection: React.FC<ResumeEducationSectionProps> = ({
       degree: '',
       field: '',
       startDate: '',
-      endDate: null,
+      endDate: '',
       current: false
     };
     onChange([...data, newEducation]);

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,7 +24,7 @@ const ResumeExperienceSection: React.FC<ResumeExperienceSectionProps> = ({
       position: '',
       location: '',
       startDate: '',
-      endDate: null,
+      endDate: '',
       current: false,
       description: ''
     };
