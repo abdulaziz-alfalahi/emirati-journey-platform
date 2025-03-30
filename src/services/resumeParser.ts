@@ -27,24 +27,25 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: true // Wait for processing to complete
+      wait: 'true' // Using 'true' as string since the API expects a string
     });
     
     console.log('Affinda response:', response.data);
+    const data = response.data as any; // Use 'any' to avoid type errors
     
     // Map Affinda response to your ResumeData structure
     const resumeData: Partial<ResumeData> = {
       personal: {
-        fullName: response.data.name?.raw || '',
-        jobTitle: response.data.profession || '',
-        email: response.data.emails?.[0] || '',
-        phone: response.data.phoneNumbers?.[0] || '',
-        location: response.data.location?.raw || '',
-        linkedin: response.data.linkedin || '',
-        website: response.data.websites?.[0] || ''
+        fullName: data.name?.raw || '',
+        jobTitle: data.profession || '',
+        email: data.emails?.[0] || '',
+        phone: data.phoneNumbers?.[0] || '',
+        location: data.location?.raw || '',
+        linkedin: data.linkedin || '',
+        website: data.websites?.[0] || ''
       },
-      summary: response.data.summary || '',
-      experience: (response.data.workExperience || []).map(exp => ({
+      summary: data.summary || '',
+      experience: (data.workExperience || []).map((exp: any) => ({
         id: Math.random().toString(36).substring(2, 9),
         company: exp.organization || '',
         position: exp.jobTitle || '',
@@ -54,7 +55,7 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
         current: exp.dates?.isCurrent || false,
         description: exp.jobDescription || ''
       })),
-      education: (response.data.education || []).map(edu => ({
+      education: (data.education || []).map((edu: any) => ({
         id: Math.random().toString(36).substring(2, 9),
         institution: edu.organization || '',
         degree: edu.accreditation?.education || '',
@@ -64,11 +65,11 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
         endDate: edu.dates?.endDate || null,
         current: edu.dates?.isCurrent || false
       })),
-      skills: (response.data.skills || []).map(skill => ({
+      skills: (data.skills || []).map((skill: any) => ({
         name: skill.name,
         level: ''
       })),
-      languages: (response.data.languages || []).map(lang => ({
+      languages: (data.languages || []).map((lang: any) => ({
         id: Math.random().toString(36).substring(2, 9),
         name: lang,
         proficiency: 'Conversational'

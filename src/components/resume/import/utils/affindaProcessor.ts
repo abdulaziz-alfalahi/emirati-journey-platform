@@ -69,7 +69,7 @@ const mapAffindaDataToResumeData = (affindaData: any): Partial<ResumeData> => {
       parsingMethod: 'affinda',
       parsedAt: new Date().toISOString(),
       confidence: affindaData.confidence || 0,
-      processingTime: affindaData.extraData?.processingTime || 0
+      processingTime: 0 // We'll update this later
     };
     
     return data;
@@ -106,13 +106,14 @@ export const processResumeWithAffinda = async (
     
     // Convert file to format required by Affinda
     const fileBuffer = await file.arrayBuffer();
+    const startTime = Date.now();
     
     // Upload and parse resume
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: true
+      wait: 'true' // Using 'true' as string since the API expects a string
     });
     
     console.log('Received Affinda parsing response:', response);
@@ -124,6 +125,11 @@ export const processResumeWithAffinda = async (
     // Map Affinda data to our format
     const parsedData = mapAffindaDataToResumeData(response.data);
     
+    // Update processing time in metadata
+    if (parsedData.metadata) {
+      parsedData.metadata.processingTime = Date.now() - startTime;
+    }
+    
     toast.success("Resume Processed", {
       id: toastId,
       description: "Your resume has been processed successfully.",
@@ -133,7 +139,7 @@ export const processResumeWithAffinda = async (
       parsedData,
       parsingMethod: 'affinda',
       usedFallback: false,
-      processingTime: response.extraData?.processingTime || 0
+      processingTime: Date.now() - startTime
     };
   } catch (error) {
     console.error('Error processing resume with Affinda:', error);
