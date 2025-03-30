@@ -1,5 +1,5 @@
 
-import { AffindaAPI, ResumeRedactMode } from '@affinda/affinda';
+import { AffindaAPI, AffindaCredential } from '@affinda/affinda';
 import { ResumeData } from '../../types';
 import { toast } from 'sonner';
 import { ProcessedResult } from './processorTypes';
@@ -13,7 +13,7 @@ const createAffindaClient = (apiKey?: string) => {
   }
   
   return new AffindaAPI({
-    token: key,
+    credential: new AffindaCredential(key),
     baseUrl: 'https://api.affinda.com/v3'
   });
 };
@@ -110,10 +110,10 @@ export const processResumeWithAffinda = async (
     const fileBuffer = await file.arrayBuffer();
     
     // Upload and parse resume
-    const response = await client.createResume({
+    const response = await client.createDocument({
       file: new Uint8Array(fileBuffer),
       fileName: file.name,
-      redactMode: ResumeRedactMode.MODERATE,
+      collection: 'resumes',
       wait: true
     });
     

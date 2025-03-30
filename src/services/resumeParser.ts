@@ -1,9 +1,13 @@
+
 import { AffindaAPI, AffindaCredential } from '@affinda/affinda';
 import { ResumeData, Experience, Education, Skill } from '../components/resume/types';
 
-// Initialize the client
-const credential = new AffindaCredential(process.env.NEXT_PUBLIC_AFFINDA_API_KEY || 'YOUR_API_KEY');
-const client = new AffindaAPI(credential);
+// Initialize the client with proper credential handling
+const getAffindaClient = () => {
+  const apiKey = process.env.NEXT_PUBLIC_AFFINDA_API_KEY || 'YOUR_API_KEY';
+  const credential = new AffindaCredential(apiKey);
+  return new AffindaAPI(credential);
+};
 
 /**
  * Parse resume using Affinda API
@@ -12,6 +16,9 @@ const client = new AffindaAPI(credential);
  */
 export async function parseResumeWithAffinda(file: File): Promise<Partial<ResumeData>> {
   try {
+    // Get client with proper credentials
+    const client = getAffindaClient();
+    
     // Convert file to buffer
     const fileBuffer = await file.arrayBuffer();
     

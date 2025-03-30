@@ -1,10 +1,12 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useResumeContext } from '@/context/ResumeContext';
 import { parseResumeWithAffinda } from '@/services/resumeParser';
 import { ResumeData } from '../types';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageImportDialogProps {
   open: boolean;
@@ -14,7 +16,26 @@ interface ImageImportDialogProps {
 
 export function ImageImportDialog({ open, onOpenChange, onImportComplete }: ImageImportDialogProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [apiKeyAvailable, setApiKeyAvailable] = useState(false);
   const { toast } = useToast();
+
+  // Check if the Affinda API key is available
+  useEffect(() => {
+    const checkApiKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-api-keys');
+        if (!error && data && data.affinda_api_key) {
+          setApiKeyAvailable(true);
+        }
+      } catch (err) {
+        console.error('Error checking API key:', err);
+      }
+    };
+
+    if (open) {
+      checkApiKey();
+    }
+  }, [open]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,6 +109,16 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
           <p className="text-sm text-muted-foreground">
             Upload your resume in PDF, Word, or image format. We'll extract the information automatically.
           </p>
+          
+          {!apiKeyAvailable && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-sm text-amber-800">
+                Affinda API key is not configured. Resume parsing may be limited. 
+                <a href="/api-keys" className="underline ml-1">Configure API keys</a>
+              </p>
+            </div>
+          )}
+          
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <label htmlFor="resume-file" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {isUploading ? "Uploading..." : "Upload Resume"}
