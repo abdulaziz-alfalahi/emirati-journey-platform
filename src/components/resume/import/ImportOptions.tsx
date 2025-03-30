@@ -1,153 +1,70 @@
-
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { FileUp, Image, Linkedin } from 'lucide-react';
 import { ResumeData } from '../types';
-import LinkedInImportDialog from './LinkedInImportDialog';
-import FileImportDialog from './FileImportDialog';
-import ImageImportDialog from './ImageImportDialog';
-import { ImportAlert } from './components/ImportAlert';
-import { ImportButtons } from './components/ImportButtons';
-import { toast } from 'sonner';
+import { ImageImportDialog } from './ImageImportDialog';
 
 interface ImportOptionsProps {
   onImportComplete: (data: ResumeData) => void;
   currentData: ResumeData;
 }
 
-const ImportOptions: React.FC<ImportOptionsProps> = ({ onImportComplete, currentData }) => {
-  // Debug logging to verify onImportComplete
-  console.log('ImportOptions rendered, onImportComplete type:', typeof onImportComplete);
-  console.log('currentData structure:', Object.keys(currentData).join(', '));
-  
-  const [fileImportOpen, setFileImportOpen] = useState(false);
-  const [imageImportOpen, setImageImportOpen] = useState(false);
-  const [linkedInImportOpen, setLinkedInImportOpen] = useState(false);
-  const [parsingError, setParsingError] = useState<string | null>(null);
-  
-  // Check if current data contains obvious corruption
-  const hasCorruptedData = React.useMemo(() => {
-    const { personal, metadata } = currentData;
-    if (!personal) return false;
-    
-    // Check for suspicious strings in personal info fields
-    const suspiciousPatterns = [
-      /PK!/,
-      /\[Content_Types\]/,
-      /docProps/,
-      /<%/,
-      /%>/,
-      /\uFFFD/,  // Unicode replacement character
-      /[^\x20-\x7E\s]/g, // Non-printable ASCII characters
-      /[!@#$%^&*()]{3,}/,  // Multiple special characters in a row
-      /^\s*l"%\d+/,  // Specific pattern seen in corrupted Word docs
-      /^\s*l"%.+%=/   // Extended pattern for Word corruptions
-    ];
-    
-    let isCorrupted = false;
-    
-    // Check each field in personal
-    for (const key in personal) {
-      const value = personal[key];
-      if (typeof value !== 'string') continue;
-      
-      for (const pattern of suspiciousPatterns) {
-        if (pattern.test(value)) {
-          console.error(`Corrupted data detected in ${key}:`, value);
-          isCorrupted = true;
-          break;
-        }
-      }
-      
-      // Check for "Not found" values when metadata indicates parsing failure
-      if (value === "Not found" && metadata?.error) {
-        isCorrupted = true;
-      }
-    }
-    
-    // Special check for Word documents with DOCX metadata
-    if (metadata?.fileType?.includes('word') || 
-        metadata?.fileType?.includes('officedocument') ||
-        metadata?.fileType?.includes('docx')) {
-      // If there are multiple "Not found" values and strange jobTitle, likely corruption
-      const notFoundCount = Object.values(personal).filter(v => v === "Not found").length;
-      if (notFoundCount >= 3 && 
-          (personal.jobTitle && 
-           (personal.jobTitle.includes('%') || 
-            personal.jobTitle.includes('"') || 
-            personal.jobTitle.includes('\\')))) {
-        console.warn('Word document corruption pattern detected');
-        isCorrupted = true;
-      }
-    }
-    
-    // Check if metadata indicates parsing issues
-    if (metadata?.error || metadata?.fallbackReason) {
-      isCorrupted = true;
-    }
-    
-    return isCorrupted;
-  }, [currentData]);
-  
-  // Handler for when parsing fails
-  const handleParsingError = (error: Error) => {
-    setParsingError(error.message);
-    toast.error("Parsing Failed", {
-      description: error.message,
-      duration: 5000
-    });
+const ImportOptions: React.FC<ImportOptionsProps> = ({
+  onImportComplete,
+  currentData
+}) => {
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+
+  const handleImageImport = () => {
+    setIsImageDialogOpen(true);
   };
-  
-  // Clear error when dialogs are closed
-  const handleDialogClose = () => {
-    setParsingError(null);
+
+  const handleFileUpload = () => {
+    // Placeholder for file upload functionality
+    alert('File upload not implemented yet');
   };
-  
-  const isWordDocument = currentData.metadata?.fileType?.includes('word') || 
-                         currentData.metadata?.fileType?.includes('officedocument') || 
-                         currentData.metadata?.fileType?.includes('docx');
+
+  const handleLinkedInImport = () => {
+    // Placeholder for LinkedIn import functionality
+    alert('LinkedIn import not implemented yet');
+  };
 
   return (
-    <div className="space-y-3">
-      <ImportAlert 
-        parsingError={parsingError}
-        hasCorruptedData={hasCorruptedData}
-        isWordDocument={isWordDocument}
-      />
+    <div className="space-y-2">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={handleFileUpload}
+      >
+        <FileUp size={16} className="mr-2" />
+        Upload Resume File
+      </Button>
       
-      <ImportButtons
-        onOpenFileImport={() => setFileImportOpen(true)}
-        onOpenImageImport={() => setImageImportOpen(true)}
-        onOpenLinkedInImport={() => setLinkedInImportOpen(true)}
-      />
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={handleImageImport}
+      >
+        <Image size={16} className="mr-2" />
+        Import from Image
+      </Button>
       
-      <FileImportDialog 
-        open={fileImportOpen} 
-        onOpenChange={(open) => {
-          setFileImportOpen(open);
-          if (!open) handleDialogClose();
-        }}
-        onImportComplete={onImportComplete}
-        onError={handleParsingError}
-        currentData={currentData}
-      />
-      
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={handleLinkedInImport}
+      >
+        <Linkedin size={16} className="mr-2" />
+        Import from LinkedIn
+      </Button>
+
       <ImageImportDialog 
-        open={imageImportOpen} 
-        onOpenChange={(open) => {
-          setImageImportOpen(open);
-          if (!open) handleDialogClose();
-        }}
+        isOpen={isImageDialogOpen}
+        onClose={() => setIsImageDialogOpen(false)}
         onImportComplete={onImportComplete}
-        currentData={currentData}
-      />
-      
-      <LinkedInImportDialog 
-        open={linkedInImportOpen}
-        onOpenChange={(open) => {
-          setLinkedInImportOpen(open);
-          if (!open) handleDialogClose();
-        }}
-        onImportComplete={onImportComplete}
-        currentData={currentData}
       />
     </div>
   );

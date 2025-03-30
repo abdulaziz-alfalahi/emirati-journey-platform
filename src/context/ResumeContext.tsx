@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { ResumeData } from '@/components/resume/types';
 
@@ -19,7 +20,7 @@ const defaultResumeData: ResumeData = {
   languages: [],
   certifications: [],
   projects: [],
-  achievements: [],
+  interests: [],
   metadata: {
     parsingMethod: "manual",
     parsedAt: new Date().toISOString()

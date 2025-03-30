@@ -1,8 +1,31 @@
 
-export const validateFileSize = (fileSize: number, maxSizeInBytes: number): { isValid: boolean; maxSizeInMB: number } => {
+export const validateFileSize = (fileSize: number, maxSizeInBytes: number = 5 * 1024 * 1024): { isValid: boolean; maxSizeInMB: number } => {
   const maxSizeInMB = maxSizeInBytes / (1024 * 1024);
   const isValid = fileSize <= maxSizeInBytes;
   return { isValid, maxSizeInMB };
+};
+
+export const validateResumeFileType = (fileType: string | undefined): {
+  isUnsupported: boolean;
+  supportedTypes: string[];
+} => {
+  const supportedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+  
+  // Check if fileType is undefined, null, or empty string
+  if (!fileType || typeof fileType !== 'string') {
+    return {
+      isUnsupported: true,
+      supportedTypes,
+    };
+  }
+  
+  // Now we know fileType is a string, it's safe to call trim()
+  const trimmedType = fileType.trim().toLowerCase();
+  
+  return {
+    isUnsupported: !supportedTypes.includes(trimmedType),
+    supportedTypes,
+  };
 };
 
 export const isEmptyResumeData = (data: any): boolean => {
@@ -75,13 +98,41 @@ export const sanitizeResumeData = (data: any): any => {
 
   // Sanitize skills
   if (data.skills && Array.isArray(data.skills)) {
-    data.skills = data.skills.map(skill => typeof skill === 'string' ? removePDFArtifacts(skill) : skill);
+    data.skills = data.skills.map(skill => {
+      if (typeof skill === 'string') {
+        return {
+          id: crypto.randomUUID(),
+          name: removePDFArtifacts(skill),
+          level: 'intermediate'
+        };
+      } else if (typeof skill === 'object') {
+        if (typeof skill.name === 'string') {
+          skill.name = removePDFArtifacts(skill.name);
+        }
+        return skill;
+      }
+      return skill;
+    });
   }
 
-    // Sanitize languages
-    if (data.languages && Array.isArray(data.languages)) {
-      data.languages = data.languages.map(language => typeof language === 'string' ? removePDFArtifacts(language) : language);
-    }
+  // Sanitize languages
+  if (data.languages && Array.isArray(data.languages)) {
+    data.languages = data.languages.map(language => {
+      if (typeof language === 'string') {
+        return {
+          id: crypto.randomUUID(),
+          name: removePDFArtifacts(language),
+          proficiency: 'conversational'
+        };
+      } else if (typeof language === 'object') {
+        if (typeof language.name === 'string') {
+          language.name = removePDFArtifacts(language.name);
+        }
+        return language;
+      }
+      return language;
+    });
+  }
 
   return data;
 };

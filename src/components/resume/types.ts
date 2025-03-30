@@ -1,10 +1,11 @@
+
 // src/components/resume/types.ts
 
 /**
- * Skill interface to support both object and string formats
+ * Skill interface to support only object format (not string)
  */
 export interface Skill {
-  id?: string;
+  id: string;
   name: string;
   level?: string;
 }
@@ -13,7 +14,7 @@ export interface Skill {
  * Language interface for language proficiency
  */
 export interface Language {
-  id?: string;
+  id: string;
   name: string;
   proficiency: string;
 }
@@ -22,7 +23,7 @@ export interface Language {
  * Experience entry interface
  */
 export interface Experience {
-  id?: string;
+  id: string;
   company: string;
   position: string;
   location?: string;
@@ -36,7 +37,7 @@ export interface Experience {
  * Education entry interface
  */
 export interface Education {
-  id?: string;
+  id: string;
   institution: string;
   degree: string;
   field: string;
@@ -90,10 +91,10 @@ export interface ResumeData {
   summary: string;
   experience: Experience[];
   education: Education[];
-  skills: Array<Skill | string>; // Support both object and string formats
-  languages?: Language[];
+  skills: Skill[];
+  languages: Language[];
   certifications?: Array<{
-    id?: string;
+    id: string;
     name: string;
     issuer?: string;
     date?: string;
@@ -101,7 +102,7 @@ export interface ResumeData {
     url?: string;
   }>;
   projects?: Array<{
-    id?: string;
+    id: string;
     name: string;
     description: string;
     url?: string;
@@ -110,7 +111,7 @@ export interface ResumeData {
   }>;
   interests?: string[];
   references?: Array<{
-    id?: string;
+    id: string;
     name: string;
     position?: string;
     company?: string;
@@ -136,14 +137,14 @@ export type ResumeSection =
   | 'references';
 
 /**
- * Resume template options
+ * Resume template interface
  */
-export type ResumeTemplate = 
-  | 'modern'
-  | 'professional'
-  | 'creative'
-  | 'minimal'
-  | 'executive';
+export interface ResumeTemplate {
+  id: string;
+  name: string;
+  description: string;
+  sections: string[];
+}
 
 /**
  * Resume color scheme options
