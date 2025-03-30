@@ -58,8 +58,8 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
         
         if (shouldUseImageParser) {
           console.log('processResumeFile: PDF appears to be scanned, redirecting to image processing');
-          toast.update(toastId, {
-            description: "Processing scanned document...",
+          toast.success("Processing scanned document...", {
+            id: toastId,
           });
           // For scanned PDFs, redirect to image parsing route
           const { processResumeImage } = await import('./imageProcessor');
