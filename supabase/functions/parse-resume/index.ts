@@ -1,5 +1,4 @@
 
-// supabase/functions/parse-resume/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
@@ -30,19 +29,40 @@ serve(async (req)  => {
     const { data: apiKeys, error: apiKeysError } = await supabaseClient
       .from('api_keys') // Replace with your actual table name
       .select('*')
-      .eq('key_type', 'affinda')
       .single();
     
-    if (apiKeysError || !apiKeys || !apiKeys.key_value) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Affinda API key not found. Please add it in API Keys settings.' 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
+    let affindaApiKey = '';
     
-    const affindaApiKey = apiKeys.key_value;
+    if (apiKeysError || !apiKeys) {
+      console.error('Error fetching API keys:', apiKeysError);
+      // Try with the environment variable as fallback
+      affindaApiKey = Deno.env.get('AFFINDA_API_KEY') || '';
+      
+      if (!affindaApiKey) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Affinda API key not found. Please add it in API Keys settings.' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+    } else {
+      // Check in various formats since different naming conventions might be used
+      affindaApiKey = 
+        apiKeys.affinda_api_key || 
+        apiKeys.affindaApiKey || 
+        apiKeys.AFFINDA_API_KEY || 
+        '';
+      
+      if (!affindaApiKey) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Affinda API key not found in the database. Please add it in API Keys settings.' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+    }
     
     // Get the file data from the request
     const { fileData, fileName, fileType } = await req.json();
@@ -116,6 +136,11 @@ serve(async (req)  => {
       skills: (affindaData.data.skills || []).map(skill => ({
         name: skill.name,
         level: ''
+      })),
+      languages: (affindaData.data.languages || []).map(language => ({
+        id: Math.random().toString(36).substring(2, 9),
+        name: language,
+        proficiency: 'Conversational'
       })),
       metadata: {
         parsingMethod: 'affinda-api',

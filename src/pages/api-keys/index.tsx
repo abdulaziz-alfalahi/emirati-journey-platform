@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
+import { toast as sonnerToast } from 'sonner';
 
 const ApiKeysPage: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -46,7 +47,12 @@ const ApiKeysPage: React.FC = () => {
       
       if (data) {
         // Set the API key values if they exist
-        setAffindaApiKey(data.affinda_api_key || '');
+        setAffindaApiKey(
+          data.affinda_api_key || 
+          data.affindaApiKey || 
+          data.AFFINDA_API_KEY || 
+          ''
+        );
       }
       
       setIsLoaded(true);
@@ -65,6 +71,12 @@ const ApiKeysPage: React.FC = () => {
     
     setIsSaving(true);
     
+    // Show loading toast
+    sonnerToast.loading('Saving API keys...', {
+      id: 'saving-api-keys',
+      duration: 10000,
+    });
+    
     try {
       const { data, error } = await supabase.functions.invoke('update-api-keys', {
         body: {
@@ -72,28 +84,24 @@ const ApiKeysPage: React.FC = () => {
         },
       });
       
+      // Dismiss loading toast
+      sonnerToast.dismiss('saving-api-keys');
+      
       if (error) {
         console.error('Error updating API keys:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to save API keys.',
-          variant: 'destructive',
-        });
+        sonnerToast.error('Failed to save API keys.');
         return;
       }
       
-      toast({
-        title: 'Success',
-        description: 'API keys saved successfully.',
-      });
+      sonnerToast.success('API keys saved successfully');
       
     } catch (error) {
       console.error('Error in handleSaveApiKeys:', error);
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred while saving API keys.',
-        variant: 'destructive',
-      });
+      
+      // Dismiss loading toast
+      sonnerToast.dismiss('saving-api-keys');
+      
+      sonnerToast.error('An unexpected error occurred while saving API keys.');
     } finally {
       setIsSaving(false);
     }

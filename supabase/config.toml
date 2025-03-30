@@ -1,6 +1,4 @@
 
-# This file is used to configure the Supabase project
-
 project_id = "ltzrdfiqivmedupzcndj"
 
 [api]
@@ -22,3 +20,5 @@ enabled = true
 
 [functions]
 [functions.parse-resume]
+[functions.update-api-keys]
+[functions.get-api-keys]

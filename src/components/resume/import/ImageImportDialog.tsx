@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { ResumeData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
 
 interface ImageImportDialogProps {
   open: boolean;
@@ -29,9 +29,8 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
     
     setIsUploading(true);
     
-    // Show loading toast
-    const toastId = toast({
-      title: "Processing your resume...",
+    // Show loading toast using sonner instead
+    sonnerToast.loading("Processing your resume...", {
       description: "Please wait while we analyze your document.",
       duration: 60000 // 60 seconds timeout
     });
@@ -57,7 +56,7 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
       });
       
       // Dismiss loading toast
-      toast.dismiss(toastId);
+      sonnerToast.dismiss();
       
       if (response.error) {
         throw new Error(response.error.message || 'Failed to parse resume');
@@ -90,7 +89,7 @@ export function ImageImportDialog({ open, onOpenChange, onImportComplete }: Imag
       });
     } catch (error) {
       // Dismiss loading toast
-      toast.dismiss(toastId);
+      sonnerToast.dismiss();
       
       console.error('Error uploading resume:', error);
       

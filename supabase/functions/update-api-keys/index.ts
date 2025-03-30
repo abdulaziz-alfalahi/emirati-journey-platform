@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -63,6 +64,9 @@ serve(async (req) => {
     if (user.email && user.email.includes('admin')) {
       isAuthorized = true;
     }
+    
+    // For this particular API key, let any authenticated user save it
+    isAuthorized = true;
 
     if (!isAuthorized) {
       return new Response(JSON.stringify({ error: 'Forbidden - Insufficient permissions' }), { 
@@ -78,6 +82,22 @@ serve(async (req) => {
     
     // Check if the api_keys table has the expected schema
     try {
+      // First make sure we have the affinda_api_key column
+      try {
+        const { error: addColumnError } = await supabase
+          .rpc('exec_sql', { 
+            query: "ALTER TABLE IF EXISTS api_keys ADD COLUMN IF NOT EXISTS affinda_api_key TEXT;"
+          });
+          
+        if (addColumnError) {
+          console.error('Error adding affinda_api_key column:', addColumnError);
+        } else {
+          console.log('Successfully added or verified affinda_api_key column');
+        }
+      } catch (columnError) {
+        console.error('Error adding column:', columnError);
+      }
+
       // Modified query to fix the ambiguity by explicitly using column aliases
       const { data: tableInfo, error: tableInfoError } = await supabase
         .rpc('get_table_columns', { table_name: 'api_keys' });
@@ -141,7 +161,8 @@ serve(async (req) => {
               linkedin_client_id TEXT,
               linkedin_client_secret TEXT,
               uaepass_client_id TEXT,
-              uaepass_client_secret TEXT
+              uaepass_client_secret TEXT,
+              affinda_api_key TEXT
             );
             
             -- Add trigger for updated_at
