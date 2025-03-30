@@ -1,4 +1,3 @@
-
 /**
  * PDF processing using PDF.js library
  */
@@ -7,8 +6,8 @@ import { ResumeData } from '../../../types';
 import { toast } from 'sonner';
 
 // Set up the worker source
-const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.min.js');
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+const pdfWorkerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
 
 /**
  * Extract text from PDF using PDF.js

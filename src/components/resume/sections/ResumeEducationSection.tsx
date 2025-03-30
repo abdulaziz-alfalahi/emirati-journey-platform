@@ -1,165 +1,177 @@
-
 import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { Card, CardContent } from '@/components/ui/card';
 import { Education } from '../types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormField } from '@/components/ui/form';
 
 interface ResumeEducationSectionProps {
-  education: Education[];
-  onChange: (education: Education[]) => void;
+  data: Education[];
+  onChange: (data: Education[]) => void;
 }
 
-const ResumeEducationSection: React.FC<ResumeEducationSectionProps> = ({ education, onChange }) => {
+const ResumeEducationSection: React.FC<ResumeEducationSectionProps> = ({
+  data,
+  onChange
+}) => {
   const addEducation = () => {
     const newEducation: Education = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       institution: '',
       degree: '',
       field: '',
       startDate: '',
+      endDate: null,
       current: false
     };
-    
-    onChange([...education, newEducation]);
+    onChange([...data, newEducation]);
   };
 
   const updateEducation = (index: number, field: keyof Education, value: any) => {
-    const updatedEducation = [...education];
-    updatedEducation[index] = {
-      ...updatedEducation[index],
+    const updatedData = [...data];
+    updatedData[index] = {
+      ...updatedData[index],
       [field]: value
     };
-    onChange(updatedEducation);
+    onChange(updatedData);
   };
 
   const removeEducation = (index: number) => {
-    const updatedEducation = [...education];
-    updatedEducation.splice(index, 1);
-    onChange(updatedEducation);
+    const updatedData = [...data];
+    updatedData.splice(index, 1);
+    onChange(updatedData);
+  };
+
+  const handleCurrentChange = (index: number, checked: boolean) => {
+    const updatedData = [...data];
+    updatedData[index] = {
+      ...updatedData[index],
+      current: checked,
+      endDate: checked ? null : updatedData[index].endDate
+    };
+    onChange(updatedData);
   };
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Education</CardTitle>
-        <Button variant="outline" size="sm" onClick={addEducation}>
-          <Plus size={16} className="mr-2" />
-          Add Education
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {education.length === 0 ? (
-          <div className="text-center py-6 text-muted-foreground">
-            No education added. Click "Add Education" to get started.
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Education</h3>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={addEducation}
+          >
+            <Plus size={16} className="mr-1" /> Add Education
+          </Button>
+        </div>
+
+        {data.length === 0 ? (
+          <div className="text-center py-4 text-gray-500">
+            No education entries yet. Click "Add Education" to add your educational background.
           </div>
         ) : (
-          <div className="space-y-8">
-            {education.map((edu, index) => (
-              <div key={edu.id} className="p-4 border rounded-md">
-                <div className="flex justify-between">
-                  <h3 className="font-medium mb-4">Education {index + 1}</h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => removeEducation(index)}
-                    className="text-destructive"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
+          <div className="space-y-6">
+            {data.map((education, index) => (
+              <div key={education.id} className="p-4 border rounded-md relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+                  onClick={() => removeEducation(index)}
+                >
+                  <Trash2 size={16} />
+                </Button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
                     <Label htmlFor={`institution-${index}`}>Institution</Label>
                     <Input
                       id={`institution-${index}`}
-                      value={edu.institution}
+                      value={education.institution}
                       onChange={(e) => updateEducation(index, 'institution', e.target.value)}
-                      placeholder="e.g., Khalifa University"
+                      placeholder="University or School Name"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor={`degree-${index}`}>Degree</Label>
-                    <Input
-                      id={`degree-${index}`}
-                      value={edu.degree}
-                      onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                      placeholder="e.g., Bachelor of Science"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor={`field-${index}`}>Field of Study</Label>
-                    <Input
-                      id={`field-${index}`}
-                      value={edu.field}
-                      onChange={(e) => updateEducation(index, 'field', e.target.value)}
-                      placeholder="e.g., Computer Science"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor={`location-${index}`}>Location (Optional)</Label>
                     <Input
                       id={`location-${index}`}
-                      value={edu.location || ''}
+                      value={education.location || ''}
                       onChange={(e) => updateEducation(index, 'location', e.target.value)}
-                      placeholder="e.g., Abu Dhabi, UAE"
+                      placeholder="City, Country"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <Label htmlFor={`degree-${index}`}>Degree</Label>
+                    <Input
+                      id={`degree-${index}`}
+                      value={education.degree}
+                      onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                      placeholder="Bachelor's, Master's, etc."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor={`field-${index}`}>Field of Study</Label>
+                    <Input
+                      id={`field-${index}`}
+                      value={education.field}
+                      onChange={(e) => updateEducation(index, 'field', e.target.value)}
+                      placeholder="Computer Science, Business, etc."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
                     <Label htmlFor={`startDate-${index}`}>Start Date</Label>
                     <Input
                       id={`startDate-${index}`}
-                      type="month"
-                      value={edu.startDate}
+                      value={education.startDate}
                       onChange={(e) => updateEducation(index, 'startDate', e.target.value)}
+                      placeholder="MM/YYYY"
                     />
                   </div>
-                  
-                  <div className="flex items-center space-x-2 md:col-span-2">
-                    <Switch
-                      id={`current-${index}`}
-                      checked={edu.current}
-                      onCheckedChange={(checked) => {
-                        updateEducation(index, 'current', checked);
-                        if (checked) {
-                          updateEducation(index, 'endDate', undefined);
-                        }
-                      }}
-                    />
-                    <Label htmlFor={`current-${index}`}>I am currently studying here</Label>
-                  </div>
-                  
-                  {!edu.current && (
-                    <div className="space-y-2">
-                      <Label htmlFor={`endDate-${index}`}>End Date</Label>
-                      <Input
-                        id={`endDate-${index}`}
-                        type="month"
-                        value={edu.endDate || ''}
-                        onChange={(e) => updateEducation(index, 'endDate', e.target.value)}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor={`description-${index}`}>Description (Optional)</Label>
-                    <Textarea
-                      id={`description-${index}`}
-                      value={edu.description || ''}
-                      onChange={(e) => updateEducation(index, 'description', e.target.value)}
-                      placeholder="Additional information about your studies, achievements, etc."
-                      className="min-h-[80px]"
+                  <div>
+                    <Label htmlFor={`endDate-${index}`}>End Date</Label>
+                    <Input
+                      id={`endDate-${index}`}
+                      value={education.endDate || ''}
+                      onChange={(e) => updateEducation(index, 'endDate', e.target.value)}
+                      placeholder="MM/YYYY"
+                      disabled={education.current}
                     />
                   </div>
+                </div>
+
+                <div className="flex items-center mb-4">
+                  <Checkbox
+                    id={`current-${index}`}
+                    checked={education.current || false}
+                    onCheckedChange={(checked) => handleCurrentChange(index, checked === true)}
+                  />
+                  <Label htmlFor={`current-${index}`} className="ml-2">
+                    Currently studying here
+                  </Label>
+                </div>
+
+                <div>
+                  <Label htmlFor={`description-${index}`}>Description (Optional)</Label>
+                  <Textarea
+                    id={`description-${index}`}
+                    value={education.description || ''}
+                    onChange={(e) => updateEducation(index, 'description', e.target.value)}
+                    placeholder="Relevant coursework, achievements, activities, etc."
+                    rows={3}
+                  />
                 </div>
               </div>
             ))}

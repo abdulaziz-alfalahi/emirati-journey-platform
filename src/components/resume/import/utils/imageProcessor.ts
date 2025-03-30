@@ -1,11 +1,12 @@
-import { ResumeData } from '../../../types';
-import { parseResumeFromImage as parseResumeImageOriginal } from '../imageParser';
+
+import { ResumeData } from '../../types';
+import { parseResumeFromImage } from '../../utils/parsers/imageParser';
 import { 
   isEmptyResumeData, 
   validateResumeImageType, 
   validateFileSize, 
   sanitizeResumeData 
-} from '../../helpers/validation';
+} from '../../utils/helpers/validation';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,8 +24,8 @@ const loadPdfJs = async (): Promise<any> => {
     const pdfjs = await import('pdfjs-dist');
     
     // Set the worker source
-    const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.entry');
-    pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+    // Dynamic import for worker to avoid build issues
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
     
     pdfjsLib = pdfjs;
     console.log('PDF.js loaded successfully');
@@ -312,7 +313,10 @@ const processPdfWithFallbacks = async (file: File, startTime: number, processing
       });
       
       // Race the API call against the timeout
-      const textResponse = await Promise.race([apiPromise, timeoutPromise]);
+      const textResponse = await Promise.race([apiPromise, timeoutPromise]) as { 
+        data?: Partial<ResumeData>; 
+        error?: { message: string } 
+      };
       
       toast.dismiss("pdf-text-extraction");
       
@@ -481,7 +485,7 @@ const processImageFile = async (file: File, startTime: number, processingId: str
     });
     
     // Create a timeout promise to handle long-running processes
-    const processingPromise = parseResumeImageOriginal(file);
+    const processingPromise = parseResumeFromImage(file);
     const timeoutPromise = new Promise<Partial<ResumeData>>((_, reject) => {
       setTimeout(() => reject(new Error('Processing timed out after 55 seconds')), 55000);
     });
@@ -505,7 +509,7 @@ const processImageFile = async (file: File, startTime: number, processingId: str
       console.log(`[${processingId}] Sanitized data keys:`, Object.keys(sanitizedData));
       
       // Ensure at least empty structures exist for required fields
-      if (!sanitizedData.personal) sanitizedData.personal = {};
+      if (!sanitizedData.personal) sanitizedData.personal = {} as any;
       if (!sanitizedData.experience) sanitizedData.experience = [];
       if (!sanitizedData.education) sanitizedData.education = [];
       if (!sanitizedData.skills) sanitizedData.skills = [];

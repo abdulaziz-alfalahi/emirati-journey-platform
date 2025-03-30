@@ -3,7 +3,7 @@
  * Data validator module for enhanced resume parsing
  * Validates and structures resume data
  */
-import { ResumeData } from '../../types';
+import { ResumeData, Skill, Experience, Education, Language } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Data validation and structuring functions
@@ -70,7 +70,7 @@ export const structureResumeData = (rawData: Partial<ResumeData>): Partial<Resum
   }));
   
   // Ensure all skill entries have IDs and levels
-  structuredData.skills = structuredData.skills.map(skill => ({
+  structuredData.skills = (structuredData.skills as Array<Skill>).map(skill => ({
     ...skill,
     id: skill.id || uuidv4(),
     level: skill.level || 'intermediate'
@@ -101,7 +101,6 @@ export const structureResumeData = (rawData: Partial<ResumeData>): Partial<Resum
       location: structuredData.personal.location || '',
       linkedin: structuredData.personal.linkedin || '',
       website: structuredData.personal.website || '',
-      photo: structuredData.personal.photo || '',
       ...structuredData.personal
     };
   }

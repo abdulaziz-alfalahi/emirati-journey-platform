@@ -1,4 +1,3 @@
-
 export const validateFileSize = (fileSize: number, maxSizeInBytes: number = 5 * 1024 * 1024): { isValid: boolean; maxSizeInMB: number } => {
   const maxSizeInMB = maxSizeInBytes / (1024 * 1024);
   const isValid = fileSize <= maxSizeInBytes;
@@ -137,7 +136,42 @@ export const sanitizeResumeData = (data: any): any => {
   return data;
 };
 
-// Add proper type checking before using string methods
+/**
+ * Checks if text contains PDF artifacts that indicate binary content
+ * @param text Text to check for PDF artifacts
+ * @returns Boolean indicating if text contains PDF artifacts
+ */
+export const containsPdfArtifacts = (text: string | undefined): boolean => {
+  if (!text) return false;
+  
+  // Common PDF artifacts and binary patterns
+  const pdfArtifacts = [
+    '%PDF-',
+    'endobj',
+    'endstream',
+    'xref',
+    'trailer',
+    'startxref',
+    '%%EOF',
+    '/Type /Page',
+    '/Font',
+    '/XObject',
+    '/ProcSet',
+    '/ExtGState'
+  ];
+  
+  // Binary data often contains unprintable characters
+  const hasBinaryChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/.test(text);
+  
+  // Check for PDF artifacts
+  const hasPdfMarkers = pdfArtifacts.some(artifact => text.includes(artifact));
+  
+  // Check for sequences of hex values that might indicate binary data
+  const hasHexSequences = /[0-9a-fA-F]{6,}/.test(text);
+  
+  return hasBinaryChars || hasPdfMarkers || hasHexSequences;
+};
+
 export const validateResumeImageType = (fileType: string | undefined): {
   isUnsupported: boolean;
   supportedTypes: string[];

@@ -1,6 +1,98 @@
-
-import { ResumeData } from '../../types';
+import { ResumeData, Experience, Skill } from '../../types';
+import { sanitizeResumeData } from '../helpers/validation';
 import { v4 as uuidv4 } from 'uuid';
+
+export const parseLinkedInData = (data: any): Partial<ResumeData> => {
+  try {
+    const parsedData: Partial<ResumeData> = {
+      personal: {
+        fullName: data.profile?.name || 'Not found',
+        jobTitle: data.profile?.headline || 'Not found',
+        email: data.profile?.email || 'Not found',
+        phone: data.profile?.phone || 'Not found',
+        location: data.profile?.location || 'Not found',
+        linkedin: data.profile?.profileUrl || '',
+        website: data.profile?.website || ''
+      },
+      summary: data.profile?.summary || '',
+      experience: [],
+      education: [],
+      skills: [],
+      languages: [],
+      certifications: []
+    };
+    
+    // Parse work experience
+    if (Array.isArray(data.experience)) {
+      parsedData.experience = data.experience.map((exp: any) => {
+        const experience: Experience = {
+          id: uuidv4(),
+          company: exp.companyName || '',
+          position: exp.title || '',
+          location: exp.location || '',
+          startDate: exp.dateRange?.start || '',
+          endDate: exp.current ? null : (exp.dateRange?.end || ''),
+          current: !!exp.current,
+          description: exp.description || ''
+        };
+        return experience;
+      });
+    }
+    
+    // Parse education
+    if (Array.isArray(data.education)) {
+      parsedData.education = data.education.map((edu: any) => ({
+        id: uuidv4(),
+        institution: edu.schoolName || '',
+        degree: edu.degree || '',
+        field: edu.fieldOfStudy || '',
+        location: edu.location || '',
+        startDate: edu.dateRange?.start || '',
+        endDate: edu.dateRange?.end || null,
+        current: false,
+        description: edu.description || ''
+      }));
+    }
+    
+    // Parse skills
+    if (Array.isArray(data.skills)) {
+      parsedData.skills = data.skills.map((skill: any) => {
+        const skillObj: Skill = {
+          id: uuidv4(),
+          name: skill.name || skill,
+          level: skill.level || 'intermediate'
+        };
+        return skillObj;
+      });
+    }
+    
+    // Parse languages
+    if (Array.isArray(data.languages)) {
+      parsedData.languages = data.languages.map((lang: any) => ({
+        id: uuidv4(),
+        name: lang.name || lang,
+        proficiency: lang.proficiency || 'conversational'
+      }));
+    }
+    
+    // Parse certifications
+    if (Array.isArray(data.certifications)) {
+      parsedData.certifications = data.certifications.map((cert: any) => ({
+        id: uuidv4(),
+        name: cert.name || '',
+        issuer: cert.authority || cert.issuer || '',
+        date: cert.date || cert.issueDate || '',
+        expiryDate: cert.expiryDate || '',
+        url: cert.url || ''
+      }));
+    }
+    
+    return sanitizeResumeData(parsedData);
+  } catch (error) {
+    console.error('Error parsing LinkedIn data:', error);
+    throw new Error(`Failed to parse LinkedIn data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
 
 // Simulated LinkedIn data extraction
 // In a production environment, this would use LinkedIn's API
@@ -30,7 +122,7 @@ export const extractFromLinkedIn = async (linkedInUrl: string): Promise<Partial<
             phone: '+971 5x xxx xxxx',
             location: 'Dubai, UAE',
             linkedin: linkedInUrl,
-            website: `https://${username.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')}.com` // Added the missing website property
+            website: `https://${username.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')}.com`
           },
           experience: [
             {

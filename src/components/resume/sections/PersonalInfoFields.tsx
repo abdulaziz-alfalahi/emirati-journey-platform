@@ -1,86 +1,101 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PersonalInfo } from '../types';
+import { Input } from '@/components/ui/input';
+import { Personal } from '../types';
 
 interface PersonalInfoFieldsProps {
-  data: PersonalInfo;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  data: Personal;
+  onChange: (data: Personal) => void;
 }
 
-const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({ data, onChange }) => {
+const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
+  data,
+  onChange
+}) => {
+  const handleInputChange = (field: keyof Personal) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({
+      ...data,
+      [field]: e.target.value
+    });
+  };
+
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
           <Label htmlFor="fullName">Full Name</Label>
           <Input
             id="fullName"
-            name="fullName"
             value={data.fullName}
-            onChange={onChange}
-            placeholder="e.g., Mohammed Al Mansoori"
+            onChange={handleInputChange('fullName')}
+            placeholder="John Doe"
           />
         </div>
-        
-        <div className="space-y-2">
+        <div>
           <Label htmlFor="jobTitle">Job Title</Label>
           <Input
             id="jobTitle"
-            name="jobTitle"
             value={data.jobTitle}
-            onChange={onChange}
-            placeholder="e.g., Senior Software Engineer"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            value={data.email}
-            onChange={onChange}
-            placeholder="e.g., mohammed@example.com"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            name="phone"
-            value={data.phone}
-            onChange={onChange}
-            placeholder="e.g., +971 50 123 4567"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="linkedin">LinkedIn (Optional)</Label>
-          <Input
-            id="linkedin"
-            name="linkedin"
-            value={data.linkedin || ''}
-            onChange={onChange}
-            placeholder="e.g., linkedin.com/in/mohammedalmansoori"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="website">Website (Optional)</Label>
-          <Input
-            id="website"
-            name="website"
-            value={data.website || ''}
-            onChange={onChange}
-            placeholder="e.g., mohammedalmansoori.com"
+            onChange={handleInputChange('jobTitle')}
+            placeholder="Software Engineer"
           />
         </div>
       </div>
-    </>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={data.email}
+            onChange={handleInputChange('email')}
+            placeholder="john.doe@example.com"
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            value={data.phone}
+            onChange={handleInputChange('phone')}
+            placeholder="+1 (555) 123-4567"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="location">Location</Label>
+        <Input
+          id="location"
+          value={data.location}
+          onChange={handleInputChange('location')}
+          placeholder="San Francisco, CA"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="linkedin">LinkedIn (optional)</Label>
+          <Input
+            id="linkedin"
+            value={data.linkedin || ''}
+            onChange={handleInputChange('linkedin')}
+            placeholder="https://linkedin.com/in/johndoe"
+          />
+        </div>
+        <div>
+          <Label htmlFor="website">Website (optional)</Label>
+          <Input
+            id="website"
+            value={data.website || ''}
+            onChange={handleInputChange('website')}
+            placeholder="https://johndoe.com"
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

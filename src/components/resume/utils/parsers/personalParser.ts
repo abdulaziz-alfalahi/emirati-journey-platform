@@ -1,5 +1,4 @@
-
-import { ResumeData, PersonalInfo } from '../../types';
+import { ResumeData, Personal } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper function to clean potential PDF artifacts and other unwanted content
@@ -15,7 +14,7 @@ const cleanField = (value: string): string => {
 };
 
 // Extract personal information from resume content
-export const extractPersonalInfo = (content: string): PersonalInfo => {
+export const extractPersonalInfo = (content: string): Personal => {
   // First, clean up content if it contains PDF artifacts
   const cleanedContent = content.startsWith('%PDF') ? 
     content.replace(/%PDF-[\d.]+/, '')

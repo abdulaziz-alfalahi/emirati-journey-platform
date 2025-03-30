@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileUp, Image, Linkedin } from 'lucide-react';
 import { ResumeData } from '../types';
 import { ImageImportDialog } from './ImageImportDialog';
+import FileImportDialog from './FileImportDialog';
 
 interface ImportOptionsProps {
   onImportComplete: (data: ResumeData) => void;
@@ -14,14 +16,14 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({
   currentData
 }) => {
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
 
   const handleImageImport = () => {
     setIsImageDialogOpen(true);
   };
 
   const handleFileUpload = () => {
-    // Placeholder for file upload functionality
-    alert('File upload not implemented yet');
+    setIsFileDialogOpen(true);
   };
 
   const handleLinkedInImport = () => {
@@ -65,6 +67,13 @@ const ImportOptions: React.FC<ImportOptionsProps> = ({
         isOpen={isImageDialogOpen}
         onClose={() => setIsImageDialogOpen(false)}
         onImportComplete={onImportComplete}
+      />
+      
+      <FileImportDialog
+        open={isFileDialogOpen}
+        onOpenChange={setIsFileDialogOpen}
+        onImportComplete={onImportComplete}
+        currentData={currentData}
       />
     </div>
   );
