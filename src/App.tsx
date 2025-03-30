@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,9 +19,13 @@ import MatchingPage from "./pages/matching/index";
 import JobDescriptionsPage from "./pages/job-descriptions.jsx";
 import JobDescriptionsListPage from "./pages/job-descriptions/list.jsx";
 import React from "react";
-// Import PDF.js worker
-import 'pdfjs-dist/build/pdf.worker.entry';
 
+// Configure PDF.js worker
+import * as pdfjsLib from 'pdfjs-dist';
+// Use CDN for the worker to avoid bundling issues
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// Log worker source for debugging
+console.log("PDF.js worker source:", pdfjsLib.GlobalWorkerOptions.workerSrc);
 
 // Create QueryClient outside of the component to avoid recreation on re-renders
 const queryClient = new QueryClient();
