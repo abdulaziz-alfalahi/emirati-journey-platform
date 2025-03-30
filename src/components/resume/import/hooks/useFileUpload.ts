@@ -1,7 +1,8 @@
 
 import { useState, useRef } from 'react';
 import { ResumeData } from '../../types';
-import { processResumeFile, mergeResumeData } from '../importUtils';
+import { processResumeFile } from '../utils/fileProcessor';
+import { mergeResumeData } from '../utils/dataUtils';
 import { toast } from 'sonner';
 
 interface UseFileUploadProps {
@@ -15,6 +16,7 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [abortController] = useState(new AbortController());
 
   // Helper function to validate parsed data
   const validateParsedData = (data: Partial<ResumeData>): boolean => {
@@ -95,24 +97,33 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
     if (file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')) {
       console.log('Word document detected, informing user about special handling');
       toast.info("Word Document Detected", {
-        description: "We'll use special processing for your Word document. For best results, consider using PDF format.",
+        description: "Word documents may take longer to process. Please be patient.",
         duration: 5000,
       });
     }
   };
 
   const handleFileUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) return false;
 
     setIsUploading(true);
     setUploadError(null);
     
-    const toastId = toast.loading("Processing Resume", {
-      description: "Analyzing your resume file...",
-    });
+    // Set up a timeout to detect unresponsive processing
+    const timeoutId = setTimeout(() => {
+      console.warn("Document processing taking longer than expected");
+      toast.info("Processing is taking longer than expected", {
+        description: "Please be patient. Complex documents may take more time.",
+        duration: 8000,
+      });
+    }, 10000); // 10 seconds timeout
     
     try {
+      console.log(`Starting to process ${selectedFile.name}`);
       const { parsedData, usedFallback } = await processResumeFile(selectedFile);
+      
+      // Clear the timeout since processing completed
+      clearTimeout(timeoutId);
       
       // Check for obvious PDF corruption markers in the personal data
       const hasPdfCorruption = parsedData.personal && 
@@ -123,9 +134,8 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       
       if (hasPdfCorruption) {
         console.error('Detected corrupted PDF data in parsed result:', parsedData.personal);
-        toast.error("PDF Processing Error", {
-          id: toastId,
-          description: "This PDF contains internal formatting that prevents proper text extraction. Please try converting it to a different format or use our image upload option.",
+        toast.error("Document Processing Error", {
+          description: "This document contains formatting that prevents proper text extraction. Please try converting it to a different format.",
         });
         
         // Create a clean version without corrupted data
@@ -140,7 +150,7 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
             linkedin: "",
             website: ""
           },
-          summary: "We couldn't extract text properly from this PDF. It might contain formatting that prevents text extraction. Please try uploading a different format or use our image upload option.",
+          summary: "We couldn't extract text properly from this document. It might contain formatting that prevents text extraction. Please try uploading a different format.",
           metadata: {
             ...(parsedData.metadata || {}),
             processingError: "detected_corrupted_data",
@@ -167,18 +177,16 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       if (!isDataValid) {
         throw new Error(
           "Your document contains formatting that couldn't be properly parsed. " +
-          "For Word documents (.docx/.doc), please save as PDF first or use the image upload option instead."
+          "Please save as PDF first or use the image upload option instead."
         );
       }
       
       if (usedFallback) {
         toast.warning("Basic Extraction Used", {
-          id: toastId,
           description: "Limited data was extracted from your resume due to formatting issues.",
         });
       } else {
         toast.success("Resume Processed", {
-          id: toastId,
           description: "Your resume has been processed successfully.",
         });
       }
@@ -189,7 +197,6 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       } else {
         console.error('Error: onImportComplete is not a function');
         toast.error("Application Error", {
-          id: toastId,
           description: "There was a problem updating the resume data. Please refresh the page and try again.",
         });
       }
@@ -200,6 +207,9 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       
       return true;
     } catch (error) {
+      // Clear the timeout
+      clearTimeout(timeoutId);
+      
       console.error('Error parsing resume:', error);
       
       let errorMessage = error instanceof Error ? error.message : "Failed to parse resume";
@@ -212,7 +222,6 @@ export const useFileUpload = ({ onImportComplete, onError, currentData }: UseFil
       setUploadError(errorMessage);
       
       toast.error("Error Processing Resume", {
-        id: toastId,
         description: errorMessage,
       });
       

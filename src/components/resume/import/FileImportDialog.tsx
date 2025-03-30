@@ -37,9 +37,14 @@ const FileImportDialog: React.FC<FileImportDialogProps> = ({
   });
 
   const handleSubmit = async () => {
-    const success = await handleFileUpload();
-    if (success) {
-      onOpenChange(false);
+    try {
+      const success = await handleFileUpload();
+      if (success) {
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error("Error in file upload submit:", error);
+      // Error is already handled in the useFileUpload hook
     }
   };
 
