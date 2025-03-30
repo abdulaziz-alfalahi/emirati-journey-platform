@@ -1,3 +1,4 @@
+
 export const validateFileSize = (fileSize: number, maxSizeInBytes: number): { isValid: boolean; maxSizeInMB: number } => {
   const maxSizeInMB = maxSizeInBytes / (1024 * 1024);
   const isValid = fileSize <= maxSizeInBytes;
@@ -29,7 +30,7 @@ export const sanitizeResumeData = (data: any): any => {
 
   const removePDFArtifacts = (text: string): string => {
     if (typeof text !== 'string') return text;
-    return text.replace(//g, '').replace(/[^\x20-\x7E\n]+/g, '');
+    return text.replace(/[^\x20-\x7E\n]+/g, '');
   };
 
   // Sanitize personal information
