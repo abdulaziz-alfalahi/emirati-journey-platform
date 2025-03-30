@@ -14,9 +14,12 @@ import { validateResumeFile, isDocxFile, isPdfFile } from './fileValidators';
  * @returns Promise resolving to processed resume data
  */
 export const processResumeFile = async (file: File): Promise<ProcessedResult> => {
+  console.log(`processResumeFile: Starting to process file - ${file.name} (${file.type}, ${file.size} bytes)`);
+  
   // Validate the file first
   const validation = validateResumeFile(file);
   if (!validation.isValid) {
+    console.error(`processResumeFile: File validation failed - ${validation.errorMessage}`);
     throw new Error(validation.errorMessage);
   }
   
@@ -24,6 +27,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
   
   // Special handling for DOCX files using mammoth.js
   if (isDocxFile(file)) {
+    console.log('processResumeFile: Detected DOCX file, using specialized processor');
     return processDocxFile(file);
   }
   
@@ -35,6 +39,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
       console.log(`Determined PDF parsing strategy: ${strategy}, use image parser: ${shouldUseImageParser}`);
       
       if (shouldUseImageParser) {
+        console.log('processResumeFile: PDF appears to be scanned, redirecting to image processing');
         // For scanned PDFs, redirect to image parsing route
         const { processResumeImage } = await import('./imageProcessor');
         return processResumeImage(file);
@@ -46,16 +51,21 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
   }
   
   try {
+    console.log('processResumeFile: Calling parseResumeFromFile()');
     const parsedData = await parseResumeFromFile(file);
     const processingTime = Date.now() - startTime;
+    console.log(`processResumeFile: Parsing completed in ${processingTime}ms`);
+    console.log('processResumeFile: Raw parsed data:', JSON.stringify(parsedData, null, 2));
     
     // Sanitize the data to remove any PDF artifacts
     const sanitizedData = sanitizeResumeData(parsedData);
+    console.log('processResumeFile: After sanitization:', JSON.stringify(sanitizedData, null, 2));
     
     // Validate parsed data
     if (!sanitizedData || Object.keys(sanitizedData).length === 0) {
       if (isPdfFile(file)) {
         // If standard parsing fails for PDF, try image parsing as fallback
+        console.log('processResumeFile: Empty or invalid data from text extraction, trying image processing');
         toast.info("Attempting image-based extraction", {
           description: "Text extraction failed. Trying image-based extraction as fallback.",
         });
@@ -86,6 +96,8 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
                        parsingMethod === 'enhanced-edge' || 
                        parsingMethod === 'ai-edge';
     
+    console.log(`processResumeFile: Completed. Method: ${parsingMethod}, usedFallback: ${usedFallback}`);
+    
     return {
       parsedData: sanitizedData,
       parsingMethod,
@@ -97,6 +109,7 @@ export const processResumeFile = async (file: File): Promise<ProcessedResult> =>
     
     // For PDF files that fail with text extraction, try image parsing
     if (isPdfFile(file)) {
+      console.log('processResumeFile: Error in text extraction, trying image-based method');
       toast.info("Trying image-based extraction", {
         description: "Text extraction failed. Trying image-based extraction...",
       });

@@ -9,6 +9,9 @@ import { EnhancedResumeParser } from './enhanced/enhancedParserClass';
  */
 export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
   try {
+    console.log('enhancedResumeParser: Starting parsing process');
+    console.log(`enhancedResumeParser: Content length: ${content.length} chars`);
+    
     // First, perform a basic validation to detect obviously corrupted PDF data
     const corruptionPatterns = [
       /%PDF-/i, 
@@ -18,6 +21,8 @@ export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
     
     // Check for at least 2 corruption patterns
     const corruptionMatches = corruptionPatterns.filter(pattern => pattern.test(content));
+    console.log(`enhancedResumeParser: Corruption patterns detected: ${corruptionMatches.length}`);
+    
     if (corruptionMatches.length >= 2) {
       console.error('Likely corrupted PDF data detected in enhancedResumeParser');
       return {
@@ -46,7 +51,9 @@ export const enhancedResumeParser = (content: string): Partial<ResumeData> => {
     const parser = new EnhancedResumeParser();
     
     // Process the content
+    console.log('enhancedResumeParser: Calling parser.parseResumeContent()');
     const result = parser.parseResumeContent(content, 'text/plain');
+    console.log('enhancedResumeParser: Parsing complete, result:', JSON.stringify(result, null, 2));
     
     // Return the parsed data
     return result;

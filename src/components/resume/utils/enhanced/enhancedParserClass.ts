@@ -38,7 +38,9 @@ export class EnhancedResumeParser {
     const corruptionMatches = corruptionPatterns.filter(pattern => pattern.test(text));
     
     // If we find multiple corruption patterns, it's likely corrupted PDF data
-    return corruptionMatches.length >= 3;
+    const isCorrupted = corruptionMatches.length >= 3;
+    console.log(`EnhancedResumeParser.isCorruptedPdfData: Found ${corruptionMatches.length} corruption patterns, isCorrupted: ${isCorrupted}`);
+    return isCorrupted;
   }
 
   /**
@@ -50,11 +52,12 @@ export class EnhancedResumeParser {
    */
   parseResumeContent(fileContent: string, fileType: string): Partial<ResumeData> {
     try {
-      console.log('Starting enhanced resume parsing...');
+      console.log('EnhancedResumeParser.parseResumeContent: Starting enhanced resume parsing...');
+      console.log(`EnhancedResumeParser.parseResumeContent: Content length: ${fileContent.length}, type: ${fileType}`);
       
       // Check for corrupted PDF data
       if (this.isCorruptedPdfData(fileContent)) {
-        console.error('Detected corrupted PDF data instead of resume content');
+        console.error('EnhancedResumeParser.parseResumeContent: Detected corrupted PDF data instead of resume content');
         return {
           personal: {
             fullName: "",
@@ -79,22 +82,28 @@ export class EnhancedResumeParser {
       }
       
       // Step 1: Process document and extract text
+      console.log('EnhancedResumeParser.parseResumeContent: Processing document...');
       const { text, metadata } = processDocument(fileContent, fileType);
-      console.log('Document processed, metadata:', metadata);
+      console.log('EnhancedResumeParser.parseResumeContent: Document processed, metadata:', metadata);
+      console.log('EnhancedResumeParser.parseResumeContent: Processed text sample:', text.substring(0, 200) + '...');
       
       // Step 2: Identify and segment resume sections
+      console.log('EnhancedResumeParser.parseResumeContent: Identifying sections...');
       const sections = identifySections(text);
-      console.log('Sections identified:', Object.keys(sections));
+      console.log('EnhancedResumeParser.parseResumeContent: Sections identified:', Object.keys(sections));
       
       // Step 3: Extract entities using our enhanced extractors
+      console.log('EnhancedResumeParser.parseResumeContent: Extracting personal info...');
       const personalInfo = extractPersonalInfo(sections);
-      console.log('Personal info extracted:', Object.keys(personalInfo));
+      console.log('EnhancedResumeParser.parseResumeContent: Personal info extracted:', personalInfo);
       
       // Step 4: Extract other entities from the content parser
+      console.log('EnhancedResumeParser.parseResumeContent: Extracting data using content parser...');
       const extractedData = extractDataFromContent(text, fileType);
-      console.log('Entities extracted using content parser');
+      console.log('EnhancedResumeParser.parseResumeContent: Data extracted using content parser:', Object.keys(extractedData).length > 0 ? 'Success' : 'No data extracted');
       
       // Step 5: Combine enhanced extraction with default extraction
+      console.log('EnhancedResumeParser.parseResumeContent: Combining extracted data...');
       let result: Partial<ResumeData> & { metadata?: any } = {
         ...extractedData,
         personal: {
@@ -110,15 +119,18 @@ export class EnhancedResumeParser {
       };
       
       // Step 6: Validate and structure the data
+      console.log('EnhancedResumeParser.parseResumeContent: Validating data...');
       const validation = validateResumeData(result);
-      console.log('Validation results:', validation);
+      console.log('EnhancedResumeParser.parseResumeContent: Validation results:', validation);
       
       // Step 7: Structure the data to ensure it matches the expected schema
+      console.log('EnhancedResumeParser.parseResumeContent: Structuring data...');
       result = structureResumeData(result);
       
       // Add validation results to metadata
       result.metadata.validation = validation;
       
+      console.log('EnhancedResumeParser.parseResumeContent: Parsing complete.');
       return result;
     } catch (error) {
       console.error('Error in enhanced resume parsing:', error);
