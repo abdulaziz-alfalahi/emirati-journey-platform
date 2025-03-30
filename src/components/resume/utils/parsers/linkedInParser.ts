@@ -1,179 +1,162 @@
-import { ResumeData, Experience, Skill } from '../../types';
-import { sanitizeResumeData } from '../helpers/validation';
+
+import { ResumeData } from '../../types';
+import { Personal } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
-export const parseLinkedInData = (data: any): Partial<ResumeData> => {
+export function parseLinkedInData(jsonData: any): Partial<ResumeData> {
   try {
-    const parsedData: Partial<ResumeData> = {
-      personal: {
-        fullName: data.profile?.name || 'Not found',
-        jobTitle: data.profile?.headline || 'Not found',
-        email: data.profile?.email || 'Not found',
-        phone: data.profile?.phone || 'Not found',
-        location: data.profile?.location || 'Not found',
-        linkedin: data.profile?.profileUrl || '',
-        website: data.profile?.website || ''
-      },
-      summary: data.profile?.summary || '',
-      experience: [],
-      education: [],
-      skills: [],
-      languages: [],
-      certifications: []
-    };
-    
-    // Parse work experience
-    if (Array.isArray(data.experience)) {
-      parsedData.experience = data.experience.map((exp: any) => {
-        const experience: Experience = {
-          id: uuidv4(),
-          company: exp.companyName || '',
-          position: exp.title || '',
-          location: exp.location || '',
-          startDate: exp.dateRange?.start || '',
-          endDate: exp.current ? null : (exp.dateRange?.end || ''),
-          current: !!exp.current,
-          description: exp.description || ''
-        };
-        return experience;
-      });
+    if (!jsonData) {
+      throw new Error('Invalid LinkedIn data');
     }
-    
+
+    // Parse personal info
+    const personal: Personal = {
+      fullName: extractFullName(jsonData),
+      jobTitle: extractJobTitle(jsonData),
+      email: extractEmail(jsonData),
+      phone: extractPhone(jsonData),
+      location: extractLocation(jsonData),
+      linkedin: extractLinkedInUrl(jsonData),
+      website: extractWebsite(jsonData)
+    };
+
+    // Parse experience
+    const experience = extractExperience(jsonData);
+
     // Parse education
-    if (Array.isArray(data.education)) {
-      parsedData.education = data.education.map((edu: any) => ({
+    const education = extractEducation(jsonData);
+
+    // Parse skills
+    const skills = extractSkills(jsonData);
+
+    // Parse summary
+    const summary = extractSummary(jsonData);
+
+    // Compile resume data
+    const resumeData: Partial<ResumeData> = {
+      personal,
+      summary,
+      experience,
+      education,
+      skills,
+      languages: []
+    };
+
+    return resumeData;
+  } catch (error) {
+    console.error('LinkedIn parser error:', error);
+    return {};
+  }
+}
+
+// Helper function to extract experience data
+function extractExperience(jsonData: any) {
+  try {
+    const experiences = jsonData.experience || jsonData.positions || [];
+    
+    return experiences.map((exp: any) => {
+      const startDate = exp.startDate?.year 
+        ? `${exp.startDate.month || 1}/${exp.startDate.year}` 
+        : '';
+        
+      // Create a proper endDate or empty string if it's a current position
+      const endDate = exp.endDate?.year 
+        ? `${exp.endDate.month || 12}/${exp.endDate.year}` 
+        : '';
+        
+      return {
+        id: uuidv4(),
+        company: exp.companyName || exp.company?.name || '',
+        position: exp.title || '',
+        location: exp.locationName || exp.location || '',
+        startDate: startDate,
+        endDate: endDate,
+        current: !exp.endDate || !exp.endDate.year,
+        description: exp.description || ''
+      };
+    });
+  } catch (error) {
+    console.error('Error extracting experience:', error);
+    return [];
+  }
+}
+
+// Helper functions to extract other LinkedIn data
+function extractFullName(jsonData: any) {
+  return jsonData.profile?.firstName && jsonData.profile?.lastName
+    ? `${jsonData.profile.firstName} ${jsonData.profile.lastName}`.trim()
+    : jsonData.fullName || '';
+}
+
+function extractJobTitle(jsonData: any) {
+  return jsonData.profile?.headline || jsonData.headline || jsonData.jobTitle || '';
+}
+
+function extractEmail(jsonData: any) {
+  return jsonData.profile?.email || jsonData.email || '';
+}
+
+function extractPhone(jsonData: any) {
+  return jsonData.profile?.phone || jsonData.phoneNumber || '';
+}
+
+function extractLocation(jsonData: any) {
+  return jsonData.profile?.location || jsonData.locationName || '';
+}
+
+function extractLinkedInUrl(jsonData: any) {
+  return jsonData.profile?.profileUrl || jsonData.publicProfileUrl || '';
+}
+
+function extractWebsite(jsonData: any) {
+  return jsonData.profile?.website || '';
+}
+
+function extractSummary(jsonData: any) {
+  return jsonData.profile?.summary || jsonData.summary || '';
+}
+
+function extractEducation(jsonData: any) {
+  try {
+    const educations = jsonData.education || [];
+    
+    return educations.map((edu: any) => {
+      const startDate = edu.startDate?.year 
+        ? `${edu.startDate?.year}` 
+        : '';
+        
+      const endDate = edu.endDate?.year 
+        ? `${edu.endDate?.year}` 
+        : '';
+        
+      return {
         id: uuidv4(),
         institution: edu.schoolName || '',
         degree: edu.degree || '',
         field: edu.fieldOfStudy || '',
-        location: edu.location || '',
-        startDate: edu.dateRange?.start || '',
-        endDate: edu.dateRange?.end || null,
-        current: false,
-        description: edu.description || ''
-      }));
-    }
-    
-    // Parse skills
-    if (Array.isArray(data.skills)) {
-      parsedData.skills = data.skills.map((skill: any) => {
-        const skillObj: Skill = {
-          id: uuidv4(),
-          name: skill.name || skill,
-          level: skill.level || 'intermediate'
-        };
-        return skillObj;
-      });
-    }
-    
-    // Parse languages
-    if (Array.isArray(data.languages)) {
-      parsedData.languages = data.languages.map((lang: any) => ({
-        id: uuidv4(),
-        name: lang.name || lang,
-        proficiency: lang.proficiency || 'conversational'
-      }));
-    }
-    
-    // Parse certifications
-    if (Array.isArray(data.certifications)) {
-      parsedData.certifications = data.certifications.map((cert: any) => ({
-        id: uuidv4(),
-        name: cert.name || '',
-        issuer: cert.authority || cert.issuer || '',
-        date: cert.date || cert.issueDate || '',
-        expiryDate: cert.expiryDate || '',
-        url: cert.url || ''
-      }));
-    }
-    
-    return sanitizeResumeData(parsedData);
+        startDate: startDate,
+        endDate: endDate,
+        current: !edu.endDate || !edu.endDate.year,
+        description: edu.activities || ''
+      };
+    });
   } catch (error) {
-    console.error('Error parsing LinkedIn data:', error);
-    throw new Error(`Failed to parse LinkedIn data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Error extracting education:', error);
+    return [];
   }
-};
+}
 
-// Simulated LinkedIn data extraction
-// In a production environment, this would use LinkedIn's API
-export const extractFromLinkedIn = async (linkedInUrl: string): Promise<Partial<ResumeData>> => {
-  return new Promise((resolve, reject) => {
-    try {
-      // Simulate API call with delay
-      setTimeout(() => {
-        // Extract LinkedIn username from URL for personalization
-        let username = 'user';
-        try {
-          const urlParts = linkedInUrl.split('/');
-          const inIndex = urlParts.indexOf('in');
-          if (inIndex >= 0 && inIndex + 1 < urlParts.length) {
-            username = urlParts[inIndex + 1].split('?')[0];
-          }
-        } catch (error) {
-          console.error('Error extracting LinkedIn username:', error);
-        }
-        
-        // Mock LinkedIn data with personalized username
-        const linkedInData: Partial<ResumeData> = {
-          personal: {
-            fullName: `${username.charAt(0).toUpperCase() + username.slice(1).replace(/[^a-zA-Z]/g, ' ')}`,
-            jobTitle: 'Professional from LinkedIn',
-            email: `${username.toLowerCase().replace(/[^a-zA-Z0-9]/g, '.')}@example.com`,
-            phone: '+971 5x xxx xxxx',
-            location: 'Dubai, UAE',
-            linkedin: linkedInUrl,
-            website: `https://${username.toLowerCase().replace(/[^a-zA-Z0-9]/g, '')}.com`
-          },
-          experience: [
-            {
-              id: uuidv4(),
-              company: 'Recent Company',
-              position: 'Current Position',
-              location: 'Dubai, UAE',
-              startDate: '2022-01',
-              endDate: '',
-              current: true,
-              description: 'Details extracted from LinkedIn profile for current position.'
-            },
-            {
-              id: uuidv4(),
-              company: 'Previous Company',
-              position: 'Previous Role',
-              location: 'Abu Dhabi, UAE',
-              startDate: '2019-06',
-              endDate: '2021-12',
-              current: false,
-              description: 'Details extracted from LinkedIn profile for previous position.'
-            }
-          ],
-          education: [
-            {
-              id: uuidv4(),
-              institution: 'University Name',
-              degree: 'Degree Type',
-              field: 'Field of Study',
-              location: 'Education Location',
-              startDate: '2015-09',
-              endDate: '2019-05',
-              current: false,
-            }
-          ],
-          skills: [
-            { id: uuidv4(), name: 'Skill From LinkedIn 1', level: 'advanced' },
-            { id: uuidv4(), name: 'Skill From LinkedIn 2', level: 'expert' },
-            { id: uuidv4(), name: 'Skill From LinkedIn 3', level: 'intermediate' },
-          ],
-          languages: [
-            { id: uuidv4(), name: 'English', proficiency: 'fluent' },
-            { id: uuidv4(), name: 'Arabic', proficiency: 'conversational' },
-          ]
-        };
-        
-        console.log('LinkedIn data extracted for profile:', username);
-        resolve(linkedInData);
-      }, 2000);
-    } catch (error) {
-      reject(new Error('Failed to extract data from LinkedIn. Please check the URL and try again.'));
-    }
-  });
-};
+function extractSkills(jsonData: any) {
+  try {
+    const skills = jsonData.skills || [];
+    
+    return skills.map((skill: any) => ({
+      id: uuidv4(),
+      name: skill.name || skill,
+      level: 3 // Default to intermediate level
+    }));
+  } catch (error) {
+    console.error('Error extracting skills:', error);
+    return [];
+  }
+}

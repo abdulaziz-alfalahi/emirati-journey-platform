@@ -1,195 +1,164 @@
 
-import { ResumeData } from '../types';
+import { ResumeData, Skill, Experience, Education, Language } from '../types';
+import { Personal } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Deep merges two resume data objects with intelligent conflict resolution
- * @param currentData Existing resume data
- * @param newData New data to merge
- * @returns Merged resume data
- */
-export const mergeResumeData = (currentData: ResumeData, newData: Partial<ResumeData>): ResumeData => {
-  // Start with a clone of current data
-  const result: ResumeData = JSON.parse(JSON.stringify(currentData));
-  
-  // Personal info: merge with preference for non-empty new values
-  if (newData.personal) {
-    result.personal = {
-      ...result.personal,
-      ...Object.fromEntries(
-        Object.entries(newData.personal).filter(([_, value]) => 
-          value !== undefined && value !== null && value !== ""
-        )
-      )
-    };
-  }
-  
-  // Summary: use new if provided and non-empty
-  if (newData.summary && newData.summary.trim()) {
-    result.summary = newData.summary;
-  }
-  
-  // Arrays: For experience, education, skills, and languages
-  // Strategy: Replace arrays completely if new ones are provided and non-empty
-  // Add IDs where missing
-  
-  // Experience
-  if (newData.experience && newData.experience.length > 0) {
-    result.experience = newData.experience.map(exp => ({
-      ...exp,
-      id: exp.id || uuidv4()
-    }));
-  }
-  
-  // Education
-  if (newData.education && newData.education.length > 0) {
-    result.education = newData.education.map(edu => ({
-      ...edu,
-      id: edu.id || uuidv4()
-    }));
-  }
-  
-  // Skills
-  if (newData.skills && newData.skills.length > 0) {
-    result.skills = newData.skills.map(skill => 
-      typeof skill === 'string' 
-        ? { id: uuidv4(), name: skill, level: '' }
-        : { ...skill, id: skill.id || uuidv4() }
-    );
-  }
-  
-  // Languages
-  if (newData.languages && newData.languages.length > 0) {
-    result.languages = newData.languages.map(lang => ({
-      ...lang,
-      id: lang.id || uuidv4()
-    }));
-  }
-  
-  // Certifications
-  if (newData.certifications && newData.certifications.length > 0) {
-    result.certifications = newData.certifications.map(cert => ({
-      ...cert,
-      id: cert.id || uuidv4()
-    }));
-  }
-  
-  // Projects
-  if (newData.projects && newData.projects.length > 0) {
-    result.projects = newData.projects.map(project => ({
-      ...project,
-      id: project.id || uuidv4()
-    }));
-  }
-  
-  // Merge metadata
-  result.metadata = {
-    ...(result.metadata || {}),
-    ...(newData.metadata || {}),
-    lastUpdated: new Date().toISOString(),
-    mergeSource: newData.metadata?.parsingMethod || 'manual'
-  };
-  
-  return result;
-};
-
-/**
- * Creates a new empty resume data structure
- * @returns Empty ResumeData object with initialized arrays
+ * Creates an empty resume data structure with default values
  */
 export const createEmptyResumeData = (): ResumeData => {
   return {
     personal: {
-      fullName: "",
-      jobTitle: "",
-      email: "",
-      phone: "",
-      location: "",
-      linkedin: "",
-      website: ""
+      fullName: '',
+      jobTitle: '',
+      email: '',
+      phone: '',
+      location: '',
+      linkedin: '',
+      website: ''
     },
-    summary: "",
+    summary: '',
     experience: [],
     education: [],
     skills: [],
-    languages: [],
-    certifications: [],
-    projects: [],
-    metadata: {
-      lastUpdated: new Date().toISOString(),
-      createdAt: new Date().toISOString()
-    }
+    languages: []
   };
 };
 
 /**
- * Validates resume data and adds missing required fields
- * @param data Partial ResumeData to validate
- * @returns Complete ResumeData with all required fields
+ * Validates if resume data has any content
  */
-export const validateAndCompleteMissingFields = (data: Partial<ResumeData>): ResumeData => {
-  const validData = { ...data } as ResumeData;
+export const hasContent = (resume: Partial<ResumeData>): boolean => {
+  // Check personal information
+  const personalInfo = resume.personal;
+  if (personalInfo) {
+    if (
+      personalInfo.fullName ||
+      personalInfo.jobTitle ||
+      personalInfo.email ||
+      personalInfo.phone ||
+      personalInfo.location ||
+      personalInfo.linkedin ||
+      personalInfo.website
+    ) {
+      return true;
+    }
+  }
   
-  // Ensure personal info exists and has all required fields
-  validData.personal = {
-    fullName: "",
-    jobTitle: "",
-    email: "",
-    phone: "",
-    location: "",
-    linkedin: "",
-    website: "",
-    ...(validData.personal || {})
+  // Check other sections
+  if (resume.summary && resume.summary.trim() !== '') return true;
+  if (resume.experience && resume.experience.length > 0) return true;
+  if (resume.education && resume.education.length > 0) return true;
+  if (resume.skills && resume.skills.length > 0) return true;
+  if (resume.languages && resume.languages.length > 0) return true;
+  
+  return false;
+};
+
+/**
+ * Enhance skills array with IDs and default levels
+ */
+export const enhanceSkills = (skills: (string | Skill)[]): Skill[] => {
+  return skills.map(skill => {
+    if (typeof skill === 'string') {
+      return {
+        id: uuidv4(),
+        name: skill,
+        level: 3 // Default to intermediate level
+      };
+    }
+    return skill;
+  });
+};
+
+/**
+ * Merges resume data, with the new data taking precedence
+ */
+export const mergeResumeData = (
+  currentData: ResumeData,
+  newData: Partial<ResumeData>
+): ResumeData => {
+  // Merge personal information
+  const mergedPersonal: Personal = {
+    ...currentData.personal,
+    ...newData.personal
   };
-  
-  // Ensure arrays exist
-  validData.experience = validData.experience || [];
-  validData.education = validData.education || [];
-  validData.skills = validData.skills || [];
-  validData.languages = validData.languages || [];
-  
-  // Ensure all array items have IDs
-  validData.experience = validData.experience.map(exp => ({
-    ...exp,
-    id: exp.id || uuidv4()
-  }));
-  
-  validData.education = validData.education.map(edu => ({
-    ...edu,
-    id: edu.id || uuidv4()
-  }));
-  
-  validData.skills = validData.skills.map(skill => 
-    typeof skill === 'string' 
-      ? { id: uuidv4(), name: skill, level: '' } 
-      : { ...skill, id: skill.id || uuidv4() }
+
+  // Merge arrays carefully to avoid duplicates
+  const mergedExperience = mergeArrayById<Experience>(
+    currentData.experience || [],
+    newData.experience || []
   );
   
-  validData.languages = validData.languages.map(lang => ({
-    ...lang,
-    id: lang.id || uuidv4()
-  }));
-  
-  // Ensure other arrays exist if provided
-  if (validData.certifications) {
-    validData.certifications = validData.certifications.map(cert => ({
-      ...cert,
-      id: cert.id || uuidv4()
-    }));
-  }
-  
-  if (validData.projects) {
-    validData.projects = validData.projects.map(project => ({
-      ...project,
-      id: project.id || uuidv4()
-    }));
-  }
-  
-  // Ensure metadata exists
-  validData.metadata = {
-    lastUpdated: new Date().toISOString(),
-    ...(validData.metadata || {})
+  const mergedEducation = mergeArrayById<Education>(
+    currentData.education || [],
+    newData.education || []
+  );
+
+  // For skills and languages, we handle string and object formats
+  const currentSkills = currentData.skills || [];
+  const newSkills = newData.skills || [];
+  const mergedSkills = enhanceSkills([...currentSkills, ...newSkills]);
+
+  const mergedLanguages = mergeArrayById<Language>(
+    currentData.languages || [],
+    newData.languages || []
+  );
+
+  // Return the merged data
+  return {
+    personal: mergedPersonal,
+    summary: newData.summary || currentData.summary || '',
+    experience: mergedExperience,
+    education: mergedEducation,
+    skills: mergedSkills,
+    languages: mergedLanguages
   };
+};
+
+/**
+ * Helper function to merge arrays by ID
+ */
+function mergeArrayById<T extends { id: string }>(
+  currentArray: T[],
+  newArray: T[]
+): T[] {
+  // Create a map of current items by ID
+  const currentMap = new Map<string, T>();
+  for (const item of currentArray) {
+    currentMap.set(item.id, item);
+  }
   
-  return validData;
+  // Add or update with new items
+  for (const item of newArray) {
+    currentMap.set(item.id, item);
+  }
+  
+  // Convert map back to array
+  return Array.from(currentMap.values());
+}
+
+/**
+ * Normalizes resume data to ensure all required fields exist
+ */
+export const normalizeResumeData = (data: Partial<ResumeData>): ResumeData => {
+  const emptyData = createEmptyResumeData();
+  
+  // Ensure all skills have proper format
+  let normalizedSkills: Skill[] = [];
+  if (data.skills && data.skills.length > 0) {
+    normalizedSkills = enhanceSkills(data.skills);
+  }
+  
+  return {
+    personal: {
+      ...emptyData.personal,
+      ...data.personal
+    },
+    summary: data.summary || emptyData.summary,
+    experience: data.experience || emptyData.experience,
+    education: data.education || emptyData.education,
+    skills: normalizedSkills,
+    languages: data.languages || emptyData.languages
+  };
 };
