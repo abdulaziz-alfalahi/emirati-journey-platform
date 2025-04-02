@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AdvisorySession, ApiKeys } from "@/types/careerAdvisory";
 
