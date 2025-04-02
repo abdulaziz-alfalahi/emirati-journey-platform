@@ -46,7 +46,7 @@ export type AdvisorySession = {
   };
 };
 
-// Export API keys type that includes HireVue
+// API keys type that includes HireVue
 export interface ApiKeys {
   id: string;
   linkedin_client_id: string | null;
