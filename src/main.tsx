@@ -2,6 +2,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { AuthProvider } from './context/AuthContext'
 
 // Ensure we have a root element
 const rootElement = document.getElementById("root");
@@ -14,6 +15,10 @@ if (!rootElement) {
 }
 
 const root = document.getElementById("root");
-createRoot(root!).render(<App />);
+createRoot(root!).render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);
 
 console.log("Main rendering complete");
