@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Assessment, AssessmentSession, CoachingRecommendation } from '@/types/assessments';
 
@@ -145,6 +146,7 @@ export const updateAssessmentSession = async (sessionId: string, sessionData: Pa
 };
 
 export const recommendCoaching = async (sessionId: string, userId: string, reason: string) => {
+  // First, create the coaching recommendation
   const { data, error } = await supabase
     .from('coaching_recommendations')
     .insert([{
@@ -161,6 +163,7 @@ export const recommendCoaching = async (sessionId: string, userId: string, reaso
     throw error;
   }
 
+  // Then update the assessment session to mark that coaching was recommended
   await supabase
     .from('assessment_sessions')
     .update({ 
@@ -243,5 +246,5 @@ export const fetchCoachAssignments = async (coachId: string) => {
     throw error;
   }
 
-  return data;
+  return data as CoachingRecommendation[];
 };

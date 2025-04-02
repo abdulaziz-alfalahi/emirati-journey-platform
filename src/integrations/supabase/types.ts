@@ -45,6 +45,8 @@ export type Database = {
       assessment_sessions: {
         Row: {
           assessment_id: string
+          coaching_notes: string | null
+          coaching_recommended: boolean | null
           completed_date: string | null
           created_at: string | null
           feedback: string | null
@@ -58,6 +60,8 @@ export type Database = {
         }
         Insert: {
           assessment_id: string
+          coaching_notes?: string | null
+          coaching_recommended?: boolean | null
           completed_date?: string | null
           created_at?: string | null
           feedback?: string | null
@@ -71,6 +75,8 @@ export type Database = {
         }
         Update: {
           assessment_id?: string
+          coaching_notes?: string | null
+          coaching_recommended?: boolean | null
           completed_date?: string | null
           created_at?: string | null
           feedback?: string | null
@@ -142,6 +148,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      coaching_recommendations: {
+        Row: {
+          coach_id: string | null
+          created_at: string
+          id: string
+          reason: string
+          scheduled_date: string | null
+          session_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coach_id?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          scheduled_date?: string | null
+          session_id: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coach_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          scheduled_date?: string | null
+          session_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_recommendations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_descriptions: {
         Row: {

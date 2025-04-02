@@ -53,13 +53,28 @@ export type AssessmentFormValues = {
   is_active: boolean;
 };
 
+export type CoachingRecommendationStatus = 'pending' | 'accepted' | 'declined';
+
 export interface CoachingRecommendation {
   id: string;
   session_id: string;
   user_id: string;
   reason: string;
   created_at: string;
-  status: 'pending' | 'accepted' | 'declined';
+  status: CoachingRecommendationStatus;
   coach_id: string | null;
   scheduled_date: string | null;
+  updated_at: string | null;
+  assessment_sessions?: {
+    id: string;
+    user_id: string;
+    status: string;
+    score: number | null;
+    feedback: string | null;
+    results: Record<string, any> | null;
+    assessments?: {
+      title: string;
+      assessment_type: AssessmentType;
+    }
+  };
 }
