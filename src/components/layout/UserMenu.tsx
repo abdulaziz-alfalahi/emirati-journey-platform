@@ -40,7 +40,23 @@ const roleLabels: Record<UserRole, string> = {
 };
 
 const UserMenu: React.FC = () => {
-  const { user, roles, signOut } = useAuth();
+  // Add error handling wrapper around useAuth
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    console.error("Auth context not available:", error);
+    // Return a sign-in button when auth context isn't available
+    return (
+      <div>
+        <Button onClick={() => window.location.href = '/auth'} variant="outline">
+          Sign In
+        </Button>
+      </div>
+    );
+  }
+
+  const { user, roles, signOut } = authContext;
   const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
