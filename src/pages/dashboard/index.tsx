@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +22,13 @@ const DashboardPage = () => {
   const { user, roles, isLoading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  useEffect(() => {
+    if (user || roles.length > 0) {
+      setForceUpdate(prev => prev + 1);
+    }
+  }, [user, roles]);
   
   useEffect(() => {
     // If no user, redirect to login
@@ -32,21 +38,41 @@ const DashboardPage = () => {
   }, [user, isLoading, navigate]);
 
   // Add more detailed logging
+  console.log("Dashboard Page - Current user:", user);
   console.log("Dashboard Page - Current roles:", roles);
-
-  // Force re-render if roles change
-  useEffect(() => {
-    console.log("Roles changed, re-rendering dashboard:", roles);
-  }, [roles]);
+  console.log("Dashboard Page - Force update counter:", forceUpdate);
 
   // Role-specific dashboard content based on user role
   const getRoleDashboard = () => {
-    // For testing, if email contains "student", use StudentDashboard regardless of roles
-    if (user?.email?.includes('student')) {
-      console.log("Email-based rendering: StudentDashboard");
-      return <StudentDashboard activeTab={activeTab} />;
+    // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
+    if (user?.email) {
+      if (user.email.includes('student')) {
+        console.log("Email-based rendering: StudentDashboard");
+        return <StudentDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('admin')) {
+        console.log("Email-based rendering: AdminDashboard");
+        return <AdminDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('school') || user.email.includes('edu')) {
+        console.log("Email-based rendering: EducationalInstitutionDashboard");
+        return <EducationalInstitutionDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('parent')) {
+        console.log("Email-based rendering: ParentDashboard");
+        return <ParentDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('recruit')) {
+        console.log("Email-based rendering: RecruiterDashboard");
+        return <RecruiterDashboard activeTab={activeTab} />;
+      }
     }
 
+    // Check based on actual roles
     if (roles.includes('administrator') || roles.includes('super_user')) {
       console.log("Rendering AdminDashboard");
       return <AdminDashboard activeTab={activeTab} />;
@@ -97,9 +123,14 @@ const DashboardPage = () => {
       return <TrainingCenterDashboard activeTab={activeTab} />;
     }
     
-    // Default dashboard for other roles
+    // Default dashboard if no role matches
     console.log("Rendering DefaultDashboard with first role:", roles[0] || "no-role");
-    return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
+    if (roles.length > 0) {
+      return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
+    } else {
+      // If no roles but we have a user, default to student for testing
+      return <StudentDashboard activeTab={activeTab} />;
+    }
   };
 
   if (isLoading) {
@@ -117,13 +148,16 @@ const DashboardPage = () => {
         <p className="text-muted-foreground mb-8">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
         
         {roles.length === 0 ? (
-          <Alert className="mb-8">
-            <User className="h-4 w-4" />
-            <AlertTitle>No role assigned</AlertTitle>
-            <AlertDescription>
-              Your account doesn't have any roles assigned. Please contact an administrator.
-            </AlertDescription>
-          </Alert>
+          <>
+            <Alert className="mb-4">
+              <User className="h-4 w-4" />
+              <AlertTitle>No role assigned</AlertTitle>
+              <AlertDescription>
+                Your account doesn't have any roles assigned. For testing purposes, we'll show you the student dashboard.
+              </AlertDescription>
+            </Alert>
+            <StudentDashboard activeTab={activeTab} />
+          </>
         ) : (
           getRoleDashboard()
         )}

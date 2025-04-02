@@ -1,18 +1,21 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart4, BookOpen, Calendar, User, Users } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
-import CareerPathway from '@/components/student/CareerPathway';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface StudentDashboardProps {
   activeTab: string;
 }
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overview" }) => {
+  const [hasCareerPathway, setHasCareerPathway] = useState(false);
+  const [CareerPathway, setCareerPathway] = useState<React.FC | null>(null);
+  
   // Added console log for debugging
   console.log("StudentDashboard rendered with activeTab:", activeTab);
   
@@ -20,13 +23,20 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overvi
   useEffect(() => {
     console.log("StudentDashboard mounted/updated");
     
-    // Check if CareerPathway component exists
-    try {
-      const CareerPathwayExists = typeof CareerPathway === 'function';
-      console.log("CareerPathway component exists:", CareerPathwayExists);
-    } catch (err) {
-      console.error("Error checking CareerPathway component:", err);
-    }
+    // Check if CareerPathway component exists and import it dynamically
+    const loadCareerPathway = async () => {
+      try {
+        const module = await import('@/components/student/CareerPathway');
+        setCareerPathway(() => module.default);
+        setHasCareerPathway(true);
+        console.log("CareerPathway component loaded successfully");
+      } catch (err) {
+        console.error("Error loading CareerPathway component:", err);
+        setHasCareerPathway(false);
+      }
+    };
+    
+    loadCareerPathway();
   }, []);
   
   return (
@@ -120,12 +130,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overvi
           </CardContent>
         </Card>
         
-        {typeof CareerPathway === 'function' ? (
+        {hasCareerPathway && CareerPathway ? (
           <CareerPathway />
         ) : (
           <Card>
             <CardContent className="py-4">
-              <p>Career pathway visualization is not available. Please check your console for errors.</p>
+              <Alert>
+                <AlertDescription>
+                  Career pathway visualization is currently loading or unavailable. Please check the console for any errors.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
         )}
