@@ -1,143 +1,129 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { AdvisorySession } from '@/types/careerAdvisory';
+import { supabase } from "@/integrations/supabase/client";
+import { AdvisorySession, ApiKeys } from "@/types/careerAdvisory";
 
-export const fetchAdvisorySessions = async (advisorId?: string, userId?: string) => {
-  let query = supabase
-    .from('advisory_sessions')
-    .select(`
-      *,
-      career_advisors(
-        id,
-        specialization,
-        user_profiles(full_name, avatar_url)
-      ),
-      candidate_profiles:profiles!advisory_sessions_user_id_fkey(
-        full_name,
-        avatar_url
-      )
-    `)
-    .order('scheduled_date', { ascending: true });
-
-  if (advisorId) {
-    query = query.eq('advisor_id', advisorId);
-  }
-
-  if (userId) {
-    query = query.eq('user_id', userId);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('Error fetching advisory sessions:', error);
-    throw error;
-  }
-
-  return data as AdvisorySession[];
-};
-
-export const scheduleAdvisorySession = async (
-  userId: string,
-  advisorId: string, 
-  scheduledDate: Date,
-  topic: string,
-  details: string
-) => {
-  const { data, error } = await supabase
-    .from('advisory_sessions')
-    .insert([{
-      user_id: userId,
-      advisor_id: advisorId,
-      status: 'scheduled',
-      scheduled_date: scheduledDate.toISOString(),
-      topic,
-      details
-    }])
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error scheduling advisory session:', error);
-    throw error;
-  }
-
-  return data as AdvisorySession;
-};
-
-export const updateAdvisorySession = async (sessionId: string, sessionData: Partial<AdvisorySession>) => {
-  const { data, error } = await supabase
-    .from('advisory_sessions')
-    .update(sessionData)
-    .eq('id', sessionId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error updating advisory session:', error);
-    throw error;
-  }
-
-  return data as AdvisorySession;
-};
-
-export const initiateVideoCall = async (sessionId: string) => {
+export const getSessions = async (userId: string): Promise<AdvisorySession[]> => {
   try {
-    // Get the HireVue API key
-    const { data: apiKeysData } = await supabase
-      .from('api_keys')
-      .select('hirevue_api_key')
-      .limit(1);
-
-    const hirevueApiKey = apiKeysData?.[0]?.hirevue_api_key;
-    
-    if (!hirevueApiKey) {
-      throw new Error('HireVue API key not found. Please add it in API keys settings.');
-    }
-
-    // Get session details
-    const { data: sessionData } = await supabase
-      .from('advisory_sessions')
-      .select(`
-        *,
-        career_advisors(
-          user_profiles(full_name, email)
-        ),
-        candidate_profiles:profiles!advisory_sessions_user_id_fkey(
-          full_name, 
-          email
-        )
-      `)
-      .eq('id', sessionId)
-      .single();
-
-    if (!sessionData) {
-      throw new Error('Session not found');
-    }
-
-    // In a real implementation, you would create a HireVue meeting
-    // For this example, we'll simulate creating a meeting and return a URL
-    
-    // Update the session with the video call URL
-    const mockMeetingUrl = `https://meet.hirevue.com/${sessionId}`;
-    
     const { data, error } = await supabase
       .from('advisory_sessions')
-      .update({
-        video_call_url: mockMeetingUrl,
-        status: 'in_progress'
-      })
-      .eq('id', sessionId)
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return data as AdvisorySession[];
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    throw error;
+  }
+};
+
+export const getSessionById = async (id: string): Promise<AdvisorySession | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('advisory_sessions')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data as AdvisorySession;
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    return null;
+  }
+};
+
+export const getAdvisorSessions = async (advisorId: string): Promise<AdvisorySession[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('advisory_sessions')
+      .select('*')
+      .eq('advisor_id', advisorId);
+
+    if (error) throw error;
+    return data as AdvisorySession[];
+  } catch (error) {
+    console.error("Error fetching advisor sessions:", error);
+    throw error;
+  }
+};
+
+export const createSession = async (
+  session: Omit<AdvisorySession, "id" | "created_at" | "updated_at">
+): Promise<AdvisorySession> => {
+  try {
+    const { data, error } = await supabase
+      .from('advisory_sessions')
+      .insert(session)
       .select()
       .single();
 
-    if (error) {
-      throw error;
-    }
-
+    if (error) throw error;
     return data as AdvisorySession;
   } catch (error) {
-    console.error('Error initiating video call:', error);
+    console.error("Error creating session:", error);
+    throw error;
+  }
+};
+
+export const updateSession = async (
+  id: string,
+  session: Partial<Omit<AdvisorySession, "id" | "created_at" | "updated_at">>
+): Promise<AdvisorySession> => {
+  try {
+    const { data, error } = await supabase
+      .from('advisory_sessions')
+      .update(session)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as AdvisorySession;
+  } catch (error) {
+    console.error("Error updating session:", error);
+    throw error;
+  }
+};
+
+export const deleteSession = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('advisory_sessions')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    throw error;
+  }
+};
+
+export const createVideoCallLink = async (sessionId: string): Promise<string> => {
+  try {
+    // Get HireVue API key
+    const { data: apiKeysData, error: apiKeysError } = await supabase
+      .from('api_keys')
+      .select('hirevue_api_key')
+      .single();
+    
+    if (apiKeysError || !apiKeysData?.hirevue_api_key) {
+      console.error("Error fetching HireVue API key:", apiKeysError);
+      throw new Error("HireVue API key not configured");
+    }
+
+    // This is a placeholder for actual HireVue API integration
+    // In a real implementation, you would make an API call to HireVue to create a meeting
+    const hirevueApiKey = apiKeysData.hirevue_api_key;
+    const videoCallUrl = `https://hirevue.example.com/meeting/${sessionId}?key=${hirevueApiKey.substring(0, 5)}...`;
+    
+    // Update the session with the video call link
+    await updateSession(sessionId, { video_call_url: videoCallUrl });
+    
+    return videoCallUrl;
+  } catch (error) {
+    console.error("Error creating video call link:", error);
     throw error;
   }
 };

@@ -1,68 +1,85 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { CareerAdvisor } from '@/types/careerAdvisory';
+import { supabase } from "@/integrations/supabase/client";
+import { CareerAdvisor } from "@/types/careerAdvisory";
 
-export const fetchCareerAdvisors = async () => {
-  const { data, error } = await supabase
-    .from('career_advisors')
-    .select('*, user_profiles(full_name, avatar_url)')
-    .order('created_at', { ascending: false });
+export const getAdvisors = async (): Promise<CareerAdvisor[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('career_advisors')
+      .select('*')
+      .eq('is_active', true);
 
-  if (error) {
-    console.error('Error fetching career advisors:', error);
+    if (error) {
+      console.error("Error fetching advisors:", error);
+      throw error;
+    }
+
+    return data as CareerAdvisor[];
+  } catch (error) {
+    console.error("Exception in getAdvisors:", error);
     throw error;
   }
-
-  return data as CareerAdvisor[];
 };
 
-export const fetchCareerAdvisorById = async (id: string) => {
-  const { data, error } = await supabase
-    .from('career_advisors')
-    .select('*, user_profiles(full_name, avatar_url)')
-    .eq('id', id)
-    .single();
+export const getAdvisorById = async (id: string): Promise<CareerAdvisor | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('career_advisors')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching career advisor:', error);
-    throw error;
+    if (error) throw error;
+    return data as CareerAdvisor;
+  } catch (error) {
+    console.error("Error fetching advisor:", error);
+    return null;
   }
-
-  return data as CareerAdvisor;
 };
 
-export const registerAsCareerAdvisor = async (userId: string, specialization: string, bio: string) => {
-  const { data, error } = await supabase
-    .from('career_advisors')
-    .insert([{
-      user_id: userId,
-      specialization,
-      bio,
-      is_active: true
-    }])
-    .select()
-    .single();
+export const createAdvisor = async (advisor: Omit<CareerAdvisor, "id" | "created_at" | "updated_at">): Promise<CareerAdvisor> => {
+  try {
+    const { data, error } = await supabase
+      .from('career_advisors')
+      .insert(advisor)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error registering as career advisor:', error);
+    if (error) throw error;
+    return data as CareerAdvisor;
+  } catch (error) {
+    console.error("Error creating advisor:", error);
     throw error;
   }
-
-  return data as CareerAdvisor;
 };
 
-export const updateCareerAdvisor = async (id: string, advisorData: Partial<CareerAdvisor>) => {
-  const { data, error } = await supabase
-    .from('career_advisors')
-    .update(advisorData)
-    .eq('id', id)
-    .select()
-    .single();
+export const updateAdvisor = async (id: string, advisor: Partial<Omit<CareerAdvisor, "id" | "created_at" | "updated_at">>): Promise<CareerAdvisor> => {
+  try {
+    const { data, error } = await supabase
+      .from('career_advisors')
+      .update(advisor)
+      .eq('id', id)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error updating career advisor:', error);
+    if (error) throw error;
+    return data as CareerAdvisor;
+  } catch (error) {
+    console.error("Error updating advisor:", error);
     throw error;
   }
+};
 
-  return data as CareerAdvisor;
+export const deleteAdvisor = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('career_advisors')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting advisor:", error);
+    throw error;
+  }
 };

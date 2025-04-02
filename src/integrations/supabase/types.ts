@@ -9,9 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      advisory_sessions: {
+        Row: {
+          advisor_id: string
+          completed_date: string | null
+          created_at: string | null
+          details: string | null
+          feedback: string | null
+          id: string
+          notes: string | null
+          rating: number | null
+          scheduled_date: string
+          status: string
+          topic: string
+          updated_at: string | null
+          user_id: string
+          video_call_url: string | null
+        }
+        Insert: {
+          advisor_id: string
+          completed_date?: string | null
+          created_at?: string | null
+          details?: string | null
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          scheduled_date: string
+          status?: string
+          topic: string
+          updated_at?: string | null
+          user_id: string
+          video_call_url?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          completed_date?: string | null
+          created_at?: string | null
+          details?: string | null
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          scheduled_date?: string
+          status?: string
+          topic?: string
+          updated_at?: string | null
+          user_id?: string
+          video_call_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisory_sessions_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "career_advisors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string | null
+          hirevue_api_key: string | null
           id: string
           linkedin_client_id: string | null
           linkedin_client_secret: string | null
@@ -22,6 +82,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          hirevue_api_key?: string | null
           id?: string
           linkedin_client_id?: string | null
           linkedin_client_secret?: string | null
@@ -32,6 +93,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          hirevue_api_key?: string | null
           id?: string
           linkedin_client_id?: string | null
           linkedin_client_secret?: string | null
@@ -146,6 +208,39 @@ export type Database = {
           skills_tested?: string[] | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      career_advisors: {
+        Row: {
+          availability: Json | null
+          bio: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          specialization: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          availability?: Json | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          specialization: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          availability?: Json | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          specialization?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

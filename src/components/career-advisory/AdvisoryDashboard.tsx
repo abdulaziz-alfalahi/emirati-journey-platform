@@ -1,198 +1,177 @@
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, Users, Video, User, FileText } from 'lucide-react';
-import { fetchAdvisorySessions } from '@/services/careerAdvisory';
-import { useAuth } from '@/context/AuthContext';
-import { AdvisorySession } from '@/types/careerAdvisory';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getAdvisors } from '@/services/careerAdvisory/advisoryService';
+import { getSessions } from '@/services/careerAdvisory/advisorySessionService';
+import { supabase } from '@/integrations/supabase/client';
+import { CareerAdvisor, AdvisorySession } from '@/types/careerAdvisory';
+import { toast } from '@/components/ui/use-toast';
+import { Loader2, Calendar, User } from 'lucide-react';
 
-export const AdvisoryDashboard: React.FC = () => {
-  const { user } = useAuth();
+const AdvisoryDashboard: React.FC = () => {
+  const [advisors, setAdvisors] = useState<CareerAdvisor[]>([]);
   const [sessions, setSessions] = useState<AdvisorySession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const loadSessions = async () => {
-      if (!user) return;
-      
+    const fetchUserData = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        setUser({ id: data.session.user.id });
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const loadData = async () => {
       try {
-        const data = await fetchAdvisorySessions(undefined, user.id);
-        setSessions(data);
+        setLoading(true);
+        const advisorsData = await getAdvisors();
+        setAdvisors(advisorsData);
+
+        if (user?.id) {
+          const sessionsData = await getSessions(user.id);
+          setSessions(sessionsData);
+        }
       } catch (error) {
-        console.error('Error loading advisory sessions:', error);
+        console.error("Error loading dashboard data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
 
-    loadSessions();
+    if (user) {
+      loadData();
+    }
   }, [user]);
 
-  const getStatusBadgeColor = (status: string): string => {
-    switch (status) {
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800';
-      case 'in_progress':
-        return 'bg-green-100 text-green-800';
-      case 'completed':
-        return 'bg-gray-100 text-gray-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
   };
-
-  const upcomingSessions = sessions.filter(
-    session => ['scheduled', 'in_progress'].includes(session.status)
-  );
-  
-  const pastSessions = sessions.filter(
-    session => ['completed', 'cancelled'].includes(session.status)
-  );
 
   if (loading) {
     return (
-      <div className="flex justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Career Advisory Sessions</h2>
-        <Link to="/career-advisory/schedule">
-          <Button>Schedule a Session</Button>
-        </Link>
-      </div>
-
-      <Tabs defaultValue="upcoming" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="upcoming">Upcoming Sessions</TabsTrigger>
-          <TabsTrigger value="past">Past Sessions</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="upcoming">
-          {upcomingSessions.length > 0 ? (
-            <div className="grid gap-4">
-              {upcomingSessions.map(session => (
-                <Card key={session.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between">
-                      <CardTitle className="text-lg">{session.topic}</CardTitle>
-                      <Badge className={getStatusBadgeColor(session.status)}>
-                        {session.status === 'scheduled' ? 'Scheduled' : 'In Progress'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {session.career_advisors?.user_profiles?.full_name || 'Career Advisor'}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {format(new Date(session.scheduled_date), 'MMM dd, yyyy')}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {format(new Date(session.scheduled_date), 'h:mm a')}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {session.video_call_url ? (
-                        <Button className="w-full" variant="outline">
-                          <Video className="mr-2 h-4 w-4" />
-                          Join Video Call
-                        </Button>
-                      ) : (
-                        <Link to={`/career-advisory/sessions/${session.id}`} className="w-full block">
-                          <Button className="w-full">View Details</Button>
-                        </Link>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                <p>No upcoming sessions found.</p>
-                <Link to="/career-advisory/schedule" className="mt-4 inline-block">
-                  <Button>Schedule Your First Session</Button>
-                </Link>
+    <Tabs defaultValue="advisors" className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="advisors">Career Advisors</TabsTrigger>
+        <TabsTrigger value="sessions">My Sessions</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="advisors">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {advisors.map((advisor) => (
+            <Card key={advisor.id} className="overflow-hidden">
+              <CardHeader>
+                <CardTitle>{advisor.specialization} Advisor</CardTitle>
+                <CardDescription>
+                  {advisor.bio ? 
+                    (advisor.bio.length > 100 ? 
+                      `${advisor.bio.substring(0, 100)}...` : 
+                      advisor.bio) : 
+                    "No bio available"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm">ID: {advisor.id.substring(0, 8)}</span>
+                </div>
               </CardContent>
+              <CardFooter>
+                <Button 
+                  onClick={() => navigate(`/career-advisory/advisors/${advisor.id}`)}
+                  variant="default"
+                >
+                  View Profile
+                </Button>
+              </CardFooter>
             </Card>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="past">
-          {pastSessions.length > 0 ? (
-            <div className="grid gap-4">
-              {pastSessions.map(session => (
-                <Card key={session.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between">
-                      <CardTitle className="text-lg">{session.topic}</CardTitle>
-                      <Badge className={getStatusBadgeColor(session.status)}>
-                        {session.status === 'completed' ? 'Completed' : 'Cancelled'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {session.career_advisors?.user_profiles?.full_name || 'Career Advisor'}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {format(new Date(session.scheduled_date), 'MMM dd, yyyy')}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <Link to={`/career-advisory/sessions/${session.id}`} className="w-full block">
-                        <Button className="w-full" variant="outline">
-                          <FileText className="mr-2 h-4 w-4" />
-                          View Session Notes
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          ))}
+          
+          {advisors.length === 0 && (
+            <div className="col-span-full text-center py-10">
+              <p className="text-muted-foreground">No career advisors are currently available.</p>
             </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                <p>No past sessions found.</p>
-              </CardContent>
-            </Card>
           )}
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="sessions">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {sessions.map((session) => (
+            <Card key={session.id}>
+              <CardHeader>
+                <CardTitle>{session.topic}</CardTitle>
+                <CardDescription>
+                  Status: <span className={`font-medium ${session.status === 'completed' ? 'text-green-600' : 
+                    session.status === 'cancelled' ? 'text-red-600' : 'text-amber-600'}`}>
+                    {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                  </span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                  <span>{formatDate(session.scheduled_date)}</span>
+                </div>
+                {session.details && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{session.details}</p>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button 
+                  onClick={() => navigate(`/career-advisory/sessions/${session.id}`)}
+                  variant="outline"
+                >
+                  View Details
+                </Button>
+                {session.status === 'scheduled' && session.video_call_url && (
+                  <Button 
+                    onClick={() => window.open(session.video_call_url, '_blank')}
+                    variant="default"
+                  >
+                    Join Meeting
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
+          
+          {sessions.length === 0 && (
+            <div className="col-span-full text-center py-10">
+              <p className="text-muted-foreground mb-4">You don't have any advisory sessions scheduled.</p>
+              <Button onClick={() => navigate('/career-advisory/schedule')}>Schedule a Session</Button>
+            </div>
+          )}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 
