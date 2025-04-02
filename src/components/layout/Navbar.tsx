@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,7 @@ import {
 import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 interface NavItem {
@@ -22,9 +23,11 @@ interface NavItem {
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
+
+  const isAuthenticated = !!user;
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -96,7 +99,7 @@ const Navbar: React.FC = () => {
                   <div className="flex flex-col gap-2 px-6">
                     <ThemeToggle />
                     {isAuthenticated ? (
-                      <UserMenu onMenuClose={closeMenu} />
+                      <UserMenu />
                     ) : (
                       <Link to="/auth">
                         <Button variant="outline" className="w-full justify-center" onClick={closeMenu}>
