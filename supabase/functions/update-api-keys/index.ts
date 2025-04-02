@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -8,18 +7,15 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Create a Supabase client with the project URL and service role key
     const supabaseUrl = Deno.env.get("SUPABASE_URL") as string;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") as string;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get auth user from request
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
@@ -28,7 +24,6 @@ serve(async (req) => {
       });
     }
 
-    // Verify the JWT
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
@@ -40,10 +35,8 @@ serve(async (req) => {
       });
     }
 
-    // Check if user is admin based on roles or email
     let isAuthorized = false;
     
-    // Check roles in the database
     const { data: roles, error: rolesError } = await supabase
       .from('user_roles')
       .select('role')
@@ -59,13 +52,10 @@ serve(async (req) => {
       );
     }
     
-    // Special case: if email contains 'admin', also grant admin access
-    // This ensures admin users can always access admin features even if roles fail
     if (user.email && user.email.includes('admin')) {
       isAuthorized = true;
     }
     
-    // For this particular API key, let any authenticated user save it
     isAuthorized = true;
 
     if (!isAuthorized) {
@@ -75,30 +65,26 @@ serve(async (req) => {
       });
     }
 
-    // Parse the request body
     const requestData = await req.json();
     
     console.log('Received API keys update request with data:', Object.keys(requestData));
     
-    // Check if the api_keys table has the expected schema
     try {
-      // First make sure we have the affinda_api_key column
       try {
         const { error: addColumnError } = await supabase
           .rpc('exec_sql', { 
-            query: "ALTER TABLE IF EXISTS api_keys ADD COLUMN IF NOT EXISTS affinda_api_key TEXT;"
+            query: "ALTER TABLE IF EXISTS api_keys ADD COLUMN IF NOT EXISTS affinda_api_key TEXT; ALTER TABLE IF EXISTS api_keys ADD COLUMN IF NOT EXISTS hirevue_api_key TEXT;"
           });
           
         if (addColumnError) {
-          console.error('Error adding affinda_api_key column:', addColumnError);
+          console.error('Error adding columns:', addColumnError);
         } else {
-          console.log('Successfully added or verified affinda_api_key column');
+          console.log('Successfully added or verified columns');
         }
       } catch (columnError) {
-        console.error('Error adding column:', columnError);
+        console.error('Error adding columns:', columnError);
       }
 
-      // Modified query to fix the ambiguity by explicitly using column aliases
       const { data: tableInfo, error: tableInfoError } = await supabase
         .rpc('get_table_columns', { table_name: 'api_keys' });
       
@@ -112,17 +98,12 @@ serve(async (req) => {
         });
       }
       
-      // Extract column names to check against our data
       const columnNames = tableInfo.map(col => col.column_name.toLowerCase());
       console.log('Available columns in api_keys table:', columnNames);
       
-      // Filter the request data to only include columns that exist in the table
       const validatedData = {};
       for (const [key, value] of Object.entries(requestData)) {
-        // Convert the key to lowercase for case-insensitive matching
         const keyLower = key.toLowerCase();
-        // Use original key if it exists in the table (case sensitive)
-        // or the lowercase version (case insensitive)
         if (columnNames.includes(keyLower)) {
           validatedData[keyLower] = value;
         }
@@ -139,7 +120,6 @@ serve(async (req) => {
         });
       }
       
-      // Check if the api_keys table exists and create it if needed
       const { error: tableCheckError } = await supabase
         .from('api_keys')
         .select('id')
@@ -151,7 +131,6 @@ serve(async (req) => {
         if (tableCheckError.message.includes('does not exist')) {
           console.log('The api_keys table does not exist. Attempting to create it.');
           
-          // Create the table with the needed columns
           const createTableQuery = `
             CREATE TABLE IF NOT EXISTS public.api_keys (
               id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -162,10 +141,10 @@ serve(async (req) => {
               linkedin_client_secret TEXT,
               uaepass_client_id TEXT,
               uaepass_client_secret TEXT,
-              affinda_api_key TEXT
+              affinda_api_key TEXT,
+              hirevue_api_key TEXT
             );
             
-            -- Add trigger for updated_at
             CREATE OR REPLACE FUNCTION update_updated_at_column()
             RETURNS TRIGGER AS $$
             BEGIN
@@ -204,8 +183,6 @@ serve(async (req) => {
         }
       }
       
-      // Store API keys in the database
-      // First, check if there are existing keys
       const { data: existingKeys, error: getKeysError } = await supabase
         .from('api_keys')
         .select('*')
@@ -223,7 +200,6 @@ serve(async (req) => {
       
       console.log('Existing keys found:', existingKeys && existingKeys.length > 0);
       
-      // If there are existing keys, update them
       if (existingKeys && existingKeys.length > 0) {
         const { error } = await supabase
           .from('api_keys')
@@ -238,7 +214,6 @@ serve(async (req) => {
           console.log('Successfully updated API keys with ID:', existingKeys[0].id);
         }
       } else {
-        // Otherwise insert new records
         const { error } = await supabase
           .from('api_keys')
           .insert([validatedData]);
@@ -262,11 +237,9 @@ serve(async (req) => {
         });
       }
       
-      // Log the action (but don't log the actual keys for security)
       console.log(`API keys update requested by user ${user.id}`);
       console.log(`Keys being updated: ${Object.keys(validatedData).join(', ')}`);
       
-      // Return a success response
       return new Response(JSON.stringify({ 
         message: 'API keys updated successfully',
         updated: Object.keys(validatedData)

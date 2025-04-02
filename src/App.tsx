@@ -15,6 +15,10 @@ import OnboardingPage from './pages/onboarding'
 import SummerCampsPage from './pages/summer-camps'
 import InternshipsPage from './pages/internships'
 import AssessmentsPage from './pages/assessments'
+import CareerAdvisoryPage from './pages/career-advisory'
+import ScheduleSessionPage from './pages/career-advisory/schedule'
+import SessionDetailsPage from './pages/career-advisory/sessions/[id]'
+import AdvisorPortfolioPage from './pages/career-advisory/advisors/[id]'
 
 function App() {
   return (
@@ -28,6 +32,10 @@ function App() {
         <Route path="/scholarships" element={<ScholarshipsPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/assessments" element={<AssessmentsPage />} />
+        <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
+        <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />
+        <Route path="/career-advisory/sessions/:id" element={<SessionDetailsPage />} />
+        <Route path="/career-advisory/advisors/:id" element={<AdvisorPortfolioPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
@@ -40,4 +48,3 @@ function App() {
 }
 
 export default App
-

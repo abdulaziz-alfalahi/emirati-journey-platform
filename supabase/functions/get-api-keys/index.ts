@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -124,7 +123,8 @@ serve(async (req) => {
       "LINKEDIN_CLIENT_ID",
       "LINKEDIN_CLIENT_SECRET",
       "UAEPASS_CLIENT_ID",
-      "UAEPASS_CLIENT_SECRET"
+      "UAEPASS_CLIENT_SECRET",
+      "HIREVUE_API_KEY"
     ];
     
     for (const key of envKeys) {

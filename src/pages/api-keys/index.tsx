@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import { toast as sonnerToast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Key } from 'lucide-react';
+import { Key, Video } from 'lucide-react';
 
 const ApiKeysPage: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -20,6 +20,7 @@ const ApiKeysPage: React.FC = () => {
   const [affindaApiKey, setAffindaApiKey] = useState('');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [mapboxApiKey, setMapboxApiKey] = useState('');
+  const [hirevueApiKey, setHirevueApiKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -71,6 +72,13 @@ const ApiKeysPage: React.FC = () => {
           data.MAPBOX_ACCESS_TOKEN ||
           ''
         );
+        
+        setHirevueApiKey(
+          data.hirevue_api_key ||
+          data.hirevueApiKey ||
+          data.HIREVUE_API_KEY ||
+          ''
+        );
       }
       
       setIsLoaded(true);
@@ -102,6 +110,7 @@ const ApiKeysPage: React.FC = () => {
           affinda_api_key: affindaApiKey,
           openai_api_key: openaiApiKey,
           mapbox_access_token: mapboxApiKey,
+          hirevue_api_key: hirevueApiKey,
         },
       });
       
@@ -160,6 +169,7 @@ const ApiKeysPage: React.FC = () => {
             <TabsTrigger value="resume">Resume & Job Processing</TabsTrigger>
             <TabsTrigger value="ai">AI Matching</TabsTrigger>
             <TabsTrigger value="maps">Location & Commute</TabsTrigger>
+            <TabsTrigger value="videoconf">Video Conferencing</TabsTrigger>
           </TabsList>
           
           <TabsContent value="resume" className="space-y-4">
@@ -260,6 +270,41 @@ const ApiKeysPage: React.FC = () => {
                       className="text-primary hover:underline"
                     >
                       Mapbox dashboard
+                    </a>.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="videoconf" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Conferencing Services</CardTitle>
+                <CardDescription>
+                  Configure API keys for video conferencing and remote interviews.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="hirevue-api-key">HireVue API Key</Label>
+                  <Input
+                    id="hirevue-api-key"
+                    type="password"
+                    value={hirevueApiKey}
+                    onChange={(e) => setHirevueApiKey(e.target.value)}
+                    placeholder="Enter your HireVue API key"
+                    className="font-mono"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Used for video interviewing, candidate assessments, and scheduling virtual career advisory sessions. Get your API key from the{' '}
+                    <a 
+                      href="https://www.hirevue.com/platform/developer" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      HireVue Developer Portal
                     </a>.
                   </p>
                 </div>
