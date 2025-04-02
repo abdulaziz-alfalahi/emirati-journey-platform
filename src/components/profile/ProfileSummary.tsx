@@ -32,6 +32,7 @@ const roleLabels: Record<UserRole, string> = {
   assessment_center: 'Assessment Center',
   mentor: 'Mentor',
   career_advisor: 'Career Advisor',
+  platform_operator: 'Platform Operator',
   administrator: 'Administrator',
   super_user: 'Super User'
 };
