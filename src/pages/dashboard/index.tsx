@@ -11,7 +11,12 @@ import {
   EducationalInstitutionDashboard,
   ParentDashboard,
   RecruiterDashboard,
-  DefaultDashboard
+  DefaultDashboard,
+  GovRepDashboard,
+  EntrepreneurDashboard,
+  RetireeDashboard,
+  MentorDashboard,
+  TrainingCenterDashboard
 } from '@/components/dashboard/role-dashboards';
 
 const DashboardPage = () => {
@@ -46,6 +51,26 @@ const DashboardPage = () => {
     
     if (roles.includes('private_sector_recruiter')) {
       return <RecruiterDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('government_representative')) {
+      return <GovRepDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('entrepreneur')) {
+      return <EntrepreneurDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('retiree') || roles.includes('retiree_advocate')) {
+      return <RetireeDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('mentor') || roles.includes('career_advisor')) {
+      return <MentorDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('training_center') || roles.includes('assessment_center')) {
+      return <TrainingCenterDashboard activeTab={activeTab} />;
     }
     
     // Default dashboard for other roles
