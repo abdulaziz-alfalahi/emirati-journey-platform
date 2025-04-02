@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { createInternship } from '@/services/internshipService';
-import { Form } from '@/components/ui/form';
 import { 
   BasicInfoFields,
   DateFields, 
@@ -29,7 +28,7 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const form = useForm<InternshipFormValues>({
+  const methods = useForm<InternshipFormValues>({
     resolver: zodResolver(internshipFormSchema),
     defaultValues: defaultFormValues,
   });
@@ -93,20 +92,18 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
         <DialogTitle>Post New Internship</DialogTitle>
       </DialogHeader>
       
-      <FormProvider {...form}>
-        <Form>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <BasicInfoFields />
-            <DateFields />
-            <CompensationFields />
-            <DescriptionFields />
-            <SkillsAndContactFields />
-            
-            <DialogFooter>
-              <Button type="submit">Post Internship</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+      <FormProvider {...methods}>
+        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+          <BasicInfoFields />
+          <DateFields />
+          <CompensationFields />
+          <DescriptionFields />
+          <SkillsAndContactFields />
+          
+          <DialogFooter>
+            <Button type="submit">Post Internship</Button>
+          </DialogFooter>
+        </form>
       </FormProvider>
     </DialogContent>
   );
