@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, BookOpen, Calendar, User, Users, School } from 'lucide-react';
+import { BarChart4, BookOpen, Calendar, User, Users, School, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
@@ -29,50 +29,97 @@ const EducationalInstitutionDashboard: React.FC<EducationalInstitutionDashboardP
         ]}
       />
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div>
-            <CardTitle>Summer Knowledge Camps</CardTitle>
-            <CardDescription>Manage your institution's summer programs</CardDescription>
-          </div>
-          <Link to="/summer-camps">
-            <Button>
-              <Calendar className="mr-2 h-4 w-4" /> Manage Camps
-            </Button>
-          </Link>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-lg">Tech Innovators Camp</CardTitle>
-                  <CardDescription>July 10-28, 2023</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Registrations:</span>
-                      <span className="text-sm font-medium">18/30</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Status:</span>
-                      <span className="text-sm font-medium text-green-600">Active</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
-                  <Calendar className="h-8 w-8 mb-2 text-muted-foreground" />
-                  <h3 className="font-medium">Create New Camp</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Add a new summer program</p>
-                </CardContent>
-              </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle>Summer Knowledge Camps</CardTitle>
+              <CardDescription>Manage your institution's summer programs</CardDescription>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            <Link to="/summer-camps">
+              <Button>
+                <Calendar className="mr-2 h-4 w-4" /> Manage Camps
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg">Tech Innovators Camp</CardTitle>
+                    <CardDescription>July 10-28, 2023</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Registrations:</span>
+                        <span className="text-sm font-medium">18/30</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Status:</span>
+                        <span className="text-sm font-medium text-green-600">Active</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                    <Calendar className="h-8 w-8 mb-2 text-muted-foreground" />
+                    <h3 className="font-medium">Create New Camp</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Add a new summer program</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle>Scholarships</CardTitle>
+              <CardDescription>Manage your educational scholarships</CardDescription>
+            </div>
+            <Link to="/scholarships">
+              <Button>
+                <Award className="mr-2 h-4 w-4" /> Manage Scholarships
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg">Excellence Scholarship</CardTitle>
+                    <CardDescription>For academic achievers</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Applications:</span>
+                        <span className="text-sm font-medium">24</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Status:</span>
+                        <span className="text-sm font-medium text-green-600">Active</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                    <Award className="h-8 w-8 mb-2 text-muted-foreground" />
+                    <h3 className="font-medium">Create Scholarship</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Add a new opportunity</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </TabsContent>
     
     <TabsContent value="students" className="space-y-8">
@@ -106,7 +153,7 @@ const EducationalInstitutionDashboard: React.FC<EducationalInstitutionDashboardP
             actions={[
               { title: "Student Records", description: "Upload and manage", icon: Users },
               { title: "Programs", description: "Manage educational offerings", icon: BookOpen },
-              { title: "Scholarships", description: "Create opportunities", icon: BarChart4 },
+              { title: "Scholarships", description: "Create opportunities", icon: Award, link: "/scholarships" },
               { title: "Summer Knowledge Camps", description: "Organize programs", icon: Calendar, link: "/summer-camps" }
             ]}
           />

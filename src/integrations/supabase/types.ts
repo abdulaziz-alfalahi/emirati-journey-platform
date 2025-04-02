@@ -255,6 +255,104 @@ export type Database = {
         }
         Relationships: []
       }
+      scholarship_applications: {
+        Row: {
+          application_data: Json | null
+          id: string
+          scholarship_id: string
+          status: string
+          student_id: string
+          submitted_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_data?: Json | null
+          id?: string
+          scholarship_id: string
+          status?: string
+          student_id: string
+          submitted_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_data?: Json | null
+          id?: string
+          scholarship_id?: string
+          status?: string
+          student_id?: string
+          submitted_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarship_applications_scholarship_id_fkey"
+            columns: ["scholarship_id"]
+            isOneToOne: false
+            referencedRelation: "scholarships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholarships: {
+        Row: {
+          amount: number | null
+          application_deadline: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          eligibility_criteria: Json | null
+          id: string
+          is_active: boolean | null
+          provider: string
+          provider_type: string
+          requirements: string[] | null
+          title: string
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          amount?: number | null
+          application_deadline?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          provider: string
+          provider_type: string
+          requirements?: string[] | null
+          title: string
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          amount?: number | null
+          application_deadline?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          provider?: string
+          provider_type?: string
+          requirements?: string[] | null
+          title?: string
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

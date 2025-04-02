@@ -1,202 +1,172 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, BookOpen, Calendar, User, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart4, GraduationCap, BookOpen, Award, School } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
 
 interface StudentDashboardProps {
   activeTab: string;
 }
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overview" }) => {
-  const [hasCareerPathway, setHasCareerPathway] = useState(false);
-  const [CareerPathway, setCareerPathway] = useState<React.FC | null>(null);
-  
-  // Added console log for debugging
-  console.log("StudentDashboard rendered with activeTab:", activeTab);
-  
-  // Force rerender of content when the component mounts
-  useEffect(() => {
-    console.log("StudentDashboard mounted/updated");
-    
-    // Check if CareerPathway component exists and import it dynamically
-    const loadCareerPathway = async () => {
-      try {
-        const module = await import('@/components/student/CareerPathway');
-        setCareerPathway(() => module.default);
-        setHasCareerPathway(true);
-        console.log("CareerPathway component loaded successfully");
-      } catch (err) {
-        console.error("Error loading CareerPathway component:", err);
-        setHasCareerPathway(false);
-      }
-    };
-    
-    loadCareerPathway();
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    // Simulate loading delay for the CareerPathway component
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
-  
+
   return (
     <Tabs defaultValue={activeTab} className="space-y-8">
       <TabsList className="mb-4">
-        <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
-        <TabsTrigger value="academics"><BookOpen className="h-4 w-4 mr-2" /> Academics</TabsTrigger>
-        <TabsTrigger value="activities"><Calendar className="h-4 w-4 mr-2" /> Activities</TabsTrigger>
-        <TabsTrigger value="career"><BarChart4 className="h-4 w-4 mr-2" /> Career</TabsTrigger>
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="courses">Courses</TabsTrigger>
+        <TabsTrigger value="career">Career</TabsTrigger>
       </TabsList>
       
       <TabsContent value="overview" className="space-y-8">
         <DashboardOverview 
           metrics={[
-            { title: "Academic Progress", value: "Grade 11", change: "", description: "Academic Year 2023-2024" },
-            { title: "Summer Programs", value: "12", change: "", description: "Available programs near you" },
-            { title: "Upcoming Assessments", value: "3", change: "", description: "Due this week" }
+            { title: "Courses", value: "4", change: "", description: "Currently enrolled" },
+            { title: "Assessments", value: "2", change: "+1", description: "Due this week" },
+            { title: "Scholarship Opportunities", value: "12", change: "+3", description: "New this month" }
           ]}
         />
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Summer Knowledge Camps</CardTitle>
-            <CardDescription>Explore educational summer camps available now</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-lg">Tech Innovators</CardTitle>
-                  <CardDescription>July 10-28, 2023</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <p className="text-sm mb-2">Learn coding and robotics this summer</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center">
-                      <Users className="h-3 w-3 mr-1" /> 18/30
-                    </span>
-                    <span className="font-medium">1,500 AED</span>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-lg">Science Academy</CardTitle>
-                  <CardDescription>July 3-21, 2023</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <p className="text-sm mb-2">Explore physics and chemistry experiments</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center">
-                      <Users className="h-3 w-3 mr-1" /> 22/25
-                    </span>
-                    <span className="font-medium">1,200 AED</span>
-                  </div>
-                </CardContent>
-              </Card>
-              <div className="flex items-center justify-center">
-                <Link to="/summer-camps">
-                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center h-full flex flex-col justify-center items-center hover:bg-muted/50 transition-colors">
-                    <Calendar className="h-10 w-10 text-muted-foreground mb-2" />
-                    <p className="font-medium">View All Camps</p>
-                    <p className="text-sm text-muted-foreground">Explore 40+ summer programs</p>
-                  </div>
-                </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle className="text-lg">Scholarship Opportunities</CardTitle>
+                <CardDescription>Latest scholarship offerings</CardDescription>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <Link to="/scholarships">
+                <Button variant="ghost" size="sm">View All</Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-muted rounded-lg p-3 flex items-start">
+                <Award className="h-10 w-10 text-primary mr-3 p-2 bg-primary/10 rounded-lg" />
+                <div>
+                  <h4 className="text-sm font-semibold">STEM Excellence Scholarship</h4>
+                  <p className="text-xs text-muted-foreground">Full tuition for top science students</p>
+                  <div className="mt-1 flex items-center">
+                    <GraduationCap className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Deadline: Apr 15, 2025</span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-muted rounded-lg p-3 flex items-start">
+                <Award className="h-10 w-10 text-amber-500 mr-3 p-2 bg-amber-500/10 rounded-lg" />
+                <div>
+                  <h4 className="text-sm font-semibold">Future Leaders Program</h4>
+                  <p className="text-xs text-muted-foreground">25,000 AED grant + mentorship</p>
+                  <div className="mt-1 flex items-center">
+                    <School className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Deadline: May 30, 2025</span>
+                  </div>
+                </div>
+              </div>
+              <Link to="/scholarships" className="block">
+                <Button variant="link" size="sm" className="flex mx-auto mt-2">
+                  View all scholarships
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Summer Knowledge Camps</CardTitle>
+              <CardDescription>Recommended for you</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-muted rounded-lg p-3 flex items-start">
+                <BookOpen className="h-10 w-10 text-blue-500 mr-3 p-2 bg-blue-500/10 rounded-lg" />
+                <div>
+                  <h4 className="text-sm font-semibold">Tech Innovators Camp</h4>
+                  <p className="text-xs text-muted-foreground">Coding, robotics, and AI for beginners</p>
+                  <div className="mt-1 text-xs text-muted-foreground flex gap-2">
+                    <span>July 10-28</span>
+                    <span>•</span>
+                    <span className="text-green-600 font-medium">Registering now</span>
+                  </div>
+                </div>
+              </div>
+              <Link to="/summer-camps" className="block">
+                <Button variant="link" size="sm" className="flex mx-auto mt-2">
+                  Browse all summer camps
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
         
-        <RecommendedJobs limit={3} />
-      </TabsContent>
-      
-      <TabsContent value="academics" className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle>Current Courses</CardTitle>
-            <CardDescription>Your enrolled courses and grades</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <h4 className="font-medium">Mathematics</h4>
-                  <p className="text-sm text-muted-foreground">Advanced Calculus</p>
-                </div>
-                <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
-                  A (95%)
-                </div>
-              </div>
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <h4 className="font-medium">Science</h4>
-                  <p className="text-sm text-muted-foreground">Physics</p>
-                </div>
-                <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
-                  B+ (87%)
-                </div>
-              </div>
-              <div className="flex justify-between items-center border-b pb-2">
-                <div>
-                  <h4 className="font-medium">Arabic Language</h4>
-                  <p className="text-sm text-muted-foreground">Advanced Literature</p>
-                </div>
-                <div className="text-sm font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
-                  A- (92%)
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-      
-      <TabsContent value="activities" className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Educational Resources</CardTitle>
-            <CardDescription>Tools and resources for your academic journey</CardDescription>
+            <CardTitle>Student Tools</CardTitle>
+            <CardDescription>Access your student resources</CardDescription>
           </CardHeader>
           <CardContent>
             <DashboardActions 
               actions={[
-                { title: "Learning Materials", description: "Study resources", icon: BookOpen },
-                { title: "Career Guidance", description: "Explore career paths", icon: BarChart4 },
-                { title: "Scholarship Finder", description: "Find opportunities", icon: Users },
-                { title: "Summer Camps", description: "Educational programs", icon: Calendar, link: "/summer-camps" }
+                { title: "Course Catalog", description: "Browse available courses", icon: BookOpen },
+                { title: "Career Assessment", description: "Discover your path", icon: BarChart4 },
+                { title: "Scholarships", description: "Find financial aid", icon: Award, link: "/scholarships" },
+                { title: "Summer Camps", description: "Knowledge programs", icon: School, link: "/summer-camps" }
               ]}
             />
           </CardContent>
         </Card>
       </TabsContent>
-
-      <TabsContent value="career" className="space-y-8">
-        <Card className="mb-4">
+      
+      <TabsContent value="courses" className="space-y-6">
+        <Card>
           <CardHeader>
-            <CardTitle>Career Development Status</CardTitle>
-            <CardDescription>Your progress on the career development journey</CardDescription>
+            <CardTitle>My Courses</CardTitle>
+            <CardDescription>Your enrolled courses and progress</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Your selected career path: <strong>Computer Science</strong></p>
+            <div className="text-center py-6 text-muted-foreground">
+              <h3 className="font-medium mb-2">Course content is coming soon</h3>
+              <p>This feature is currently in development.</p>
+            </div>
           </CardContent>
         </Card>
-        
-        {hasCareerPathway && CareerPathway ? (
-          <CareerPathway />
-        ) : (
-          <Card>
-            <CardContent className="py-4">
-              <Alert>
-                <AlertDescription>
-                  Career pathway visualization is currently loading or unavailable. Please check the console for any errors.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        )}
+      </TabsContent>
+      
+      <TabsContent value="career" className="space-y-6">
+        <div className="min-h-[400px]">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <React.Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            }>
+              <CareerPathwayLoader />
+            </React.Suspense>
+          )}
+        </div>
       </TabsContent>
     </Tabs>
   );
+};
+
+// Lazy loaded component
+const CareerPathwayLoader = () => {
+  const CareerPathway = React.lazy(() => import('@/components/student/CareerPathway'));
+  return <CareerPathway />;
 };
 
 export default StudentDashboard;

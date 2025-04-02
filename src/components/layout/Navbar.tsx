@@ -1,122 +1,140 @@
-
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Briefcase, FileText } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger 
+} from '@/components/ui/sheet';
+import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award } from 'lucide-react';
 import UserMenu from './UserMenu';
-import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { useMobile } from '@/hooks/use-mobile';
+import { ThemeToggle } from '@/components/theme-toggle';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+}
 
 const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isMobile = useMobile();
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+    setIsMenuOpen(false);
+  }, [location]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const mainNavItems = [
+    {
+      name: 'Job Matching',
+      href: '/job-matching',
+      icon: <BarChart3 className="h-5 w-5 mr-2" />,
+    },
+    {
+      name: 'Resume Builder',
+      href: '/resume-builder',
+      icon: <FilePlus className="h-5 w-5 mr-2" />,
+    },
+    {
+      name: 'Summer Camps',
+      href: '/summer-camps',
+      icon: <Calendar className="h-5 w-5 mr-2" />,
+    },
+    {
+      name: 'Scholarships',
+      href: '/scholarships',
+      icon: <Award className="h-5 w-5 mr-2" />,
+    }
+  ];
 
   return (
-    <header 
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
-        isScrolled 
-          ? "py-3 bg-white/80 backdrop-blur-xl shadow-subtle" 
-          : "py-5 bg-transparent"
-      )}
-    >
-      <div className="container px-6 mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="w-10 h-10 rounded-xl bg-emirati-teal flex items-center justify-center">
-            <span className="text-white font-display font-bold text-xl">E</span>
-          </span>
-          <span className="font-display font-medium text-xl">Emirati Journey</span>
+    <div className="bg-background border-b">
+      <div className="container flex items-center justify-between py-4">
+        <Link to="/" className="font-bold text-2xl">
+          Emirati Careers
         </Link>
         
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          <a href="#journey" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200">
-            Journey
-          </a>
-          <a href="#personas" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200">
-            Personas
-          </a>
-          <a href="#services" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200">
-            Services
-          </a>
-          <Link to="/job-matching" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center">
-            <Briefcase className="mr-1 h-4 w-4" />
-            Job Matching
-          </Link>
-          <Link to="/job-descriptions" className="text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center">
-            <FileText className="mr-1 h-4 w-4" />
-            Job Descriptions
-          </Link>
-          <UserMenu />
-        </nav>
-        
-        {/* Mobile Menu Button and User Menu */}
-        <div className="md:hidden flex items-center space-x-4">
-          <UserMenu />
-          <button 
-            className="text-foreground"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+        {isMobile ? (
+          <>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={toggleMenu}>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 pt-6">
+                <SheetHeader className="pl-6 pb-4">
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="grid gap-6">
+                  {mainNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className="flex items-center p-2 text-lg font-semibold hover:bg-secondary/50"
+                      onClick={closeMenu}
+                    >
+                      {item.icon}
+                      {item.name}
+                    </Link>
+                  ))}
+                  <div className="border-t" />
+                  <div className="flex flex-col gap-2 px-6">
+                    <ThemeToggle />
+                    {isAuthenticated ? (
+                      <UserMenu onMenuClose={closeMenu} />
+                    ) : (
+                      <Link to="/auth">
+                        <Button variant="outline" className="w-full justify-center" onClick={closeMenu}>
+                          <LogIn className="h-4 w-4 mr-2" />
+                          Login
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </>
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+              {mainNavItems.map((item) => (
+                <Link key={item.href} to={item.href} className="flex items-center text-sm font-medium hover:underline">
+                  {item.icon}
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            <ThemeToggle />
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
-      
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl animate-fade-in border-t border-gray-100 shadow-md">
-          <nav className="container py-6 px-6 mx-auto flex flex-col space-y-4">
-            <a 
-              href="#journey" 
-              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Journey
-            </a>
-            <a 
-              href="#personas" 
-              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Personas
-            </a>
-            <a 
-              href="#services" 
-              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Services
-            </a>
-            <Link 
-              to="/job-matching" 
-              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <Briefcase className="mr-1 h-4 w-4" />
-              Job Matching
-            </Link>
-            <Link 
-              to="/job-descriptions" 
-              className="py-2 text-foreground/80 hover:text-emirati-teal transition-colors duration-200 flex items-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <FileText className="mr-1 h-4 w-4" />
-              Job Descriptions
-            </Link>
-          </nav>
-        </div>
-      )}
-    </header>
+    </div>
   );
 };
 

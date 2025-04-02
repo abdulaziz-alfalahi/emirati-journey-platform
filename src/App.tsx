@@ -17,6 +17,7 @@ import JobDescriptionsPage from './pages/job-descriptions';
 import JobDescriptionsListPage from './pages/job-descriptions/list';
 import MatchingPage from './pages/matching';
 import SummerCampsPage from './pages/summer-camps';
+import ScholarshipsPage from './pages/scholarships';
 import NotFoundPage from './pages/not-found';
 
 // Lazy load the job description detail page
@@ -51,6 +52,7 @@ const App: React.FC = () => {
                 />
                 <Route path="/matching" element={<MatchingPage />} />
                 <Route path="/summer-camps" element={<SummerCampsPage />} />
+                <Route path="/scholarships" element={<ScholarshipsPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
               <Toaster />
