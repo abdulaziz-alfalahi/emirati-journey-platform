@@ -7,6 +7,7 @@ import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Link } from 'react-router-dom';
 
 interface StudentDashboardProps {
   activeTab: string;
@@ -56,6 +57,56 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overvi
             { title: "Upcoming Assessments", value: "3", change: "", description: "Due this week" }
           ]}
         />
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Summer Knowledge Camps</CardTitle>
+            <CardDescription>Explore educational summer camps available now</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-lg">Tech Innovators</CardTitle>
+                  <CardDescription>July 10-28, 2023</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-sm mb-2">Learn coding and robotics this summer</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center">
+                      <Users className="h-3 w-3 mr-1" /> 18/30
+                    </span>
+                    <span className="font-medium">1,500 AED</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-lg">Science Academy</CardTitle>
+                  <CardDescription>July 3-21, 2023</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-sm mb-2">Explore physics and chemistry experiments</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center">
+                      <Users className="h-3 w-3 mr-1" /> 22/25
+                    </span>
+                    <span className="font-medium">1,200 AED</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="flex items-center justify-center">
+                <Link to="/summer-camps">
+                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center h-full flex flex-col justify-center items-center hover:bg-muted/50 transition-colors">
+                    <Calendar className="h-10 w-10 text-muted-foreground mb-2" />
+                    <p className="font-medium">View All Camps</p>
+                    <p className="text-sm text-muted-foreground">Explore 40+ summer programs</p>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
         <RecommendedJobs limit={3} />
       </TabsContent>
@@ -112,7 +163,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overvi
                 { title: "Learning Materials", description: "Study resources", icon: BookOpen },
                 { title: "Career Guidance", description: "Explore career paths", icon: BarChart4 },
                 { title: "Scholarship Finder", description: "Find opportunities", icon: Users },
-                { title: "Mentorship Connect", description: "Find a mentor", icon: Users }
+                { title: "Summer Camps", description: "Educational programs", icon: Calendar, link: "/summer-camps" }
               ]}
             />
           </CardContent>

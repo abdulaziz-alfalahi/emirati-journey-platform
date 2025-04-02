@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, BookOpen, Calendar, User, Users } from 'lucide-react';
+import { BarChart4, BookOpen, Calendar, User, Users, School } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 
 interface EducationalInstitutionDashboardProps {
   activeTab: string;
@@ -27,6 +28,51 @@ const EducationalInstitutionDashboard: React.FC<EducationalInstitutionDashboardP
           { title: "Scholarships", value: "12", change: "", description: "Available scholarship opportunities" }
         ]}
       />
+      
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div>
+            <CardTitle>Summer Knowledge Camps</CardTitle>
+            <CardDescription>Manage your institution's summer programs</CardDescription>
+          </div>
+          <Link to="/summer-camps">
+            <Button>
+              <Calendar className="mr-2 h-4 w-4" /> Manage Camps
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle className="text-lg">Tech Innovators Camp</CardTitle>
+                  <CardDescription>July 10-28, 2023</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Registrations:</span>
+                      <span className="text-sm font-medium">18/30</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Status:</span>
+                      <span className="text-sm font-medium text-green-600">Active</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 h-full flex flex-col justify-center items-center text-center">
+                  <Calendar className="h-8 w-8 mb-2 text-muted-foreground" />
+                  <h3 className="font-medium">Create New Camp</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Add a new summer program</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </TabsContent>
     
     <TabsContent value="students" className="space-y-8">
@@ -61,7 +107,7 @@ const EducationalInstitutionDashboard: React.FC<EducationalInstitutionDashboardP
               { title: "Student Records", description: "Upload and manage", icon: Users },
               { title: "Programs", description: "Manage educational offerings", icon: BookOpen },
               { title: "Scholarships", description: "Create opportunities", icon: BarChart4 },
-              { title: "Summer Knowledge Camps", description: "Organize programs", icon: Calendar }
+              { title: "Summer Knowledge Camps", description: "Organize programs", icon: Calendar, link: "/summer-camps" }
             ]}
           />
         </CardContent>
