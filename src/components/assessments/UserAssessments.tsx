@@ -2,7 +2,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
-import { fetchUserAssessmentSessions } from '@/services/assessmentService';
+import { fetchUserAssessmentSessions } from '@/services/assessments/sessionService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AssessmentSession, AssessmentType } from '@/types/assessments';
