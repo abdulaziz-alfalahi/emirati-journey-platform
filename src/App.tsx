@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthContextProvider } from './context/AuthContext';
@@ -16,6 +17,9 @@ import JobDescriptionsPage from './pages/job-descriptions';
 import JobDescriptionsListPage from './pages/job-descriptions/list';
 import MatchingPage from './pages/matching';
 import NotFoundPage from './pages/not-found';
+
+// Lazy load the job description detail page
+const JobDescriptionDetailPage = React.lazy(() => import('./pages/job-descriptions/[id].jsx'));
 
 const App: React.FC = () => {
   
@@ -36,7 +40,14 @@ const App: React.FC = () => {
                 <Route path="/job-matching" element={<JobMatchingPage />} />
                 <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
                 <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
-                <Route path="/job-descriptions/:id" element={<React.lazy(() => import('./pages/job-descriptions/[id].jsx'))} />
+                <Route 
+                  path="/job-descriptions/:id" 
+                  element={
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <JobDescriptionDetailPage />
+                    </Suspense>
+                  } 
+                />
                 <Route path="/matching" element={<MatchingPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
