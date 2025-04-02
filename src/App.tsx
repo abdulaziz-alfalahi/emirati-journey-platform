@@ -1,67 +1,40 @@
 
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from './context/AuthContext';
-import { QueryProvider } from './context/QueryContext';
-import { Toaster } from '@/components/ui/toaster';
-import HomePage from './pages/home';
-import AuthPage from './pages/auth';
-import DashboardPage from './pages/dashboard';
-import ProfilePage from './pages/profile';
-import OnboardingPage from './pages/onboarding';
-import ResumeBuilderPage from './pages/resume-builder';
-import ApiKeysPage from './pages/api-keys';
-import JobMatchingPage from './pages/job-matching';
-import JobDescriptionsPage from './pages/job-descriptions';
-import JobDescriptionsListPage from './pages/job-descriptions/list';
-import MatchingPage from './pages/matching';
-import SummerCampsPage from './pages/summer-camps';
-import ScholarshipsPage from './pages/scholarships';
-import NotFoundPage from './pages/not-found';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import './App.css'
+import HomePage from './pages/home'
+import NotFound from './pages/not-found'
+import DashboardPage from './pages/dashboard'
+import JobMatchingPage from './pages/job-matching'
+import JobMatchingHomePage from './pages/job-matching/index'
+import ResumeBuilderPage from './pages/resume-builder'
+import ScholarshipsPage from './pages/scholarships'
+import ProfilePage from './pages/profile'
+import AuthPage from './pages/auth'
+import ApiKeysPage from './pages/api-keys'
+import OnboardingPage from './pages/onboarding'
+import SummerCampsPage from './pages/summer-camps'
+import InternshipsPage from './pages/internships'
 
-// Lazy load the job description detail page
-const JobDescriptionDetailPage = React.lazy(() => import('./pages/job-descriptions/[id].jsx'));
-
-const App: React.FC = () => {
-  
+function App() {
   return (
-    <div className="app">
-      <BrowserRouter>
-        <QueryProvider>
-          <AuthProvider>
-            <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-                <Route path="/api-keys" element={<ApiKeysPage />} />
-                <Route path="/job-matching" element={<JobMatchingPage />} />
-                <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-                <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
-                <Route 
-                  path="/job-descriptions/:id" 
-                  element={
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <JobDescriptionDetailPage />
-                    </Suspense>
-                  } 
-                />
-                <Route path="/matching" element={<MatchingPage />} />
-                <Route path="/summer-camps" element={<SummerCampsPage />} />
-                <Route path="/scholarships" element={<ScholarshipsPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              <Toaster />
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryProvider>
-      </BrowserRouter>
-    </div>
-  );
-};
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/job-matching" element={<JobMatchingPage />} />
+        <Route path="/job-matching/index" element={<JobMatchingHomePage />} />
+        <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+        <Route path="/scholarships" element={<ScholarshipsPage />} />
+        <Route path="/internships" element={<InternshipsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/api-keys" element={<ApiKeysPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/summer-camps" element={<SummerCampsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
 
-export default App;
+export default App

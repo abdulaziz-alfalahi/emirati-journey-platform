@@ -1,0 +1,193 @@
+
+import React, { useEffect, useState } from 'react';
+import { Internship } from '@/types/internships';
+import { getInternships } from '@/services/internshipService';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Briefcase, Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface InternshipsListProps {
+  filters?: {
+    industry?: string[];
+    isPaid?: boolean;
+    location?: string[];
+    search?: string;
+  };
+}
+
+export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => {
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const fetchInternships = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getInternships(filters);
+        setInternships(data);
+      } catch (error) {
+        console.error('Error fetching internships:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load internships. Please try again later.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInternships();
+  }, [filters, toast]);
+
+  const handleApply = (internshipId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to apply for internships",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real implementation, this would navigate to an application page
+    // or open a modal to submit an application
+    toast({
+      title: "Application started",
+      description: "You can now complete your application for this internship."
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="overflow-hidden">
+            <CardHeader>
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-10 w-24" />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (internships.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>No internships found</CardTitle>
+          <CardDescription>
+            There are no internships matching your criteria. Try adjusting your filters.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {internships.map((internship) => (
+        <Card key={internship.id} className="overflow-hidden">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-lg md:text-xl">{internship.title}</CardTitle>
+                <CardDescription className="text-sm md:text-base">
+                  <span className="font-medium">{internship.company}</span>
+                </CardDescription>
+              </div>
+              {internship.is_paid && (
+                <Badge className="bg-green-600">
+                  <CreditCard className="h-3 w-3 mr-1" />
+                  Paid
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{internship.description}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                {internship.location}
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                {internship.start_date && internship.end_date ? 
+                  `${new Date(internship.start_date).toLocaleDateString()} - ${new Date(internship.end_date).toLocaleDateString()}` : 
+                  'Dates flexible'
+                }
+              </div>
+              <div className="flex items-center">
+                <Briefcase className="h-4 w-4 mr-2 text-gray-400" />
+                {internship.department || internship.industry}
+              </div>
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                Deadline: {new Date(internship.application_deadline).toLocaleDateString()}
+                {new Date(internship.application_deadline) > new Date() ? 
+                  ` (${formatDistanceToNow(new Date(internship.application_deadline), { addSuffix: true })})` : 
+                  ' (Closed)'
+                }
+              </div>
+            </div>
+            
+            {internship.skills_required && (
+              <div className="mt-3">
+                <div className="flex flex-wrap gap-1">
+                  {internship.skills_required.slice(0, isMobile ? 2 : 4).map((skill, index) => (
+                    <Badge key={index} variant="outline" className="bg-gray-100">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {internship.skills_required.length > (isMobile ? 2 : 4) && (
+                    <Badge variant="outline" className="bg-gray-100">
+                      +{internship.skills_required.length - (isMobile ? 2 : 4)} more
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="border-t pt-4 flex justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {}}
+              className="text-xs md:text-sm"
+            >
+              View Details
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => handleApply(internship.id)}
+              className="text-xs md:text-sm"
+              disabled={new Date(internship.application_deadline) < new Date()}
+            >
+              {new Date(internship.application_deadline) < new Date() ? "Closed" : "Apply"}
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+};

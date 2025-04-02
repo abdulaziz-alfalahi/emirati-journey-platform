@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,16 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
 }
+
+const navigationItems = [
+  { name: 'Home', href: '/' },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Resume Builder', href: '/resume-builder' },
+  { name: 'Job Matching', href: '/job-matching' },
+  { name: 'Scholarships', href: '/scholarships' },
+  { name: 'Internships', href: '/internships' },
+  { name: 'Summer Camps', href: '/summer-camps' },
+];
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
