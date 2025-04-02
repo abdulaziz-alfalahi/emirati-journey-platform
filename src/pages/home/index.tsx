@@ -1,10 +1,10 @@
 
 import React from 'react';
 import Layout from '@/components/layout/Layout';
-import { Hero } from '@/components/home/Hero';
-import { ServiceCards } from '@/components/home/ServiceCards';
-import { PersonaSelector } from '@/components/home/PersonaSelector';
-import { JourneyStages } from '@/components/home/JourneyStages';
+import Hero from '@/components/home/Hero';
+import ServiceCards from '@/components/home/ServiceCards';
+import PersonaSelector from '@/components/home/PersonaSelector';
+import JourneyStages from '@/components/home/JourneyStages';
 import TrainingOpportunities from '@/components/home/TrainingOpportunities';
 
 const HomePage: React.FC = () => {
