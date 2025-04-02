@@ -157,17 +157,17 @@ const ApiKeysPage: React.FC = () => {
         
         <Tabs defaultValue="resume" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="resume">Resume Parsing</TabsTrigger>
-            <TabsTrigger value="ai">AI Services</TabsTrigger>
-            <TabsTrigger value="maps">Maps & Location</TabsTrigger>
+            <TabsTrigger value="resume">Resume & Job Processing</TabsTrigger>
+            <TabsTrigger value="ai">AI Matching</TabsTrigger>
+            <TabsTrigger value="maps">Location & Commute</TabsTrigger>
           </TabsList>
           
           <TabsContent value="resume" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Resume Parsing API Keys</CardTitle>
+                <CardTitle>Resume & Job Processing API Keys</CardTitle>
                 <CardDescription>
-                  Configure API keys for resume parsing services.
+                  Configure API keys for resume parsing and job description processing services.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -182,7 +182,7 @@ const ApiKeysPage: React.FC = () => {
                     className="font-mono"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Used for advanced resume parsing. Get your API key from the{' '}
+                    Used for advanced resume parsing and job description processing. Get your API key from the{' '}
                     <a 
                       href="https://api.affinda.com/docs" 
                       target="_blank" 
@@ -200,9 +200,9 @@ const ApiKeysPage: React.FC = () => {
           <TabsContent value="ai" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>AI Services API Keys</CardTitle>
+                <CardTitle>AI Matching Services</CardTitle>
                 <CardDescription>
-                  Configure API keys for AI and machine learning services.
+                  Configure API keys for AI-powered candidate and job matching services.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -217,7 +217,7 @@ const ApiKeysPage: React.FC = () => {
                     className="font-mono"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Used for AI-powered features. Get your API key from the{' '}
+                    Used for AI-powered candidate and job matching. Get your API key from the{' '}
                     <a 
                       href="https://platform.openai.com/api-keys" 
                       target="_blank" 
@@ -235,9 +235,9 @@ const ApiKeysPage: React.FC = () => {
           <TabsContent value="maps" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Maps & Location API Keys</CardTitle>
+                <CardTitle>Location & Commute Services</CardTitle>
                 <CardDescription>
-                  Configure API keys for maps and location services.
+                  Configure API keys for mapping and commute calculation services.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -252,7 +252,7 @@ const ApiKeysPage: React.FC = () => {
                     className="font-mono"
                   />
                   <p className="text-sm text-muted-foreground">
-                    Used for displaying maps and location features. Get your access token from the{' '}
+                    Used for displaying maps, selecting candidate residence areas, job locations, and calculating commute times. Get your access token from the{' '}
                     <a 
                       href="https://account.mapbox.com/access-tokens/" 
                       target="_blank" 
