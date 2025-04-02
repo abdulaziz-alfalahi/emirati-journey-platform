@@ -42,6 +42,7 @@ const personaOptions: PersonaOption[] = [
   { value: 'assessment_center', label: 'Assessment Center' },
   { value: 'mentor', label: 'Mentor/Coach' },
   { value: 'career_advisor', label: 'Career Advisor' },
+  { value: 'platform_operator', label: 'Platform Operator' },
   { value: 'administrator', label: 'Platform Administrator' },
   { value: 'super_user', label: 'Super User' },
 ];

@@ -28,6 +28,7 @@ const PERSONAS = [
   { role: 'assessment_center', email: 'assessment-center@gmail.com', fullName: 'UAE Assessment Center' },
   { role: 'mentor', email: 'mentor@gmail.com', fullName: 'Rashid Al Mentor' },
   { role: 'career_advisor', email: 'career-advisor@gmail.com', fullName: 'Moza Al Career Advisor' },
+  { role: 'platform_operator', email: 'platform-operator@gmail.com', fullName: 'Yousef Al Platform Operator' },
   { role: 'administrator', email: 'admin@gmail.com', fullName: 'System Administrator' },
   { role: 'super_user', email: 'super-user@gmail.com', fullName: 'Super User' }
 ];
