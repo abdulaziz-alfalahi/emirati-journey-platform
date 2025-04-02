@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { AdvisorySession, ApiKeys } from "@/types/careerAdvisory";
 
@@ -94,7 +95,10 @@ export const createSession = async (
         rating: session.rating,
         feedback: session.feedback,
         video_call_url: session.video_call_url,
-        completed_date: session.completed_date
+        completed_date: session.completed_date,
+        is_interview: session.is_interview || false,
+        interview_type: session.interview_type || null,
+        interview_questions: session.interview_questions || null
       })
       .select()
       .single();
@@ -169,6 +173,75 @@ export const createVideoCallLink = async (sessionId: string): Promise<string> =>
   }
 };
 
+// Helper function to start an interview session
+export const startInterviewSession = async (sessionId: string): Promise<AdvisorySession> => {
+  try {
+    const videoCallUrl = await createVideoCallLink(sessionId);
+    
+    const updatedSession = await updateSession(sessionId, {
+      status: 'in_progress',
+      video_call_url: videoCallUrl
+    });
+    
+    return updatedSession;
+  } catch (error) {
+    console.error("Error starting interview session:", error);
+    throw error;
+  }
+};
+
+// Function to finish an interview and provide feedback
+export const completeInterview = async (
+  sessionId: string,
+  notes: string,
+  rating: number,
+  feedback: string
+): Promise<AdvisorySession> => {
+  try {
+    const now = new Date().toISOString();
+    
+    const updatedSession = await updateSession(sessionId, {
+      status: 'completed',
+      completed_date: now,
+      notes,
+      rating,
+      feedback
+    });
+    
+    return updatedSession;
+  } catch (error) {
+    console.error("Error completing interview:", error);
+    throw error;
+  }
+};
+
+// Function to schedule an interview session
+export const scheduleInterview = async (
+  userId: string,
+  advisorId: string,
+  scheduledDate: Date,
+  topic: string,
+  details: string,
+  interviewType: "mock" | "practice" | "technical" | "behavioral"
+): Promise<AdvisorySession> => {
+  return createSession({
+    user_id: userId,
+    advisor_id: advisorId,
+    status: 'scheduled',
+    scheduled_date: scheduledDate.toISOString(),
+    completed_date: null,
+    topic,
+    details,
+    notes: null,
+    rating: null,
+    feedback: null,
+    video_call_url: null,
+    is_interview: true,
+    interview_type: interviewType,
+    interview_questions: []
+  });
+};
+
 // Add aliases for component compatibility
 export const fetchAdvisorySessions = getSessions;
 export const updateAdvisorySession = updateSession;
@@ -191,6 +264,9 @@ export const scheduleAdvisorySession = (
     notes: null,
     rating: null,
     feedback: null,
-    video_call_url: null
+    video_call_url: null,
+    is_interview: false,
+    interview_type: null,
+    interview_questions: null
   });
 };

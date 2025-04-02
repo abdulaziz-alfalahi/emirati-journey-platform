@@ -19,6 +19,8 @@ import CareerAdvisoryPage from './pages/career-advisory'
 import ScheduleSessionPage from './pages/career-advisory/schedule'
 import SessionDetailsPage from './pages/career-advisory/sessions/[id]'
 import AdvisorPortfolioPage from './pages/career-advisory/advisors/[id]'
+import InterviewsPage from './pages/career-advisory/interviews'
+import ScheduleInterviewPage from './pages/career-advisory/interviews/schedule'
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
         <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />
         <Route path="/career-advisory/sessions/:id" element={<SessionDetailsPage />} />
         <Route path="/career-advisory/advisors/:id" element={<AdvisorPortfolioPage />} />
+        <Route path="/career-advisory/interviews" element={<InterviewsPage />} />
+        <Route path="/career-advisory/interviews/schedule" element={<ScheduleInterviewPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />

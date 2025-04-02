@@ -20,7 +20,7 @@ export type AdvisorySession = {
   id: string;
   user_id: string;
   advisor_id: string;
-  status: "scheduled" | "completed" | "cancelled";
+  status: "scheduled" | "completed" | "cancelled" | "in_progress";
   scheduled_date: string;
   completed_date: string | null;
   topic: string;
@@ -31,6 +31,9 @@ export type AdvisorySession = {
   video_call_url: string | null;
   created_at: string;
   updated_at: string | null;
+  is_interview: boolean;
+  interview_type: "mock" | "practice" | "technical" | "behavioral" | null;
+  interview_questions: string[] | null;
   // Related data joined from other tables
   career_advisors?: {
     specialization: string;
