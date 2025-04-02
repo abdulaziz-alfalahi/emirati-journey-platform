@@ -26,6 +26,8 @@ const CareerPathway: React.FC<CareerPathwayProps> = ({
   studentName = "Ahmed",
   selectedCareer = "Computer Science"
 }) => {
+  // Added console log for debugging
+  console.log("CareerPathway component rendered");
   const [activeTab, setActiveTab] = useState('education');
 
   // Sample career pathways data
