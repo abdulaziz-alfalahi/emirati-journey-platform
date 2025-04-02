@@ -6,6 +6,7 @@ import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
+import CareerPathway from '@/components/student/CareerPathway';
 
 interface StudentDashboardProps {
   activeTab: string;
@@ -17,6 +18,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab }) => (
       <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
       <TabsTrigger value="academics"><BookOpen className="h-4 w-4 mr-2" /> Academics</TabsTrigger>
       <TabsTrigger value="activities"><Calendar className="h-4 w-4 mr-2" /> Activities</TabsTrigger>
+      <TabsTrigger value="career"><BarChart4 className="h-4 w-4 mr-2" /> Career</TabsTrigger>
     </TabsList>
     
     <TabsContent value="overview" className="space-y-8">
@@ -88,6 +90,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab }) => (
           />
         </CardContent>
       </Card>
+    </TabsContent>
+
+    <TabsContent value="career" className="space-y-8">
+      <CareerPathway />
     </TabsContent>
   </Tabs>
 );
