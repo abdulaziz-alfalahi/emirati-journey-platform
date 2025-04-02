@@ -1,16 +1,26 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { AdvisorySession, ApiKeys } from "@/types/careerAdvisory";
+import { AdvisorySession } from "@/types/careerAdvisory";
 
 export const getSessions = async (userId: string): Promise<AdvisorySession[]> => {
   try {
     const { data, error } = await supabase
       .from('advisory_sessions')
-      .select('*')
+      .select(`
+        *,
+        career_advisors:advisor_id (
+          specialization,
+          user_id,
+          user_profiles:profiles (
+            full_name,
+            avatar_url
+          )
+        )
+      `)
       .eq('user_id', userId);
 
     if (error) throw error;
-    return data as AdvisorySession[];
+    return data as unknown as AdvisorySession[];
   } catch (error) {
     console.error("Error fetching sessions:", error);
     throw error;
@@ -21,12 +31,26 @@ export const getSessionById = async (id: string): Promise<AdvisorySession | null
   try {
     const { data, error } = await supabase
       .from('advisory_sessions')
-      .select('*')
+      .select(`
+        *,
+        career_advisors:advisor_id (
+          specialization,
+          user_id,
+          user_profiles:profiles (
+            full_name,
+            avatar_url
+          )
+        ),
+        candidate_profiles:user_id (
+          full_name,
+          avatar_url
+        )
+      `)
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data as AdvisorySession;
+    return data as unknown as AdvisorySession;
   } catch (error) {
     console.error("Error fetching session:", error);
     return null;
@@ -37,11 +61,17 @@ export const getAdvisorSessions = async (advisorId: string): Promise<AdvisorySes
   try {
     const { data, error } = await supabase
       .from('advisory_sessions')
-      .select('*')
+      .select(`
+        *,
+        candidate_profiles:user_id (
+          full_name,
+          avatar_url
+        )
+      `)
       .eq('advisor_id', advisorId);
 
     if (error) throw error;
-    return data as AdvisorySession[];
+    return data as unknown as AdvisorySession[];
   } catch (error) {
     console.error("Error fetching advisor sessions:", error);
     throw error;
@@ -54,12 +84,24 @@ export const createSession = async (
   try {
     const { data, error } = await supabase
       .from('advisory_sessions')
-      .insert(session)
+      .insert({
+        user_id: session.user_id,
+        advisor_id: session.advisor_id,
+        status: session.status,
+        scheduled_date: session.scheduled_date,
+        topic: session.topic,
+        details: session.details,
+        notes: session.notes,
+        rating: session.rating,
+        feedback: session.feedback,
+        video_call_url: session.video_call_url,
+        completed_date: session.completed_date
+      })
       .select()
       .single();
 
     if (error) throw error;
-    return data as AdvisorySession;
+    return data as unknown as AdvisorySession;
   } catch (error) {
     console.error("Error creating session:", error);
     throw error;
@@ -79,7 +121,7 @@ export const updateSession = async (
       .single();
 
     if (error) throw error;
-    return data as AdvisorySession;
+    return data as unknown as AdvisorySession;
   } catch (error) {
     console.error("Error updating session:", error);
     throw error;
@@ -105,7 +147,7 @@ export const createVideoCallLink = async (sessionId: string): Promise<string> =>
     // Get HireVue API key
     const { data: apiKeysData, error: apiKeysError } = await supabase
       .from('api_keys')
-      .select('hirevue_api_key')
+      .select('*')
       .single();
     
     if (apiKeysError || !apiKeysData?.hirevue_api_key) {
@@ -126,4 +168,30 @@ export const createVideoCallLink = async (sessionId: string): Promise<string> =>
     console.error("Error creating video call link:", error);
     throw error;
   }
+};
+
+// Add aliases for component compatibility
+export const fetchAdvisorySessions = getSessions;
+export const updateAdvisorySession = updateSession;
+export const initiateVideoCall = createVideoCallLink;
+export const scheduleAdvisorySession = (
+  userId: string,
+  advisorId: string,
+  scheduledDate: Date,
+  topic: string,
+  details: string
+): Promise<AdvisorySession> => {
+  return createSession({
+    user_id: userId,
+    advisor_id: advisorId,
+    status: 'scheduled',
+    scheduled_date: scheduledDate.toISOString(),
+    completed_date: null,
+    topic,
+    details,
+    notes: null,
+    rating: null,
+    feedback: null,
+    video_call_url: null
+  });
 };

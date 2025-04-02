@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { fetchAdvisorySessions, updateAdvisorySession, initiateVideoCall } from '@/services/careerAdvisory/advisorySessionService';
+import { getSessions, updateSession, createVideoCallLink } from '@/services/careerAdvisory/advisorySessionService';
 import { AdvisorySession } from '@/types/careerAdvisory';
 import { format } from 'date-fns';
 import { Calendar, Clock, User, Video, FileText } from 'lucide-react';
@@ -33,7 +33,7 @@ const SessionDetails: React.FC = () => {
       if (!id || !user) return;
       
       try {
-        const sessions = await fetchAdvisorySessions(undefined, user.id);
+        const sessions = await getSessions(user.id);
         const sessionData = sessions.find(s => s.id === id);
         
         if (sessionData) {
@@ -62,8 +62,8 @@ const SessionDetails: React.FC = () => {
     setStartingCall(true);
     
     try {
-      const updatedSession = await initiateVideoCall(id);
-      setSession(updatedSession);
+      const videoCallUrl = await createVideoCallLink(id);
+      setSession(prev => prev ? { ...prev, video_call_url: videoCallUrl } : null);
       
       toast({
         title: 'Success',
@@ -71,7 +71,7 @@ const SessionDetails: React.FC = () => {
       });
       
       // In a real application, you would redirect to the video call URL
-      window.open(updatedSession.video_call_url!, '_blank');
+      window.open(videoCallUrl, '_blank');
       
     } catch (error) {
       console.error('Error starting video call:', error);
@@ -91,7 +91,7 @@ const SessionDetails: React.FC = () => {
     setSaving(true);
     
     try {
-      const updatedSession = await updateAdvisorySession(id, {
+      const updatedSession = await updateSession(id, {
         notes,
       });
       
@@ -119,7 +119,7 @@ const SessionDetails: React.FC = () => {
     setSaving(true);
     
     try {
-      const updatedSession = await updateAdvisorySession(id, {
+      const updatedSession = await updateSession(id, {
         feedback,
         status: 'completed'
       });
@@ -168,9 +168,19 @@ const SessionDetails: React.FC = () => {
   }
 
   const isAdvisor = user?.id === session.career_advisors?.user_id;
-  const isUpcoming = ['scheduled'].includes(session.status);
-  const isActive = ['in_progress'].includes(session.status);
-  const isCompleted = ['completed'].includes(session.status);
+  const isUpcoming = session.status === 'scheduled';
+  const isActive = session.status === 'scheduled'; // Changed from 'in_progress' to match existing status options
+  const isCompleted = session.status === 'completed';
+
+  // Advisor name and avatar
+  const advisorName = session.career_advisors?.user_profiles?.full_name || 'Advisor';
+  const advisorInitial = (session.career_advisors?.user_profiles?.full_name || 'A').substring(0, 1);
+  const advisorAvatar = session.career_advisors?.user_profiles?.avatar_url || '';
+
+  // Candidate name and avatar
+  const candidateName = session.candidate_profiles?.full_name || 'Candidate';
+  const candidateInitial = (session.candidate_profiles?.full_name || 'C').substring(0, 1);
+  const candidateAvatar = session.candidate_profiles?.avatar_url || '';
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -184,8 +194,8 @@ const SessionDetails: React.FC = () => {
               'bg-gray-100 text-gray-800'
             }>
               {session.status === 'scheduled' ? 'Scheduled' : 
-               session.status === 'in_progress' ? 'In Progress' : 
-               'Completed'}
+               session.status === 'completed' ? 'Completed' : 
+               'Cancelled'}
             </Badge>
           </div>
         </CardHeader>
@@ -214,34 +224,20 @@ const SessionDetails: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage 
-                  src={
-                    isAdvisor 
-                      ? session.candidate_profiles?.avatar_url || '' 
-                      : session.career_advisors?.user_profiles?.avatar_url || ''
-                  }
-                  alt={
-                    isAdvisor 
-                      ? session.candidate_profiles?.full_name || 'Candidate' 
-                      : session.career_advisors?.user_profiles?.full_name || 'Advisor'
-                  }
+                  src={isAdvisor ? candidateAvatar : advisorAvatar}
+                  alt={isAdvisor ? candidateName : advisorName}
                 />
                 <AvatarFallback>
-                  {isAdvisor 
-                    ? (session.candidate_profiles?.full_name || 'C').substring(0, 1) 
-                    : (session.career_advisors?.user_profiles?.full_name || 'A').substring(0, 1)
-                  }
+                  {isAdvisor ? candidateInitial : advisorInitial}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className="font-medium">
-                  {isAdvisor 
-                    ? session.candidate_profiles?.full_name || 'Candidate' 
-                    : session.career_advisors?.user_profiles?.full_name || 'Advisor'
-                  }
+                  {isAdvisor ? candidateName : advisorName}
                 </div>
-                {!isAdvisor && (
+                {!isAdvisor && session.career_advisors && (
                   <div className="text-sm text-muted-foreground">
-                    {session.career_advisors?.specialization}
+                    {session.career_advisors.specialization}
                   </div>
                 )}
               </div>

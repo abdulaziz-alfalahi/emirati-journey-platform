@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -14,17 +14,18 @@ import { cn } from '@/lib/utils';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { fetchCareerAdvisors } from '@/services/careerAdvisory/advisoryService';
+import { getAdvisors, fetchCareerAdvisors } from '@/services/careerAdvisory/advisoryService';
 import { scheduleAdvisorySession } from '@/services/careerAdvisory/advisorySessionService';
 import { CareerAdvisor } from '@/types/careerAdvisory';
 
 const AdvisorScheduling: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [advisors, setAdvisors] = useState<CareerAdvisor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAdvisor, setSelectedAdvisor] = useState<string>('');
+  const [selectedAdvisor, setSelectedAdvisor] = useState<string>(searchParams.get('advisor') || '');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [topic, setTopic] = useState<string>('');
@@ -34,7 +35,7 @@ const AdvisorScheduling: React.FC = () => {
   useEffect(() => {
     const loadAdvisors = async () => {
       try {
-        const data = await fetchCareerAdvisors();
+        const data = await getAdvisors();
         setAdvisors(data);
       } catch (error) {
         console.error('Error loading advisors:', error);
@@ -124,7 +125,7 @@ const AdvisorScheduling: React.FC = () => {
               <SelectContent>
                 {advisors.map(advisor => (
                   <SelectItem key={advisor.id} value={advisor.id}>
-                    {advisor.user_profiles?.full_name} - {advisor.specialization}
+                    {advisor.user_profiles?.full_name || 'Advisor'} - {advisor.specialization}
                   </SelectItem>
                 ))}
               </SelectContent>

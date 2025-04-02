@@ -6,7 +6,7 @@ export const getAdvisors = async (): Promise<CareerAdvisor[]> => {
   try {
     const { data, error } = await supabase
       .from('career_advisors')
-      .select('*')
+      .select('*, user_profiles:profiles(full_name, avatar_url)')
       .eq('is_active', true);
 
     if (error) {
@@ -14,7 +14,7 @@ export const getAdvisors = async (): Promise<CareerAdvisor[]> => {
       throw error;
     }
 
-    return data as CareerAdvisor[];
+    return data as unknown as CareerAdvisor[];
   } catch (error) {
     console.error("Exception in getAdvisors:", error);
     throw error;
@@ -25,12 +25,12 @@ export const getAdvisorById = async (id: string): Promise<CareerAdvisor | null> 
   try {
     const { data, error } = await supabase
       .from('career_advisors')
-      .select('*')
+      .select('*, user_profiles:profiles(full_name, avatar_url)')
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data as CareerAdvisor;
+    return data as unknown as CareerAdvisor;
   } catch (error) {
     console.error("Error fetching advisor:", error);
     return null;
@@ -41,12 +41,18 @@ export const createAdvisor = async (advisor: Omit<CareerAdvisor, "id" | "created
   try {
     const { data, error } = await supabase
       .from('career_advisors')
-      .insert(advisor)
+      .insert({
+        user_id: advisor.user_id,
+        specialization: advisor.specialization,
+        bio: advisor.bio,
+        availability: advisor.availability,
+        is_active: advisor.is_active
+      })
       .select()
       .single();
 
     if (error) throw error;
-    return data as CareerAdvisor;
+    return data as unknown as CareerAdvisor;
   } catch (error) {
     console.error("Error creating advisor:", error);
     throw error;
@@ -63,7 +69,7 @@ export const updateAdvisor = async (id: string, advisor: Partial<Omit<CareerAdvi
       .single();
 
     if (error) throw error;
-    return data as CareerAdvisor;
+    return data as unknown as CareerAdvisor;
   } catch (error) {
     console.error("Error updating advisor:", error);
     throw error;
@@ -83,3 +89,7 @@ export const deleteAdvisor = async (id: string): Promise<void> => {
     throw error;
   }
 };
+
+// Add aliases for component compatibility
+export const fetchCareerAdvisorById = getAdvisorById;
+export const fetchCareerAdvisors = getAdvisors;

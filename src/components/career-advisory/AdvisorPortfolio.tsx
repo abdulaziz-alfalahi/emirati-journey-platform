@@ -6,8 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { fetchCareerAdvisorById } from '@/services/careerAdvisory/advisoryService';
-import { fetchAdvisorySessions } from '@/services/careerAdvisory/advisorySessionService';
+import { getAdvisorById, fetchCareerAdvisorById } from '@/services/careerAdvisory/advisoryService';
+import { getAdvisorSessions, fetchAdvisorySessions } from '@/services/careerAdvisory/advisorySessionService';
 import { CareerAdvisor, AdvisorySession } from '@/types/careerAdvisory';
 import { format } from 'date-fns';
 import { Calendar, User, Briefcase } from 'lucide-react';
@@ -24,8 +24,8 @@ const AdvisorPortfolio: React.FC = () => {
       
       try {
         const [advisorData, sessionsData] = await Promise.all([
-          fetchCareerAdvisorById(id),
-          fetchAdvisorySessions(id)
+          getAdvisorById(id),
+          getAdvisorSessions(id)
         ]);
         
         setAdvisor(advisorData);
@@ -63,22 +63,26 @@ const AdvisorPortfolio: React.FC = () => {
     );
   }
 
+  const advisorName = advisor.user_profiles?.full_name || 'Career Advisor';
+  const advisorInitial = (advisor.user_profiles?.full_name || 'A').substring(0, 1);
+  const avatarUrl = advisor.user_profiles?.avatar_url || '';
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-start gap-4 pb-2">
           <Avatar className="h-16 w-16">
             <AvatarImage 
-              src={advisor.user_profiles?.avatar_url || ''} 
-              alt={advisor.user_profiles?.full_name || 'Advisor'}
+              src={avatarUrl} 
+              alt={advisorName}
             />
             <AvatarFallback className="text-lg">
-              {(advisor.user_profiles?.full_name || 'A').substring(0, 1)}
+              {advisorInitial}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
             <CardTitle className="text-2xl flex items-center justify-between">
-              {advisor.user_profiles?.full_name || 'Career Advisor'}
+              {advisorName}
               <Badge variant="outline" className="ml-2">
                 {advisor.is_active ? 'Active' : 'Inactive'}
               </Badge>

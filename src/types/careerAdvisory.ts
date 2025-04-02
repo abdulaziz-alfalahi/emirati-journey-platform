@@ -1,6 +1,4 @@
 
-import { Database } from "@/integrations/supabase/types";
-
 // Define the types we need for the Career Advisory feature
 export type CareerAdvisor = {
   id: string;
@@ -11,6 +9,11 @@ export type CareerAdvisor = {
   is_active: boolean;
   created_at: string;
   updated_at: string | null;
+  // User profile information retrieved via join
+  user_profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
 };
 
 export type AdvisorySession = {
@@ -28,29 +31,22 @@ export type AdvisorySession = {
   video_call_url: string | null;
   created_at: string;
   updated_at: string | null;
+  // Related data joined from other tables
+  career_advisors?: {
+    specialization: string;
+    user_id: string;
+    user_profiles?: {
+      full_name: string | null;
+      avatar_url: string | null;
+    };
+  };
+  candidate_profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
 };
 
-// Extend the Database type with our new tables
-declare module "@/integrations/supabase/types" {
-  interface Database {
-    public: {
-      Tables: {
-        career_advisors: {
-          Row: CareerAdvisor;
-          Insert: Omit<CareerAdvisor, "id" | "created_at" | "updated_at">;
-          Update: Partial<Omit<CareerAdvisor, "id" | "created_at" | "updated_at">>;
-        };
-        advisory_sessions: {
-          Row: AdvisorySession;
-          Insert: Omit<AdvisorySession, "id" | "created_at" | "updated_at">;
-          Update: Partial<Omit<AdvisorySession, "id" | "created_at" | "updated_at">>;
-        };
-      };
-    };
-  }
-}
-
-// Export updated API keys type that includes HireVue
+// Export API keys type that includes HireVue
 export interface ApiKeys {
   id: string;
   linkedin_client_id: string | null;
