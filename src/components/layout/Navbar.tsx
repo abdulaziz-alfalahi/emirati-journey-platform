@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award } from 'lucide-react';
+import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award, BadgeCheck } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -28,6 +28,7 @@ const navigationItems = [
   { name: 'Scholarships', href: '/scholarships' },
   { name: 'Internships', href: '/internships' },
   { name: 'Summer Camps', href: '/summer-camps' },
+  { name: 'Assessments', href: '/assessments' },
 ];
 
 const Navbar: React.FC = () => {
@@ -70,6 +71,11 @@ const Navbar: React.FC = () => {
       name: 'Scholarships',
       href: '/scholarships',
       icon: <Award className="h-5 w-5 mr-2" />,
+    },
+    {
+      name: 'Assessments',
+      href: '/assessments',
+      icon: <BadgeCheck className="h-5 w-5 mr-2" />,
     }
   ];
 

@@ -14,6 +14,7 @@ import ApiKeysPage from './pages/api-keys'
 import OnboardingPage from './pages/onboarding'
 import SummerCampsPage from './pages/summer-camps'
 import InternshipsPage from './pages/internships'
+import AssessmentsPage from './pages/assessments'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/resume-builder" element={<ResumeBuilderPage />} />
         <Route path="/scholarships" element={<ScholarshipsPage />} />
         <Route path="/internships" element={<InternshipsPage />} />
+        <Route path="/assessments" element={<AssessmentsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
@@ -38,3 +40,4 @@ function App() {
 }
 
 export default App
+

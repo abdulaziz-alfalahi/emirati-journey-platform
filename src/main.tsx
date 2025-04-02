@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
+import { QueryProvider } from './context/QueryContext'
 
 // Ensure we have a root element
 const rootElement = document.getElementById("root");
@@ -17,7 +18,9 @@ if (!rootElement) {
 const root = document.getElementById("root");
 createRoot(root!).render(
   <AuthProvider>
-    <App />
+    <QueryProvider>
+      <App />
+    </QueryProvider>
   </AuthProvider>
 );
 

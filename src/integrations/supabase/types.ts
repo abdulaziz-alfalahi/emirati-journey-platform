@@ -42,6 +42,107 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_sessions: {
+        Row: {
+          assessment_id: string
+          completed_date: string | null
+          created_at: string | null
+          feedback: string | null
+          id: string
+          results: Json | null
+          scheduled_date: string | null
+          score: number | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assessment_id: string
+          completed_date?: string | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          results?: Json | null
+          scheduled_date?: string | null
+          score?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string
+          completed_date?: string | null
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          results?: Json | null
+          scheduled_date?: string | null
+          score?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_sessions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          assessment_type: Database["public"]["Enums"]["assessment_type"]
+          center_id: string
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          eligibility_criteria: Json | null
+          id: string
+          is_active: boolean | null
+          price_amount: number | null
+          price_currency: string | null
+          requirements: string | null
+          skills_tested: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assessment_type: Database["public"]["Enums"]["assessment_type"]
+          center_id: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          price_amount?: number | null
+          price_currency?: string | null
+          requirements?: string | null
+          skills_tested?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assessment_type?: Database["public"]["Enums"]["assessment_type"]
+          center_id?: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          price_amount?: number | null
+          price_currency?: string | null
+          requirements?: string | null
+          skills_tested?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       job_descriptions: {
         Row: {
           application_deadline: string | null
@@ -410,6 +511,7 @@ export type Database = {
       }
     }
     Enums: {
+      assessment_type: "skills" | "behaviors" | "capabilities"
       user_role:
         | "school_student"
         | "national_service_participant"
