@@ -5,6 +5,7 @@ import { BarChart4, BookOpen, Calendar, User, Users } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
 
 interface StudentDashboardProps {
   activeTab: string;
@@ -26,6 +27,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab }) => (
           { title: "Upcoming Assessments", value: "3", change: "", description: "Due this week" }
         ]}
       />
+      
+      <RecommendedJobs limit={3} />
     </TabsContent>
     
     <TabsContent value="academics" className="space-y-8">

@@ -1,69 +1,52 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthContextProvider } from './context/AuthContext';
+import { QueryProvider } from './context/QueryContext';
+import { Toaster } from '@/components/ui/toaster';
+import HomePage from './pages/home';
+import AuthPage from './pages/auth';
+import DashboardPage from './pages/dashboard';
+import ProfilePage from './pages/profile';
+import OnboardingPage from './pages/onboarding';
+import ResumeBuilderPage from './pages/resume-builder';
+import ApiKeysPage from './pages/api-keys';
+import JobMatchingPage from './pages/job-matching';
+import JobDescriptionsPage from './pages/job-descriptions';
+import JobDescriptionsListPage from './pages/job-descriptions/list';
+import MatchingPage from './pages/matching';
+import NotFoundPage from './pages/not-found';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/context/AuthContext";
-import { ResumeProvider } from "@/context/ResumeContext";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import AuthPage from "./pages/auth";
-import ProfilePage from "./pages/profile";
-import DashboardPage from "./pages/dashboard";
-import ResumeBuilderPage from "./pages/resume-builder";
-import ApiKeysPage from "./pages/api-keys";
-import JobMatchingPage from "./pages/job-matching";
-import MatchingPage from "./pages/matching/index";
-import JobDescriptionsPage from "./pages/job-descriptions.jsx";
-import JobDescriptionsListPage from "./pages/job-descriptions/list.jsx";
-import React from "react";
-
-// Configure PDF.js worker - using a more reliable approach
-import * as pdfjsLib from 'pdfjs-dist';
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-console.log("PDF.js worker configured with source:", pdfjsLib.GlobalWorkerOptions.workerSrc);
-
-// Create QueryClient outside of the component to avoid recreation on re-renders
-const queryClient = new QueryClient();
-
-const App = () => (
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary fallback={
-        <div className="p-8 m-4 border border-red-500 rounded bg-red-50 text-red-900">
-          <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-          <p>There was an error loading the application. Please try refreshing the page.</p>
-        </div>
-      }>
-        <AuthProvider>
-          <ResumeProvider>
-            <TooltipProvider>
+const App: React.FC = () => {
+  
+  return (
+    <div className="app">
+      <BrowserRouter>
+        <QueryProvider>
+          <AuthContextProvider>
+            <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                <Route path="/api-keys" element={<ApiKeysPage />} />
+                <Route path="/job-matching" element={<JobMatchingPage />} />
+                <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+                <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
+                <Route path="/job-descriptions/:id" element={<React.lazy(() => import('./pages/job-descriptions/[id].jsx'))} />
+                <Route path="/matching" element={<MatchingPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
               <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-                  <Route path="/api-keys" element={<ApiKeysPage />} />
-                  <Route path="/job-matching" element={<JobMatchingPage />} />
-                  <Route path="/matching" element={<MatchingPage />} />
-                  <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-                  <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </ResumeProvider>
-        </AuthProvider>
-      </ErrorBoundary>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+            </ThemeProvider>
+          </AuthContextProvider>
+        </QueryProvider>
+      </BrowserRouter>
+    </div>
+  );
+};
 
 export default App;

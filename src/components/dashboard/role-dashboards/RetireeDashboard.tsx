@@ -5,6 +5,7 @@ import { Award, BarChart4, BookOpen, Heart, Users } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
 
 interface RetireeDashboardProps {
   activeTab: string;
@@ -60,6 +61,8 @@ const RetireeDashboard: React.FC<RetireeDashboardProps> = ({ activeTab }) => (
           </div>
         </CardContent>
       </Card>
+      
+      <RecommendedJobs limit={3} />
     </TabsContent>
     
     <TabsContent value="community" className="space-y-8">
