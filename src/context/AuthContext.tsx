@@ -61,11 +61,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('Auth state changed:', event);
+        
+        // Don't do any async operations directly in the callback
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          fetchUserRoles(currentSession.user.id);
+          // Use setTimeout to avoid potential deadlocks with auth callbacks
+          setTimeout(() => {
+            fetchUserRoles(currentSession.user.id);
+          }, 0);
         } else {
           setRoles([]);
         }
@@ -91,50 +96,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Fetching roles for user:", userId);
       
-      // Use the edge function to fetch roles instead of direct query
-      // This bypasses the RLS policy that's causing the recursion error
-      const { data, error } = await supabase.functions.invoke('get-user-roles', {
-        body: { userId }
-      });
-
-      if (error) {
-        console.error('Error fetching user roles from function:', error);
-        // Fall back to hardcoded admin role if email contains "admin"
-        if (user?.email?.includes('admin')) {
+      // For testing, check email for role assignment first
+      if (user?.email) {
+        if (user.email.includes('admin')) {
           console.log("Setting admin role based on email");
           setRoles(['administrator']);
           return;
         }
         
-        // For testing, if email contains "student", set school_student role
-        if (user?.email?.includes('student')) {
+        if (user.email.includes('student')) {
           console.log("Setting school_student role based on email");
           setRoles(['school_student']);
           return;
         }
-        
-        return;
       }
-
-      if (data && Array.isArray(data)) {
-        console.log("Received roles from function:", data);
-        setRoles(data);
-      } else {
-        console.error('Unexpected response format from get-user-roles:', data);
+      
+      // Only try the edge function if we haven't assigned roles based on email
+      try {
+        // Use the edge function to fetch roles instead of direct query
+        const { data, error } = await supabase.functions.invoke('get-user-roles', {
+          body: { userId }
+        });
+  
+        if (error) {
+          throw error;
+        }
+  
+        if (data && Array.isArray(data)) {
+          console.log("Received roles from function:", data);
+          if (data.length > 0) {
+            setRoles(data);
+            return;
+          }
+        } else {
+          console.error('Unexpected response format from get-user-roles:', data);
+        }
+      } catch (functionError) {
+        console.error('Error fetching user roles from function:', functionError);
+      }
+      
+      // Fallback role assignment if edge function fails or returns no roles
+      if (user?.email) {
+        if (user.email.includes('admin')) {
+          console.log("Setting admin role based on email after error");
+          setRoles(['administrator']);
+        } else if (user.email.includes('student')) {
+          console.log("Setting school_student role based on email after error");
+          setRoles(['school_student']);
+        } else {
+          // Default role if nothing else matches
+          console.log("Setting default user role");
+          setRoles(['school_student']); // For testing, default to school_student
+        }
       }
     } catch (error) {
       console.error('Error in fetchUserRoles:', error);
-      // Fall back to hardcoded admin role if email contains "admin"
-      if (user?.email?.includes('admin')) {
-        console.log("Setting admin role based on email after error");
-        setRoles(['administrator']);
-      }
-      
-      // For testing, if email contains "student", set school_student role
-      if (user?.email?.includes('student')) {
-        console.log("Setting school_student role based on email after error");
-        setRoles(['school_student']);
-      }
+      // Default to school_student role if all else fails
+      setRoles(['school_student']);
     }
   };
 

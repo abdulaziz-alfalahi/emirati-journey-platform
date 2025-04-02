@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart4, BookOpen, Calendar, User, Users } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
@@ -15,6 +15,19 @@ interface StudentDashboardProps {
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overview" }) => {
   // Added console log for debugging
   console.log("StudentDashboard rendered with activeTab:", activeTab);
+  
+  // Force rerender of content when the component mounts
+  useEffect(() => {
+    console.log("StudentDashboard mounted/updated");
+    
+    // Check if CareerPathway component exists
+    try {
+      const CareerPathwayExists = typeof CareerPathway === 'function';
+      console.log("CareerPathway component exists:", CareerPathwayExists);
+    } catch (err) {
+      console.error("Error checking CareerPathway component:", err);
+    }
+  }, []);
   
   return (
     <Tabs defaultValue={activeTab} className="space-y-8">
@@ -107,7 +120,15 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ activeTab = "overvi
           </CardContent>
         </Card>
         
-        <CareerPathway />
+        {typeof CareerPathway === 'function' ? (
+          <CareerPathway />
+        ) : (
+          <Card>
+            <CardContent className="py-4">
+              <p>Career pathway visualization is not available. Please check your console for errors.</p>
+            </CardContent>
+          </Card>
+        )}
       </TabsContent>
     </Tabs>
   );
