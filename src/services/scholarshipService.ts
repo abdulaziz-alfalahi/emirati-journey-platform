@@ -1,4 +1,3 @@
-
 import { Scholarship, Application, ScholarshipWithApplications } from '@/types/scholarships';
 
 // Mock scholarships data
@@ -150,6 +149,7 @@ export const countApplicationsByStatus = async (scholarshipId: string): Promise<
   };
 };
 
+// Update to accept the correct parameter type
 export const createScholarship = async (scholarship: Omit<Scholarship, 'id' | 'created_at'>): Promise<Scholarship> => {
   const newScholarship: Scholarship = {
     ...scholarship,

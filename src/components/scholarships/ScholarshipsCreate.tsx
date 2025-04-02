@@ -63,11 +63,23 @@ export const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSucces
     }
     
     try {
-      await createScholarship({
-        ...values,
+      // Ensure all required fields are present
+      const scholarshipData = {
+        title: values.title,
+        description: values.description,
+        provider: values.provider,
+        provider_type: values.provider_type,
+        amount: values.amount,
+        currency: values.currency,
+        application_deadline: values.application_deadline ? values.application_deadline.toISOString() : undefined,
+        contact_email: values.contact_email || undefined,
+        contact_phone: values.contact_phone,
+        website_url: values.website_url || undefined,
         is_active: true,
         created_by: user.id
-      });
+      };
+      
+      await createScholarship(scholarshipData);
       
       toast({
         title: "Scholarship created",
