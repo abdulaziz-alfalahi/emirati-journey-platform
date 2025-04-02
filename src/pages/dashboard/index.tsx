@@ -31,49 +31,63 @@ const DashboardPage = () => {
     }
   }, [user, isLoading, navigate]);
 
+  // Add more detailed logging
+  console.log("Dashboard Page - Current roles:", roles);
+
   // Role-specific dashboard content based on user role
   const getRoleDashboard = () => {
     if (roles.includes('administrator') || roles.includes('super_user')) {
+      console.log("Rendering AdminDashboard");
       return <AdminDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('school_student')) {
+      console.log("Rendering StudentDashboard");
       return <StudentDashboard activeTab={activeTab} />;
     }
 
     if (roles.includes('educational_institution')) {
+      console.log("Rendering EducationalInstitutionDashboard");
       return <EducationalInstitutionDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('parent')) {
+      console.log("Rendering ParentDashboard");
       return <ParentDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('private_sector_recruiter')) {
+      console.log("Rendering RecruiterDashboard");
       return <RecruiterDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('government_representative')) {
+      console.log("Rendering GovRepDashboard");
       return <GovRepDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('entrepreneur')) {
+      console.log("Rendering EntrepreneurDashboard");
       return <EntrepreneurDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('retiree') || roles.includes('retiree_advocate')) {
+      console.log("Rendering RetireeDashboard");
       return <RetireeDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('mentor') || roles.includes('career_advisor')) {
+      console.log("Rendering MentorDashboard");
       return <MentorDashboard activeTab={activeTab} />;
     }
     
     if (roles.includes('training_center') || roles.includes('assessment_center')) {
+      console.log("Rendering TrainingCenterDashboard");
       return <TrainingCenterDashboard activeTab={activeTab} />;
     }
     
     // Default dashboard for other roles
+    console.log("Rendering DefaultDashboard with first role:", roles[0] || "no-role");
     return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
   };
 

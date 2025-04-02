@@ -89,6 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserRoles = async (userId: string) => {
     try {
+      console.log("Fetching roles for user:", userId);
+      
       // Use the edge function to fetch roles instead of direct query
       // This bypasses the RLS policy that's causing the recursion error
       const { data, error } = await supabase.functions.invoke('get-user-roles', {
@@ -99,13 +101,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error fetching user roles from function:', error);
         // Fall back to hardcoded admin role if email contains "admin"
         if (user?.email?.includes('admin')) {
+          console.log("Setting admin role based on email");
           setRoles(['administrator']);
           return;
         }
+        
+        // For testing, if email contains "student", set school_student role
+        if (user?.email?.includes('student')) {
+          console.log("Setting school_student role based on email");
+          setRoles(['school_student']);
+          return;
+        }
+        
         return;
       }
 
       if (data && Array.isArray(data)) {
+        console.log("Received roles from function:", data);
         setRoles(data);
       } else {
         console.error('Unexpected response format from get-user-roles:', data);
@@ -114,7 +126,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Error in fetchUserRoles:', error);
       // Fall back to hardcoded admin role if email contains "admin"
       if (user?.email?.includes('admin')) {
+        console.log("Setting admin role based on email after error");
         setRoles(['administrator']);
+      }
+      
+      // For testing, if email contains "student", set school_student role
+      if (user?.email?.includes('student')) {
+        console.log("Setting school_student role based on email after error");
+        setRoles(['school_student']);
       }
     }
   };
