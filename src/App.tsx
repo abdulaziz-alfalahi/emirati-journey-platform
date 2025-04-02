@@ -2,6 +2,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './context/QueryContext';
 import { Toaster } from '@/components/ui/toaster';
 import HomePage from './pages/home';
@@ -26,31 +27,33 @@ const App: React.FC = () => {
     <div className="app">
       <BrowserRouter>
         <QueryProvider>
-          <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-              <Route path="/api-keys" element={<ApiKeysPage />} />
-              <Route path="/job-matching" element={<JobMatchingPage />} />
-              <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-              <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
-              <Route 
-                path="/job-descriptions/:id" 
-                element={
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <JobDescriptionDetailPage />
-                  </Suspense>
-                } 
-              />
-              <Route path="/matching" element={<MatchingPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-            <Toaster />
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                <Route path="/api-keys" element={<ApiKeysPage />} />
+                <Route path="/job-matching" element={<JobMatchingPage />} />
+                <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+                <Route path="/job-descriptions/list" element={<JobDescriptionsListPage />} />
+                <Route 
+                  path="/job-descriptions/:id" 
+                  element={
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <JobDescriptionDetailPage />
+                    </Suspense>
+                  } 
+                />
+                <Route path="/matching" element={<MatchingPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
         </QueryProvider>
       </BrowserRouter>
     </div>
