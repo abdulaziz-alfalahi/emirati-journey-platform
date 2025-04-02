@@ -1,6 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Assessment, AssessmentSession } from '@/types/assessments';
+import { Assessment, AssessmentSession, CoachingRecommendation } from '@/types/assessments';
 
 export const fetchAssessments = async () => {
   const { data, error } = await supabase
@@ -143,4 +142,106 @@ export const updateAssessmentSession = async (sessionId: string, sessionData: Pa
   }
 
   return data as AssessmentSession;
+};
+
+export const recommendCoaching = async (sessionId: string, userId: string, reason: string) => {
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .insert([{
+      session_id: sessionId,
+      user_id: userId,
+      reason: reason,
+      status: 'pending'
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error recommending coaching:', error);
+    throw error;
+  }
+
+  await supabase
+    .from('assessment_sessions')
+    .update({ 
+      coaching_recommended: true,
+      coaching_notes: reason
+    })
+    .eq('id', sessionId);
+
+  return data as CoachingRecommendation;
+};
+
+export const fetchCoachingRecommendations = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .select(`
+      *,
+      assessment_sessions(
+        id, 
+        status, 
+        score,
+        assessments(title, assessment_type)
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching coaching recommendations:', error);
+    throw error;
+  }
+
+  return data as CoachingRecommendation[];
+};
+
+export const acceptCoachingRecommendation = async (
+  recommendationId: string, 
+  coachId: string, 
+  scheduledDate: Date
+) => {
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .update({
+      status: 'accepted',
+      coach_id: coachId,
+      scheduled_date: scheduledDate.toISOString()
+    })
+    .eq('id', recommendationId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error accepting coaching recommendation:', error);
+    throw error;
+  }
+
+  return data as CoachingRecommendation;
+};
+
+export const fetchCoachAssignments = async (coachId: string) => {
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .select(`
+      *,
+      assessment_sessions(
+        id,
+        user_id,
+        status,
+        score,
+        feedback,
+        results,
+        assessments(title, assessment_type)
+      )
+    `)
+    .eq('coach_id', coachId)
+    .eq('status', 'accepted')
+    .order('scheduled_date', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching coach assignments:', error);
+    throw error;
+  }
+
+  return data;
 };

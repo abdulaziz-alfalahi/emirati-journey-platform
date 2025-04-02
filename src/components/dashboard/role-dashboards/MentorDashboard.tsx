@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, Users, BookOpen, BarChart4 } from 'lucide-react';
@@ -6,6 +5,7 @@ import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
+import { CoachDashboard } from '@/components/assessments/CoachDashboard';
 
 interface MentorDashboardProps {
   activeTab: string;
@@ -16,6 +16,7 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ activeTab }) => (
     <TabsList className="mb-4">
       <TabsTrigger value="overview"><Briefcase className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
       <TabsTrigger value="students"><Users className="h-4 w-4 mr-2" /> Students</TabsTrigger>
+      <TabsTrigger value="coaching"><Users className="h-4 w-4 mr-2" /> Coaching</TabsTrigger>
       <TabsTrigger value="resources"><BookOpen className="h-4 w-4 mr-2" /> Resources</TabsTrigger>
     </TabsList>
     
@@ -80,6 +81,10 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ activeTab }) => (
           </div>
         </CardContent>
       </Card>
+    </TabsContent>
+    
+    <TabsContent value="coaching" className="space-y-8">
+      <CoachDashboard />
     </TabsContent>
     
     <TabsContent value="resources" className="space-y-8">

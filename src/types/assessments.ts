@@ -36,6 +36,8 @@ export interface AssessmentSession {
     title: string;
     assessment_type: AssessmentType;
   };
+  coaching_recommended: boolean;
+  coaching_notes: string | null;
 }
 
 export type AssessmentFormValues = {
@@ -50,3 +52,14 @@ export type AssessmentFormValues = {
   eligibility_criteria: string;
   is_active: boolean;
 };
+
+export interface CoachingRecommendation {
+  id: string;
+  session_id: string;
+  user_id: string;
+  reason: string;
+  created_at: string;
+  status: 'pending' | 'accepted' | 'declined';
+  coach_id: string | null;
+  scheduled_date: string | null;
+}
