@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ApiKeyResponse } from './types';
 
@@ -8,7 +7,14 @@ import { ApiKeyResponse } from './types';
  */
 export const getAffindaApiKey = async (): Promise<string | null> => {
   try {
-    // Query for the affinda_api_key field
+    // First try to get from environment variable
+    const envApiKey = import.meta.env.VITE_AFFINDA_API_KEY;
+    if (envApiKey) {
+      console.log('Using Affinda API key from environment variables');
+      return envApiKey;
+    }
+    
+    // Then try to query for the affinda_api_key field
     const { data, error } = await supabase
       .from('api_keys')
       .select('affinda_api_key')
@@ -22,8 +28,14 @@ export const getAffindaApiKey = async (): Promise<string | null> => {
     // Handle the case where data might be null
     const apiKeyResponse = data as ApiKeyResponse | null;
     
+    if (!apiKeyResponse?.affinda_api_key) {
+      console.warn('No Affinda API key found in database');
+      // Return a fallback demo key for development purposes
+      return import.meta.env.VITE_FALLBACK_AFFINDA_API_KEY || null;
+    }
+    
     // Return the API key if found
-    return apiKeyResponse?.affinda_api_key || null;
+    return apiKeyResponse.affinda_api_key;
   } catch (error) {
     console.error('Exception fetching Affinda API key:', error);
     return null;
