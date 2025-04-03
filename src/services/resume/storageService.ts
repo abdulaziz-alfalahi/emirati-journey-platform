@@ -1,6 +1,32 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ResumeData } from '@/components/resume/types';
+import { Json } from '@/integrations/supabase/types';
+
+/**
+ * Safely converts ResumeData to Json type for storage
+ */
+function serializeResumeData(resumeData: Partial<ResumeData>): Json {
+  return JSON.parse(JSON.stringify(resumeData)) as Json;
+}
+
+/**
+ * Safely converts Json to ResumeData
+ */
+function deserializeResumeData(jsonData: Json): ResumeData | null {
+  try {
+    // Basic validation of required structure
+    const data = jsonData as any;
+    if (!data || typeof data !== 'object' || !data.personal) {
+      console.warn('Invalid resume data structure:', data);
+      return null;
+    }
+    return data as ResumeData;
+  } catch (error) {
+    console.error('Error deserializing resume data:', error);
+    return null;
+  }
+}
 
 /**
  * Save resume data to Supabase
@@ -52,6 +78,9 @@ export const saveResumeToSupabase = async (userId: string, resumeData: Partial<R
       resumeId = newResume.id;
     }
 
+    // Serialize the resume data to ensure it's JSON compatible
+    const jsonData = serializeResumeData(resumeData);
+
     // Check if resume_data exists for this resume
     const { data: existingData, error: dataFindError } = await supabase
       .from('resume_data')
@@ -68,7 +97,7 @@ export const saveResumeToSupabase = async (userId: string, resumeData: Partial<R
       // Update existing data
       const { error: updateError } = await supabase
         .from('resume_data')
-        .update({ data: resumeData })
+        .update({ data: jsonData })
         .eq('id', existingData.id);
 
       if (updateError) {
@@ -81,7 +110,7 @@ export const saveResumeToSupabase = async (userId: string, resumeData: Partial<R
         .from('resume_data')
         .insert({
           resume_id: resumeId,
-          data: resumeData
+          data: jsonData
         });
 
       if (insertError) {
@@ -111,7 +140,9 @@ export const getResumeFromSupabase = async (resumeId: string): Promise<ResumeDat
       .single();
     
     if (error) throw error;
-    return data?.data as ResumeData || null;
+    
+    if (!data || !data.data) return null;
+    return deserializeResumeData(data.data);
   } catch (error) {
     console.error('Error fetching resume data:', error);
     return null;
@@ -139,4 +170,13 @@ export const getUserResumes = async (userId: string): Promise<any[]> => {
     console.error('Error fetching user resumes:', error);
     return [];
   }
+};
+
+/**
+ * Get resume data by ID
+ * @param resumeId Resume ID
+ * @returns Promise resolving to resume data
+ */
+export const getResumeData = async (resumeId: string): Promise<ResumeData | null> => {
+  return getResumeFromSupabase(resumeId);
 };
