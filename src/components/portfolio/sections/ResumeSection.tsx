@@ -57,7 +57,10 @@ const ResumeSection: React.FC<ResumeSectionProps> = ({ resumeData }) => {
           Resume
         </CardTitle>
         <CardDescription>
-          Last updated: {resumeData.updatedAt ? formatDate(new Date(resumeData.updatedAt)) : 'N/A'}
+          {/* Use metadata.lastUpdated instead of updatedAt */}
+          Last updated: {resumeData.metadata?.lastUpdated 
+            ? formatDate(new Date(resumeData.metadata.lastUpdated)) 
+            : 'N/A'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -80,9 +83,10 @@ const ResumeSection: React.FC<ResumeSectionProps> = ({ resumeData }) => {
                 )}
               </div>
             </div>
-            {personal.summary && (
+            {/* Use resumeData.summary instead of personal.summary */}
+            {resumeData.summary && (
               <div className="mt-4">
-                <p className="text-sm line-clamp-3">{personal.summary}</p>
+                <p className="text-sm line-clamp-3">{resumeData.summary}</p>
               </div>
             )}
           </div>
@@ -92,7 +96,8 @@ const ResumeSection: React.FC<ResumeSectionProps> = ({ resumeData }) => {
           <div className="space-y-2">
             <h3 className="font-medium">Current/Latest Position</h3>
             <div className="bg-muted/40 p-4 rounded-md">
-              <p className="font-medium">{latestJob.title}</p>
+              {/* Use position instead of title */}
+              <p className="font-medium">{latestJob.position}</p>
               <p className="text-sm">{latestJob.company}</p>
               <p className="text-xs text-muted-foreground">
                 {latestJob.startDate && formatDate(new Date(latestJob.startDate))}
