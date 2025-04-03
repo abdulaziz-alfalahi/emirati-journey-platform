@@ -1,158 +1,142 @@
 
-import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
+import { ResumeData } from '@/components/resume/types';
 
 /**
- * Save parsed resume data to Supabase
+ * Save resume data to Supabase
  * @param userId User ID
  * @param resumeData Resume data to save
  * @returns Promise resolving to resume ID
  */
-export const saveResumeToSupabase = async (
-  userId: string,
-  resumeData: Partial<ResumeData>,
-): Promise<string> => {
+export const saveResumeToSupabase = async (userId: string, resumeData: Partial<ResumeData>): Promise<string> => {
   try {
-    // First, create or get an existing resume for the user
-    const resumeTitle = resumeData.personal?.fullName ? 
-      `${resumeData.personal.fullName}'s Resume` : 'My Resume';
-    
-    const { data: resumeRecord, error: resumeError } = await supabase
+    // Check if user already has a resume
+    const { data: existingResume, error: findError } = await supabase
       .from('resumes')
-      .insert({
-        user_id: userId,
-        title: resumeTitle,
-        template_id: 'professional',
-        theme: 'classic'
-      })
       .select('id')
-      .single();
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    if (resumeError) {
-      throw resumeError;
+    let resumeId: string;
+
+    if (findError) {
+      console.error('Error checking for existing resume:', findError);
+      throw new Error('Failed to check for existing resume');
     }
 
-    const resumeId = resumeRecord.id;
+    if (existingResume?.id) {
+      // Use existing resume
+      resumeId = existingResume.id;
+    } else {
+      // Create new resume
+      const { data: newResume, error: createError } = await supabase
+        .from('resumes')
+        .insert({
+          user_id: userId,
+          title: 'My Resume',
+          template_id: 'default',
+          theme: 'classic'
+        })
+        .select('id')
+        .single();
 
-    // Save resume data
-    const { error: dataError } = await supabase
+      if (createError) {
+        console.error('Error creating resume:', createError);
+        throw new Error('Failed to create resume');
+      }
+
+      if (!newResume) {
+        throw new Error('Failed to create resume: No ID returned');
+      }
+
+      resumeId = newResume.id;
+    }
+
+    // Check if resume_data exists for this resume
+    const { data: existingData, error: dataFindError } = await supabase
       .from('resume_data')
-      .insert({
-        resume_id: resumeId,
-        data: resumeData as any
-      });
+      .select('id')
+      .eq('resume_id', resumeId)
+      .maybeSingle();
 
-    if (dataError) {
-      throw dataError;
+    if (dataFindError) {
+      console.error('Error checking for existing resume data:', dataFindError);
+      throw new Error('Failed to check for existing resume data');
+    }
+
+    if (existingData?.id) {
+      // Update existing data
+      const { error: updateError } = await supabase
+        .from('resume_data')
+        .update({ data: resumeData })
+        .eq('id', existingData.id);
+
+      if (updateError) {
+        console.error('Error updating resume data:', updateError);
+        throw new Error('Failed to update resume data');
+      }
+    } else {
+      // Insert new data
+      const { error: insertError } = await supabase
+        .from('resume_data')
+        .insert({
+          resume_id: resumeId,
+          data: resumeData
+        });
+
+      if (insertError) {
+        console.error('Error inserting resume data:', insertError);
+        throw new Error('Failed to insert resume data');
+      }
     }
 
     return resumeId;
   } catch (error) {
     console.error('Error saving resume to Supabase:', error);
-    throw new Error(`Failed to save resume: ${error instanceof Error ? error.message : String(error)}`);
+    throw error;
   }
 };
 
 /**
- * Get resume data by ID
+ * Get resume data from Supabase
  * @param resumeId Resume ID
  * @returns Promise resolving to resume data
  */
-export const getResumeData = async (resumeId: string): Promise<Partial<ResumeData> | null> => {
+export const getResumeFromSupabase = async (resumeId: string): Promise<ResumeData | null> => {
   try {
     const { data, error } = await supabase
       .from('resume_data')
       .select('data')
       .eq('resume_id', resumeId)
       .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return data?.data as Partial<ResumeData> | null;
+    
+    if (error) throw error;
+    return data?.data as ResumeData || null;
   } catch (error) {
     console.error('Error fetching resume data:', error);
-    throw new Error(`Failed to fetch resume data: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
   }
 };
 
 /**
  * Get all resumes for a user
+ * @param userId User ID
+ * @returns Promise resolving to array of resumes
  */
 export const getUserResumes = async (userId: string): Promise<any[]> => {
   try {
     const { data, error } = await supabase
       .from('resumes')
       .select(`
-        id, 
-        title, 
-        template_id, 
-        theme, 
-        created_at, 
-        updated_at
+        *,
+        resume_data:resume_data(data)
       `)
-      .eq('user_id', userId)
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
+      .eq('user_id', userId);
+    
+    if (error) throw error;
     return data || [];
   } catch (error) {
     console.error('Error fetching user resumes:', error);
-    throw new Error(`Failed to fetch resumes: ${error instanceof Error ? error.message : String(error)}`);
-  }
-};
-
-/**
- * Update existing resume data
- */
-export const updateResumeData = async (
-  resumeId: string, 
-  data: Partial<ResumeData>
-): Promise<void> => {
-  try {
-    // Find existing resume data record
-    const { data: existingData, error: checkError } = await supabase
-      .from('resume_data')
-      .select('id')
-      .eq('resume_id', resumeId)
-      .maybeSingle();
-
-    if (checkError) {
-      throw checkError;
-    }
-
-    if (existingData) {
-      // Update existing record
-      const { error: updateError } = await supabase
-        .from('resume_data')
-        .update({
-          data: data as any,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingData.id);
-
-      if (updateError) {
-        throw updateError;
-      }
-    } else {
-      // Create new record
-      const { error: insertError } = await supabase
-        .from('resume_data')
-        .insert({
-          resume_id: resumeId,
-          data: data as any
-        });
-
-      if (insertError) {
-        throw insertError;
-      }
-    }
-  } catch (error) {
-    console.error('Error updating resume data:', error);
-    throw new Error(`Failed to update resume: ${error instanceof Error ? error.message : String(error)}`);
+    return [];
   }
 };

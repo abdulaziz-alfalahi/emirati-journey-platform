@@ -6,6 +6,7 @@ import { createAffindaClient } from './affindaClient';
 import { getAffindaApiKey } from './apiKeyService';
 import { mapAffindaResponseToResumeData } from './dataMappers';
 import { AffindaResponseData, ParsingResult } from './types';
+import { saveResumeToSupabase } from './storageService';
 
 /**
  * Parse resume using Affinda API
