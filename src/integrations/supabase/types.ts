@@ -244,6 +244,86 @@ export type Database = {
         }
         Relationships: []
       }
+      career_path_stages: {
+        Row: {
+          career_path_id: string
+          created_at: string
+          description: string | null
+          duration: string | null
+          icon: string | null
+          id: string
+          order_index: number
+          requirements: string[] | null
+          skills: string[] | null
+          stage_type: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          career_path_id: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          icon?: string | null
+          id?: string
+          order_index: number
+          requirements?: string[] | null
+          skills?: string[] | null
+          stage_type: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          career_path_id?: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          icon?: string | null
+          id?: string
+          order_index?: number
+          requirements?: string[] | null
+          skills?: string[] | null
+          stage_type?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_path_stages_career_path_id_fkey"
+            columns: ["career_path_id"]
+            isOneToOne: false
+            referencedRelation: "career_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      career_paths: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          industry: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       coaching_recommendations: {
         Row: {
           coach_id: string | null
@@ -711,6 +791,48 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      user_career_paths: {
+        Row: {
+          career_path_id: string
+          current_stage_id: string | null
+          id: string
+          started_at: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          career_path_id: string
+          current_stage_id?: string | null
+          id?: string
+          started_at?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          career_path_id?: string
+          current_stage_id?: string | null
+          id?: string
+          started_at?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_career_paths_career_path_id_fkey"
+            columns: ["career_path_id"]
+            isOneToOne: false
+            referencedRelation: "career_paths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_career_paths_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "career_path_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
