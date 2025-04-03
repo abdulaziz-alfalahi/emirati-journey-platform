@@ -288,6 +288,119 @@ export type Database = {
           },
         ]
       }
+      internship_applications: {
+        Row: {
+          id: string
+          internship_id: string
+          notes: string | null
+          status: string
+          student_id: string
+          submitted_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          internship_id: string
+          notes?: string | null
+          status?: string
+          student_id: string
+          submitted_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          internship_id?: string
+          notes?: string | null
+          status?: string
+          student_id?: string
+          submitted_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internship_applications_internship_id_fkey"
+            columns: ["internship_id"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      internships: {
+        Row: {
+          application_deadline: string
+          company: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string
+          currency: string | null
+          department: string | null
+          description: string
+          education_level: string | null
+          end_date: string | null
+          id: string
+          industry: string
+          is_active: boolean
+          is_paid: boolean
+          location: string
+          requirements: string[] | null
+          skills_required: string[] | null
+          start_date: string | null
+          stipend_amount: number | null
+          title: string
+          website_url: string | null
+        }
+        Insert: {
+          application_deadline: string
+          company: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by: string
+          currency?: string | null
+          department?: string | null
+          description: string
+          education_level?: string | null
+          end_date?: string | null
+          id?: string
+          industry: string
+          is_active?: boolean
+          is_paid?: boolean
+          location: string
+          requirements?: string[] | null
+          skills_required?: string[] | null
+          start_date?: string | null
+          stipend_amount?: number | null
+          title: string
+          website_url?: string | null
+        }
+        Update: {
+          application_deadline?: string
+          company?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string | null
+          department?: string | null
+          description?: string
+          education_level?: string | null
+          end_date?: string | null
+          id?: string
+          industry?: string
+          is_active?: boolean
+          is_paid?: boolean
+          location?: string
+          requirements?: string[] | null
+          skills_required?: string[] | null
+          start_date?: string | null
+          stipend_amount?: number | null
+          title?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       job_descriptions: {
         Row: {
           application_deadline: string | null

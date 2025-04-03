@@ -1,10 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { InternshipsCreate } from './InternshipsCreate';
 import { InternshipWithApplications } from '@/types/internships';
-import { getInternshipsWithApplicationCounts } from '@/services/internshipService';
+import { getInternshipsWithApplicationCounts, updateInternshipStatus } from '@/services/internshipService';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,11 +21,7 @@ export const InternshipsManage: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchInternships();
-  }, [user]);
-
-  const fetchInternships = async () => {
+  const fetchInternships = useCallback(async () => {
     if (!user) return;
 
     setIsLoading(true);
@@ -42,7 +38,11 @@ export const InternshipsManage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, toast]);
+
+  useEffect(() => {
+    fetchInternships();
+  }, [fetchInternships]);
 
   const handleSuccess = () => {
     setDialogOpen(false);
@@ -54,11 +54,30 @@ export const InternshipsManage: React.FC = () => {
   };
 
   const toggleInternshipStatus = async (internship: InternshipWithApplications) => {
-    // In a real implementation, this would call an API endpoint to update the status
-    toast({
-      title: internship.is_active ? "Internship Deactivated" : "Internship Activated",
-      description: `${internship.title} has been ${internship.is_active ? 'deactivated' : 'activated'}`
-    });
+    try {
+      await updateInternshipStatus(internship.id, !internship.is_active);
+      
+      // Update local state
+      setInternships(prev => 
+        prev.map(item => 
+          item.id === internship.id 
+            ? { ...item, is_active: !item.is_active } 
+            : item
+        )
+      );
+      
+      toast({
+        title: internship.is_active ? "Internship Deactivated" : "Internship Activated",
+        description: `${internship.title} has been ${internship.is_active ? 'deactivated' : 'activated'}`
+      });
+    } catch (error) {
+      console.error("Error toggling internship status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update internship status",
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {

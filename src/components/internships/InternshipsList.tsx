@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Internship } from '@/types/internships';
-import { getInternships } from '@/services/internshipService';
+import { getInternships, applyForInternship } from '@/services/internshipService';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Briefcase, Calendar, MapPin, Clock, CreditCard } from 'lucide-react';
@@ -24,32 +24,33 @@ interface InternshipsListProps {
 export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [applying, setApplying] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const fetchInternships = async () => {
-      setIsLoading(true);
-      try {
-        const data = await getInternships(filters);
-        setInternships(data);
-      } catch (error) {
-        console.error('Error fetching internships:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load internships. Please try again later.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInternships();
+  const fetchInternships = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getInternships(filters);
+      setInternships(data);
+    } catch (error) {
+      console.error('Error fetching internships:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load internships. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, [filters, toast]);
 
-  const handleApply = (internshipId: string) => {
+  useEffect(() => {
+    fetchInternships();
+  }, [fetchInternships]);
+
+  const handleApply = async (internshipId: string) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -59,12 +60,24 @@ export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => 
       return;
     }
 
-    // In a real implementation, this would navigate to an application page
-    // or open a modal to submit an application
-    toast({
-      title: "Application started",
-      description: "You can now complete your application for this internship."
-    });
+    setApplying(internshipId);
+    try {
+      await applyForInternship(internshipId, user.id);
+      
+      toast({
+        title: "Application submitted",
+        description: "Your application has been submitted successfully."
+      });
+    } catch (error) {
+      console.error('Error applying for internship:', error);
+      toast({
+        title: "Application failed",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setApplying(null);
+    }
   };
 
   if (isLoading) {
@@ -181,9 +194,13 @@ export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => 
               size="sm"
               onClick={() => handleApply(internship.id)}
               className="text-xs md:text-sm"
-              disabled={new Date(internship.application_deadline) < new Date()}
+              disabled={
+                applying === internship.id || 
+                new Date(internship.application_deadline) < new Date()
+              }
             >
-              {new Date(internship.application_deadline) < new Date() ? "Closed" : "Apply"}
+              {applying === internship.id ? "Applying..." : 
+               new Date(internship.application_deadline) < new Date() ? "Closed" : "Apply"}
             </Button>
           </CardFooter>
         </Card>

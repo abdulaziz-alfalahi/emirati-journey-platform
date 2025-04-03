@@ -1,176 +1,132 @@
 
 import { Internship, InternshipApplication, InternshipWithApplications } from '@/types/internships';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock internships data
-const mockInternships: Internship[] = [
-  {
-    id: '1',
-    title: 'Software Development Intern',
-    description: 'Join our tech team for a hands-on experience in software development. You will work on real projects using modern technologies.',
-    company: 'TechInnovate LLC',
-    location: 'Dubai',
-    start_date: '2024-06-01T00:00:00Z',
-    end_date: '2024-08-31T00:00:00Z',
-    application_deadline: '2024-05-15T23:59:59Z',
-    is_paid: true,
-    stipend_amount: 3000,
-    currency: 'AED',
-    requirements: ['Currently enrolled in Computer Science or related field', 'Basic programming knowledge', 'Good communication skills'],
-    skills_required: ['JavaScript', 'HTML/CSS', 'React basics'],
-    industry: 'Technology',
-    department: 'Engineering',
-    education_level: 'Undergraduate',
-    contact_email: 'internships@techinnovate.ae',
-    contact_phone: '+971501234567',
-    website_url: 'https://techinnovate.ae/careers/internships',
-    is_active: true,
-    created_at: '2024-01-15T08:00:00Z',
-    created_by: 'user-1'
-  },
-  {
-    id: '2',
-    title: 'Marketing Intern',
-    description: 'Exciting opportunity to learn digital marketing strategies in a fast-paced environment.',
-    company: 'Global Marketing Solutions',
-    location: 'Abu Dhabi',
-    start_date: '2024-07-01T00:00:00Z',
-    end_date: '2024-09-30T00:00:00Z',
-    application_deadline: '2024-06-01T23:59:59Z',
-    is_paid: true,
-    stipend_amount: 2500,
-    currency: 'AED',
-    requirements: ['Marketing, Business, or Communications student', 'Creative mindset', 'Team player'],
-    skills_required: ['Social media familiarity', 'Basic graphic design', 'Content writing'],
-    industry: 'Marketing',
-    department: 'Digital Marketing',
-    education_level: 'Undergraduate',
-    contact_email: 'careers@gms.ae',
-    website_url: 'https://gms.ae/internships',
-    is_active: true,
-    created_at: '2024-01-20T10:30:00Z',
-    created_by: 'user-2'
-  },
-  {
-    id: '3',
-    title: 'Finance Intern',
-    description: 'Learn about financial analysis and reporting in the banking sector.',
-    company: 'Emirates Investment Bank',
-    location: 'Dubai Financial District',
-    start_date: '2024-06-15T00:00:00Z',
-    end_date: '2024-09-15T00:00:00Z',
-    application_deadline: '2024-05-01T23:59:59Z',
-    is_paid: true,
-    stipend_amount: 4000,
-    currency: 'AED',
-    requirements: ['Finance or Accounting major', 'Minimum 3.0 GPA', 'Analytical skills'],
-    skills_required: ['Excel', 'Financial modeling basics', 'Attention to detail'],
-    industry: 'Banking',
-    department: 'Finance',
-    education_level: 'Undergraduate/Graduate',
-    contact_email: 'hr@eib.ae',
-    contact_phone: '+97142008000',
-    website_url: 'https://eib.ae/careers/internship-program',
-    is_active: true,
-    created_at: '2024-01-10T14:45:00Z',
-    created_by: 'user-3'
-  }
-];
-
-// Mock applications data
-const mockApplications: InternshipApplication[] = [
-  {
-    id: 'app-1',
-    internship_id: '1',
-    student_id: 'student-1',
-    status: 'pending',
-    submitted_at: '2024-02-15T14:30:00Z',
-    notes: 'Interested in frontend development'
-  },
-  {
-    id: 'app-2',
-    internship_id: '2',
-    student_id: 'student-1',
-    status: 'approved',
-    submitted_at: '2024-01-10T09:45:00Z',
-    updated_at: '2024-01-15T16:20:00Z'
-  },
-  {
-    id: 'app-3',
-    internship_id: '3',
-    student_id: 'student-2',
-    status: 'rejected',
-    submitted_at: '2024-02-01T16:20:00Z',
-    updated_at: '2024-02-05T11:15:00Z',
-    notes: 'Insufficient qualifications'
-  }
-];
-
-// Helper functions to simulate database queries
+/**
+ * Fetch internships with optional filtering
+ */
 export const getInternships = async (filters?: {
   industry?: string[];
   isPaid?: boolean;
   location?: string[];
   search?: string;
 }): Promise<Internship[]> => {
-  let filtered = [...mockInternships];
+  let query = supabase
+    .from('internships')
+    .select('*')
+    .eq('is_active', true);
   
   if (filters) {
     // Filter by industry
     if (filters.industry && filters.industry.length > 0) {
-      filtered = filtered.filter(i => filters.industry!.includes(i.industry));
+      query = query.in('industry', filters.industry);
     }
     
     // Filter by paid status
     if (filters.isPaid !== undefined) {
-      filtered = filtered.filter(i => i.is_paid === filters.isPaid);
+      query = query.eq('is_paid', filters.isPaid);
     }
     
     // Filter by location
     if (filters.location && filters.location.length > 0) {
-      filtered = filtered.filter(i => {
-        return filters.location!.some(loc => i.location.toLowerCase().includes(loc.toLowerCase()));
-      });
+      // Since location is a text field, we need to use a different approach
+      const locationFilters = filters.location.map(loc => `location.ilike.%${loc}%`);
+      query = query.or(locationFilters.join(','));
     }
     
     // Filter by search query
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(
-        i => i.title.toLowerCase().includes(searchLower) || 
-             i.description.toLowerCase().includes(searchLower) ||
-             i.company.toLowerCase().includes(searchLower)
-      );
+      const searchTerm = `%${filters.search.toLowerCase()}%`;
+      query = query.or(`title.ilike.${searchTerm},description.ilike.${searchTerm},company.ilike.${searchTerm}`);
     }
   }
   
-  return filtered;
-};
-
-export const getInternshipById = async (id: string): Promise<Internship | null> => {
-  return mockInternships.find(i => i.id === id) || null;
-};
-
-export const getInternshipsByCompany = async (userId: string): Promise<Internship[]> => {
-  return mockInternships.filter(i => i.created_by === userId);
-};
-
-export const getApplicationsByUser = async (userId: string): Promise<InternshipApplication[]> => {
-  const applications = mockApplications.filter(a => a.student_id === userId);
+  const { data, error } = await query;
   
-  // Add internship details to each application
-  return applications.map(app => {
-    const internship = mockInternships.find(i => i.id === app.internship_id);
-    return {
-      ...app,
-      internship
-    };
-  });
+  if (error) {
+    console.error('Error fetching internships:', error);
+    throw error;
+  }
+  
+  return data || [];
 };
 
+/**
+ * Fetch internships created by a specific user
+ */
+export const getInternshipsByCompany = async (userId: string): Promise<Internship[]> => {
+  const { data, error } = await supabase
+    .from('internships')
+    .select('*')
+    .eq('created_by', userId);
+  
+  if (error) {
+    console.error('Error fetching user internships:', error);
+    throw error;
+  }
+  
+  return data || [];
+};
+
+/**
+ * Get a specific internship by ID
+ */
+export const getInternshipById = async (id: string): Promise<Internship | null> => {
+  const { data, error } = await supabase
+    .from('internships')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error fetching internship:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+/**
+ * Get all applications for a specific user
+ */
+export const getApplicationsByUser = async (userId: string): Promise<InternshipApplication[]> => {
+  // First get the applications with internship details
+  const { data: applications, error: appError } = await supabase
+    .from('internship_applications')
+    .select(`
+      *,
+      internship:internship_id (*)
+    `)
+    .eq('student_id', userId);
+  
+  if (appError) {
+    console.error('Error fetching user applications:', appError);
+    throw appError;
+  }
+  
+  return applications || [];
+};
+
+/**
+ * Get all applications for a specific internship
+ */
 export const getApplicationsByInternship = async (internshipId: string): Promise<InternshipApplication[]> => {
-  return mockApplications.filter(a => a.internship_id === internshipId);
+  const { data, error } = await supabase
+    .from('internship_applications')
+    .select('*')
+    .eq('internship_id', internshipId);
+  
+  if (error) {
+    console.error('Error fetching internship applications:', error);
+    throw error;
+  }
+  
+  return data || [];
 };
 
+/**
+ * Count applications by status for a specific internship
+ */
 export const countApplicationsByStatus = async (internshipId: string): Promise<{
   pending: number;
   approved: number;
@@ -178,7 +134,17 @@ export const countApplicationsByStatus = async (internshipId: string): Promise<{
   withdrawn: number;
   total: number;
 }> => {
-  const applications = mockApplications.filter(a => a.internship_id === internshipId);
+  const { data, error } = await supabase
+    .from('internship_applications')
+    .select('status')
+    .eq('internship_id', internshipId);
+  
+  if (error) {
+    console.error('Error counting applications:', error);
+    throw error;
+  }
+  
+  const applications = data || [];
   
   return {
     pending: applications.filter(a => a.status === 'pending').length,
@@ -189,58 +155,81 @@ export const countApplicationsByStatus = async (internshipId: string): Promise<{
   };
 };
 
+/**
+ * Create a new internship
+ */
 export const createInternship = async (internship: Omit<Internship, 'id' | 'created_at'>): Promise<Internship> => {
-  const newInternship: Internship = {
-    ...internship,
-    id: `internship-${Date.now()}`,
-    created_at: new Date().toISOString(),
-    is_active: internship.is_active !== undefined ? internship.is_active : true
-  };
+  const { data, error } = await supabase
+    .from('internships')
+    .insert([internship])
+    .select()
+    .single();
   
-  // In a real app, this would add to the database
-  mockInternships.push(newInternship);
-  return newInternship;
+  if (error) {
+    console.error('Error creating internship:', error);
+    throw error;
+  }
+  
+  return data;
 };
 
+/**
+ * Apply for an internship
+ */
 export const applyForInternship = async (internshipId: string, userId: string, notes?: string): Promise<InternshipApplication> => {
-  const newApplication: InternshipApplication = {
-    id: `app-${Date.now()}`,
-    internship_id: internshipId,
-    student_id: userId,
-    status: 'pending',
-    submitted_at: new Date().toISOString(),
-    notes
-  };
+  const { data, error } = await supabase
+    .from('internship_applications')
+    .insert([
+      {
+        internship_id: internshipId,
+        student_id: userId,
+        status: 'pending',
+        notes
+      }
+    ])
+    .select()
+    .single();
   
-  // In a real app, this would add to the database
-  mockApplications.push(newApplication);
-  return newApplication;
+  if (error) {
+    console.error('Error applying for internship:', error);
+    throw error;
+  }
+  
+  return data;
 };
 
+/**
+ * Update an application status
+ */
 export const updateApplicationStatus = async (
   applicationId: string, 
   status: 'pending' | 'approved' | 'rejected' | 'withdrawn'
 ): Promise<InternshipApplication | null> => {
-  const applicationIndex = mockApplications.findIndex(a => a.id === applicationId);
+  const { data, error } = await supabase
+    .from('internship_applications')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', applicationId)
+    .select()
+    .maybeSingle();
   
-  if (applicationIndex === -1) {
-    return null;
+  if (error) {
+    console.error('Error updating application status:', error);
+    throw error;
   }
   
-  mockApplications[applicationIndex] = {
-    ...mockApplications[applicationIndex],
-    status,
-    updated_at: new Date().toISOString()
-  };
-  
-  return mockApplications[applicationIndex];
+  return data;
 };
 
+/**
+ * Get internships with application counts
+ */
 export const getInternshipsWithApplicationCounts = async (userId: string): Promise<InternshipWithApplications[]> => {
-  const userInternships = await getInternshipsByCompany(userId);
+  // First get all the internships
+  const internships = await getInternshipsByCompany(userId);
   
-  return Promise.all(
-    userInternships.map(async internship => {
+  // Then get counts for each internship
+  const internshipsWithCounts = await Promise.all(
+    internships.map(async (internship) => {
       const counts = await countApplicationsByStatus(internship.id);
       return {
         ...internship,
@@ -248,4 +237,25 @@ export const getInternshipsWithApplicationCounts = async (userId: string): Promi
       };
     })
   );
+  
+  return internshipsWithCounts;
+};
+
+/**
+ * Update an internship's active status
+ */
+export const updateInternshipStatus = async (internshipId: string, isActive: boolean): Promise<Internship | null> => {
+  const { data, error } = await supabase
+    .from('internships')
+    .update({ is_active: isActive })
+    .eq('id', internshipId)
+    .select()
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error updating internship status:', error);
+    throw error;
+  }
+  
+  return data;
 };

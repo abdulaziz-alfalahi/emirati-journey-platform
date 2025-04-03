@@ -44,22 +44,22 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
     }
     
     try {
-      // Ensure all required fields are present
+      // Transform the form values to match our database schema
       const internshipData = {
         title: values.title,
         company: values.company,
         location: values.location,
         description: values.description,
         industry: values.industry,
-        department: values.department,
+        department: values.department || undefined,
         start_date: values.start_date?.toISOString(),
         end_date: values.end_date?.toISOString(),
         application_deadline: values.application_deadline.toISOString(),
         is_paid: values.is_paid,
-        stipend_amount: values.stipend_amount,
+        stipend_amount: values.stipend_amount ? parseFloat(values.stipend_amount as string) : undefined,
         currency: values.currency,
-        requirements: values.requirements,
-        skills_required: values.skills_required,
+        requirements: values.requirements || [],
+        skills_required: values.skills_required || [],
         education_level: values.education_level,
         contact_email: values.contact_email || undefined,
         contact_phone: values.contact_phone,
