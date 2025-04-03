@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ const InterviewSessionCard: React.FC<InterviewSessionCardProps> = ({
     }).format(date);
   };
   
-  const handleCancel = async () => {
+  const handleCancel = useCallback(async () => {
     try {
       await updateSession(session.id, { status: 'cancelled' });
       onStatusChange();
@@ -48,7 +48,7 @@ const InterviewSessionCard: React.FC<InterviewSessionCardProps> = ({
         variant: "destructive",
       });
     }
-  };
+  }, [session.id, onStatusChange, toast]);
   
   const getStatusBadge = () => {
     const statusConfig = {

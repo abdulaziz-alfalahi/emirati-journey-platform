@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Layout from '@/components/layout/Layout';
 import { useToast } from '@/components/ui/use-toast';
@@ -16,15 +16,18 @@ const InterviewsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch user's interview sessions
+  // Fetch user's interview sessions with useCallback to prevent unnecessary refetching
+  const fetchSessions = useCallback(async () => {
+    if (!user?.id) return [];
+    const allSessions = await fetchAdvisorySessions(user.id);
+    // Filter only interview sessions
+    return allSessions.filter(session => session.is_interview === true);
+  }, [user?.id]);
+
+  // Use the stable callback in useQuery
   const { data: sessions, isLoading, error, refetch } = useQuery({
     queryKey: ['interviewSessions', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const allSessions = await fetchAdvisorySessions(user.id);
-      // Filter only interview sessions
-      return allSessions.filter(session => session.is_interview === true);
-    },
+    queryFn: fetchSessions,
     enabled: !!user?.id,
   });
 
@@ -38,13 +41,16 @@ const InterviewsPage = () => {
   const cancelledSessions = getSessionsByStatus("cancelled");
   const inProgressSessions = getSessionsByStatus("in_progress");
 
-  if (error) {
-    toast({
-      title: "Error",
-      description: "Failed to load interview sessions",
-      variant: "destructive",
-    });
-  }
+  // Show error toast only once when error occurs
+  React.useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load interview sessions",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
   const renderSessionsList = (sessionsList: AdvisorySession[]) => {
     if (sessionsList.length === 0) {
@@ -61,7 +67,7 @@ const InterviewsPage = () => {
           <InterviewSessionCard 
             key={session.id} 
             session={session}
-            onStatusChange={() => refetch()} 
+            onStatusChange={refetch} 
           />
         ))}
       </div>
