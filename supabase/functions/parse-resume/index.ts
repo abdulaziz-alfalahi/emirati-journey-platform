@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { AffindaAPI, AffindaCredential } from "https://esm.sh/@affinda/affinda@3.0.0";
@@ -32,7 +31,18 @@ serve(async (req)  => {
     console.log('Using Affinda API key from environment:', affindaApiKey ? 'Key found' : 'Key not found');
     
     // Get the file data from the request
-    const { fileData, fileName, fileType } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (jsonError) {
+      console.error('Error parsing request JSON:', jsonError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    const { fileData, fileName, fileType } = requestBody;
     
     if (!fileData) {
       console.error('No file data provided in request');
@@ -51,6 +61,11 @@ serve(async (req)  => {
     console.log('File data length:', fileData.length);
     
     try {
+      // Validate the base64 content format
+      if (!fileData.includes('base64')) {
+        throw new Error('Invalid file data format - base64 encoding required');
+      }
+      
       const base64Content = fileData.split(',')[1]; // Remove the data:application/pdf;base64, part
       
       if (!base64Content) {
@@ -60,7 +75,7 @@ serve(async (req)  => {
       // Create Affinda document request
       const response = await client.createDocument({
         file: base64Content,
-        fileName: fileName,
+        fileName: fileName || 'resume.pdf',
         collection: 'resumes',
         wait: true // Wait for the processing to complete
       });
