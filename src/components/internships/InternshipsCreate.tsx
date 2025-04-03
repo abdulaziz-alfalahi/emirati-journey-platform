@@ -56,7 +56,8 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
         end_date: values.end_date?.toISOString(),
         application_deadline: values.application_deadline.toISOString(),
         is_paid: values.is_paid,
-        stipend_amount: values.stipend_amount ? parseFloat(values.stipend_amount.toString()) : undefined, // Convert to string explicitly
+        // Fix type conversion issue by explicitly converting to string first
+        stipend_amount: values.stipend_amount ? parseFloat(values.stipend_amount.toString()) : undefined,
         currency: values.currency,
         requirements: values.requirements || [],
         skills_required: values.skills_required || [],

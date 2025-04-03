@@ -1,3 +1,3 @@
 
-// Export everything from careerPathService
+// Export everything from the careerPathService
 export * from '../careerPathService';

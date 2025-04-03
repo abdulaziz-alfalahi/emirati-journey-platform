@@ -1,15 +1,35 @@
-
+/**
+ * Career path service implementation
+ */
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  CareerPath, 
-  CareerPathStage, 
-  UserCareerPath, 
-  CareerPathWithStages,
-  UserCareerPathWithDetails 
-} from '@/types/careerPath';
+
+// Interface for career path data
+export interface CareerPath {
+  id: string;
+  title: string;
+  industry: string;
+  description?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+// Interface for career path stage data
+export interface CareerPathStage {
+  id: string;
+  title: string;
+  description?: string;
+  career_path_id: string;
+  order_index: number;
+  stage_type: 'education' | 'career';
+  skills?: string[];
+  requirements?: string[];
+  icon?: string;
+  duration?: string;
+}
 
 /**
  * Fetch all career paths
+ * @returns Promise resolving to array of career paths
  */
 export const getCareerPaths = async (): Promise<CareerPath[]> => {
   try {
@@ -22,51 +42,35 @@ export const getCareerPaths = async (): Promise<CareerPath[]> => {
     return data || [];
   } catch (error) {
     console.error('Error fetching career paths:', error);
-    throw error;
+    return [];
   }
 };
 
 /**
- * Fetch a specific career path by ID
+ * Get a career path by its ID
+ * @param id Career path ID
+ * @returns Promise resolving to career path or null if not found
  */
-export const getCareerPathById = async (id: string): Promise<CareerPathWithStages | null> => {
+export const getCareerPathById = async (id: string): Promise<CareerPath | null> => {
   try {
-    // Get the career path
-    const { data: careerPath, error: pathError } = await supabase
+    const { data, error } = await supabase
       .from('career_paths')
       .select('*')
       .eq('id', id)
       .single();
     
-    if (pathError) throw pathError;
-    
-    // Get the stages for this career path
-    const { data: stagesData, error: stagesError } = await supabase
-      .from('career_path_stages')
-      .select('*')
-      .eq('career_path_id', id)
-      .order('order_index');
-    
-    if (stagesError) throw stagesError;
-    
-    // Transform the stage types to match the expected union type
-    const stages = stagesData ? stagesData.map(stage => ({
-      ...stage,
-      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
-    } as CareerPathStage)) : [];
-    
-    return {
-      ...careerPath,
-      stages
-    };
+    if (error) throw error;
+    return data;
   } catch (error) {
-    console.error('Error fetching career path:', error);
-    throw error;
+    console.error(`Error fetching career path with ID ${id}:`, error);
+    return null;
   }
 };
 
 /**
- * Fetch all stages for a career path
+ * Get all stages for a career path
+ * @param careerPathId Career path ID
+ * @returns Promise resolving to array of career path stages
  */
 export const getCareerPathStages = async (careerPathId: string): Promise<CareerPathStage[]> => {
   try {
@@ -77,207 +81,162 @@ export const getCareerPathStages = async (careerPathId: string): Promise<CareerP
       .order('order_index');
     
     if (error) throw error;
-    
-    // Transform the stage types to match the expected union type
-    return data ? data.map(stage => ({
-      ...stage,
-      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
-    } as CareerPathStage)) : [];
-  } catch (error) {
-    console.error('Error fetching career path stages:', error);
-    throw error;
-  }
-};
-
-/**
- * Get a user's selected career path
- */
-export const getUserCareerPath = async (userId: string, careerPathId: string): Promise<UserCareerPathWithDetails | null> => {
-  try {
-    // Get the user career path entry
-    const { data: userCareerPath, error: userPathError } = await supabase
-      .from('user_career_paths')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('career_path_id', careerPathId)
-      .single();
-    
-    if (userPathError) {
-      if (userPathError.code === 'PGRST116') {
-        // No record found, return null
-        return null;
-      }
-      throw userPathError;
-    }
-    
-    // Get the career path
-    const careerPathWithStages = await getCareerPathById(careerPathId);
-    
-    if (!careerPathWithStages) return null;
-    
-    // Get the current stage if it exists
-    let currentStage = null;
-    if (userCareerPath.current_stage_id) {
-      currentStage = careerPathWithStages.stages.find(stage => stage.id === userCareerPath.current_stage_id) || null;
-    }
-    
-    return {
-      ...userCareerPath,
-      career_path: {
-        id: careerPathWithStages.id,
-        title: careerPathWithStages.title,
-        description: careerPathWithStages.description,
-        industry: careerPathWithStages.industry,
-        created_at: careerPathWithStages.created_at,
-        updated_at: careerPathWithStages.updated_at
-      },
-      current_stage: currentStage,
-      stages: careerPathWithStages.stages
-    };
-  } catch (error) {
-    console.error('Error fetching user career path:', error);
-    throw error;
-  }
-};
-
-/**
- * Get all career paths selected by a user
- */
-export const getUserCareerPaths = async (userId: string): Promise<UserCareerPath[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('user_career_paths')
-      .select(`
-        *,
-        career_path:career_path_id (*)
-      `)
-      .eq('user_id', userId);
-    
-    if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching user career paths:', error);
-    throw error;
+    console.error(`Error fetching stages for career path ${careerPathId}:`, error);
+    return [];
   }
 };
 
 /**
- * Select a career path for a user
+ * Create a new career path
+ * @param careerPath Career path data
+ * @returns Promise resolving to created career path ID
  */
-export const selectCareerPath = async (userId: string, careerPathId: string): Promise<UserCareerPath> => {
-  try {
-    // Get the first stage of the career path
-    const { data: firstStage, error: stageError } = await supabase
-      .from('career_path_stages')
-      .select('*')
-      .eq('career_path_id', careerPathId)
-      .order('order_index')
-      .limit(1)
-      .single();
-    
-    if (stageError) throw stageError;
-    
-    // Create the user career path entry
-    const { data, error } = await supabase
-      .from('user_career_paths')
-      .insert([
-        {
-          user_id: userId,
-          career_path_id: careerPathId,
-          current_stage_id: firstStage.id
-        }
-      ])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error selecting career path:', error);
-    throw error;
-  }
-};
-
-/**
- * Update a user's progress on a career path
- */
-export const updateUserCareerStage = async (userCareerPathId: string, stageId: string): Promise<UserCareerPath> => {
-  try {
-    const { data, error } = await supabase
-      .from('user_career_paths')
-      .update({ current_stage_id: stageId })
-      .eq('id', userCareerPathId)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error updating user career stage:', error);
-    throw error;
-  }
-};
-
-/**
- * Recommend career paths based on user skills (mock implementation)
- * In a real app, this would analyze user skills from their profile or resume
- */
-export const recommendCareerPaths = async (userId: string): Promise<CareerPath[]> => {
-  try {
-    // For now, just return all career paths
-    // In a real implementation, this would filter based on user skills and interests
-    return await getCareerPaths();
-  } catch (error) {
-    console.error('Error recommending career paths:', error);
-    throw error;
-  }
-};
-
-/**
- * Create a new career path (admin function)
- */
-export const createCareerPath = async (careerPath: Omit<CareerPath, 'id' | 'created_at' | 'updated_at'>): Promise<CareerPath> => {
+export const createCareerPath = async (careerPath: Omit<CareerPath, 'id' | 'created_at' | 'updated_at'>): Promise<string | null> => {
   try {
     const { data, error } = await supabase
       .from('career_paths')
-      .insert([careerPath])
-      .select()
+      .insert(careerPath)
+      .select('id')
       .single();
     
     if (error) throw error;
-    return data;
+    return data?.id || null;
   } catch (error) {
     console.error('Error creating career path:', error);
-    throw error;
+    return null;
   }
 };
 
 /**
- * Create a new career path stage (admin function)
+ * Update an existing career path
+ * @param id Career path ID
+ * @param careerPath Updated career path data
+ * @returns Promise resolving to boolean indicating success
  */
-export const createCareerPathStage = async (stage: Omit<CareerPathStage, 'id' | 'created_at' | 'updated_at'>): Promise<CareerPathStage> => {
+export const updateCareerPath = async (id: string, careerPath: Partial<CareerPath>): Promise<boolean> => {
   try {
-    // First ensure the stage_type is one of the valid values
-    const validatedStage = {
-      ...stage,
-      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
-    };
+    const { error } = await supabase
+      .from('career_paths')
+      .update(careerPath)
+      .eq('id', id);
     
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error(`Error updating career path ${id}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Delete a career path
+ * @param id Career path ID
+ * @returns Promise resolving to boolean indicating success
+ */
+export const deleteCareerPath = async (id: string): Promise<boolean> => {
+  try {
+    // First delete all stages associated with this career path
+    const { error: stagesError } = await supabase
+      .from('career_path_stages')
+      .delete()
+      .eq('career_path_id', id);
+    
+    if (stagesError) throw stagesError;
+    
+    // Then delete the career path itself
+    const { error } = await supabase
+      .from('career_paths')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error(`Error deleting career path ${id}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Create a new career path stage
+ * @param stage Career path stage data
+ * @returns Promise resolving to created stage ID
+ */
+export const createCareerPathStage = async (stage: Omit<CareerPathStage, 'id'>): Promise<string | null> => {
+  try {
     const { data, error } = await supabase
       .from('career_path_stages')
-      .insert([validatedStage])
-      .select()
+      .insert(stage)
+      .select('id')
       .single();
     
     if (error) throw error;
-    
-    // Transform the result to match the expected type
-    return {
-      ...data,
-      stage_type: data.stage_type === 'education' ? 'education' : 'career'
-    } as CareerPathStage;
+    return data?.id || null;
   } catch (error) {
     console.error('Error creating career path stage:', error);
-    throw error;
+    return null;
+  }
+};
+
+/**
+ * Update an existing career path stage
+ * @param id Stage ID
+ * @param stage Updated stage data
+ * @returns Promise resolving to boolean indicating success
+ */
+export const updateCareerPathStage = async (id: string, stage: Partial<CareerPathStage>): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('career_path_stages')
+      .update(stage)
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error(`Error updating career path stage ${id}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Delete a career path stage
+ * @param id Stage ID
+ * @returns Promise resolving to boolean indicating success
+ */
+export const deleteCareerPathStage = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('career_path_stages')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error(`Error deleting career path stage ${id}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Reorder career path stages
+ * @param stages Array of stage IDs in the new order
+ * @returns Promise resolving to boolean indicating success
+ */
+export const reorderCareerPathStages = async (stages: {id: string, order_index: number}[]): Promise<boolean> => {
+  try {
+    // Use upsert to update multiple records at once
+    const { error } = await supabase
+      .from('career_path_stages')
+      .upsert(stages, { onConflict: 'id' });
+    
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error reordering career path stages:', error);
+    return false;
   }
 };
