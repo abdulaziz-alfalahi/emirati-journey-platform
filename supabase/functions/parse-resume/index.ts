@@ -112,6 +112,8 @@ serve(async (req)  => {
           name: typeof language === 'string' ? language : language?.name || '',
           proficiency: 'Conversational'
         })),
+        projects: [],
+        certifications: [],
         metadata: {
           parsingMethod: 'affinda-api',
           parsedAt: new Date().toISOString(),

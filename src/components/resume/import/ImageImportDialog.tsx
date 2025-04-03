@@ -66,7 +66,38 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
         throw new Error('No data returned from resume parser');
       }
       
-      const parsedData = response.data;
+      // Handle the parsed data - making sure we have a complete ResumeData structure
+      // Create default empty values for required fields to satisfy TypeScript
+      const defaultData: ResumeData = {
+        personal: {
+          fullName: '',
+          jobTitle: '',
+          email: '',
+          phone: '',
+          location: ''
+        },
+        summary: '',
+        experience: [],
+        education: [],
+        skills: [],
+        languages: [],
+        certifications: [],
+        projects: [],
+        metadata: {
+          parsedAt: new Date().toISOString(),
+          parsingMethod: 'affinda-api'
+        }
+      };
+      
+      const parsedData = {
+        ...defaultData,
+        ...(response.data as Partial<ResumeData>),
+        // Make sure personal has at least the required fields
+        personal: {
+          ...defaultData.personal,
+          ...(response.data.personal || {})
+        }
+      };
       
       // Call the onImportComplete callback with the parsed data
       onImportComplete(parsedData);

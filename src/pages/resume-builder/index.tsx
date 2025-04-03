@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
-import { ResumeTemplate } from '@/components/resume/types';
+import { ResumeTemplate, ResumeData } from '@/components/resume/types';
 import { toast } from 'sonner';
 import { getResumeData } from '@/services/resumeParserService';
 
@@ -15,6 +15,28 @@ const defaultTemplate: ResumeTemplate = {
   name: 'Professional',
   description: 'A clean, professional layout ideal for corporate positions',
   sections: ['personal', 'summary', 'experience', 'education', 'skills', 'languages', 'certifications']
+};
+
+// Default empty ResumeData for use when data is partial
+const emptyResumeData: ResumeData = {
+  personal: {
+    fullName: '',
+    jobTitle: '',
+    email: '',
+    phone: '',
+    location: '',
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+  languages: [],
+  certifications: [],
+  projects: [],
+  metadata: {
+    parsingMethod: 'manual',
+    parsedAt: new Date().toISOString(),
+  }
 };
 
 const ResumeBuilderPage = () => {
@@ -39,7 +61,16 @@ const ResumeBuilderPage = () => {
         try {
           const data = await getResumeData(resumeId);
           if (data) {
-            setResumeData(data);
+            // Ensure we provide complete ResumeData by merging with empty data
+            setResumeData({
+              ...emptyResumeData,
+              ...data,
+              // If personal is partial, merge with empty personal
+              personal: {
+                ...emptyResumeData.personal,
+                ...(data.personal || {})
+              }
+            });
             toast.success("Resume Loaded", {
               description: "Your resume data has been loaded successfully."
             });

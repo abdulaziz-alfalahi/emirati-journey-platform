@@ -1,6 +1,8 @@
+
 import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { AffindaAPI, AffindaCredential } from '@affinda/affinda';
 
 /**
  * Parse resume and save it to Supabase
@@ -41,11 +43,12 @@ export const parseAndSaveResume = async (
       throw new Error(response.error.message || 'Failed to parse resume');
     }
     
-    const parsedData = response.data as Partial<ResumeData>;
-    
-    if (!parsedData) {
-      throw new Error('No data returned from resume parser');
+    // Ensure response.data is a valid object
+    if (!response.data || typeof response.data !== 'object') {
+      throw new Error('Invalid data returned from resume parser');
     }
+    
+    const parsedData = response.data as Partial<ResumeData>;
     
     // Save to Supabase
     const resumeTitle = parsedData.personal?.fullName ? 
@@ -121,7 +124,7 @@ export const getResumeData = async (resumeId: string): Promise<Partial<ResumeDat
       throw error;
     }
 
-    return data?.data || null;
+    return data?.data as Partial<ResumeData> || null;
   } catch (error) {
     console.error('Error fetching resume data:', error);
     throw new Error(`Failed to fetch resume data: ${error instanceof Error ? error.message : String(error)}`);
@@ -284,8 +287,6 @@ export const saveResumeToSupabase = async (
 
 /**
  * Get all resumes for a user
- * @param userId User ID
- * @returns Promise resolving to array of resumes
  */
 export const getUserResumes = async (userId: string): Promise<any[]> => {
   try {
@@ -370,9 +371,10 @@ export const updateResumeData = async (
  */
 export const getAffindaApiKey = async (): Promise<string | null> => {
   try {
+    // Query for the affinda_api_key field
     const { data, error } = await supabase
       .from('api_keys')
-      .select('affinda_api_key, AFFINDA_API_KEY')
+      .select('affinda_api_key')
       .maybeSingle();
     
     if (error) {
@@ -380,9 +382,8 @@ export const getAffindaApiKey = async (): Promise<string | null> => {
       return null;
     }
     
-    // Check for the key in different possible formats
-    const apiKey = data?.affinda_api_key || data?.AFFINDA_API_KEY;
-    return apiKey || null;
+    // Return the API key if found
+    return data?.affinda_api_key || null;
   } catch (error) {
     console.error('Exception fetching Affinda API key:', error);
     return null;

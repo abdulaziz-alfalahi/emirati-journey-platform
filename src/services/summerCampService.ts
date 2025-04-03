@@ -1,7 +1,19 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { SummerCamp, CampEnrollment, CampFilters } from '@/types/summerCamps';
 import { toast } from '@/hooks/use-toast';
+
+// Status type guard
+function isValidEnrollmentStatus(status: string): status is "confirmed" | "cancelled" | "waiting_list" {
+  return ["confirmed", "cancelled", "waiting_list"].includes(status);
+}
+
+// Helper to transform enrollment data
+function transformEnrollment(enrollment: any): CampEnrollment {
+  return {
+    ...enrollment,
+    status: isValidEnrollmentStatus(enrollment.status) ? enrollment.status : "confirmed" // Default to confirmed if invalid
+  };
+}
 
 /**
  * Fetch all summer camps with optional filtering
@@ -232,7 +244,7 @@ export const enrollInCamp = async (campId: string, userId: string): Promise<Camp
       description: "You have successfully enrolled in this camp.",
     });
     
-    return enrollment;
+    return transformEnrollment(enrollment);
   } catch (error: any) {
     console.error('Error in enrollInCamp:', error);
     
@@ -325,7 +337,7 @@ export const getUserEnrollments = async (userId: string): Promise<CampEnrollment
       throw error;
     }
     
-    return data || [];
+    return data ? data.map(transformEnrollment) : [];
   } catch (error) {
     console.error('Error in getUserEnrollments:', error);
     toast({
@@ -352,7 +364,7 @@ export const getCampEnrollments = async (campId: string): Promise<CampEnrollment
       throw error;
     }
     
-    return data || [];
+    return data ? data.map(transformEnrollment) : [];
   } catch (error) {
     console.error('Error in getCampEnrollments:', error);
     toast({

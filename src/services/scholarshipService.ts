@@ -1,6 +1,29 @@
-
 import { Scholarship, Application, ScholarshipWithApplications } from '@/types/scholarships';
 import { supabase } from '@/integrations/supabase/client';
+
+// Status type guard
+function isValidStatus(status: string): status is "pending" | "approved" | "rejected" {
+  return ["pending", "approved", "rejected"].includes(status);
+}
+
+// Helper to transform scholarship data
+function transformScholarship(data: any): Scholarship {
+  return {
+    ...data,
+    // Convert JSON to Record<string, any> if needed
+    eligibility_criteria: typeof data.eligibility_criteria === 'string'
+      ? JSON.parse(data.eligibility_criteria)
+      : (data.eligibility_criteria || {})
+  };
+}
+
+// Helper to transform application data
+function transformApplication(app: any): Application {
+  return {
+    ...app,
+    status: isValidStatus(app.status) ? app.status : "pending" // Default to pending if invalid
+  };
+}
 
 /**
  * Fetch scholarships with optional filtering
@@ -47,7 +70,7 @@ export const getScholarships = async (filters?: {
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(transformScholarship) : [];
 };
 
 /**
@@ -64,7 +87,7 @@ export const getScholarshipsByUser = async (userId: string): Promise<Scholarship
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(transformScholarship) : [];
 };
 
 /**
@@ -82,7 +105,7 @@ export const getScholarshipById = async (id: string): Promise<Scholarship | null
     throw error;
   }
   
-  return data;
+  return data ? transformScholarship(data) : null;
 };
 
 /**
@@ -103,7 +126,7 @@ export const getApplicationsByUser = async (userId: string): Promise<Application
     throw appError;
   }
   
-  return applications || [];
+  return applications ? applications.map(transformApplication) : [];
 };
 
 /**
@@ -120,7 +143,7 @@ export const getApplicationsByScholarship = async (scholarshipId: string): Promi
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(transformApplication) : [];
 };
 
 /**
@@ -167,7 +190,7 @@ export const createScholarship = async (scholarship: Omit<Scholarship, 'id' | 'c
     throw error;
   }
   
-  return data;
+  return transformScholarship(data);
 };
 
 /**
@@ -191,7 +214,7 @@ export const applyForScholarship = async (scholarshipId: string, userId: string)
     throw error;
   }
   
-  return data;
+  return transformApplication(data);
 };
 
 /**
@@ -210,7 +233,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'pe
     throw error;
   }
   
-  return data;
+  return data ? transformApplication(data) : null;
 };
 
 /**

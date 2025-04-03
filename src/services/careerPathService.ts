@@ -41,7 +41,7 @@ export const getCareerPathById = async (id: string): Promise<CareerPathWithStage
     if (pathError) throw pathError;
     
     // Get the stages for this career path
-    const { data: stages, error: stagesError } = await supabase
+    const { data: stagesData, error: stagesError } = await supabase
       .from('career_path_stages')
       .select('*')
       .eq('career_path_id', id)
@@ -49,9 +49,15 @@ export const getCareerPathById = async (id: string): Promise<CareerPathWithStage
     
     if (stagesError) throw stagesError;
     
+    // Transform the stage types to match the expected union type
+    const stages = stagesData ? stagesData.map(stage => ({
+      ...stage,
+      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
+    } as CareerPathStage)) : [];
+    
     return {
       ...careerPath,
-      stages: stages || []
+      stages
     };
   } catch (error) {
     console.error('Error fetching career path:', error);
@@ -71,7 +77,12 @@ export const getCareerPathStages = async (careerPathId: string): Promise<CareerP
       .order('order_index');
     
     if (error) throw error;
-    return data || [];
+    
+    // Transform the stage types to match the expected union type
+    return data ? data.map(stage => ({
+      ...stage,
+      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
+    } as CareerPathStage)) : [];
   } catch (error) {
     console.error('Error fetching career path stages:', error);
     throw error;
@@ -246,14 +257,25 @@ export const createCareerPath = async (careerPath: Omit<CareerPath, 'id' | 'crea
  */
 export const createCareerPathStage = async (stage: Omit<CareerPathStage, 'id' | 'created_at' | 'updated_at'>): Promise<CareerPathStage> => {
   try {
+    // First ensure the stage_type is one of the valid values
+    const validatedStage = {
+      ...stage,
+      stage_type: stage.stage_type === 'education' ? 'education' : 'career'
+    };
+    
     const { data, error } = await supabase
       .from('career_path_stages')
-      .insert([stage])
+      .insert([validatedStage])
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    
+    // Transform the result to match the expected type
+    return {
+      ...data,
+      stage_type: data.stage_type === 'education' ? 'education' : 'career'
+    } as CareerPathStage;
   } catch (error) {
     console.error('Error creating career path stage:', error);
     throw error;

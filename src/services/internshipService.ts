@@ -1,6 +1,18 @@
-
 import { Internship, InternshipApplication, InternshipWithApplications } from '@/types/internships';
 import { supabase } from '@/integrations/supabase/client';
+
+// Status type guard
+function isValidStatus(status: string): status is "pending" | "approved" | "rejected" | "withdrawn" {
+  return ["pending", "approved", "rejected", "withdrawn"].includes(status);
+}
+
+// Helper to transform application data
+function transformApplication(app: any): InternshipApplication {
+  return {
+    ...app,
+    status: isValidStatus(app.status) ? app.status : "pending" // Default to pending if invalid
+  };
+}
 
 /**
  * Fetch internships with optional filtering
@@ -104,7 +116,7 @@ export const getApplicationsByUser = async (userId: string): Promise<InternshipA
     throw appError;
   }
   
-  return applications || [];
+  return applications ? applications.map(transformApplication) : [];
 };
 
 /**
@@ -121,7 +133,7 @@ export const getApplicationsByInternship = async (internshipId: string): Promise
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(transformApplication) : [];
 };
 
 /**
@@ -195,7 +207,7 @@ export const applyForInternship = async (internshipId: string, userId: string, n
     throw error;
   }
   
-  return data;
+  return transformApplication(data);
 };
 
 /**
@@ -217,7 +229,7 @@ export const updateApplicationStatus = async (
     throw error;
   }
   
-  return data;
+  return data ? transformApplication(data) : null;
 };
 
 /**
