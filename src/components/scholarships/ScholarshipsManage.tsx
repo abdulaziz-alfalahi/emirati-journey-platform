@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,51 +54,56 @@ export const ScholarshipsManage: React.FC<ScholarshipsManageProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   
-  useEffect(() => {
-    const fetchScholarships = async () => {
-      if (!user) return;
-      
-      setIsLoading(true);
-      try {
-        let data = await getScholarshipsWithApplicationCounts(user.id);
-        
-        // Apply filters
-        // Filter by provider type
-        if (filters.providerType && filters.providerType.length > 0) {
-          data = data.filter(s => filters.providerType.includes(s.provider_type));
-        }
-        
-        // Filter by amount range
-        if (filters.amount && (filters.amount[0] !== null || filters.amount[1] !== null)) {
-          data = data.filter(s => {
-            if (s.amount === undefined) return false;
-            
-            const min = filters.amount[0] ?? 0;
-            const max = filters.amount[1] ?? Infinity;
-            return s.amount >= min && s.amount <= max;
-          });
-        }
-        
-        // Filter by search query
-        if (searchQuery) {
-          const searchLower = searchQuery.toLowerCase();
-          data = data.filter(s => 
-            s.title.toLowerCase().includes(searchLower) || 
-            (s.description && s.description.toLowerCase().includes(searchLower)) ||
-            s.provider.toLowerCase().includes(searchLower)
-          );
-        }
-        
-        setScholarships(data);
-      } catch (error) {
-        console.error('Error fetching scholarships:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchScholarships = useCallback(async () => {
+    if (!user) return;
     
+    setIsLoading(true);
+    try {
+      let data = await getScholarshipsWithApplicationCounts(user.id);
+      
+      // Apply filters
+      // Filter by provider type
+      if (filters.providerType && filters.providerType.length > 0) {
+        data = data.filter(s => filters.providerType.includes(s.provider_type));
+      }
+      
+      // Filter by amount range
+      if (filters.amount && (filters.amount[0] !== null || filters.amount[1] !== null)) {
+        data = data.filter(s => {
+          if (s.amount === undefined) return false;
+          
+          const min = filters.amount[0] ?? 0;
+          const max = filters.amount[1] ?? Infinity;
+          return s.amount >= min && s.amount <= max;
+        });
+      }
+      
+      // Filter by search query
+      if (searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
+        data = data.filter(s => 
+          s.title.toLowerCase().includes(searchLower) || 
+          (s.description && s.description.toLowerCase().includes(searchLower)) ||
+          s.provider.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      setScholarships(data);
+    } catch (error) {
+      console.error('Error fetching scholarships:', error);
+      toast({
+        title: "Failed to load scholarships",
+        description: "Please try again later",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, filters, searchQuery, toast]);
+  
+  useEffect(() => {
     fetchScholarships();
-  }, [user, filters, searchQuery]);
+  }, [fetchScholarships]);
 
   const viewApplications = async (scholarship: Scholarship) => {
     setSelectedScholarship(scholarship);
@@ -125,6 +130,9 @@ export const ScholarshipsManage: React.FC<ScholarshipsManageProps> = ({
       setApplications(applications.map(app => 
         app.id === applicationId ? { ...app, status } : app
       ));
+      
+      // Refresh the scholarships to update the counts
+      fetchScholarships();
       
       toast({
         title: "Status updated",

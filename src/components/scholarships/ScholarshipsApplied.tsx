@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Application } from '@/types/scholarships';
 import { getApplicationsByUser } from '@/services/scholarshipService';
 import { useAuth } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ScholarshipsAppliedProps {
   filters: {
@@ -25,6 +25,7 @@ export const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { toast } = useToast();
   
   useEffect(() => {
     const fetchApplications = async () => {
@@ -70,13 +71,18 @@ export const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({
         setApplications(filtered);
       } catch (error) {
         console.error('Error fetching applications:', error);
+        toast({
+          title: "Failed to load applications",
+          description: "Please try again later",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchApplications();
-  }, [user, filters, searchQuery]);
+  }, [user, filters, searchQuery, toast]);
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {

@@ -1,145 +1,148 @@
+
 import { Scholarship, Application, ScholarshipWithApplications } from '@/types/scholarships';
+import { supabase } from '@/integrations/supabase/client';
 
-// Mock scholarships data
-const mockScholarships: Scholarship[] = [
-  {
-    id: '1',
-    title: 'Engineering Excellence Scholarship',
-    description: 'For students pursuing engineering degrees with outstanding academic records',
-    provider: 'Abu Dhabi National Oil Company',
-    provider_type: 'private_sector',
-    amount: 50000,
-    currency: 'AED',
-    application_deadline: '2024-12-31T23:59:59Z',
-    is_active: true,
-    created_at: '2023-09-01T12:00:00Z',
-    created_by: 'user-1',
-    website_url: 'https://example.com/scholarship'
-  },
-  {
-    id: '2',
-    title: 'AI and Future Technologies Scholarship',
-    description: 'Supporting students in artificial intelligence and emerging tech fields',
-    provider: 'Ministry of Artificial Intelligence',
-    provider_type: 'government',
-    amount: 75000,
-    currency: 'AED',
-    application_deadline: '2024-11-15T23:59:59Z',
-    is_active: true,
-    created_at: '2023-08-15T10:30:00Z',
-    created_by: 'user-2',
-    website_url: 'https://example.com/ai-scholarship'
-  },
-  {
-    id: '3',
-    title: 'Academic Merit Scholarship',
-    description: 'For students with exceptional academic performance',
-    provider: 'United Arab Emirates University',
-    provider_type: 'university',
-    amount: 30000,
-    currency: 'AED',
-    application_deadline: '2025-01-15T23:59:59Z',
-    is_active: true,
-    created_at: '2023-10-01T09:15:00Z',
-    created_by: 'user-3',
-    website_url: 'https://example.com/uaeu-scholarship'
-  }
-];
-
-// Mock applications data
-const mockApplications: Application[] = [
-  {
-    id: 'app-1',
-    scholarship_id: '1',
-    student_id: 'student-1',
-    status: 'pending',
-    submitted_at: '2024-02-15T14:30:00Z'
-  },
-  {
-    id: 'app-2',
-    scholarship_id: '2',
-    student_id: 'student-1',
-    status: 'approved',
-    submitted_at: '2024-01-10T09:45:00Z'
-  },
-  {
-    id: 'app-3',
-    scholarship_id: '3',
-    student_id: 'student-2',
-    status: 'rejected',
-    submitted_at: '2024-02-01T16:20:00Z'
-  }
-];
-
-// Helper functions to simulate database queries
+/**
+ * Fetch scholarships with optional filtering
+ */
 export const getScholarships = async (filters?: {
   providerType?: string[];
   amount?: [number | null, number | null];
   search?: string;
 }): Promise<Scholarship[]> => {
-  let filtered = [...mockScholarships];
+  let query = supabase
+    .from('scholarships')
+    .select('*')
+    .eq('is_active', true);
   
   if (filters) {
     // Filter by provider type
     if (filters.providerType && filters.providerType.length > 0) {
-      filtered = filtered.filter(s => filters.providerType!.includes(s.provider_type));
+      query = query.in('provider_type', filters.providerType);
     }
     
     // Filter by amount range
     if (filters.amount && (filters.amount[0] !== null || filters.amount[1] !== null)) {
-      filtered = filtered.filter(s => {
-        const min = filters.amount![0] ?? 0;
-        const max = filters.amount![1] ?? Infinity;
-        return (s.amount !== undefined && s.amount >= min && s.amount <= max);
-      });
+      const min = filters.amount[0] ?? 0;
+      if (filters.amount[0] !== null) {
+        query = query.gte('amount', min);
+      }
+      
+      if (filters.amount[1] !== null) {
+        query = query.lte('amount', filters.amount[1]);
+      }
     }
     
     // Filter by search query
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(
-        s => s.title.toLowerCase().includes(searchLower) || 
-             (s.description && s.description.toLowerCase().includes(searchLower)) ||
-             s.provider.toLowerCase().includes(searchLower)
-      );
+      const searchTerm = `%${filters.search.toLowerCase()}%`;
+      query = query.or(`title.ilike.${searchTerm},description.ilike.${searchTerm},provider.ilike.${searchTerm}`);
     }
   }
   
-  return filtered;
-};
-
-export const getScholarshipsByUser = async (userId: string): Promise<Scholarship[]> => {
-  return mockScholarships.filter(s => s.created_by === userId);
-};
-
-export const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
-  return mockScholarships.find(s => s.id === id) || null;
-};
-
-export const getApplicationsByUser = async (userId: string): Promise<Application[]> => {
-  const applications = mockApplications.filter(a => a.student_id === userId);
+  const { data, error } = await query;
   
-  // Add scholarship details to each application
-  return applications.map(app => {
-    const scholarship = mockScholarships.find(s => s.id === app.scholarship_id);
-    return {
-      ...app,
-      scholarship
-    };
-  });
+  if (error) {
+    console.error('Error fetching scholarships:', error);
+    throw error;
+  }
+  
+  return data || [];
 };
 
+/**
+ * Fetch scholarships created by a specific user
+ */
+export const getScholarshipsByUser = async (userId: string): Promise<Scholarship[]> => {
+  const { data, error } = await supabase
+    .from('scholarships')
+    .select('*')
+    .eq('created_by', userId);
+  
+  if (error) {
+    console.error('Error fetching user scholarships:', error);
+    throw error;
+  }
+  
+  return data || [];
+};
+
+/**
+ * Get a specific scholarship by ID
+ */
+export const getScholarshipById = async (id: string): Promise<Scholarship | null> => {
+  const { data, error } = await supabase
+    .from('scholarships')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error fetching scholarship:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+/**
+ * Get all applications for a specific user
+ */
+export const getApplicationsByUser = async (userId: string): Promise<Application[]> => {
+  // First get the applications
+  const { data: applications, error: appError } = await supabase
+    .from('scholarship_applications')
+    .select(`
+      *,
+      scholarship:scholarship_id (*)
+    `)
+    .eq('student_id', userId);
+  
+  if (appError) {
+    console.error('Error fetching user applications:', appError);
+    throw appError;
+  }
+  
+  return applications || [];
+};
+
+/**
+ * Get all applications for a specific scholarship
+ */
 export const getApplicationsByScholarship = async (scholarshipId: string): Promise<Application[]> => {
-  return mockApplications.filter(a => a.scholarship_id === scholarshipId);
+  const { data, error } = await supabase
+    .from('scholarship_applications')
+    .select('*')
+    .eq('scholarship_id', scholarshipId);
+  
+  if (error) {
+    console.error('Error fetching scholarship applications:', error);
+    throw error;
+  }
+  
+  return data || [];
 };
 
+/**
+ * Count applications by status for a specific scholarship
+ */
 export const countApplicationsByStatus = async (scholarshipId: string): Promise<{
   pending: number;
   approved: number;
   rejected: number;
   total: number;
 }> => {
-  const applications = mockApplications.filter(a => a.scholarship_id === scholarshipId);
+  const { data, error } = await supabase
+    .from('scholarship_applications')
+    .select('status')
+    .eq('scholarship_id', scholarshipId);
+  
+  if (error) {
+    console.error('Error counting applications:', error);
+    throw error;
+  }
+  
+  const applications = data || [];
   
   return {
     pending: applications.filter(a => a.status === 'pending').length,
@@ -149,54 +152,77 @@ export const countApplicationsByStatus = async (scholarshipId: string): Promise<
   };
 };
 
-// Update to accept the correct parameter type
+/**
+ * Create a new scholarship
+ */
 export const createScholarship = async (scholarship: Omit<Scholarship, 'id' | 'created_at'>): Promise<Scholarship> => {
-  const newScholarship: Scholarship = {
-    ...scholarship,
-    id: `scholarship-${Date.now()}`,
-    created_at: new Date().toISOString(),
-    is_active: scholarship.is_active !== undefined ? scholarship.is_active : true
-  };
+  const { data, error } = await supabase
+    .from('scholarships')
+    .insert([scholarship])
+    .select()
+    .single();
   
-  // In a real app, this would add to the database
-  mockScholarships.push(newScholarship);
-  return newScholarship;
-};
-
-export const applyForScholarship = async (scholarshipId: string, userId: string): Promise<Application> => {
-  const newApplication: Application = {
-    id: `app-${Date.now()}`,
-    scholarship_id: scholarshipId,
-    student_id: userId,
-    status: 'pending',
-    submitted_at: new Date().toISOString()
-  };
-  
-  // In a real app, this would add to the database
-  mockApplications.push(newApplication);
-  return newApplication;
-};
-
-export const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'approved' | 'rejected'): Promise<Application | null> => {
-  const applicationIndex = mockApplications.findIndex(a => a.id === applicationId);
-  
-  if (applicationIndex === -1) {
-    return null;
+  if (error) {
+    console.error('Error creating scholarship:', error);
+    throw error;
   }
   
-  mockApplications[applicationIndex] = {
-    ...mockApplications[applicationIndex],
-    status
-  };
-  
-  return mockApplications[applicationIndex];
+  return data;
 };
 
-export const getScholarshipsWithApplicationCounts = async (userId: string): Promise<ScholarshipWithApplications[]> => {
-  const userScholarships = await getScholarshipsByUser(userId);
+/**
+ * Apply for a scholarship
+ */
+export const applyForScholarship = async (scholarshipId: string, userId: string): Promise<Application> => {
+  const { data, error } = await supabase
+    .from('scholarship_applications')
+    .insert([
+      {
+        scholarship_id: scholarshipId,
+        student_id: userId,
+        status: 'pending'
+      }
+    ])
+    .select()
+    .single();
   
-  return Promise.all(
-    userScholarships.map(async (scholarship) => {
+  if (error) {
+    console.error('Error applying for scholarship:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+/**
+ * Update an application status
+ */
+export const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'approved' | 'rejected'): Promise<Application | null> => {
+  const { data, error } = await supabase
+    .from('scholarship_applications')
+    .update({ status })
+    .eq('id', applicationId)
+    .select()
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Error updating application status:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+/**
+ * Get scholarships with application counts
+ */
+export const getScholarshipsWithApplicationCounts = async (userId: string): Promise<ScholarshipWithApplications[]> => {
+  // First get all the scholarships
+  const scholarships = await getScholarshipsByUser(userId);
+  
+  // Then get counts for each scholarship
+  const scholarshipsWithCounts = await Promise.all(
+    scholarships.map(async (scholarship) => {
       const counts = await countApplicationsByStatus(scholarship.id);
       return {
         ...scholarship,
@@ -204,4 +230,6 @@ export const getScholarshipsWithApplicationCounts = async (userId: string): Prom
       };
     })
   );
+  
+  return scholarshipsWithCounts;
 };
