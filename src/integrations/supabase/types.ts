@@ -211,6 +211,44 @@ export type Database = {
         }
         Relationships: []
       }
+      camp_enrollments: {
+        Row: {
+          camp_id: string
+          enrolled_at: string
+          id: string
+          payment_status: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          camp_id: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          camp_id?: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "camp_enrollments_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "summer_camps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       career_advisors: {
         Row: {
           availability: Json | null
@@ -789,6 +827,69 @@ export type Database = {
           title?: string
           updated_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      summer_camps: {
+        Row: {
+          age_group: string
+          capacity: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          duration: string
+          end_date: string
+          enrolled: number
+          id: string
+          image_url: string
+          location: string
+          organizer: string
+          price: number
+          start_date: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          age_group: string
+          capacity: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          duration: string
+          end_date: string
+          enrolled?: number
+          id?: string
+          image_url?: string
+          location: string
+          organizer: string
+          price: number
+          start_date: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          age_group?: string
+          capacity?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          duration?: string
+          end_date?: string
+          enrolled?: number
+          id?: string
+          image_url?: string
+          location?: string
+          organizer?: string
+          price?: number
+          start_date?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

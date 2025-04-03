@@ -6,17 +6,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
-
-interface FiltersState {
-  category: string[];
-  ageGroup: string[];
-  location: string[];
-}
+import { CampFilters } from '@/types/summerCamps';
 
 interface CampsFilterProps {
-  onFilterChange: (filters: FiltersState) => void;
+  onFilterChange: (filters: CampFilters) => void;
   onSearchChange: (query: string) => void;
-  selectedFilters: FiltersState;
+  selectedFilters: CampFilters;
   searchQuery: string;
 }
 
@@ -30,7 +25,10 @@ const categories = [
 
 const ageGroups = [
   { id: '6-9', label: '6-9 years' },
-  { id: '10-13', label: '10-13 years' },
+  { id: '8-14', label: '8-14 years' },
+  { id: '10-16', label: '10-16 years' },
+  { id: '10-18', label: '10-18 years' },
+  { id: '12-16', label: '12-16 years' },
   { id: '14-18', label: '14-18 years' },
 ];
 
@@ -50,44 +48,43 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
 }) => {
   
   const handleCategoryChange = (category: string) => {
-    const newCategories = selectedFilters.category.includes(category)
-      ? selectedFilters.category.filter(c => c !== category)
-      : [...selectedFilters.category, category];
+    const currentCategories = selectedFilters.category || [];
+    const newCategories = currentCategories.includes(category)
+      ? currentCategories.filter(c => c !== category)
+      : [...currentCategories, category];
     
     onFilterChange({
       ...selectedFilters,
-      category: newCategories,
+      category: newCategories.length > 0 ? newCategories : undefined,
     });
   };
   
   const handleAgeGroupChange = (ageGroup: string) => {
-    const newAgeGroups = selectedFilters.ageGroup.includes(ageGroup)
-      ? selectedFilters.ageGroup.filter(a => a !== ageGroup)
-      : [...selectedFilters.ageGroup, ageGroup];
+    const currentAgeGroups = selectedFilters.ageGroup || [];
+    const newAgeGroups = currentAgeGroups.includes(ageGroup)
+      ? currentAgeGroups.filter(a => a !== ageGroup)
+      : [...currentAgeGroups, ageGroup];
     
     onFilterChange({
       ...selectedFilters,
-      ageGroup: newAgeGroups,
+      ageGroup: newAgeGroups.length > 0 ? newAgeGroups : undefined,
     });
   };
   
   const handleLocationChange = (location: string) => {
-    const newLocations = selectedFilters.location.includes(location)
-      ? selectedFilters.location.filter(l => l !== location)
-      : [...selectedFilters.location, location];
+    const currentLocations = selectedFilters.location || [];
+    const newLocations = currentLocations.includes(location)
+      ? currentLocations.filter(l => l !== location)
+      : [...currentLocations, location];
     
     onFilterChange({
       ...selectedFilters,
-      location: newLocations,
+      location: newLocations.length > 0 ? newLocations : undefined,
     });
   };
   
   const handleReset = () => {
-    onFilterChange({
-      category: [],
-      ageGroup: [],
-      location: [],
-    });
+    onFilterChange({});
     onSearchChange('');
   };
   
@@ -117,7 +114,7 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
                   <div key={category.id} className="flex items-center">
                     <Checkbox 
                       id={`category-${category.id}`} 
-                      checked={selectedFilters.category.includes(category.label)}
+                      checked={(selectedFilters.category || []).includes(category.label)}
                       onCheckedChange={() => handleCategoryChange(category.label)}
                     />
                     <Label 
@@ -138,7 +135,7 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
                   <div key={ageGroup.id} className="flex items-center">
                     <Checkbox 
                       id={`age-${ageGroup.id}`} 
-                      checked={selectedFilters.ageGroup.includes(ageGroup.id)}
+                      checked={(selectedFilters.ageGroup || []).includes(ageGroup.id)}
                       onCheckedChange={() => handleAgeGroupChange(ageGroup.id)}
                     />
                     <Label 
@@ -159,7 +156,7 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
                   <div key={location.id} className="flex items-center">
                     <Checkbox 
                       id={`location-${location.id}`} 
-                      checked={selectedFilters.location.includes(location.label)}
+                      checked={(selectedFilters.location || []).includes(location.label)}
                       onCheckedChange={() => handleLocationChange(location.label)}
                     />
                     <Label 

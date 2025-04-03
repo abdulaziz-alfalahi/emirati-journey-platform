@@ -5,24 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Calendar, Book, Award, Users, School } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import CampsList from '@/components/summer-camps/CampsList';
 import CampsFilter from '@/components/summer-camps/CampsFilter';
 import { useAuth } from '@/context/AuthContext';
+import { CampFilters } from '@/types/summerCamps';
 
 const SummerCampsPage: React.FC = () => {
   const { user, roles } = useAuth();
   const [activeTab, setActiveTab] = useState("available");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState<{
-    category: string[];
-    ageGroup: string[];
-    location: string[];
-  }>({
-    category: [],
-    ageGroup: [],
-    location: [],
-  });
+  const [selectedFilters, setSelectedFilters] = useState<CampFilters>({});
 
   return (
     <Layout>

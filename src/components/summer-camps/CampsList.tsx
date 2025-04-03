@@ -1,148 +1,124 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Users, MapPin, Clock, School } from 'lucide-react';
-
-// Mock data for summer camps
-const mockCamps = [
-  {
-    id: 1,
-    title: "Tech Innovators Summer Camp",
-    organizer: "Abu Dhabi Innovation Center",
-    category: "Technology",
-    description: "Learn coding, robotics, and AI fundamentals in this immersive tech camp",
-    ageGroup: "12-16",
-    startDate: "2023-07-10",
-    endDate: "2023-07-28",
-    duration: "3 weeks",
-    location: "Abu Dhabi",
-    capacity: 30,
-    enrolled: 18,
-    price: 1500,
-    image: "/placeholder.svg",
-    tags: ["Coding", "Robotics", "STEM"]
-  },
-  {
-    id: 2,
-    title: "Young Scientists Academy",
-    organizer: "Dubai Science Foundation",
-    category: "Science",
-    description: "Explore chemistry, physics, and biology through exciting experiments and projects",
-    ageGroup: "8-14",
-    startDate: "2023-07-03",
-    endDate: "2023-07-21",
-    duration: "3 weeks",
-    location: "Dubai",
-    capacity: 25,
-    enrolled: 22,
-    price: 1200,
-    image: "/placeholder.svg",
-    tags: ["Experiments", "Research", "STEM"]
-  },
-  {
-    id: 3,
-    title: "Creative Arts Workshop",
-    organizer: "Sharjah Arts Institute",
-    category: "Arts",
-    description: "Develop skills in painting, sculpture, and digital art with professional artists",
-    ageGroup: "10-18",
-    startDate: "2023-06-26",
-    endDate: "2023-07-14",
-    duration: "3 weeks",
-    location: "Sharjah",
-    capacity: 20,
-    enrolled: 15,
-    price: 1000,
-    image: "/placeholder.svg",
-    tags: ["Painting", "Sculpture", "Digital Art"]
-  },
-  {
-    id: 4,
-    title: "Future Leaders Program",
-    organizer: "Emirates Leadership Foundation",
-    category: "Leadership",
-    description: "Build essential leadership, communication, and problem-solving skills",
-    ageGroup: "14-18",
-    startDate: "2023-07-03",
-    endDate: "2023-07-28",
-    duration: "4 weeks",
-    location: "Dubai",
-    capacity: 25,
-    enrolled: 10,
-    price: 1800,
-    image: "/placeholder.svg",
-    tags: ["Leadership", "Communication", "Team Building"]
-  },
-];
-
-// Filters for demo purposes
-const filterCamps = (
-  camps: typeof mockCamps,
-  filters: { category: string[], ageGroup: string[], location: string[] },
-  searchQuery: string,
-  type: string
-) => {
-  let filteredCamps = [...camps];
-  
-  // Filter by type
-  if (type === "registered") {
-    // For demo purposes, just show fewer camps for "registered"
-    filteredCamps = filteredCamps.slice(0, 2);
-  } else if (type === "managed") {
-    // For demo purposes, just show one camp for "managed"
-    filteredCamps = filteredCamps.slice(0, 1);
-  }
-  
-  // Apply category filter
-  if (filters.category.length > 0) {
-    filteredCamps = filteredCamps.filter(camp => 
-      filters.category.includes(camp.category)
-    );
-  }
-  
-  // Apply location filter
-  if (filters.location.length > 0) {
-    filteredCamps = filteredCamps.filter(camp => 
-      filters.location.includes(camp.location)
-    );
-  }
-  
-  // Apply age group filter
-  if (filters.ageGroup.length > 0) {
-    filteredCamps = filteredCamps.filter(camp => 
-      filters.ageGroup.includes(camp.ageGroup)
-    );
-  }
-  
-  // Apply search query
-  if (searchQuery) {
-    const query = searchQuery.toLowerCase();
-    filteredCamps = filteredCamps.filter(
-      camp => camp.title.toLowerCase().includes(query) || 
-        camp.description.toLowerCase().includes(query) ||
-        camp.organizer.toLowerCase().includes(query)
-    );
-  }
-  
-  return filteredCamps;
-};
+import { useAuth } from '@/context/AuthContext';
+import { toast } from '@/hooks/use-toast';
+import { SummerCamp, CampFilters } from '@/types/summerCamps';
+import { getCamps, getUserEnrollments, enrollInCamp, cancelEnrollment, getCampsByInstitution } from '@/services/summerCampService';
+import { format } from 'date-fns';
 
 interface CampsListProps {
   type: "available" | "registered" | "managed";
-  filters: {
-    category: string[];
-    ageGroup: string[];
-    location: string[];
-  };
+  filters: CampFilters;
   searchQuery: string;
 }
 
 const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => {
-  const filteredCamps = filterCamps(mockCamps, filters, searchQuery, type);
+  const { user } = useAuth();
+  const [camps, setCamps] = useState<SummerCamp[]>([]);
+  const [enrolledCamps, setEnrolledCamps] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Combine filters into the format expected by the service
+  const combinedFilters: CampFilters = {
+    ...filters,
+    searchQuery
+  };
   
-  if (filteredCamps.length === 0) {
+  useEffect(() => {
+    const fetchCamps = async () => {
+      setLoading(true);
+      try {
+        if (type === "available") {
+          const fetchedCamps = await getCamps(combinedFilters);
+          setCamps(fetchedCamps);
+        } else if (type === "registered" && user) {
+          const enrollments = await getUserEnrollments(user.id);
+          setEnrolledCamps(
+            enrollments.reduce((acc, enrollment) => {
+              if (enrollment.camp) {
+                acc[enrollment.camp.id] = enrollment.id;
+              }
+              return acc;
+            }, {} as Record<string, string>)
+          );
+          
+          setCamps(enrollments.map(e => e.camp).filter(Boolean) as SummerCamp[]);
+        } else if (type === "managed" && user) {
+          const managedCamps = await getCampsByInstitution(user.id);
+          setCamps(managedCamps);
+        }
+      } catch (error) {
+        console.error("Error fetching camps:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load summer camps. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCamps();
+  }, [type, user, JSON.stringify(combinedFilters)]);
+
+  const handleEnroll = async (campId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to enroll in a camp.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const result = await enrollInCamp(campId, user.id);
+    if (result) {
+      // Refresh the available camps list to show updated enrollment counts
+      if (type === "available") {
+        const updatedCamps = await getCamps(combinedFilters);
+        setCamps(updatedCamps);
+      }
+    }
+  };
+
+  const handleCancelEnrollment = async (campId: string) => {
+    if (!user || !enrolledCamps[campId]) return;
+    
+    const result = await cancelEnrollment(enrolledCamps[campId], campId);
+    if (result) {
+      // Refresh the registered camps list
+      const enrollments = await getUserEnrollments(user.id);
+      setCamps(enrollments.map(e => e.camp).filter(Boolean) as SummerCamp[]);
+      setEnrolledCamps(
+        enrollments.reduce((acc, enrollment) => {
+          if (enrollment.camp) {
+            acc[enrollment.camp.id] = enrollment.id;
+          }
+          return acc;
+        }, {} as Record<string, string>)
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center">
+          <div className="flex justify-center items-center h-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+          <h3 className="mt-4 text-lg font-medium">Loading camps...</h3>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (camps.length === 0) {
     return (
       <Card>
         <CardContent className="py-10 text-center">
@@ -163,12 +139,12 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
   
   return (
     <div className="space-y-6">
-      {filteredCamps.map(camp => (
+      {camps.map(camp => (
         <Card key={camp.id}>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100">
               <img 
-                src={camp.image} 
+                src={camp.image_url} 
                 alt={camp.title} 
                 className="w-full h-full object-cover"
               />
@@ -177,7 +153,7 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
               <CardHeader>
                 <div className="flex flex-wrap gap-2 mb-2">
                   <Badge>{camp.category}</Badge>
-                  <Badge variant="outline">{camp.ageGroup} years</Badge>
+                  <Badge variant="outline">{camp.age_group} years</Badge>
                 </div>
                 <CardTitle>{camp.title}</CardTitle>
                 <CardDescription>{camp.organizer}</CardDescription>
@@ -187,7 +163,9 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <span>{new Date(camp.startDate).toLocaleDateString()} - {new Date(camp.endDate).toLocaleDateString()}</span>
+                    <span>
+                      {format(new Date(camp.start_date), 'MMM d, yyyy')} - {format(new Date(camp.end_date), 'MMM d, yyyy')}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -206,11 +184,21 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
               <CardFooter className="flex justify-between items-center">
                 <div className="font-semibold text-lg">{camp.price} AED</div>
                 {type === "available" ? (
-                  <Button>Register Now</Button>
+                  <Button 
+                    onClick={() => handleEnroll(camp.id)}
+                    disabled={camp.enrolled >= camp.capacity}
+                  >
+                    {camp.enrolled >= camp.capacity ? "Fully Booked" : "Register Now"}
+                  </Button>
                 ) : type === "registered" ? (
                   <div className="flex gap-2">
                     <Button variant="outline">View Details</Button>
-                    <Button variant="destructive">Cancel</Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => handleCancelEnrollment(camp.id)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex gap-2">
