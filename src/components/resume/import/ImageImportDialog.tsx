@@ -27,7 +27,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
     setIsUploading(true);
     
     // Show loading toast
-    toast.loading("Processing your resume...", {
+    const toastId = toast.loading("Processing your resume...", {
       id: "resume-processing",
       duration: 60000 // 60 seconds timeout
     });
@@ -41,6 +41,8 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
         reader.readAsDataURL(file);
       });
       
+      console.log('Calling parse-resume edge function with file:', file.name, file.type);
+      
       // Call the Edge Function for processing
       const response = await supabase.functions.invoke('parse-resume', {
         body: {
@@ -51,10 +53,17 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       });
       
       // Dismiss loading toast
-      toast.dismiss("resume-processing");
+      toast.dismiss(toastId);
       
       if (response.error) {
+        console.error('Edge function error:', response.error);
         throw new Error(response.error.message || 'Failed to parse resume');
+      }
+      
+      console.log('Resume parsed successfully:', response.data ? 'Data received' : 'No data');
+      
+      if (!response.data) {
+        throw new Error('No data returned from resume parser');
       }
       
       const parsedData = response.data;
@@ -70,7 +79,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
       });
     } catch (error) {
       // Dismiss loading toast
-      toast.dismiss("resume-processing");
+      toast.dismiss(toastId);
       
       console.error('Error uploading resume:', error);
       

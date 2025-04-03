@@ -1,54 +1,135 @@
-
-import { AffindaAPI, AffindaCredential } from '@affinda/affinda';
 import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 /**
- * Initialize the Affinda client with proper credential handling
+ * Parse resume and save it to Supabase
+ * @param file Resume file to parse
+ * @param userId User ID
+ * @param onSuccess Callback when parsing and saving are successful
+ * @param onError Callback when an error occurs
  */
-const createAffindaClient = (apiKey?: string) => {
-  // Try to get the API key from environment variables first
-  const key = apiKey || import.meta.env.VITE_AFFINDA_API_KEY;
+export const parseAndSaveResume = async (
+  file: File,
+  userId: string,
+  onSuccess?: (data: Partial<ResumeData>, resumeId: string) => void,
+  onError?: (error: Error) => void
+): Promise<void> => {
+  const toastId = toast.loading("Processing Resume", { 
+    description: "Analyzing your resume..."
+  });
   
-  if (!key) {
-    console.warn('No Affinda API key provided');
-    return null;
-  }
-  
-  const credential = new AffindaCredential(key);
-  return new AffindaAPI(credential);
-};
-
-/**
- * Fetch Affinda API key from Supabase
- * @returns Promise resolving to the API key
- */
-export const getAffindaApiKey = async (): Promise<string | null> => {
   try {
-    const { data, error } = await supabase
-      .from('api_keys')
-      .select('affinda_api_key, AFFINDA_API_KEY')
-      .maybeSingle();
+    // Convert file to base64
+    const fileData = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
     
-    if (error) {
-      console.error('Error fetching Affinda API key:', error);
-      return null;
+    // Call the Edge Function for processing
+    const response = await supabase.functions.invoke('parse-resume', {
+      body: {
+        fileData,
+        fileName: file.name,
+        fileType: file.type
+      }
+    });
+    
+    if (response.error) {
+      throw new Error(response.error.message || 'Failed to parse resume');
     }
     
-    // Check for the key in different possible formats
-    const apiKey = data?.affinda_api_key || data?.AFFINDA_API_KEY;
-    return apiKey || null;
+    const parsedData = response.data as Partial<ResumeData>;
+    
+    if (!parsedData) {
+      throw new Error('No data returned from resume parser');
+    }
+    
+    // Save to Supabase
+    const resumeTitle = parsedData.personal?.fullName ? 
+      `${parsedData.personal.fullName}'s Resume` : 'My Resume';
+    
+    const { data: resumeRecord, error: resumeError } = await supabase
+      .from('resumes')
+      .insert({
+        user_id: userId,
+        title: resumeTitle,
+        template_id: 'professional',
+        theme: 'classic'
+      })
+      .select('id')
+      .single();
+
+    if (resumeError) {
+      throw resumeError;
+    }
+
+    const resumeId = resumeRecord.id;
+
+    // Save resume data
+    const { error: dataError } = await supabase
+      .from('resume_data')
+      .insert({
+        resume_id: resumeId,
+        data: parsedData as any
+      });
+
+    if (dataError) {
+      throw dataError;
+    }
+    
+    toast.success("Resume Processed", {
+      id: toastId,
+      description: "Your resume has been successfully processed and saved."
+    });
+    
+    // Call success callback if provided
+    if (onSuccess) {
+      onSuccess(parsedData, resumeId);
+    }
   } catch (error) {
-    console.error('Exception fetching Affinda API key:', error);
-    return null;
+    console.error('Error in parseAndSaveResume:', error);
+    
+    toast.error("Resume Processing Failed", {
+      id: toastId,
+      description: error instanceof Error ? error.message : "An unknown error occurred"
+    });
+    
+    // Call error callback if provided
+    if (onError && error instanceof Error) {
+      onError(error);
+    }
   }
 };
 
 /**
- * Parse resume using Affinda API
- * @param file Resume file to parse
- * @returns Promise resolving to parsed ResumeData
+ * Get resume data by ID
+ * @param resumeId Resume ID
+ * @returns Promise resolving to resume data
+ */
+export const getResumeData = async (resumeId: string): Promise<Partial<ResumeData> | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('resume_data')
+      .select('data')
+      .eq('resume_id', resumeId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data?.data || null;
+  } catch (error) {
+    console.error('Error fetching resume data:', error);
+    throw new Error(`Failed to fetch resume data: ${error instanceof Error ? error.message : String(error)}`);
+  }
+};
+
+/**
+ * Unified function to parse a resume file and save it to Supabase
  */
 export const parseResumeWithAffinda = async (
   file: File, 
@@ -233,74 +314,6 @@ export const getUserResumes = async (userId: string): Promise<any[]> => {
 };
 
 /**
- * Get resume data by ID
- * @param resumeId Resume ID
- * @returns Promise resolving to resume data
- */
-export const getResumeData = async (resumeId: string): Promise<Partial<ResumeData> | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('resume_data')
-      .select('data')
-      .eq('resume_id', resumeId)
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return data?.data || null;
-  } catch (error) {
-    console.error('Error fetching resume data:', error);
-    throw new Error(`Failed to fetch resume data: ${error instanceof Error ? error.message : String(error)}`);
-  }
-};
-
-/**
- * Unified function to parse a resume file and save it to Supabase
- */
-export const parseAndSaveResume = async (
-  file: File,
-  userId: string,
-  onSuccess?: (data: Partial<ResumeData>, resumeId: string) => void,
-  onError?: (error: Error) => void
-): Promise<void> => {
-  const toastId = toast.loading("Processing Resume", { 
-    description: "Analyzing your resume with Affinda API..."
-  });
-  
-  try {
-    // Parse resume with Affinda
-    const parsedData = await parseResumeWithAffinda(file);
-    
-    // Save to Supabase
-    const resumeId = await saveResumeToSupabase(userId, parsedData);
-    
-    toast.success("Resume Processed", {
-      id: toastId,
-      description: "Your resume has been successfully processed and saved."
-    });
-    
-    // Call success callback if provided
-    if (onSuccess) {
-      onSuccess(parsedData, resumeId);
-    }
-  } catch (error) {
-    console.error('Error in parseAndSaveResume:', error);
-    
-    toast.error("Resume Processing Failed", {
-      id: toastId,
-      description: error instanceof Error ? error.message : "An unknown error occurred"
-    });
-    
-    // Call error callback if provided
-    if (onError && error instanceof Error) {
-      onError(error);
-    }
-  }
-};
-
-/**
  * Update existing resume data
  */
 export const updateResumeData = async (
@@ -349,4 +362,45 @@ export const updateResumeData = async (
     console.error('Error updating resume data:', error);
     throw new Error(`Failed to update resume: ${error instanceof Error ? error.message : String(error)}`);
   }
+};
+
+/**
+ * Fetch Affinda API key from Supabase
+ * @returns Promise resolving to the API key
+ */
+export const getAffindaApiKey = async (): Promise<string | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('api_keys')
+      .select('affinda_api_key, AFFINDA_API_KEY')
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching Affinda API key:', error);
+      return null;
+    }
+    
+    // Check for the key in different possible formats
+    const apiKey = data?.affinda_api_key || data?.AFFINDA_API_KEY;
+    return apiKey || null;
+  } catch (error) {
+    console.error('Exception fetching Affinda API key:', error);
+    return null;
+  }
+};
+
+/**
+ * Initialize the Affinda client with proper credential handling
+ */
+const createAffindaClient = (apiKey?: string) => {
+  // Try to get the API key from environment variables first
+  const key = apiKey || import.meta.env.VITE_AFFINDA_API_KEY;
+  
+  if (!key) {
+    console.warn('No Affinda API key provided');
+    return null;
+  }
+  
+  const credential = new AffindaCredential(key);
+  return new AffindaAPI(credential);
 };
