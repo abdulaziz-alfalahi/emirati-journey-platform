@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useResume } from '@/context/ResumeContext';
@@ -7,6 +8,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import { ResumeTemplate } from '@/components/resume/types';
 import { toast } from 'sonner';
+import { getResumeData } from '@/services/resumeParserService';
 
 const defaultTemplate: ResumeTemplate = {
   id: 'professional',
@@ -21,9 +23,44 @@ const ResumeBuilderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessingLinkedIn, setIsProcessingLinkedIn] = useState(false);
+  const [isLoadingResume, setIsLoadingResume] = useState(false);
 
   // Debug log to verify data
-  console.log('ResumeBuilderPage: Current resumeData:', resumeData);
+  console.log('ResumeBuilderPage: Current resumeData:', resumeData ? 'present' : 'not present');
+
+  // Check for resume ID in URL params
+  useEffect(() => {
+    const checkForResumeId = async () => {
+      const params = new URLSearchParams(location.search);
+      const resumeId = params.get('resume_id');
+      
+      if (resumeId && user) {
+        setIsLoadingResume(true);
+        try {
+          const data = await getResumeData(resumeId);
+          if (data) {
+            setResumeData(data);
+            toast.success("Resume Loaded", {
+              description: "Your resume data has been loaded successfully."
+            });
+          }
+        } catch (error) {
+          console.error("Error loading resume data:", error);
+          toast.error("Failed to Load Resume", {
+            description: "There was a problem loading your resume data."
+          });
+        } finally {
+          setIsLoadingResume(false);
+          // Remove resume_id from URL without causing navigation
+          navigate('/resume-builder', { replace: true });
+        }
+      }
+    };
+    
+    if (!isLoading && user) {
+      checkForResumeId();
+    }
+  }, [user, location.search, isLoading, navigate, setResumeData]);
 
   useEffect(() => {
     const checkForLinkedInAuth = async () => {
@@ -59,10 +96,7 @@ const ResumeBuilderPage = () => {
     }
   }, [location, isLoading, navigate, isResumeEmpty]);
 
-  // No need for the second useEffect that loads from localStorage
-  // as the ResumeContext now handles that automatically
-
-  if (isLoading || isProcessingLinkedIn) {
+  if (isLoading || isProcessingLinkedIn || isLoadingResume) {
     return (
       <Layout>
         <div className="flex justify-center items-center min-h-[60vh]">
@@ -70,6 +104,11 @@ const ResumeBuilderPage = () => {
           {isProcessingLinkedIn && (
             <p className="ml-3 text-gray-600" aria-live="polite">
               Processing LinkedIn data...
+            </p>
+          )}
+          {isLoadingResume && (
+            <p className="ml-3 text-gray-600" aria-live="polite">
+              Loading resume data...
             </p>
           )}
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ export const ImageImportDialog: React.FC<ImageImportDialogProps> = ({
         reader.readAsDataURL(file);
       });
       
-      // Call your Edge Function
+      // Call the Edge Function for processing
       const response = await supabase.functions.invoke('parse-resume', {
         body: {
           fileData,

@@ -1,6 +1,7 @@
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { AffindaAPI, AffindaCredential } from "https://esm.sh/@affinda/affinda@3.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -69,52 +70,38 @@ serve(async (req)  => {
       );
     }
     
+    // Initialize the Affinda client
+    const credential = new AffindaCredential(affindaApiKey);
+    const client = new AffindaAPI(credential);
+    
     // Call Affinda API
     console.log('Calling Affinda API for file:', fileName);
-    const affindaResponse = await fetch('https://api.affinda.com/v3/documents', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${affindaApiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        data: fileData.split(',')[1], // Remove the data:application/pdf;base64, part
-        file_name: fileName,
-        wait: 'true' // Wait for the processing to complete
-      })
+    const base64Content = fileData.split(',')[1]; // Remove the data:application/pdf;base64, part
+    
+    const response = await client.createDocument({
+      file: base64Content,
+      fileName: fileName,
+      collection: 'resumes',
+      wait: true // Wait for the processing to complete
     });
     
-    if (!affindaResponse.ok) {
-      const errorText = await affindaResponse.text();
-      console.error('Affinda API error:', affindaResponse.status, errorText);
-      
-      return new Response(
-        JSON.stringify({ 
-          error: `Error calling Affinda API (${affindaResponse.status})`, 
-          details: errorText 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-    
-    const affindaData = await affindaResponse.json();
+    const data = response.data;
     console.log('Affinda API response received for:', fileName);
     
     // Map Affinda response to your ResumeData structure
     const resumeData = {
       personal: {
-        fullName: affindaData.data.name?.raw || '',
-        jobTitle: affindaData.data.profession || '',
-        email: affindaData.data.emails?.[0] || '',
-        phone: affindaData.data.phoneNumbers?.[0] || '',
-        location: affindaData.data.location?.raw || '',
-        linkedin: affindaData.data.linkedin || '',
-        website: affindaData.data.websites?.[0] || ''
+        fullName: data.name?.raw || '',
+        jobTitle: data.profession || '',
+        email: data.emails?.[0] || '',
+        phone: data.phoneNumbers?.[0] || '',
+        location: data.location?.raw || '',
+        linkedin: data.linkedin || '',
+        website: data.websites?.[0] || ''
       },
-      summary: affindaData.data.summary || '',
-      experience: (affindaData.data.workExperience || []).map(exp => ({
-        id: Math.random().toString(36).substring(2, 9),
+      summary: data.summary || '',
+      experience: (data.workExperience || []).map(exp => ({
+        id: crypto.randomUUID(),
         company: exp.organization || '',
         position: exp.jobTitle || '',
         location: exp.location?.raw || '',
@@ -123,8 +110,8 @@ serve(async (req)  => {
         current: exp.dates?.isCurrent || false,
         description: exp.jobDescription || ''
       })),
-      education: (affindaData.data.education || []).map(edu => ({
-        id: Math.random().toString(36).substring(2, 9),
+      education: (data.education || []).map(edu => ({
+        id: crypto.randomUUID(),
         institution: edu.organization || '',
         degree: edu.accreditation?.education || '',
         field: edu.accreditation?.inputStr || '',
@@ -133,13 +120,13 @@ serve(async (req)  => {
         endDate: edu.dates?.endDate || null,
         current: edu.dates?.isCurrent || false
       })),
-      skills: (affindaData.data.skills || []).map(skill => ({
-        id: Math.random().toString(36).substring(2, 9),
+      skills: (data.skills || []).map(skill => ({
+        id: crypto.randomUUID(),
         name: skill.name,
         level: ''
       })),
-      languages: (affindaData.data.languages || []).map(language => ({
-        id: Math.random().toString(36).substring(2, 9),
+      languages: (data.languages || []).map(language => ({
+        id: crypto.randomUUID(),
         name: language,
         proficiency: 'Conversational'
       })),

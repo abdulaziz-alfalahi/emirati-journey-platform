@@ -1,2 +1,2 @@
 
-export * from '../careerPathService';
+export * from './careerPathService';
