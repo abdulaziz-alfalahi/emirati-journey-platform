@@ -1,4 +1,3 @@
-
 import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -80,6 +79,11 @@ export const parseAndSaveResume = async (
   });
   
   try {
+    // Validate file size
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      throw new Error('File size exceeds 10MB limit. Please upload a smaller file.');
+    }
+    
     // For PDFs, try direct Affinda API first if available
     let parsedData: Partial<ResumeData> | null = null;
     let parsingMethod = "edge-function";
@@ -109,8 +113,14 @@ export const parseAndSaveResume = async (
         reader.readAsDataURL(file);
       });
       
+      if (!fileData || !fileData.includes('base64')) {
+        throw new Error('Failed to convert file to base64 format');
+      }
+      
       // Call the Edge Function for processing
       toast.loading("Processing your document...", { id: toastId });
+      
+      console.log(`Sending file to Edge Function: ${file.name} (${file.type}, base64 length: ${fileData.length})`);
       
       const response = await supabase.functions.invoke('parse-resume', {
         body: {
@@ -121,11 +131,13 @@ export const parseAndSaveResume = async (
       });
       
       if (response.error) {
+        console.error('Edge Function error:', response.error);
         throw new Error(response.error.message || 'Failed to parse resume');
       }
       
       // Ensure response.data is a valid object
       if (!response.data || typeof response.data !== 'object') {
+        console.error('Invalid response data:', response.data);
         throw new Error('Invalid data returned from resume parser');
       }
       
