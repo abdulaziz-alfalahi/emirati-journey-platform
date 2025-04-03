@@ -27,30 +27,7 @@ export const getAllCareerPaths = async (): Promise<CareerPath[]> => {
 /**
  * Get a specific career path by ID
  */
-export const getCareerPathById = async (id: string): Promise<CareerPath | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('career_paths')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) {
-      console.error(`Error getting career path ${id}:`, error);
-      return null;
-    }
-    
-    return data;
-  } catch (error) {
-    console.error('Error in getCareerPathById:', error);
-    return null;
-  }
-};
-
-/**
- * Get a career path with all its stages
- */
-export const getCareerPathWithStages = async (id: string): Promise<CareerPathWithStages | null> => {
+export const getCareerPathById = async (id: string): Promise<CareerPathWithStages | null> => {
   try {
     // First get the career path
     const { data: pathData, error: pathError } = await supabase
@@ -63,7 +40,7 @@ export const getCareerPathWithStages = async (id: string): Promise<CareerPathWit
       console.error(`Error getting career path ${id}:`, pathError);
       return null;
     }
-    
+
     // Then get the stages
     const { data: stagesData, error: stagesError } = await supabase
       .from('career_path_stages')
@@ -79,11 +56,17 @@ export const getCareerPathWithStages = async (id: string): Promise<CareerPathWit
       };
     }
     
-    // Make sure all required fields exist in the stage data
-    const stages: CareerPathStage[] = stagesData.map(stage => ({
+    // Transform stage data to ensure it matches the expected type
+    const stages: CareerPathStage[] = (stagesData || []).map(stage => ({
       ...stage,
       created_at: stage.created_at || new Date().toISOString(),
-      updated_at: stage.updated_at || null
+      updated_at: stage.updated_at || null,
+      stage_type: stage.stage_type === 'education' ? 'education' : 'career' as 'education' | 'career',
+      skills: stage.skills || null,
+      requirements: stage.requirements || null,
+      description: stage.description || null,
+      duration: stage.duration || null,
+      icon: stage.icon || null
     }));
     
     return {
@@ -137,8 +120,25 @@ export const getUserCareerPaths = async (userId: string): Promise<UserCareerPath
       console.error('Error getting user career paths:', error);
       throw error;
     }
+
+    // Transform the data to ensure it matches the expected type
+    const userPaths: UserCareerPath[] = (data || []).map(path => ({
+      ...path,
+      career_path: path.career_path,
+      current_stage: path.current_stage ? {
+        ...path.current_stage,
+        stage_type: path.current_stage.stage_type === 'education' ? 'education' : 'career' as 'education' | 'career',
+        skills: path.current_stage.skills || null,
+        requirements: path.current_stage.requirements || null,
+        description: path.current_stage.description || null,
+        duration: path.current_stage.duration || null,
+        icon: path.current_stage.icon || null,
+        created_at: path.current_stage.created_at || new Date().toISOString(),
+        updated_at: path.current_stage.updated_at || null
+      } : undefined
+    }));
     
-    return data || [];
+    return userPaths;
   } catch (error) {
     console.error('Error in getUserCareerPaths:', error);
     return [];
@@ -166,6 +166,19 @@ export const getUserCareerPathDetails = async (userId: string, pathId: string): 
       console.error(`Error getting user career path ${pathId}:`, userPathError);
       return null;
     }
+
+    // Transform current stage to match expected type
+    const currentStage = userPathData.current_stage ? {
+      ...userPathData.current_stage,
+      stage_type: userPathData.current_stage.stage_type === 'education' ? 'education' : 'career' as 'education' | 'career',
+      skills: userPathData.current_stage.skills || null,
+      requirements: userPathData.current_stage.requirements || null,
+      description: userPathData.current_stage.description || null,
+      duration: userPathData.current_stage.duration || null,
+      icon: userPathData.current_stage.icon || null,
+      created_at: userPathData.current_stage.created_at || new Date().toISOString(),
+      updated_at: userPathData.current_stage.updated_at || null
+    } : null;
     
     // Get all stages for this career path
     const { data: stagesData, error: stagesError } = await supabase
@@ -178,21 +191,30 @@ export const getUserCareerPathDetails = async (userId: string, pathId: string): 
       console.error(`Error getting stages for career path ${pathId}:`, stagesError);
       return {
         ...userPathData,
+        current_stage: currentStage,
         stages: []
-      };
+      } as UserCareerPathWithDetails;
     }
     
-    // Ensure all required fields are present
-    const stages: CareerPathStage[] = stagesData.map(stage => ({
+    // Transform stages to match expected type
+    const stages: CareerPathStage[] = (stagesData || []).map(stage => ({
       ...stage,
+      stage_type: stage.stage_type === 'education' ? 'education' : 'career' as 'education' | 'career',
+      skills: stage.skills || null,
+      requirements: stage.requirements || null,
+      description: stage.description || null,
+      duration: stage.duration || null,
+      icon: stage.icon || null,
       created_at: stage.created_at || new Date().toISOString(),
       updated_at: stage.updated_at || null
     }));
     
+    // Return the user career path with details
     return {
       ...userPathData,
+      current_stage: currentStage,
       stages
-    };
+    } as UserCareerPathWithDetails;
   } catch (error) {
     console.error('Error in getUserCareerPathDetails:', error);
     return null;

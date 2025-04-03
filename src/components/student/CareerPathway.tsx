@@ -5,12 +5,12 @@ import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-  getCareerPaths, 
+  getCareerPaths,
   getUserCareerPaths, 
   selectCareerPath,
   getCareerPathById,
   updateUserCareerStage
-} from '@/services/careerPathService';
+} from '@/services/careerPath';
 import { CareerPath, CareerPathWithStages, UserCareerPath, UserCareerPathWithDetails } from '@/types/careerPath';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CareerPathwayDetails from './CareerPathwayDetails';
@@ -57,9 +57,11 @@ const CareerPathway: React.FC = () => {
     try {
       setLoadingDetails(true);
       const pathDetails = await getCareerPathById(pathId);
-      setSelectedCareerPath(pathDetails);
-      setSelectedUserPath(null);
-      setActiveTab('explore');
+      if (pathDetails) {
+        setSelectedCareerPath(pathDetails);
+        setSelectedUserPath(null);
+        setActiveTab('explore');
+      }
       setLoadingDetails(false);
     } catch (error) {
       console.error('Error fetching career path details:', error);
@@ -80,7 +82,7 @@ const CareerPathway: React.FC = () => {
       if (pathDetails) {
         const userPathWithDetails: UserCareerPathWithDetails = {
           ...userPath,
-          career_path: {
+          career_path: userPath.career_path || {
             id: pathDetails.id,
             title: pathDetails.title,
             description: pathDetails.description,
@@ -89,7 +91,7 @@ const CareerPathway: React.FC = () => {
             updated_at: pathDetails.updated_at
           },
           stages: pathDetails.stages,
-          current_stage: pathDetails.stages.find(stage => stage.id === userPath.current_stage_id) || null
+          current_stage: userPath.current_stage || pathDetails.stages.find(stage => stage.id === userPath.current_stage_id) || null
         };
         
         setSelectedUserPath(userPathWithDetails);
@@ -136,10 +138,10 @@ const CareerPathway: React.FC = () => {
   };
 
   const handleProgressStage = async (stageId: string) => {
-    if (!selectedUserPath) return;
+    if (!selectedUserPath || !user) return;
     
     try {
-      await updateUserCareerStage(selectedUserPath.id, stageId);
+      await updateUserCareerStage(user.id, selectedUserPath.id, stageId);
       
       toast({
         title: "Progress Updated",
@@ -147,7 +149,7 @@ const CareerPathway: React.FC = () => {
       });
       
       // Refresh user career paths
-      const userPaths = await getUserCareerPaths(user!.id);
+      const userPaths = await getUserCareerPaths(user.id);
       setUserCareerPaths(userPaths);
       
       // Update the selected user path
