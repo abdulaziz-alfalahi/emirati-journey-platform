@@ -39,48 +39,29 @@ export const useProcessing = ({
     try {
       console.log(`Starting to process ${file.name}`);
       
-      // For PDFs, try Affinda API first if user is logged in
-      if (user && file.type === 'application/pdf') {
+      // If the user is logged in, try to use the server-side parser
+      if (user) {
         try {
+          console.log("User is logged in, using server-side parsing via Affinda");
           // Use the integrated Supabase + Affinda service
           await parseAndSaveResume(
             file, 
             user.id,
             (parsedData) => {
+              console.log("Server-side parsing successful, updating resume data");
               const mergedData = mergeResumeData(currentData, parsedData);
               onImportComplete(mergedData);
             },
             onError
           );
           return true;
-        } catch (affindaError) {
-          console.error('Error with Affinda API, falling back to local processing:', affindaError);
-          toast.warning("Professional parser unavailable", {
+        } catch (serverError) {
+          console.error('Error with server-side parsing, falling back to client-side:', serverError);
+          toast.warning("Server parsing unavailable", {
             description: "Using local parsing as fallback.",
             duration: 5000
           });
           // Continue with client-side processing as fallback
-        }
-      } else if (user) {
-        // For non-PDF files with a logged-in user, use the server-side parser
-        try {
-          await parseAndSaveResume(
-            file, 
-            user.id,
-            (parsedData) => {
-              const mergedData = mergeResumeData(currentData, parsedData);
-              onImportComplete(mergedData);
-            },
-            onError
-          );
-          return true;
-        } catch (apiError) {
-          console.error('Server-side parsing failed, falling back to client-side:', apiError);
-          toast.warning("Server processing failed", {
-            description: "Falling back to local processing.",
-            duration: 5000
-          });
-          // Continue with client-side processing
         }
       }
       
@@ -197,7 +178,7 @@ function isPdfContentCorrupted(data: Partial<ResumeData>): boolean {
   if (!data.personal) return false;
   
   const corruptionPatterns = [
-    /%[A-F0-9]/i,                // PDF header markers
+    /%[A-F0-9]{2}/i,            // PDF header markers like %PDF
     /\/[A-Z][a-z]+ \d+ \d+ R/i,  // PDF internal references
     /endobj|endstream|xref/i,     // PDF structure markers
     /\/Font|\/Type|\/Page/i,      // PDF element markers
@@ -212,7 +193,8 @@ function isPdfContentCorrupted(data: Partial<ResumeData>): boolean {
   if (data.personal.fullName) {
     const name = data.personal.fullName;
     if (name.includes('%') || name.includes('/') || name.length === 1 || 
-        name.includes('>>') || name.includes('Font')) {
+        name.includes('>>') || name.includes('Font') ||
+        /^[^a-zA-Z]+$/.test(name)) {  // Name with no letters
       corruptionScore += 2;
     }
   }
@@ -221,7 +203,8 @@ function isPdfContentCorrupted(data: Partial<ResumeData>): boolean {
   if (data.personal.jobTitle) {
     const title = data.personal.jobTitle;
     if (title.includes('Font') || title.includes('R') || title.includes('<<') ||
-        title.includes('/') || title.includes('stream')) {
+        title.includes('/') || title.includes('stream') ||
+        /^[^a-zA-Z]+$/.test(title)) {  // Title with no letters
       corruptionScore += 2;
     }
   }

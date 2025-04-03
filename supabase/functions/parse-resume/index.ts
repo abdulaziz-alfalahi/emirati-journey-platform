@@ -135,27 +135,6 @@ serve(async (req)  => {
     } catch (affindaError) {
       console.error('Error in Affinda API call:', affindaError);
       
-      // Try OpenAI as fallback if Affinda fails with PDF
-      if (fileType === 'application/pdf') {
-        try {
-          const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-          if (openaiApiKey) {
-            console.log('Trying OpenAI fallback for PDF parsing');
-            
-            // This would call the OpenAI API to extract data from the PDF
-            // For now we'll just return an error since we'd need to implement this functionality
-            return new Response(
-              JSON.stringify({ 
-                error: 'PDF parsing failed. OpenAI fallback not yet implemented.' 
-              }),
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-            );
-          }
-        } catch (openaiError) {
-          console.error('OpenAI fallback also failed:', openaiError);
-        }
-      }
-      
       return new Response(
         JSON.stringify({ 
           error: 'Error calling Affinda API', 

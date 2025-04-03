@@ -82,6 +82,7 @@ export const parseAndSaveResume = async (
   try {
     // For PDFs, try direct Affinda API first if available
     let parsedData: Partial<ResumeData> | null = null;
+    let parsingMethod = "edge-function";
     
     // If it's a PDF, try direct Affinda parsing first before calling Edge Function
     if (file.type === 'application/pdf') {
@@ -90,6 +91,7 @@ export const parseAndSaveResume = async (
         if (apiKey) {
           console.log('Using direct Affinda API for PDF parsing');
           parsedData = await parseResumeWithAffinda(file, apiKey);
+          parsingMethod = "direct-affinda";
         }
       } catch (affindaError) {
         console.warn('Direct Affinda parsing failed, falling back to Edge Function:', affindaError);
@@ -108,6 +110,8 @@ export const parseAndSaveResume = async (
       });
       
       // Call the Edge Function for processing
+      toast.loading("Processing your document...", { id: toastId });
+      
       const response = await supabase.functions.invoke('parse-resume', {
         body: {
           fileData,
@@ -127,6 +131,22 @@ export const parseAndSaveResume = async (
       
       parsedData = response.data as Partial<ResumeData>;
     }
+    
+    // Validate the parsed data before saving
+    if (!parsedData || !parsedData.personal) {
+      throw new Error('Failed to extract meaningful data from your resume');
+    }
+    
+    console.log('Parsed resume data:', parsedData);
+    
+    // Add metadata about the parsing method
+    parsedData.metadata = {
+      ...(parsedData.metadata || {}),
+      parsingMethod,
+      parsedAt: new Date().toISOString(),
+      fileType: file.type,
+      fileName: file.name
+    };
     
     // Save to Supabase
     const resumeId = await saveResumeToSupabase(userId, parsedData);
