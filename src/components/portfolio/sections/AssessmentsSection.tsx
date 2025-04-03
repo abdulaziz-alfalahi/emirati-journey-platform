@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Gauge, Award, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AssessmentSession } from "@/types/assessments";
-import { formatDate } from "@/components/resume/utils/dateUtils";
+import { formatDate } from "@/utils/dateFormat";
 import { Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 

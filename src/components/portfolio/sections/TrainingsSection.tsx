@@ -1,9 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, ArrowUpRight } from "lucide-react";
-import { Training } from "@/types/portfolio";
-import { formatDate } from "@/components/resume/utils/dateUtils";
+import { GraduationCap, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Training } from "@/types/portfolio";
+import { formatDate } from "@/utils/dateFormat";
 import { Button } from "@/components/ui/button";
 
 interface TrainingsSectionProps {
@@ -28,7 +28,7 @@ const TrainingsSection: React.FC<TrainingsSectionProps> = ({
               <GraduationCap className="h-5 w-5 mr-2" />
               Training & Courses
             </CardTitle>
-            <CardDescription>No training data available</CardDescription>
+            <CardDescription>No training records available</CardDescription>
           </div>
           
           {isEditable && onAddTraining && (
@@ -59,50 +59,40 @@ const TrainingsSection: React.FC<TrainingsSectionProps> = ({
         )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
           {trainings.map((training) => (
             <div 
               key={training.id} 
               className="border rounded-lg p-4 hover:border-primary/50 transition-colors relative"
               onClick={() => isEditable && onEditTraining && onEditTraining(training)}
             >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-medium">{training.title}</h3>
-                  <p className="text-sm">{training.provider}</p>
-                </div>
-                
-                <Badge variant={training.is_completed ? "success" : "outline"}>
-                  {training.is_completed ? "Completed" : "In Progress"}
-                </Badge>
+              <div className="flex justify-between">
+                <h3 className="font-medium">{training.title}</h3>
+                {training.is_completed && (
+                  <Badge variant="outline" className="flex items-center">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Completed
+                  </Badge>
+                )}
               </div>
+              <p className="text-sm">{training.provider}</p>
               
               <div className="text-xs text-muted-foreground mt-1">
-                {formatDate(new Date(training.start_date))} - 
-                {training.end_date ? formatDate(new Date(training.end_date)) : "Present"}
+                {formatDate(new Date(training.start_date))}
+                {training.end_date && (
+                  <> to {formatDate(new Date(training.end_date))}</>
+                )}
               </div>
               
-              {training.description && (
-                <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                  {training.description}
-                </p>
-              )}
-              
-              {training.skills_gained.length > 0 && (
+              {training.skills_gained && training.skills_gained.length > 0 && (
                 <div className="mt-3">
-                  <h4 className="text-xs font-medium mb-1">Skills Gained</h4>
+                  <div className="text-xs mb-1 font-medium">Skills gained:</div>
                   <div className="flex flex-wrap gap-1">
-                    {training.skills_gained.slice(0, 5).map((skill, index) => (
+                    {training.skills_gained.map((skill, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
                         {skill}
                       </Badge>
                     ))}
-                    
-                    {training.skills_gained.length > 5 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{training.skills_gained.length - 5} more
-                      </Badge>
-                    )}
                   </div>
                 </div>
               )}

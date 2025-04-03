@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Video, ArrowUpRight, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AdvisorySession } from "@/types/careerAdvisory";
-import { formatDate } from "@/components/resume/utils/dateUtils";
+import { formatDate } from "@/utils/dateFormat";
 import { Link } from "react-router-dom";
 
 interface InterviewsSectionProps {

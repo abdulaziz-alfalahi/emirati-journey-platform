@@ -1,15 +1,15 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Certificate } from "lucide-react";
-import { Certificate as CertificateType } from "@/types/portfolio";
-import { formatDate } from "@/components/resume/utils/dateUtils";
+import { Award } from "lucide-react";
+import { Certificate } from "@/types/portfolio";
+import { formatDate } from "@/utils/dateFormat";
 import { Button } from "@/components/ui/button";
 
 interface CertificationsSectionProps {
-  certificates: CertificateType[] | undefined;
+  certificates: Certificate[] | undefined;
   isEditable?: boolean;
   onAddCertificate?: () => void;
-  onEditCertificate?: (certificate: CertificateType) => void;
+  onEditCertificate?: (certificate: Certificate) => void;
 }
 
 const CertificationsSection: React.FC<CertificationsSectionProps> = ({ 
@@ -24,7 +24,7 @@ const CertificationsSection: React.FC<CertificationsSectionProps> = ({
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="flex items-center">
-              <Certificate className="h-5 w-5 mr-2" />
+              <Award className="h-5 w-5 mr-2" />
               Certifications
             </CardTitle>
             <CardDescription>No certifications available</CardDescription>
@@ -45,7 +45,7 @@ const CertificationsSection: React.FC<CertificationsSectionProps> = ({
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="flex items-center">
-            <Certificate className="h-5 w-5 mr-2" />
+            <Award className="h-5 w-5 mr-2" />
             Certifications
           </CardTitle>
           <CardDescription>{certificates.length} certifications</CardDescription>

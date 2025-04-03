@@ -1,9 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, BookOpen, Award, Projector, ArrowUpRight } from "lucide-react";
-import { PortfolioHighlight } from "@/types/portfolio";
-import { formatDate } from "@/components/resume/utils/dateUtils";
+import { Star, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { PortfolioHighlight } from "@/types/portfolio";
+import { formatDate } from "@/utils/dateFormat";
 import { Button } from "@/components/ui/button";
 
 interface HighlightsSectionProps {
@@ -28,7 +28,7 @@ const HighlightsSection: React.FC<HighlightsSectionProps> = ({
               <Star className="h-5 w-5 mr-2" />
               Portfolio Highlights
             </CardTitle>
-            <CardDescription>No highlights available</CardDescription>
+            <CardDescription>No portfolio highlights available</CardDescription>
           </div>
           
           {isEditable && onAddHighlight && (
@@ -41,16 +41,16 @@ const HighlightsSection: React.FC<HighlightsSectionProps> = ({
     );
   }
 
-  const getHighlightIcon = (type: string) => {
+  const getHighlightTypeColor = (type: string) => {
     switch (type) {
       case "project":
-        return <Projector className="h-4 w-4 text-primary" />;
+        return "bg-blue-100 text-blue-800";
       case "achievement":
-        return <Award className="h-4 w-4 text-amber-500" />;
+        return "bg-green-100 text-green-800";
       case "publication":
-        return <BookOpen className="h-4 w-4 text-blue-500" />;
+        return "bg-purple-100 text-purple-800";
       default:
-        return <Star className="h-4 w-4 text-purple-500" />;
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -62,7 +62,7 @@ const HighlightsSection: React.FC<HighlightsSectionProps> = ({
             <Star className="h-5 w-5 mr-2" />
             Portfolio Highlights
           </CardTitle>
-          <CardDescription>{highlights.length} personal highlights</CardDescription>
+          <CardDescription>{highlights.length} highlights</CardDescription>
         </div>
         
         {isEditable && onAddHighlight && (
@@ -72,47 +72,45 @@ const HighlightsSection: React.FC<HighlightsSectionProps> = ({
         )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="grid gap-4">
           {highlights.map((highlight) => (
-            <div 
-              key={highlight.id} 
+            <div
+              key={highlight.id}
               className="border rounded-lg p-4 hover:border-primary/50 transition-colors relative"
               onClick={() => isEditable && onEditHighlight && onEditHighlight(highlight)}
             >
               <div className="flex justify-between items-start">
-                <div className="flex items-center">
-                  {getHighlightIcon(highlight.type)}
-                  <h3 className="font-medium ml-2">{highlight.title}</h3>
+                <div>
+                  <h3 className="font-medium">{highlight.title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className={getHighlightTypeColor(highlight.type)}>
+                      {highlight.type.charAt(0).toUpperCase() + highlight.type.slice(1)}
+                    </Badge>
+                    {highlight.date && (
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(new Date(highlight.date))}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                
-                <Badge variant="outline" className="capitalize">
-                  {highlight.type}
-                </Badge>
               </div>
               
-              {highlight.date && (
-                <div className="text-xs text-muted-foreground mt-1">
-                  {formatDate(new Date(highlight.date))}
-                </div>
-              )}
-              
-              {highlight.description && (
-                <p className="text-sm mt-2">
-                  {highlight.description}
-                </p>
-              )}
+              <div className="mt-3 text-sm text-muted-foreground">
+                <p className="line-clamp-3">{highlight.description}</p>
+              </div>
               
               {highlight.url && (
-                <a 
-                  href={highlight.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline mt-2 flex items-center"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View Resource
-                  <ArrowUpRight className="h-3 w-3 ml-1" />
-                </a>
+                <div className="mt-3">
+                  <a
+                    href={highlight.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs inline-flex items-center text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View more <ExternalLink className="h-3 w-3 ml-1" />
+                  </a>
+                </div>
               )}
               
               {isEditable && (
