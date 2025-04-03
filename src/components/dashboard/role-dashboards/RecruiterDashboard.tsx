@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, Briefcase, Calendar, User, Users } from 'lucide-react';
+import { BarChart4, Briefcase, Calendar, User, Users, Video, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +18,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
       <TabsTrigger value="overview"><User className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
       <TabsTrigger value="jobs"><Briefcase className="h-4 w-4 mr-2" /> Jobs</TabsTrigger>
       <TabsTrigger value="candidates"><Users className="h-4 w-4 mr-2" /> Candidates</TabsTrigger>
+      <TabsTrigger value="interviews"><Video className="h-4 w-4 mr-2" /> Interviews</TabsTrigger>
     </TabsList>
     
     <TabsContent value="overview" className="space-y-8">
@@ -24,9 +26,47 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
         metrics={[
           { title: "Open Positions", value: "15", change: "", description: "Currently advertised jobs" },
           { title: "Applications", value: "47", change: "", description: "Received job applications" },
-          { title: "Internship Programs", value: "8", change: "", description: "Available internship positions" }
+          { title: "Internship Programs", value: "8", change: "", description: "Available internship positions" },
+          { title: "Scheduled Interviews", value: "12", change: "", description: "Upcoming candidate interviews" }
         ]}
       />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common recruiter tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              {
+                title: "Schedule Interview", 
+                description: "Set up candidate meetings", 
+                icon: Calendar,
+                link: "/career-advisory/interviews/schedule"
+              },
+              {
+                title: "Video Interviews", 
+                description: "Conduct remote sessions", 
+                icon: Video,
+                link: "/career-advisory/interviews"
+              },
+              {
+                title: "Job Matching", 
+                description: "Find suitable candidates", 
+                icon: Users,
+                link: "/job-matching"
+              },
+              {
+                title: "Post Job", 
+                description: "Create new listings", 
+                icon: Briefcase,
+                link: "/job-descriptions"
+              }
+            ]}
+          />
+        </CardContent>
+      </Card>
     </TabsContent>
     
     <TabsContent value="jobs" className="space-y-8">
@@ -36,9 +76,11 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
           <CardDescription>Create and manage job listings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button className="w-full justify-start">
-            <Briefcase className="mr-2 h-4 w-4" /> Post New Job
-          </Button>
+          <Link to="/job-descriptions">
+            <Button className="w-full justify-start">
+              <Briefcase className="mr-2 h-4 w-4" /> Post New Job
+            </Button>
+          </Link>
           <div className="border rounded-lg divide-y">
             <div className="p-4">
               <div className="flex justify-between">
@@ -75,10 +117,110 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
         <CardContent>
           <DashboardActions 
             actions={[
-              { title: "Post Job", description: "Create new listings", icon: Briefcase },
-              { title: "Internship Manager", description: "Organize programs", icon: Calendar },
+              { title: "Post Job", description: "Create new listings", icon: Briefcase, link: "/job-descriptions" },
+              { title: "Job Matching", description: "Find suitable candidates", icon: Users, link: "/job-matching" },
               { title: "Candidate Search", description: "Find talented candidates", icon: Users },
               { title: "Emiratization Tracker", description: "Monitor compliance", icon: BarChart4 }
+            ]}
+          />
+        </CardContent>
+      </Card>
+    </TabsContent>
+    
+    <TabsContent value="interviews" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Upcoming Interviews</CardTitle>
+          <CardDescription>Your scheduled candidate interviews</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="border rounded-lg divide-y">
+            <div className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium">Technical Interview - Frontend Developer</h3>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" /> Today, 2:00 PM
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" /> 45 minutes
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" /> Ahmed Hassan
+                    </div>
+                  </div>
+                </div>
+                <Link to="/career-advisory/interviews">
+                  <Button size="sm" variant="outline">Join</Button>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium">Behavioral Interview - Project Manager</h3>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mt-2">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" /> Tomorrow, 10:30 AM
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" /> 60 minutes
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" /> Sara Al Mahmoud
+                    </div>
+                  </div>
+                </div>
+                <Link to="/career-advisory/interviews">
+                  <Button size="sm" variant="outline">View Details</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-center pt-2">
+            <Link to="/career-advisory/interviews/schedule">
+              <Button>
+                <Calendar className="mr-2 h-4 w-4" />
+                Schedule New Interview
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Interview Tools</CardTitle>
+          <CardDescription>Access your interview resources</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DashboardActions 
+            actions={[
+              { 
+                title: "Schedule Interview", 
+                description: "Set up new interviews", 
+                icon: Calendar, 
+                link: "/career-advisory/interviews/schedule" 
+              },
+              { 
+                title: "Video Interviews", 
+                description: "Conduct online interviews", 
+                icon: Video, 
+                link: "/career-advisory/interviews" 
+              },
+              { 
+                title: "Interview Templates", 
+                description: "Standardized questions", 
+                icon: Briefcase 
+              },
+              { 
+                title: "Assessment Reports", 
+                description: "View candidate results", 
+                icon: BarChart4 
+              }
             ]}
           />
         </CardContent>
