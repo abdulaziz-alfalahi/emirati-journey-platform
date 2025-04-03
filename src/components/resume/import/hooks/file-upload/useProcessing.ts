@@ -39,93 +39,120 @@ export const useProcessing = ({
     try {
       console.log(`Starting to process ${file.name}`);
       
-      if (user) {
-        // Use the integrated Supabase + Affinda service if user is logged in
-        await parseAndSaveResume(
-          file, 
-          user.id,
-          (parsedData) => {
-            const mergedData = mergeResumeData(currentData, parsedData);
-            onImportComplete(mergedData);
-          },
-          onError
-        );
-        return true;
-      } else {
-        // Fall back to client-side processing if no user is logged in
-        const { parsedData, usedFallback } = await processResumeFile(file);
-        
-        // Check for obvious PDF corruption markers in the personal data
-        const hasPdfCorruption = parsedData.personal && 
-                              (parsedData.personal.fullName?.includes('%') || 
-                               parsedData.personal.jobTitle?.includes('/') ||
-                               parsedData.personal.jobTitle?.includes('Metadata') ||
-                               parsedData.personal.email?.includes('xref'));
-        
-        if (hasPdfCorruption) {
-          console.error('Detected corrupted PDF data in parsed result:', parsedData.personal);
-          toast.error("Document Processing Error", {
-            description: "This document contains formatting that prevents proper text extraction. Please try converting it to a different format.",
-          });
-          
-          // Create a clean version without corrupted data
-          const cleanData: Partial<ResumeData> = {
-            ...parsedData,
-            personal: {
-              fullName: "",
-              jobTitle: "",
-              email: "",
-              phone: "",
-              location: "",
-              linkedin: "",
-              website: ""
+      // For PDFs, try Affinda API first if user is logged in
+      if (user && file.type === 'application/pdf') {
+        try {
+          // Use the integrated Supabase + Affinda service
+          await parseAndSaveResume(
+            file, 
+            user.id,
+            (parsedData) => {
+              const mergedData = mergeResumeData(currentData, parsedData);
+              onImportComplete(mergedData);
             },
-            summary: "We couldn't extract text properly from this document. It might contain formatting that prevents text extraction. Please try uploading a different format.",
-            metadata: {
-              ...(parsedData.metadata || {}),
-              processingError: "detected_corrupted_data",
-              cleanedAt: new Date().toISOString()
-            }
-          };
-          
-          // Still return the cleaned data so the user can edit manually
-          if (typeof onImportComplete === 'function') {
-            const mergedData = mergeResumeData(currentData, cleanData);
-            onImportComplete(mergedData);
-          }
-          
-          return true;
-        }
-        
-        // Validate parsed data to ensure it's not corrupted
-        const isDataValid = validateParsedData(parsedData);
-        
-        if (!isDataValid) {
-          throw new Error(
-            "Your document contains formatting that couldn't be properly parsed. " +
-            "Please save as PDF first or use the image upload option instead."
+            onError
           );
-        }
-        
-        if (usedFallback) {
-          toast.warning("Basic Extraction Used", {
-            description: "Limited data was extracted from your resume due to formatting issues.",
+          return true;
+        } catch (affindaError) {
+          console.error('Error with Affinda API, falling back to local processing:', affindaError);
+          toast.warning("Professional parser unavailable", {
+            description: "Using local parsing as fallback.",
+            duration: 5000
           });
-        } else {
-          toast.success("Resume Processed", {
-            description: "Your resume has been processed successfully.",
-          });
+          // Continue with client-side processing as fallback
         }
+      } else if (user) {
+        // For non-PDF files with a logged-in user, use the server-side parser
+        try {
+          await parseAndSaveResume(
+            file, 
+            user.id,
+            (parsedData) => {
+              const mergedData = mergeResumeData(currentData, parsedData);
+              onImportComplete(mergedData);
+            },
+            onError
+          );
+          return true;
+        } catch (apiError) {
+          console.error('Server-side parsing failed, falling back to client-side:', apiError);
+          toast.warning("Server processing failed", {
+            description: "Falling back to local processing.",
+            duration: 5000
+          });
+          // Continue with client-side processing
+        }
+      }
+      
+      // Fall back to client-side processing if not logged in or API failed
+      const { parsedData, usedFallback } = await processResumeFile(file);
+      
+      // Check for obvious PDF corruption markers in the personal data
+      const hasPdfCorruption = isPdfContentCorrupted(parsedData);
+      
+      if (hasPdfCorruption) {
+        console.error('Detected corrupted PDF data in parsed result:', parsedData.personal);
+        toast.error("Document Processing Error", {
+          description: "This document contains formatting that prevents proper text extraction. Please try a different file format or use our image upload option.",
+        });
         
+        // Create a clean version without corrupted data
+        const cleanData: Partial<ResumeData> = {
+          ...parsedData,
+          personal: {
+            fullName: "",
+            jobTitle: "",
+            email: "",
+            phone: "",
+            location: "",
+            linkedin: "",
+            website: ""
+          },
+          summary: "We couldn't extract text properly from this document. It might contain formatting that prevents text extraction. Please try uploading a different format.",
+          metadata: {
+            ...(parsedData.metadata || {}),
+            processingError: "detected_corrupted_data",
+            cleanedAt: new Date().toISOString()
+          }
+        };
+        
+        // Still return the cleaned data so the user can edit manually
         if (typeof onImportComplete === 'function') {
-          const mergedData = mergeResumeData(currentData, parsedData);
+          const mergedData = mergeResumeData(currentData, cleanData);
           onImportComplete(mergedData);
-        } else {
-          console.error('Error: onImportComplete is not a function');
-          toast.error("Application Error", {
-            description: "There was a problem updating the resume data. Please refresh the page and try again.",
-          });
         }
+        
+        return true;
+      }
+      
+      // Validate parsed data to ensure it's not corrupted
+      const isDataValid = validateParsedData(parsedData);
+      
+      if (!isDataValid) {
+        throw new Error(
+          "Your document contains formatting that couldn't be properly parsed. " +
+          "Please save as PDF first or use the image upload option instead."
+        );
+      }
+      
+      if (usedFallback) {
+        toast.warning("Basic Extraction Used", {
+          description: "Limited data was extracted from your resume due to formatting issues.",
+        });
+      } else {
+        toast.success("Resume Processed", {
+          description: "Your resume has been processed successfully.",
+        });
+      }
+      
+      if (typeof onImportComplete === 'function') {
+        const mergedData = mergeResumeData(currentData, parsedData);
+        onImportComplete(mergedData);
+      } else {
+        console.error('Error: onImportComplete is not a function');
+        toast.error("Application Error", {
+          description: "There was a problem updating the resume data. Please refresh the page and try again.",
+        });
       }
       
       return true;
@@ -162,3 +189,64 @@ export const useProcessing = ({
 
   return { processFile };
 };
+
+/**
+ * Detects corrupted PDF content in parsed data
+ */
+function isPdfContentCorrupted(data: Partial<ResumeData>): boolean {
+  if (!data.personal) return false;
+  
+  const corruptionPatterns = [
+    /%[A-F0-9]/i,                // PDF header markers
+    /\/[A-Z][a-z]+ \d+ \d+ R/i,  // PDF internal references
+    /endobj|endstream|xref/i,     // PDF structure markers
+    /\/Font|\/Type|\/Page/i,      // PDF element markers
+    />>/,                        // PDF dictionary ending
+    /^\s*l"%\d+/,                // Specific corrupted pattern
+  ];
+  
+  // Check personal fields for corruption patterns
+  let corruptionScore = 0;
+  
+  // Check name field for obvious corruption
+  if (data.personal.fullName) {
+    const name = data.personal.fullName;
+    if (name.includes('%') || name.includes('/') || name.length === 1 || 
+        name.includes('>>') || name.includes('Font')) {
+      corruptionScore += 2;
+    }
+  }
+  
+  // Check job title for corruption
+  if (data.personal.jobTitle) {
+    const title = data.personal.jobTitle;
+    if (title.includes('Font') || title.includes('R') || title.includes('<<') ||
+        title.includes('/') || title.includes('stream')) {
+      corruptionScore += 2;
+    }
+  }
+  
+  // Check other personal fields
+  Object.values(data.personal).forEach(value => {
+    if (typeof value === 'string') {
+      corruptionPatterns.forEach(pattern => {
+        if (pattern.test(value)) {
+          corruptionScore++;
+        }
+      });
+    }
+  });
+  
+  // Also check if there's a suspicious lack of real data
+  const hasAnyRealData = Object.values(data.personal).some(value => {
+    if (typeof value !== 'string') return false;
+    // Real data usually has words without special characters
+    return /[A-Za-z]{3,}\s+[A-Za-z]{3,}/.test(value);
+  });
+  
+  if (!hasAnyRealData && Object.values(data.personal).some(v => !!v)) {
+    corruptionScore += 2;
+  }
+  
+  return corruptionScore >= 3;
+}

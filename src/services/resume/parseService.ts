@@ -80,33 +80,53 @@ export const parseAndSaveResume = async (
   });
   
   try {
-    // Convert file to base64
-    const fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = (e) => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
+    // For PDFs, try direct Affinda API first if available
+    let parsedData: Partial<ResumeData> | null = null;
     
-    // Call the Edge Function for processing
-    const response = await supabase.functions.invoke('parse-resume', {
-      body: {
-        fileData,
-        fileName: file.name,
-        fileType: file.type
+    // If it's a PDF, try direct Affinda parsing first before calling Edge Function
+    if (file.type === 'application/pdf') {
+      try {
+        const apiKey = await getAffindaApiKey();
+        if (apiKey) {
+          console.log('Using direct Affinda API for PDF parsing');
+          parsedData = await parseResumeWithAffinda(file, apiKey);
+        }
+      } catch (affindaError) {
+        console.warn('Direct Affinda parsing failed, falling back to Edge Function:', affindaError);
+        // Will fall back to Edge Function below
       }
-    });
-    
-    if (response.error) {
-      throw new Error(response.error.message || 'Failed to parse resume');
     }
     
-    // Ensure response.data is a valid object
-    if (!response.data || typeof response.data !== 'object') {
-      throw new Error('Invalid data returned from resume parser');
+    // If direct Affinda parsing failed or wasn't attempted, try Edge Function
+    if (!parsedData) {
+      // Convert file to base64
+      const fileData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = (e) => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+      
+      // Call the Edge Function for processing
+      const response = await supabase.functions.invoke('parse-resume', {
+        body: {
+          fileData,
+          fileName: file.name,
+          fileType: file.type
+        }
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to parse resume');
+      }
+      
+      // Ensure response.data is a valid object
+      if (!response.data || typeof response.data !== 'object') {
+        throw new Error('Invalid data returned from resume parser');
+      }
+      
+      parsedData = response.data as Partial<ResumeData>;
     }
-    
-    const parsedData = response.data as Partial<ResumeData>;
     
     // Save to Supabase
     const resumeId = await saveResumeToSupabase(userId, parsedData);
