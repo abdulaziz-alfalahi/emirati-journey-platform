@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import { AffindaAPI, AffindaCredential } from "https://esm.sh/@affinda/affinda@3.0.0";
@@ -72,12 +73,12 @@ serve(async (req)  => {
         throw new Error('Invalid base64 content');
       }
       
-      // Create Affinda document request
+      // Create Affinda document request - FIX: Use wait: true (boolean) instead of wait: 'true' (string)
       const response = await client.createDocument({
         file: base64Content,
         fileName: fileName || 'resume.pdf',
         collection: 'resumes',
-        wait: true // Wait for the processing to complete
+        wait: true // Changed from string 'true' to boolean true
       });
       
       if (!response || !response.data) {
