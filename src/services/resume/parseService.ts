@@ -1,3 +1,4 @@
+
 import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
