@@ -39,12 +39,12 @@ export const parseResumeWithAffinda = async (
     
     console.log(`Parsing resume with Affinda: ${file.name} (${file.type}, ${file.size} bytes)`);
     
-    // Call Affinda API - using string 'true' for wait parameter
+    // Call Affinda API - using string 'true' for wait parameter as required
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: 'true' // Using string 'true' as required by Affinda API
+      wait: 'true' // String 'true' as required by Affinda API
     });
     
     if (!response.data) {
@@ -123,17 +123,41 @@ export const parseAndSaveResume = async (
       
       console.log(`Sending file to Edge Function: ${file.name} (${file.type}, base64 length: ${fileData.length})`);
       
-      const response = await supabase.functions.invoke('parse-resume', {
-        body: {
-          fileData,
-          fileName: file.name,
-          fileType: file.type
+      // Call Supabase Edge Function with built-in error handling and timeout
+      let response;
+      try {
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Edge Function timed out after 30 seconds')), 30000);
+        });
+        
+        response = await Promise.race([
+          supabase.functions.invoke('parse-resume', {
+            body: {
+              fileData,
+              fileName: file.name,
+              fileType: file.type
+            }
+          }),
+          timeoutPromise
+        ]);
+        
+      } catch (supabaseError) {
+        console.error('Edge Function error:', supabaseError);
+        
+        // Check for network connectivity issues
+        if (supabaseError instanceof Error && 
+            (supabaseError.message.includes('Failed to fetch') ||
+             supabaseError.message.includes('Network') ||
+             supabaseError.message.includes('timed out'))) {
+          throw new Error('Could not reach Supabase. Please check your internet connection and try again.');
         }
-      });
+        
+        throw supabaseError;
+      }
       
       if (response.error) {
-        console.error('Edge Function error:', response.error);
-        throw new Error(response.error.message || 'Failed to parse resume');
+        console.error('Edge Function returned error:', response.error);
+        throw new Error(response.error.message || 'Failed to parse resume with Supabase Edge Function');
       }
       
       // Ensure response.data is a valid object

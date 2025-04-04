@@ -108,12 +108,12 @@ export const processResumeWithAffinda = async (
     const fileBuffer = await file.arrayBuffer();
     const startTime = Date.now();
     
-    // Upload and parse resume - using string 'true' for wait parameter
+    // Upload and parse resume - using string 'true' for wait parameter as required
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: 'true' // Using string 'true' as required by Affinda API
+      wait: 'true' // String 'true' as required by Affinda API
     });
     
     console.log('Received Affinda parsing response:', response);
