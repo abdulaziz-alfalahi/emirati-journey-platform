@@ -39,12 +39,12 @@ export const parseResumeWithAffinda = async (
     
     console.log(`Parsing resume with Affinda: ${file.name} (${file.type}, ${file.size} bytes)`);
     
-    // Call Affinda API - using boolean true for wait parameter
+    // Call Affinda API - using string 'true' for wait parameter
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
       collection: 'resumes',
-      wait: true // Changed from string 'true' to boolean true
+      wait: 'true' // Using string 'true' as required by Affinda API
     });
     
     if (!response.data) {
