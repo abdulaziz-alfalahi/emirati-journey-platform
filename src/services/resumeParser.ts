@@ -22,11 +22,10 @@ export async function parseResumeWithAffinda(file: File): Promise<Partial<Resume
     // Convert file to buffer
     const fileBuffer = await file.arrayBuffer();
     
-    // Call Affinda API
+    // Call Affinda API - removed collection parameter
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
-      collection: 'resumes',
       wait: 'true' // Using string instead of boolean for Affinda API
     });
     

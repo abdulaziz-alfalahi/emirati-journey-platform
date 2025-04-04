@@ -73,12 +73,11 @@ serve(async (req)  => {
         throw new Error('Invalid base64 content');
       }
       
-      // Create Affinda document request - Using string 'true' for wait parameter as required
+      // Create Affinda document request - removed collection parameter
       const response = await client.createDocument({
         file: base64Content,
         fileName: fileName || 'resume.pdf',
-        collection: 'resumes',
-        wait: 'true' // Using string 'true' as required by Affinda API
+        wait: 'true' // String 'true' as required by Affinda API
       });
       
       if (!response || !response.data) {

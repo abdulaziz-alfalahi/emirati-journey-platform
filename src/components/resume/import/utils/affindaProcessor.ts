@@ -1,4 +1,3 @@
-
 import { AffindaAPI, AffindaCredential } from '@affinda/affinda';
 import { ResumeData } from '../../types';
 import { toast } from 'sonner';
@@ -108,11 +107,10 @@ export const processResumeWithAffinda = async (
     const fileBuffer = await file.arrayBuffer();
     const startTime = Date.now();
     
-    // Upload and parse resume - using string 'true' for wait parameter as required
+    // Upload and parse resume - removed collection parameter
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
-      collection: 'resumes',
       wait: 'true' // String 'true' as required by Affinda API
     });
     

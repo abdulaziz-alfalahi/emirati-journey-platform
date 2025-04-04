@@ -1,4 +1,3 @@
-
 import { ResumeData } from '@/components/resume/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -39,11 +38,10 @@ export const parseResumeWithAffinda = async (
     
     console.log(`Parsing resume with Affinda: ${file.name} (${file.type}, ${file.size} bytes)`);
     
-    // Call Affinda API - using string 'true' for wait parameter as required
+    // Call Affinda API - removed collection parameter
     const response = await client.createDocument({
       file: Buffer.from(fileBuffer),
       fileName: file.name,
-      collection: 'resumes',
       wait: 'true' // String 'true' as required by Affinda API
     });
     
