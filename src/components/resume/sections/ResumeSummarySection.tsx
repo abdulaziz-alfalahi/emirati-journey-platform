@@ -11,7 +11,7 @@ interface ResumeSummarySectionProps {
 
 const ResumeSummarySection: React.FC<ResumeSummarySectionProps> = ({ value, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log("Summary changed to:", e.target.value);
+    console.log("ResumeSummarySection: Summary changed to:", e.target.value);
     onChange(e.target.value);
   };
   
@@ -31,7 +31,7 @@ const ResumeSummarySection: React.FC<ResumeSummarySectionProps> = ({ value, onCh
             <Label htmlFor="summary">Summary</Label>
             <Textarea
               id="summary"
-              value={value || ''}
+              value={value || ''} // Ensure value is never undefined
               onChange={handleChange}
               placeholder="e.g., Dedicated software engineer with 5+ years of experience developing web applications using React and Node.js. Strong problem-solving skills and a track record of delivering projects on time and within budget."
               className="min-h-[200px]"

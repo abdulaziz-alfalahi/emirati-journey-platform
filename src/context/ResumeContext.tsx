@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { ResumeData } from '@/components/resume/types';
+import { toast } from 'sonner';
 
 // Default empty resume data structure
 const defaultResumeData: ResumeData = {
@@ -57,7 +58,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
       if (savedResume) {
         try {
           const parsedData = JSON.parse(savedResume);
-          console.log('Loaded resume data from localStorage');
+          console.log('Loaded resume data from localStorage:', parsedData);
           return parsedData;
         } catch (error) {
           console.error("Error parsing saved resume:", error);
@@ -105,6 +106,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
       };
       
       setResumeDataState(sanitizedData);
+      console.log('Resume data updated:', sanitizedData);
       
       // Save to localStorage
       if (typeof window !== 'undefined') {
@@ -112,13 +114,13 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
       }
     } catch (error) {
       console.error('Error in setResumeData:', error);
-      // You could add toast notification here if needed
+      toast.error('Failed to update resume data');
     }
   };
 
   // Helper to update just one section of the resume
   const updateResumeSection = <K extends keyof ResumeData>(section: K, data: ResumeData[K]) => {
-    console.log(`Updating resume section "${section}" with:`, data);
+    console.log(`ResumeContext: Updating resume section "${section}" with:`, data);
     
     // Create a new object with the updated section
     const updatedData = {
@@ -136,6 +138,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
 
   // Reset resume to default empty state
   const resetResume = () => {
+    console.log('Resetting resume to default state');
     setResumeData({
       ...defaultResumeData,
       metadata: {
@@ -144,6 +147,7 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
         reset: true
       }
     });
+    toast.success('Resume has been reset');
   };
 
   // Save to localStorage whenever resumeData changes

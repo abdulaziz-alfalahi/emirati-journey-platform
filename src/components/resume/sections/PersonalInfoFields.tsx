@@ -22,18 +22,20 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
     location: data?.location || '',
     linkedin: data?.linkedin || '',
     website: data?.website || '',
-    ...data
+    ...data // This ensures any additional fields are preserved
   };
 
   const handleInputChange = (field: keyof Personal) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    console.log(`Updating ${field} to:`, value);
+    console.log(`PersonalInfoFields: Updating ${field} to:`, value);
     
+    // Use a new object to trigger state updates properly
     const updatedData = {
       ...safeData,
       [field]: value
     };
     
+    // Call the parent's onChange with the complete updated object
     onChange(updatedData);
   };
 
