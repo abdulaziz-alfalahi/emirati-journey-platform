@@ -32,6 +32,7 @@ import AnalyticsPage from './pages/analytics'
 import JobDescriptionsPage from './pages/job-descriptions'
 import RecruiterPage from './pages/recruiter'
 import RecruiterMatchingPage from './pages/recruiter/matching/[id]'
+import TestFormPage from './pages/test-form'
 
 const App = () => {
   return (
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/summer-camps" element={<SummerCampsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+            <Route path="/test-form" element={<TestFormPage />} />
             {/* Recruiter routes */}
             <Route path="/recruiter" element={<RecruiterPage />} />
             <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
