@@ -1,82 +1,77 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { FileText, Users } from 'lucide-react';
-
-interface Job {
-  id: string;
-  title: string;
-  company: string | null;
-  location: string | null;
-  posted_date: string;
-  created_at: string;
-}
+import { Badge } from '@/components/ui/badge';
+import { Users } from 'lucide-react';
 
 interface JobsTableProps {
-  jobs: Job[];
+  jobs: any[];
   onFindMatches: (jobId: string) => void;
 }
 
 const JobsTable = ({ jobs, onFindMatches }: JobsTableProps) => {
-  const navigate = useNavigate();
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Title</TableHead>
-          <TableHead>Company</TableHead>
-          <TableHead>Location</TableHead>
-          <TableHead>Posted Date</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {jobs?.length ? (
-          jobs.map((job) => (
-            <TableRow key={job.id}>
-              <TableCell className="font-medium">{job.title}</TableCell>
-              <TableCell>{job.company || 'Not specified'}</TableCell>
-              <TableCell>{job.location || 'Not specified'}</TableCell>
-              <TableCell>{new Date(job.posted_date || job.created_at).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Job Title</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Posted</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.length > 0 ? (
+            jobs.map((job) => (
+              <TableRow key={job.id}>
+                <TableCell className="font-medium">{job.title}</TableCell>
+                <TableCell>{job.company || 'N/A'}</TableCell>
+                <TableCell>{job.location || 'N/A'}</TableCell>
+                <TableCell>{formatDate(job.created_at)}</TableCell>
+                <TableCell className="text-right">
+                  <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => onFindMatches(job.id)}
+                    className="gap-1"
                   >
-                    <Users className="h-4 w-4 mr-1" /> Find Matches
+                    <Users className="h-4 w-4" />
+                    Match to Candidates
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => navigate(`/job-descriptions/${job.id}`)}
-                  >
-                    <FileText className="h-4 w-4" />
-                  </Button>
-                </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-4">
+                No job descriptions found. Create a new job or upload job descriptions to get started.
               </TableCell>
             </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={5} className="text-center py-6">
-              No job descriptions found. Create or upload job descriptions to get started.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

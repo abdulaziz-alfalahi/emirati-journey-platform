@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, FileText, Users, Briefcase } from 'lucide-react';
+import { ArrowRight, FileText, Users, Briefcase, Building } from 'lucide-react';
 
 export function JobMatchingHome() {
   const navigate = useNavigate();
@@ -21,10 +22,10 @@ export function JobMatchingHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Our enhanced resume parser extracts key information from resumes including:
             </p>
-            <ul className="list-disc pl-5 text-sm text-gray-500 mb-4">
+            <ul className="list-disc pl-5 text-sm text-muted-foreground mb-4">
               <li>Personal information and contact details</li>
               <li>Work experience and job history</li>
               <li>Education and qualifications</li>
@@ -48,10 +49,10 @@ export function JobMatchingHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Our job description parser extracts structured information including:
             </p>
-            <ul className="list-disc pl-5 text-sm text-gray-500 mb-4">
+            <ul className="list-disc pl-5 text-sm text-muted-foreground mb-4">
               <li>Job title, company, and location</li>
               <li>Employment type and work mode</li>
               <li>Responsibilities and requirements</li>
@@ -72,48 +73,53 @@ export function JobMatchingHome() {
         <CardHeader>
           <CardTitle>Matching Dashboard</CardTitle>
           <CardDescription>
-            Match candidates with job opportunities and vice versa
+            Find the right opportunities by matching candidates and jobs
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="candidates">
-            <TabsList className="mb-4">
-              <TabsTrigger value="candidates">
-                <Users className="mr-2 h-4 w-4" />
-                Candidates to Jobs
-              </TabsTrigger>
-              <TabsTrigger value="jobs">
-                <Briefcase className="mr-2 h-4 w-4" />
-                Jobs to Candidates
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="candidates">
-              <div className="p-4 border rounded-md bg-gray-50">
-                <h3 className="font-medium mb-2">Find the Best Job Matches for Candidates</h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Select a candidate and find the most compatible job opportunities based on their skills, experience, education, and other factors.
-                </p>
-                <Button onClick={() => navigate('/matching?tab=candidates')}>
-                  Match Candidates to Jobs
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 border rounded-md bg-muted/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="h-5 w-5 text-primary" />
+                <h3 className="font-medium">Candidate to Jobs</h3>
               </div>
-            </TabsContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Find the most compatible job opportunities based on a candidate's skills, experience, education, and other factors.
+              </p>
+              <Button onClick={() => navigate('/matching?tab=candidates')} className="w-full">
+                Match Candidates to Jobs
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
             
-            <TabsContent value="jobs">
-              <div className="p-4 border rounded-md bg-gray-50">
-                <h3 className="font-medium mb-2">Find the Best Candidates for Jobs</h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Select a job opening and find the most compatible candidates based on the job requirements and candidate profiles.
-                </p>
-                <Button onClick={() => navigate('/matching?tab=jobs')}>
-                  Match Jobs to Candidates
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+            <div className="p-4 border rounded-md bg-muted/50">
+              <div className="flex items-center gap-2 mb-3">
+                <Briefcase className="h-5 w-5 text-primary" />
+                <h3 className="font-medium">Job to Candidates</h3>
               </div>
-            </TabsContent>
-          </Tabs>
+              <p className="text-sm text-muted-foreground mb-4">
+                Find the most compatible candidates based on job requirements and candidate profiles.
+              </p>
+              <Button onClick={() => navigate('/matching?tab=jobs')} className="w-full">
+                Match Jobs to Candidates
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 border rounded-md bg-primary/10">
+            <div className="flex items-center gap-2 mb-3">
+              <Building className="h-5 w-5 text-primary" />
+              <h3 className="font-medium">Recruiter Dashboard</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Access the comprehensive recruiter dashboard to manage job listings and find candidates that match your specific job requirements.
+            </p>
+            <Button onClick={() => navigate('/recruiter')} variant="outline" className="w-full">
+              Go to Recruiter Dashboard
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

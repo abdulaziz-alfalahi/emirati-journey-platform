@@ -3,6 +3,9 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ResumePreview from '../ResumePreview';
 import { ResumeData, ResumeTemplate } from '../types';
+import { Button } from '@/components/ui/button';
+import { Briefcase } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ResumePreviewDialogProps {
   isOpen: boolean;
@@ -21,6 +24,15 @@ const ResumePreviewDialog: React.FC<ResumePreviewDialogProps> = ({
   theme,
   previewRef
 }) => {
+  const navigate = useNavigate();
+
+  const handleMatchJobs = () => {
+    // Close the dialog
+    onOpenChange(false);
+    // Navigate to the matching page with candidates tab selected
+    navigate('/matching?tab=candidates');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
@@ -35,6 +47,16 @@ const ResumePreviewDialog: React.FC<ResumePreviewDialogProps> = ({
               theme={theme}
             />
           </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button 
+            variant="outline" 
+            onClick={handleMatchJobs}
+            className="gap-2"
+          >
+            <Briefcase size={16} />
+            Match to Jobs
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

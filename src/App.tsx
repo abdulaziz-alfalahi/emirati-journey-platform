@@ -10,7 +10,7 @@ import HomePage from './pages/home'
 import NotFound from './pages/not-found'
 import DashboardPage from './pages/dashboard'
 import JobMatchingPage from './pages/job-matching'
-import JobMatchingHomePage from './pages/job-matching/index'
+import MatchingPage from './pages/matching/index'
 import ResumeBuilderPage from './pages/resume-builder'
 import ScholarshipsPage from './pages/scholarships'
 import ProfilePage from './pages/profile'
@@ -42,7 +42,7 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/job-matching" element={<JobMatchingPage />} />
-            <Route path="/job-matching/index" element={<JobMatchingHomePage />} />
+            <Route path="/matching" element={<MatchingPage />} />
             <Route path="/resume-builder" element={<ResumeBuilderPage />} />
             <Route path="/scholarships" element={<ScholarshipsPage />} />
             <Route path="/internships" element={<InternshipsPage />} />
@@ -62,9 +62,11 @@ const App = () => {
             <Route path="/summer-camps" element={<SummerCampsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-            {/* New recruiter routes */}
+            {/* Recruiter routes */}
             <Route path="/recruiter" element={<RecruiterPage />} />
             <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
+            {/* Redirect legacy routes */}
+            <Route path="/job-matching/index" element={<Navigate to="/job-matching" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
