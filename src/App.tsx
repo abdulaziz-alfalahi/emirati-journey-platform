@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -28,6 +29,9 @@ import ScheduleInterviewPage from './pages/career-advisory/interviews/schedule'
 import PortfolioPage from './pages/portfolio'
 import PortfolioViewPage from './pages/portfolio/[id]'
 import AnalyticsPage from './pages/analytics'
+import JobDescriptionsPage from './pages/job-descriptions'
+import RecruiterPage from './pages/recruiter'
+import RecruiterMatchingPage from './pages/recruiter/matching/[id]'
 
 const App = () => {
   return (
@@ -57,6 +61,10 @@ const App = () => {
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/summer-camps" element={<SummerCampsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+            {/* New recruiter routes */}
+            <Route path="/recruiter" element={<RecruiterPage />} />
+            <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />

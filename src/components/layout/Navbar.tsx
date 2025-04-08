@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award, BadgeCheck } from 'lucide-react';
+import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award, BadgeCheck, Briefcase } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -29,15 +30,17 @@ const navigationItems = [
   { name: 'Internships', href: '/internships' },
   { name: 'Summer Camps', href: '/summer-camps' },
   { name: 'Assessments', href: '/assessments' },
+  { name: 'Recruiter', href: '/recruiter' },
 ];
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, roles } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
 
   const isAuthenticated = !!user;
+  const isRecruiter = roles.includes('private_sector_recruiter');
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -51,33 +54,49 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  const mainNavItems = [
-    {
-      name: 'Job Matching',
-      href: '/job-matching',
-      icon: <BarChart3 className="h-5 w-5 mr-2" />,
-    },
-    {
-      name: 'Resume Builder',
-      href: '/resume-builder',
-      icon: <FilePlus className="h-5 w-5 mr-2" />,
-    },
-    {
-      name: 'Summer Camps',
-      href: '/summer-camps',
-      icon: <Calendar className="h-5 w-5 mr-2" />,
-    },
-    {
-      name: 'Scholarships',
-      href: '/scholarships',
-      icon: <Award className="h-5 w-5 mr-2" />,
-    },
-    {
-      name: 'Assessments',
-      href: '/assessments',
-      icon: <BadgeCheck className="h-5 w-5 mr-2" />,
+  // Define main nav items, conditionally including recruiter
+  const getMainNavItems = () => {
+    const items = [
+      {
+        name: 'Job Matching',
+        href: '/job-matching',
+        icon: <BarChart3 className="h-5 w-5 mr-2" />,
+      },
+      {
+        name: 'Resume Builder',
+        href: '/resume-builder',
+        icon: <FilePlus className="h-5 w-5 mr-2" />,
+      },
+      {
+        name: 'Summer Camps',
+        href: '/summer-camps',
+        icon: <Calendar className="h-5 w-5 mr-2" />,
+      },
+      {
+        name: 'Scholarships',
+        href: '/scholarships',
+        icon: <Award className="h-5 w-5 mr-2" />,
+      },
+      {
+        name: 'Assessments',
+        href: '/assessments',
+        icon: <BadgeCheck className="h-5 w-5 mr-2" />,
+      }
+    ];
+    
+    // Add recruiter link if user has recruiter role
+    if (isRecruiter) {
+      items.push({
+        name: 'Recruiter Dashboard',
+        href: '/recruiter',
+        icon: <Briefcase className="h-5 w-5 mr-2" />,
+      });
     }
-  ];
+    
+    return items;
+  };
+
+  const mainNavItems = getMainNavItems();
 
   return (
     <div className="bg-background border-b">
