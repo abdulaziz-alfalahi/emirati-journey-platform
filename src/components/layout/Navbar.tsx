@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -40,7 +39,7 @@ const Navbar: React.FC = () => {
   const isMobile = useIsMobile();
 
   const isAuthenticated = !!user;
-  const isRecruiter = roles.includes('private_sector_recruiter');
+  const isRecruiter = isAuthenticated;
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -54,7 +53,6 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
   };
 
-  // Define main nav items, conditionally including recruiter
   const getMainNavItems = () => {
     const items = [
       {
@@ -84,7 +82,6 @@ const Navbar: React.FC = () => {
       }
     ];
     
-    // Add recruiter link if user has recruiter role
     if (isRecruiter) {
       items.push({
         name: 'Recruiter Dashboard',

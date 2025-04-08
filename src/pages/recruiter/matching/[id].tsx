@@ -7,9 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // Import components
-import PageHeader from '@/components/recruiter/matching/PageHeader';
-import JobDetails from '@/components/recruiter/matching/JobDetails';
-import CandidatesList from '@/components/recruiter/matching/CandidatesList';
+import { PageHeader, JobDetails, CandidatesList } from '@/components/recruiter/matching';
 
 interface Candidate {
   id: string;
