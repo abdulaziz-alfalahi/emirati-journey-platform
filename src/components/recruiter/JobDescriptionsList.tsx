@@ -3,46 +3,27 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
-  CardContent, 
+  CardContent,
   CardDescription, 
-  CardFooter, 
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Briefcase, FileText, ListCheck, Plus, Upload, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { JobDescriptionParser } from '@/components/resume/utils/jobDescriptionParser';
+
+// Import the new components
+import JobDescriptionHeader from './components/JobDescriptionHeader';
+import CreateJobDialog from './components/CreateJobDialog';
+import UploadJobDialog from './components/UploadJobDialog';
+import JobsTable from './components/JobsTable';
 
 const JobDescriptionsList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newJobTitle, setNewJobTitle] = useState('');
-  const [newJobDescription, setNewJobDescription] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   
   // Fetch job descriptions
@@ -120,8 +101,8 @@ const JobDescriptionsList = () => {
   };
 
   // Handle manual job creation
-  const handleCreateJob = async () => {
-    if (!newJobTitle || !newJobDescription) {
+  const handleCreateJob = async (title: string, description: string) => {
+    if (!title || !description) {
       toast({
         variant: 'destructive',
         title: 'Missing Information',
@@ -132,17 +113,17 @@ const JobDescriptionsList = () => {
     
     try {
       const parser = new JobDescriptionParser();
-      const parsedJD = parser.parseJobDescription(newJobDescription);
+      const parsedJD = parser.parseJobDescription(description);
       
       const { error } = await supabase
         .from('job_descriptions')
         .insert({
-          title: newJobTitle,
+          title: title,
           company: parsedJD.company,
           location: parsedJD.location,
           employment_type: parsedJD.employmentType,
           work_mode: parsedJD.workMode,
-          description: newJobDescription,
+          description: description,
           responsibilities: parsedJD.responsibilities,
           requirements: parsedJD.requirements,
           benefits: parsedJD.benefits,
@@ -160,8 +141,6 @@ const JobDescriptionsList = () => {
         description: 'The job description has been created successfully.',
       });
       
-      setNewJobTitle('');
-      setNewJobDescription('');
       setIsCreateOpen(false);
       refetch();
     } catch (error) {
@@ -181,81 +160,10 @@ const JobDescriptionsList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Job Descriptions</h2>
-          <p className="text-muted-foreground">Manage and post job openings</p>
-        </div>
-        <div className="flex gap-3">
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" /> Create Job
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Create New Job</DialogTitle>
-                <DialogDescription>
-                  Fill in the details to create a new job description.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Job Title</Label>
-                  <Input
-                    id="title"
-                    value={newJobTitle}
-                    onChange={(e) => setNewJobTitle(e.target.value)}
-                    placeholder="Senior Software Engineer"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Job Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newJobDescription}
-                    onChange={(e) => setNewJobDescription(e.target.value)}
-                    placeholder="Full job description with responsibilities, requirements, benefits..."
-                    rows={8}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreateJob}>Create Job</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" /> Upload Job Descriptions
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Upload Job Descriptions</DialogTitle>
-                <DialogDescription>
-                  Upload job description files (.txt, .docx, .pdf)
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <Label htmlFor="job-files">Job Description Files</Label>
-                <Input
-                  id="job-files"
-                  type="file"
-                  multiple
-                  accept=".txt,.docx,.pdf"
-                  onChange={handleFileUpload}
-                  disabled={isUploading}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+      <JobDescriptionHeader
+        onOpenCreateDialog={() => setIsCreateOpen(true)}
+        onOpenUploadDialog={() => setIsUploadOpen(true)}
+      />
       
       {isLoading ? (
         <div className="flex justify-center p-8">
@@ -270,56 +178,26 @@ const JobDescriptionsList = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Posted Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jobDescriptions?.length ? (
-                  jobDescriptions.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-medium">{job.title}</TableCell>
-                      <TableCell>{job.company || 'Not specified'}</TableCell>
-                      <TableCell>{job.location || 'Not specified'}</TableCell>
-                      <TableCell>{new Date(job.posted_date || job.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleFindMatches(job.id)}
-                          >
-                            <Users className="h-4 w-4 mr-1" /> Find Matches
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            onClick={() => navigate(`/job-descriptions/${job.id}`)}
-                          >
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-6">
-                      No job descriptions found. Create or upload job descriptions to get started.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+            <JobsTable 
+              jobs={jobDescriptions || []} 
+              onFindMatches={handleFindMatches} 
+            />
           </CardContent>
         </Card>
       )}
+      
+      <CreateJobDialog
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onCreateJob={handleCreateJob}
+      />
+      
+      <UploadJobDialog
+        isOpen={isUploadOpen}
+        onOpenChange={setIsUploadOpen}
+        onFileUpload={handleFileUpload}
+        isUploading={isUploading}
+      />
     </div>
   );
 };
