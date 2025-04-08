@@ -167,6 +167,49 @@ const JobMatchingPage = () => {
     return 'bg-orange-500';
   };
 
+  // Function to safely render job description fields that might be in different formats
+  const renderJobDescriptionText = (text: any): string => {
+    if (typeof text === 'string') return text;
+    if (Array.isArray(text)) return text.join(', ');
+    if (text && typeof text === 'object') return JSON.stringify(text);
+    return 'No description available.';
+  };
+
+  // Function to safely render requirement items
+  const renderRequirements = () => {
+    if (!jobDescription?.requirements) return null;
+    
+    let requirements: string[] = [];
+    
+    // Handle different formats of requirements data
+    if (Array.isArray(jobDescription.requirements)) {
+      requirements = jobDescription.requirements;
+    } else if (typeof jobDescription.requirements === 'string') {
+      requirements = [jobDescription.requirements];
+    } else if (jobDescription.requirements && typeof jobDescription.requirements === 'object') {
+      // Try to extract an array if possible
+      const reqObj = jobDescription.requirements as any;
+      if (reqObj.skills && Array.isArray(reqObj.skills)) {
+        requirements = reqObj.skills.map((skill: any) => 
+          typeof skill === 'string' ? skill : skill.name || JSON.stringify(skill)
+        );
+      }
+    }
+    
+    if (requirements.length === 0) return null;
+    
+    return (
+      <div>
+        <h3 className="font-medium mb-2">Requirements</h3>
+        <ul className="list-disc pl-5 text-sm space-y-1">
+          {requirements.map((req, index) => (
+            <li key={index}>{req}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -199,19 +242,10 @@ const JobMatchingPage = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-medium mb-2">Job Description</h3>
-                    <p className="text-sm">{jobDescription?.description || 'No description available.'}</p>
+                    <p className="text-sm">{renderJobDescriptionText(jobDescription?.description)}</p>
                   </div>
                   
-                  {jobDescription?.requirements && Array.isArray(jobDescription.requirements) && (
-                    <div>
-                      <h3 className="font-medium mb-2">Requirements</h3>
-                      <ul className="list-disc pl-5 text-sm space-y-1">
-                        {jobDescription.requirements.map((req, index) => (
-                          <li key={index}>{req}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {renderRequirements()}
                   
                   <div className="flex justify-between items-center">
                     <div className="space-y-2">
