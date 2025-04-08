@@ -78,11 +78,37 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
   const setResumeData = (data: ResumeData) => {
     try {
       console.log('Context: setResumeData called with data:', data);
-      setResumeDataState(data);
+      
+      // Ensure we have a fully sanitized data object with default values for missing properties
+      const sanitizedData: ResumeData = {
+        personal: {
+          fullName: data.personal?.fullName || "",
+          jobTitle: data.personal?.jobTitle || "",
+          email: data.personal?.email || "",
+          phone: data.personal?.phone || "",
+          location: data.personal?.location || "",
+          linkedin: data.personal?.linkedin || "",
+          website: data.personal?.website || ""
+        },
+        summary: data.summary || "",
+        experience: data.experience || [],
+        education: data.education || [],
+        skills: data.skills || [],
+        languages: data.languages || [],
+        certifications: data.certifications || [],
+        projects: data.projects || [],
+        interests: data.interests || [],
+        metadata: {
+          ...(data.metadata || {}),
+          lastUpdated: new Date().toISOString()
+        }
+      };
+      
+      setResumeDataState(sanitizedData);
       
       // Save to localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem("savedResume", JSON.stringify(data));
+        localStorage.setItem("savedResume", JSON.stringify(sanitizedData));
       }
     } catch (error) {
       console.error('Error in setResumeData:', error);
@@ -93,7 +119,9 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
   // Helper to update just one section of the resume
   const updateResumeSection = <K extends keyof ResumeData>(section: K, data: ResumeData[K]) => {
     console.log(`Updating resume section "${section}" with:`, data);
-    setResumeData({
+    
+    // Create a new object with the updated section
+    const updatedData = {
       ...resumeData,
       [section]: data,
       metadata: {
@@ -101,7 +129,9 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
         lastUpdated: new Date().toISOString(),
         updatedSection: section
       }
-    });
+    };
+    
+    setResumeData(updatedData);
   };
 
   // Reset resume to default empty state

@@ -13,12 +13,27 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
   data,
   onChange
 }) => {
+  // Create a safe data object with fallbacks for nullish values
+  const safeData = {
+    fullName: data?.fullName || '',
+    jobTitle: data?.jobTitle || '',
+    email: data?.email || '',
+    phone: data?.phone || '',
+    location: data?.location || '',
+    linkedin: data?.linkedin || '',
+    website: data?.website || '',
+    ...data
+  };
+
   const handleInputChange = (field: keyof Personal) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log(`Updating ${field} to:`, value);
+    
     const updatedData = {
-      ...data,
-      [field]: e.target.value
+      ...safeData,
+      [field]: value
     };
-    console.log(`Updating ${field} to:`, e.target.value);
+    
     onChange(updatedData);
   };
 
@@ -29,7 +44,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="fullName">Full Name</Label>
           <Input
             id="fullName"
-            value={data.fullName || ''}
+            value={safeData.fullName}
             onChange={handleInputChange('fullName')}
             placeholder="John Doe"
           />
@@ -38,7 +53,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="jobTitle">Job Title</Label>
           <Input
             id="jobTitle"
-            value={data.jobTitle || ''}
+            value={safeData.jobTitle}
             onChange={handleInputChange('jobTitle')}
             placeholder="Software Engineer"
           />
@@ -51,7 +66,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Input
             id="email"
             type="email"
-            value={data.email || ''}
+            value={safeData.email}
             onChange={handleInputChange('email')}
             placeholder="john.doe@example.com"
           />
@@ -60,7 +75,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
-            value={data.phone || ''}
+            value={safeData.phone}
             onChange={handleInputChange('phone')}
             placeholder="+1 (555) 123-4567"
           />
@@ -71,7 +86,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
-          value={data.location || ''}
+          value={safeData.location}
           onChange={handleInputChange('location')}
           placeholder="San Francisco, CA"
         />
@@ -82,7 +97,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="linkedin">LinkedIn (optional)</Label>
           <Input
             id="linkedin"
-            value={data.linkedin || ''}
+            value={safeData.linkedin}
             onChange={handleInputChange('linkedin')}
             placeholder="https://linkedin.com/in/johndoe"
           />
@@ -91,7 +106,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="website">Website (optional)</Label>
           <Input
             id="website"
-            value={data.website || ''}
+            value={safeData.website}
             onChange={handleInputChange('website')}
             placeholder="https://johndoe.com"
           />
