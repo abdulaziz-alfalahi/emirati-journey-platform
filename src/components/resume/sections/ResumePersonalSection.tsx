@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Personal } from '../types';
 import PersonalInfoFields from './PersonalInfoFields';
 
@@ -13,12 +13,21 @@ const ResumePersonalSection: React.FC<ResumePersonalSectionProps> = ({
   data,
   onChange
 }) => {
+  // Log when personal data changes are triggered
+  const handlePersonalDataChange = (updatedData: Personal) => {
+    console.log('ResumePersonalSection: Updating personal data:', updatedData);
+    onChange(updatedData);
+  };
+
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardHeader>
+        <CardTitle>Personal Information</CardTitle>
+      </CardHeader>
+      <CardContent>
         <PersonalInfoFields 
           data={data}
-          onChange={onChange}
+          onChange={handlePersonalDataChange}
         />
       </CardContent>
     </Card>

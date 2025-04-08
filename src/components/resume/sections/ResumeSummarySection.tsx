@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,10 +10,18 @@ interface ResumeSummarySectionProps {
 }
 
 const ResumeSummarySection: React.FC<ResumeSummarySectionProps> = ({ value, onChange }) => {
+  // Log the incoming value for debugging
+  useEffect(() => {
+    console.log('ResumeSummarySection received value:', value);
+  }, [value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     console.log("ResumeSummarySection: Summary changed to:", e.target.value);
     onChange(e.target.value);
   };
+  
+  // Ensure value is never undefined
+  const safeValue = value || '';
   
   return (
     <Card>
@@ -31,10 +39,11 @@ const ResumeSummarySection: React.FC<ResumeSummarySectionProps> = ({ value, onCh
             <Label htmlFor="summary">Summary</Label>
             <Textarea
               id="summary"
-              value={value || ''} // Ensure value is never undefined
+              value={safeValue}
               onChange={handleChange}
               placeholder="e.g., Dedicated software engineer with 5+ years of experience developing web applications using React and Node.js. Strong problem-solving skills and a track record of delivering projects on time and within budget."
               className="min-h-[200px]"
+              aria-label="Professional Summary"
             />
           </div>
         </div>

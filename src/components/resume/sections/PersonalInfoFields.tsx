@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Personal } from '../types';
@@ -25,6 +25,11 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
     ...data // This ensures any additional fields are preserved
   };
 
+  // Log the incoming data for debugging
+  useEffect(() => {
+    console.log('PersonalInfoFields received data:', data);
+  }, [data]);
+
   const handleInputChange = (field: keyof Personal) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     console.log(`PersonalInfoFields: Updating ${field} to:`, value);
@@ -49,6 +54,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.fullName}
             onChange={handleInputChange('fullName')}
             placeholder="John Doe"
+            aria-label="Full Name"
           />
         </div>
         <div>
@@ -58,6 +64,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.jobTitle}
             onChange={handleInputChange('jobTitle')}
             placeholder="Software Engineer"
+            aria-label="Job Title"
           />
         </div>
       </div>
@@ -71,6 +78,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.email}
             onChange={handleInputChange('email')}
             placeholder="john.doe@example.com"
+            aria-label="Email Address"
           />
         </div>
         <div>
@@ -80,6 +88,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.phone}
             onChange={handleInputChange('phone')}
             placeholder="+1 (555) 123-4567"
+            aria-label="Phone Number"
           />
         </div>
       </div>
@@ -91,6 +100,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           value={safeData.location}
           onChange={handleInputChange('location')}
           placeholder="San Francisco, CA"
+          aria-label="Location"
         />
       </div>
 
@@ -102,6 +112,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.linkedin}
             onChange={handleInputChange('linkedin')}
             placeholder="https://linkedin.com/in/johndoe"
+            aria-label="LinkedIn Profile URL"
           />
         </div>
         <div>
@@ -111,6 +122,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
             value={safeData.website}
             onChange={handleInputChange('website')}
             placeholder="https://johndoe.com"
+            aria-label="Personal Website URL"
           />
         </div>
       </div>

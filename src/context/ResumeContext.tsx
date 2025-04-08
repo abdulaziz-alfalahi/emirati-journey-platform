@@ -62,6 +62,8 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
           return parsedData;
         } catch (error) {
           console.error("Error parsing saved resume:", error);
+          // If there's an error parsing, return the default
+          return defaultResumeData;
         }
       }
     }
@@ -92,26 +94,35 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
           website: data.personal?.website || ""
         },
         summary: data.summary || "",
-        experience: data.experience || [],
-        education: data.education || [],
-        skills: data.skills || [],
-        languages: data.languages || [],
-        certifications: data.certifications || [],
-        projects: data.projects || [],
-        interests: data.interests || [],
+        experience: Array.isArray(data.experience) ? data.experience : [],
+        education: Array.isArray(data.education) ? data.education : [],
+        skills: Array.isArray(data.skills) ? data.skills : [],
+        languages: Array.isArray(data.languages) ? data.languages : [],
+        certifications: Array.isArray(data.certifications) ? data.certifications : [],
+        projects: Array.isArray(data.projects) ? data.projects : [],
+        interests: Array.isArray(data.interests) ? data.interests : [],
         metadata: {
           ...(data.metadata || {}),
           lastUpdated: new Date().toISOString()
         }
       };
       
-      setResumeDataState(sanitizedData);
-      console.log('Resume data updated:', sanitizedData);
-      
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem("savedResume", JSON.stringify(sanitizedData));
-      }
+      setResumeDataState(prevState => {
+        // Compare with previous state to avoid unnecessary updates
+        if (JSON.stringify(prevState) === JSON.stringify(sanitizedData)) {
+          console.log('Resume data unchanged, skipping update');
+          return prevState;
+        }
+        
+        console.log('Resume data updated:', sanitizedData);
+        
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("savedResume", JSON.stringify(sanitizedData));
+        }
+        
+        return sanitizedData;
+      });
     } catch (error) {
       console.error('Error in setResumeData:', error);
       toast.error('Failed to update resume data');
@@ -134,6 +145,8 @@ export const ResumeProvider: React.FC<{children: React.ReactNode}> = ({ children
     };
     
     setResumeData(updatedData);
+    // Provide user feedback
+    toast.success(`Updated ${section} section`);
   };
 
   // Reset resume to default empty state
