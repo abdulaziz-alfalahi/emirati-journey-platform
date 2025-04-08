@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -26,9 +27,6 @@ const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
   resumeData,
   onImportComplete
 }) => {
-  // Log to help debug the onImportComplete prop
-  console.log('ResumeSidebar rendered, onImportComplete type:', typeof onImportComplete);
-
   const sections = [
     { id: 'personal', label: 'Personal Info', icon: <User size={16} /> },
     { id: 'summary', label: 'Summary', icon: <FileText size={16} /> },
@@ -71,14 +69,7 @@ const ResumeSidebar: React.FC<ResumeSidebarProps> = ({
       <div className="mb-4">
         <h3 className="text-sm font-medium mb-2">Import Options</h3>
         <ImportOptions 
-          onImportComplete={(data) => {
-            console.log('ImportOptions callback triggered with data:', data);
-            if (typeof onImportComplete === 'function') {
-              onImportComplete(data);
-            } else {
-              console.error('Error: onImportComplete is not a function in ResumeSidebar');
-            }
-          }} 
+          onImportComplete={onImportComplete} 
           currentData={resumeData} 
         />
       </div>
