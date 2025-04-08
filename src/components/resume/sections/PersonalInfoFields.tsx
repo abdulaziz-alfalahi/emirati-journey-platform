@@ -14,10 +14,12 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
   onChange
 }) => {
   const handleInputChange = (field: keyof Personal) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({
+    const updatedData = {
       ...data,
       [field]: e.target.value
-    });
+    };
+    console.log(`Updating ${field} to:`, e.target.value);
+    onChange(updatedData);
   };
 
   return (
@@ -27,7 +29,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="fullName">Full Name</Label>
           <Input
             id="fullName"
-            value={data.fullName}
+            value={data.fullName || ''}
             onChange={handleInputChange('fullName')}
             placeholder="John Doe"
           />
@@ -36,7 +38,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="jobTitle">Job Title</Label>
           <Input
             id="jobTitle"
-            value={data.jobTitle}
+            value={data.jobTitle || ''}
             onChange={handleInputChange('jobTitle')}
             placeholder="Software Engineer"
           />
@@ -49,7 +51,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Input
             id="email"
             type="email"
-            value={data.email}
+            value={data.email || ''}
             onChange={handleInputChange('email')}
             placeholder="john.doe@example.com"
           />
@@ -58,7 +60,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
           <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
-            value={data.phone}
+            value={data.phone || ''}
             onChange={handleInputChange('phone')}
             placeholder="+1 (555) 123-4567"
           />
@@ -69,7 +71,7 @@ const PersonalInfoFields: React.FC<PersonalInfoFieldsProps> = ({
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
-          value={data.location}
+          value={data.location || ''}
           onChange={handleInputChange('location')}
           placeholder="San Francisco, CA"
         />
