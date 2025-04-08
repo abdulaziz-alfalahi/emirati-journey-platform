@@ -17,6 +17,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, Filter, MessageSquare, ThumbsDown, ThumbsUp, Video } from 'lucide-react';
 
+// Import the Json type from Supabase types
+import { Json } from '@/integrations/supabase/types';
+
 interface Candidate {
   id: string;
   name: string;
@@ -170,7 +173,7 @@ const JobMatchingPage = () => {
   // Function to safely render job description fields that might be in different formats
   const renderJobDescriptionText = (text: any): string => {
     if (typeof text === 'string') return text;
-    if (Array.isArray(text)) return text.join(', ');
+    if (Array.isArray(text)) return text.map(item => String(item)).join(', ');
     if (text && typeof text === 'object') return JSON.stringify(text);
     return 'No description available.';
   };
@@ -183,16 +186,22 @@ const JobMatchingPage = () => {
     
     // Handle different formats of requirements data
     if (Array.isArray(jobDescription.requirements)) {
-      requirements = jobDescription.requirements;
+      // Convert all items to strings to handle Json array that might contain numbers
+      requirements = (jobDescription.requirements as Json[]).map(item => String(item));
     } else if (typeof jobDescription.requirements === 'string') {
       requirements = [jobDescription.requirements];
     } else if (jobDescription.requirements && typeof jobDescription.requirements === 'object') {
       // Try to extract an array if possible
-      const reqObj = jobDescription.requirements as any;
+      const reqObj = jobDescription.requirements as Record<string, Json>;
       if (reqObj.skills && Array.isArray(reqObj.skills)) {
-        requirements = reqObj.skills.map((skill: any) => 
-          typeof skill === 'string' ? skill : skill.name || JSON.stringify(skill)
+        requirements = (reqObj.skills as Json[]).map((skill: Json) => 
+          typeof skill === 'string' ? skill : 
+          typeof skill === 'object' && skill !== null && 'name' in skill ? String(skill.name) : 
+          String(skill)
         );
+      } else {
+        // If it's an object but not in the expected format, convert to string
+        requirements = [JSON.stringify(jobDescription.requirements)];
       }
     }
     
