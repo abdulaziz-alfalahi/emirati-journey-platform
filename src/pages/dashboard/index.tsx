@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +15,8 @@ import {
   EntrepreneurDashboard,
   RetireeDashboard,
   MentorDashboard,
-  TrainingCenterDashboard
+  TrainingCenterDashboard,
+  AssessmentCenterDashboard
 } from '@/components/dashboard/role-dashboards';
 
 const DashboardPage = () => {
@@ -49,8 +49,8 @@ const DashboardPage = () => {
     if (user?.email) {
       // Check for assessment center email with both formats (hyphen and underscore)
       if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
-        console.log("Email-based rendering: TrainingCenterDashboard for assessment center");
-        return <TrainingCenterDashboard activeTab={activeTab} />;
+        console.log("Email-based rendering: AssessmentCenterDashboard");
+        return <AssessmentCenterDashboard activeTab={activeTab} />;
       }
       
       // Check for training center email with both formats (hyphen and underscore)
@@ -131,9 +131,14 @@ const DashboardPage = () => {
       return <MentorDashboard activeTab={activeTab} />;
     }
     
-    if (roles.includes('training_center') || roles.includes('assessment_center')) {
+    if (roles.includes('training_center')) {
       console.log("Rendering TrainingCenterDashboard based on role");
       return <TrainingCenterDashboard activeTab={activeTab} />;
+    }
+    
+    if (roles.includes('assessment_center')) {
+      console.log("Rendering AssessmentCenterDashboard based on role");
+      return <AssessmentCenterDashboard activeTab={activeTab} />;
     }
     
     // Default dashboard if no role matches
@@ -142,15 +147,17 @@ const DashboardPage = () => {
       return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
     } else {
       // If email contains assessment-center, assessment_center, training-center, or training_center but no roles assigned,
-      // still show the Training Center dashboard
-      if (user?.email && (
-          user.email.includes('training-center') || 
-          user.email.includes('training_center') || 
-          user.email.includes('assessment-center') || 
-          user.email.includes('assessment_center')
-        )) {
-        console.log("Email-based fallback: TrainingCenterDashboard");
-        return <TrainingCenterDashboard activeTab={activeTab} />;
+      // show the appropriate dashboard
+      if (user?.email) {
+        if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
+          console.log("Email-based fallback: AssessmentCenterDashboard");
+          return <AssessmentCenterDashboard activeTab={activeTab} />;
+        }
+        
+        if (user.email.includes('training-center') || user.email.includes('training_center')) {
+          console.log("Email-based fallback: TrainingCenterDashboard");
+          return <TrainingCenterDashboard activeTab={activeTab} />;
+        }
       }
       
       // Default to student dashboard as a fallback

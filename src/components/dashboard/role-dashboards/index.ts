@@ -10,3 +10,4 @@ export { default as EntrepreneurDashboard } from './EntrepreneurDashboard';
 export { default as RetireeDashboard } from './RetireeDashboard'; 
 export { default as MentorDashboard } from './MentorDashboard';
 export { default as TrainingCenterDashboard } from './TrainingCenterDashboard';
+export { default as AssessmentCenterDashboard } from './AssessmentCenterDashboard';
