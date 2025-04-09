@@ -12,6 +12,7 @@ import DashboardPage from './pages/dashboard'
 import JobMatchingPage from './pages/job-matching'
 import MatchingPage from './pages/matching/index'
 import ResumeBuilderPage from './pages/resume-builder'
+import CVBuilderPage from './pages/cv-builder'
 import ScholarshipsPage from './pages/scholarships'
 import ProfilePage from './pages/profile'
 import AuthPage from './pages/auth'
@@ -45,6 +46,7 @@ const App = () => {
             <Route path="/job-matching" element={<JobMatchingPage />} />
             <Route path="/matching" element={<MatchingPage />} />
             <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+            <Route path="/cv-builder" element={<CVBuilderPage />} />
             <Route path="/scholarships" element={<ScholarshipsPage />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/assessments" element={<AssessmentsPage />} />
