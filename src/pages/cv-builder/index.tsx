@@ -19,9 +19,9 @@ const CVBuilderPage: React.FC = () => {
       <div className="container mx-auto py-6">
         <h1 className="text-3xl font-bold mb-6">CV Builder</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <CVProvider>
+        <CVProvider>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
               <Card>
                 <CardContent className="p-6">
                   <CVUploader className="mb-6" />
@@ -57,13 +57,13 @@ const CVBuilderPage: React.FC = () => {
                   </Tabs>
                 </CardContent>
               </Card>
-            </CVProvider>
+            </div>
+            
+            <div className="lg:col-span-1">
+              <CVPreview />
+            </div>
           </div>
-          
-          <div className="lg:col-span-1">
-            <CVPreview />
-          </div>
-        </div>
+        </CVProvider>
       </div>
       <Toaster />
     </Layout>
