@@ -3,7 +3,8 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Users, Badge } from 'lucide-react';
+import { Users, Badge as BadgeIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import { Program, Assessment } from '@/types/training-center';
 
