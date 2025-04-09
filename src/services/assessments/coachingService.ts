@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { CoachingRecommendation } from '@/types/assessments';
 
@@ -72,4 +71,19 @@ export const createCoachingRecommendation = async (sessionId: string, userId: st
   }
 
   return data as CoachingRecommendation;
+};
+
+export const fetchCoachAssignments = async (coachId: string) => {
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .select('*, assessment_sessions(id, user_id, status, score, feedback, results, assessments(title, assessment_type))')
+    .eq('coach_id', coachId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching coach assignments:', error);
+    throw error;
+  }
+
+  return data;
 };

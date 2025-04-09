@@ -17,7 +17,7 @@ const TrainingCenterDashboard: React.FC<TrainingCenterDashboardProps> = ({ activ
   const [currentTab, setCurrentTab] = useState(activeTab);
 
   // Sample data for demonstration purposes
-  const samplePrograms = [
+  const [samplePrograms, setSamplePrograms] = useState([
     {
       id: 1,
       title: 'Advanced Leadership Development',
@@ -42,7 +42,7 @@ const TrainingCenterDashboard: React.FC<TrainingCenterDashboardProps> = ({ activ
       status: 'Completed',
       description: 'Prepare participants for industry-recognized professional certifications.'
     }
-  ];
+  ]);
 
   const sampleAssessments = [
     {
@@ -92,7 +92,7 @@ const TrainingCenterDashboard: React.FC<TrainingCenterDashboardProps> = ({ activ
         </TabsContent>
         
         <TabsContent value="programs" className="space-y-4">
-          <ProgramsTab programs={samplePrograms} />
+          <ProgramsTab programs={samplePrograms} setPrograms={setSamplePrograms} />
         </TabsContent>
         
         <TabsContent value="assessments" className="space-y-4">
