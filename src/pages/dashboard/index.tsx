@@ -47,6 +47,12 @@ const DashboardPage = () => {
   const getRoleDashboard = () => {
     // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
     if (user?.email) {
+      // Check for assessment center email with both formats (hyphen and underscore)
+      if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
+        console.log("Email-based rendering: TrainingCenterDashboard for assessment center");
+        return <TrainingCenterDashboard activeTab={activeTab} />;
+      }
+      
       // Check for training center email with both formats (hyphen and underscore)
       if (user.email.includes('training-center') || user.email.includes('training_center')) {
         console.log("Email-based rendering: TrainingCenterDashboard");
@@ -135,9 +141,14 @@ const DashboardPage = () => {
     if (roles.length > 0) {
       return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
     } else {
-      // If email contains training-center or training_center but no roles assigned,
+      // If email contains assessment-center, assessment_center, training-center, or training_center but no roles assigned,
       // still show the Training Center dashboard
-      if (user?.email && (user.email.includes('training-center') || user.email.includes('training_center'))) {
+      if (user?.email && (
+          user.email.includes('training-center') || 
+          user.email.includes('training_center') || 
+          user.email.includes('assessment-center') || 
+          user.email.includes('assessment_center')
+        )) {
         console.log("Email-based fallback: TrainingCenterDashboard");
         return <TrainingCenterDashboard activeTab={activeTab} />;
       }
@@ -161,7 +172,11 @@ const DashboardPage = () => {
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
         <p className="text-muted-foreground mb-8">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
         
-        {roles.length === 0 && !user?.email?.includes('training-center') && !user?.email?.includes('training_center') ? (
+        {roles.length === 0 && 
+         !user?.email?.includes('training-center') && 
+         !user?.email?.includes('training_center') && 
+         !user?.email?.includes('assessment-center') && 
+         !user?.email?.includes('assessment_center') ? (
           <>
             <Alert className="mb-4">
               <User className="h-4 w-4" />

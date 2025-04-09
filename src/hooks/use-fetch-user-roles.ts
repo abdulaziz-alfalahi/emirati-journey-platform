@@ -26,6 +26,12 @@ export const useFetchUserRoles = () => {
           console.log("Setting training_center role based on email");
           return ['training_center'];
         }
+
+        // Add check for assessment center emails
+        if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
+          console.log("Setting assessment_center role based on email");
+          return ['assessment_center'];
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -62,6 +68,9 @@ export const useFetchUserRoles = () => {
         } else if (user.email.includes('training-center') || user.email.includes('training_center')) {
           console.log("Setting training_center role based on email after error");
           return ['training_center'];
+        } else if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
+          console.log("Setting assessment_center role based on email after error");
+          return ['assessment_center'];
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");
