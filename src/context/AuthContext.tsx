@@ -109,6 +109,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setRoles(['school_student']);
           return;
         }
+        
+        if (user.email.includes('training-center')) {
+          console.log("Setting training_center role based on email");
+          setRoles(['training_center']);
+          return;
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -143,6 +149,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (user.email.includes('student')) {
           console.log("Setting school_student role based on email after error");
           setRoles(['school_student']);
+        } else if (user.email.includes('training-center')) {
+          console.log("Setting training_center role based on email after error");
+          setRoles(['training_center']);
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");
