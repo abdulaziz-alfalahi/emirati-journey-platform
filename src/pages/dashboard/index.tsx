@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -70,6 +71,11 @@ const DashboardPage = () => {
         console.log("Email-based rendering: RecruiterDashboard");
         return <RecruiterDashboard activeTab={activeTab} />;
       }
+      
+      if (user.email.includes('training-center')) {
+        console.log("Email-based rendering: TrainingCenterDashboard");
+        return <TrainingCenterDashboard activeTab={activeTab} />;
+      }
     }
 
     // Check based on actual roles
@@ -119,7 +125,7 @@ const DashboardPage = () => {
     }
     
     if (roles.includes('training_center') || roles.includes('assessment_center')) {
-      console.log("Rendering TrainingCenterDashboard");
+      console.log("Rendering TrainingCenterDashboard based on role");
       return <TrainingCenterDashboard activeTab={activeTab} />;
     }
     
