@@ -110,7 +110,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
         
-        if (user.email.includes('training-center')) {
+        // Check for both formats of training center email
+        if (user.email.includes('training-center') || user.email.includes('training_center')) {
           console.log("Setting training_center role based on email");
           setRoles(['training_center']);
           return;
@@ -149,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (user.email.includes('student')) {
           console.log("Setting school_student role based on email after error");
           setRoles(['school_student']);
-        } else if (user.email.includes('training-center')) {
+        } else if (user.email.includes('training-center') || user.email.includes('training_center')) {
           console.log("Setting training_center role based on email after error");
           setRoles(['training_center']);
         } else {

@@ -75,10 +75,17 @@ serve(async (req) => {
     // Extract roles and return them
     const roles = data.map(item => item.role);
     
-    // Special case: if email contains 'admin', also include administrator role
-    // This ensures admin users can always access admin features
-    if (user.email && user.email.includes('admin') && !roles.includes('administrator')) {
-      roles.push('administrator');
+    // Special case for email-based role assignment
+    if (user.email) {
+      // Special case: if email contains 'admin', also include administrator role
+      if (user.email.includes('admin') && !roles.includes('administrator')) {
+        roles.push('administrator');
+      }
+      
+      // Special case: if email contains 'training-center', include training_center role
+      if ((user.email.includes('training-center') || user.email.includes('training_center')) && !roles.includes('training_center')) {
+        roles.push('training_center');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 
