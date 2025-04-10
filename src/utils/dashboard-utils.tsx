@@ -3,6 +3,22 @@ import { User } from '@supabase/supabase-js';
 import { UserRole } from '@/types/auth';
 import React from 'react';
 
+// Import components directly instead of using require
+import {
+  AdminDashboard,
+  StudentDashboard,
+  EducationalInstitutionDashboard,
+  ParentDashboard,
+  RecruiterDashboard,
+  DefaultDashboard,
+  GovRepDashboard,
+  EntrepreneurDashboard,
+  RetireeDashboard,
+  MentorDashboard,
+  TrainingCenterDashboard,
+  AssessmentCenterDashboard
+} from '@/components/dashboard/role-dashboards';
+
 /**
  * Determines which dashboard component to render based on user email or roles
  */
@@ -11,22 +27,6 @@ export const getDashboardComponentByUserProfile = (
   roles: UserRole[], 
   activeTab: string
 ): React.ReactNode => {
-  // Import all dashboard components dynamically to avoid circular dependencies
-  const {
-    AdminDashboard,
-    StudentDashboard,
-    EducationalInstitutionDashboard,
-    ParentDashboard,
-    RecruiterDashboard,
-    DefaultDashboard,
-    GovRepDashboard,
-    EntrepreneurDashboard,
-    RetireeDashboard,
-    MentorDashboard,
-    TrainingCenterDashboard,
-    AssessmentCenterDashboard
-  } = require('@/components/dashboard/role-dashboards');
-
   // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
   if (user?.email) {
     // Check for career advisor emails with both formats (hyphen and underscore)
