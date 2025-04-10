@@ -62,6 +62,12 @@ export const useFetchUserRoles = () => {
           console.log("Setting retiree role based on email");
           return ['retiree'];
         }
+        
+        // Add check for entrepreneur emails
+        if (user.email.includes('entrepreneur')) {
+          console.log("Setting entrepreneur role based on email");
+          return ['entrepreneur'];
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -116,6 +122,9 @@ export const useFetchUserRoles = () => {
         } else if (user.email.includes('retiree')) {
           console.log("Setting retiree role based on email after error");
           return ['retiree'];
+        } else if (user.email.includes('entrepreneur')) {
+          console.log("Setting entrepreneur role based on email after error");
+          return ['entrepreneur'];
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");

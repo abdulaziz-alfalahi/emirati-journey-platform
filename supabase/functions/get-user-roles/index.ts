@@ -117,6 +117,11 @@ serve(async (req) => {
       if (user.email.includes('retiree') && !roles.includes('retiree')) {
         roles.push('retiree');
       }
+      
+      // Special case: if email contains 'entrepreneur', include entrepreneur role
+      if (user.email.includes('entrepreneur') && !roles.includes('entrepreneur')) {
+        roles.push('entrepreneur');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 

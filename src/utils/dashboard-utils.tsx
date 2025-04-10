@@ -76,6 +76,11 @@ export const getDashboardComponentByUserProfile = (
       console.log("Email-based rendering: RetireeDashboard");
       return <RetireeDashboard activeTab={activeTab} />;
     }
+    
+    if (user.email.includes('entrepreneur')) {
+      console.log("Email-based rendering: EntrepreneurDashboard");
+      return <EntrepreneurDashboard activeTab={activeTab} />;
+    }
   }
 
   // Check based on actual roles
@@ -165,6 +170,11 @@ export const getDashboardComponentByUserProfile = (
       if (user.email.includes('retiree')) {
         console.log("Email-based fallback: RetireeDashboard");
         return <RetireeDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('entrepreneur')) {
+        console.log("Email-based fallback: EntrepreneurDashboard");
+        return <EntrepreneurDashboard activeTab={activeTab} />;
       }
     }
     
