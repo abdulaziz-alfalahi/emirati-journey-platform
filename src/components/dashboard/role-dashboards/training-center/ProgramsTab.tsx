@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Program, NewProgram } from '@/types/training-center';
 import ProgramsList from './programs/ProgramsList';
@@ -8,6 +9,7 @@ import ProgramAnalytics from './programs/ProgramAnalytics';
 import NewProgramDialog from './programs/NewProgramDialog';
 import ProgramDetailsDialog from './programs/ProgramDetailsDialog';
 import DocumentUploadDialog from './programs/DocumentUploadDialog';
+import ProgramsCalendar from './programs/ProgramsCalendar';
 
 interface ProgramsTabProps {
   programs: Program[];
@@ -24,6 +26,7 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ programs, setPrograms }) => {
     startDate: '',
     status: 'planned'
   });
+  const [activeView, setActiveView] = useState('list');
 
   const handleFileUpload = (programId: number) => {
     // In a real application, this would handle actual file uploads
@@ -90,11 +93,27 @@ const ProgramsTab: React.FC<ProgramsTabProps> = ({ programs, setPrograms }) => {
           </div>
         </CardHeader>
         <CardContent>
-          <ProgramsList 
-            programs={programs}
-            onViewProgram={handleViewProgram}
-            onOpenUploadDialog={handleOpenUploadDialog}
-          />
+          <Tabs defaultValue={activeView} onValueChange={setActiveView} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="list">List View</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="list">
+              <ProgramsList 
+                programs={programs}
+                onViewProgram={handleViewProgram}
+                onOpenUploadDialog={handleOpenUploadDialog}
+              />
+            </TabsContent>
+            
+            <TabsContent value="calendar">
+              <ProgramsCalendar 
+                programs={programs}
+                setPrograms={setPrograms}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
       
