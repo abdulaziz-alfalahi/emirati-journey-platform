@@ -44,6 +44,12 @@ export const useFetchUserRoles = () => {
           console.log("Setting private_sector_recruiter role based on email");
           return ['private_sector_recruiter'];
         }
+        
+        // Add check for parent emails
+        if (user.email.includes('parent')) {
+          console.log("Setting parent role based on email");
+          return ['parent'];
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -89,6 +95,9 @@ export const useFetchUserRoles = () => {
         } else if (user.email.includes('recruit')) {
           console.log("Setting private_sector_recruiter role based on email after error");
           return ['private_sector_recruiter'];
+        } else if (user.email.includes('parent')) {
+          console.log("Setting parent role based on email after error");
+          return ['parent'];
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");

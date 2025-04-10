@@ -102,6 +102,11 @@ serve(async (req) => {
       if (user.email.includes('recruit') && !roles.includes('private_sector_recruiter')) {
         roles.push('private_sector_recruiter');
       }
+      
+      // Special case: if email contains 'parent', include parent role
+      if (user.email.includes('parent') && !roles.includes('parent')) {
+        roles.push('parent');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 
