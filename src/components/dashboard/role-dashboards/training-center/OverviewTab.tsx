@@ -3,10 +3,23 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Users, Badge as BadgeIcon } from 'lucide-react';
+import { Users, Badge as BadgeIcon, Calendar, BarChart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import { Program, Assessment } from '@/types/training-center';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
 interface OverviewTabProps {
   programs: Program[];
@@ -14,15 +27,100 @@ interface OverviewTabProps {
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ programs, assessments }) => {
+  // Sample enrollment data for chart
+  const enrollmentData = [
+    { month: 'Jan', trainees: 120 },
+    { month: 'Feb', trainees: 140 },
+    { month: 'Mar', trainees: 135 },
+    { month: 'Apr', trainees: 180 },
+    { month: 'May', trainees: 210 },
+    { month: 'Jun', trainees: 245 }
+  ];
+
+  // Sample program category distribution data
+  const programCategoryData = [
+    { name: 'Technical', value: 45 },
+    { name: 'Professional', value: 30 },
+    { name: 'Leadership', value: 15 },
+    { name: 'Certification', value: 10 }
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+  // Calculate statistics
+  const activeProgramsCount = programs.filter(p => p.status === 'active').length;
+  const plannedProgramsCount = programs.filter(p => p.status === 'planned').length;
+  const totalTrainees = programs.reduce((acc, program) => acc + program.trainees, 0);
+  const averageCompletion = programs.filter(p => p.progress !== undefined)
+    .reduce((acc, program) => acc + (program.progress || 0), 0) / programs.length;
+
   return (
     <div className="space-y-8">
       <DashboardOverview 
         metrics={[
-          { title: "Active Programs", value: "18", change: "+3", description: "Training courses offered" },
-          { title: "Enrolled Trainees", value: "245", change: "+12%", description: "Current enrollment" },
-          { title: "Completion Rate", value: "87%", change: "+2%", description: "Average success rate" }
+          { title: "Active Programs", value: activeProgramsCount.toString(), change: "+3", description: "Training courses offered" },
+          { title: "Enrolled Trainees", value: totalTrainees.toString(), change: "+12%", description: "Current enrollment" },
+          { title: "Completion Rate", value: `${Math.round(averageCompletion)}%`, change: "+2%", description: "Average success rate" },
+          { title: "Upcoming Programs", value: plannedProgramsCount.toString(), change: "+1", description: "Scheduled to begin" }
         ]}
       />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Enrollment Trends</CardTitle>
+              <Badge variant="outline">Last 6 Months</Badge>
+            </div>
+            <CardDescription>Trainee enrollment statistics</CardDescription>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={enrollmentData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="trainees" 
+                  stroke="#0ea5e9" 
+                  activeDot={{ r: 8 }} 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Program Distribution</CardTitle>
+            <CardDescription>By category</CardDescription>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={programCategoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {programCategoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -35,7 +133,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ programs, assessments }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {programs.slice(0, 3).map(program => (
+              {programs.filter(program => program.status === 'planned' || program.status === 'active')
+                .slice(0, 3).map(program => (
                 <div key={program.id} className="flex items-center justify-between">
                   <div>
                     <h4 className="font-medium">{program.title}</h4>
@@ -77,6 +176,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ programs, assessments }) => {
                       <span>{assessment.candidates} candidates</span>
                       <span className="mx-2">•</span>
                       <span>{assessment.date}</span>
+                      {assessment.duration && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <span>{assessment.duration} min</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <Badge 
