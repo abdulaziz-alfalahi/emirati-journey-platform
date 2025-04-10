@@ -107,6 +107,11 @@ serve(async (req) => {
       if (user.email.includes('parent') && !roles.includes('parent')) {
         roles.push('parent');
       }
+      
+      // Special case: if email contains 'school' or 'edu', include educational_institution role
+      if ((user.email.includes('school') || user.email.includes('edu')) && !roles.includes('educational_institution')) {
+        roles.push('educational_institution');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 

@@ -134,8 +134,8 @@ export const getDashboardComponentByUserProfile = (
   if (roles.length > 0) {
     return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
   } else {
-    // If email contains assessment-center, assessment_center, training-center, or training_center but no roles assigned,
-    // show the appropriate dashboard
+    // If email contains assessment-center, assessment_center, training-center, training_center,
+    // or school/edu but no roles assigned, show the appropriate dashboard
     if (user?.email) {
       if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
         console.log("Email-based fallback: AssessmentCenterDashboard");
@@ -150,6 +150,11 @@ export const getDashboardComponentByUserProfile = (
       if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
         console.log("Email-based fallback: MentorDashboard");
         return <MentorDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('school') || user.email.includes('edu')) {
+        console.log("Email-based fallback: EducationalInstitutionDashboard");
+        return <EducationalInstitutionDashboard activeTab={activeTab} />;
       }
     }
     

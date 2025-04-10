@@ -50,6 +50,12 @@ export const useFetchUserRoles = () => {
           console.log("Setting parent role based on email");
           return ['parent'];
         }
+        
+        // Add check for educational institution emails
+        if (user.email.includes('school') || user.email.includes('edu')) {
+          console.log("Setting educational_institution role based on email");
+          return ['educational_institution'];
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -98,6 +104,9 @@ export const useFetchUserRoles = () => {
         } else if (user.email.includes('parent')) {
           console.log("Setting parent role based on email after error");
           return ['parent'];
+        } else if (user.email.includes('school') || user.email.includes('edu')) {
+          console.log("Setting educational_institution role based on email after error");
+          return ['educational_institution'];
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");
