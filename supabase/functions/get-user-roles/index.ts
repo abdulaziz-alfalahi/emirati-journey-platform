@@ -91,6 +91,12 @@ serve(async (req) => {
       if ((user.email.includes('assessment-center') || user.email.includes('assessment_center')) && !roles.includes('assessment_center')) {
         roles.push('assessment_center');
       }
+      
+      // Special case: if email contains 'career-advisor', include career_advisor and mentor roles
+      if ((user.email.includes('career-advisor') || user.email.includes('career_advisor')) && !roles.includes('career_advisor')) {
+        roles.push('career_advisor');
+        roles.push('mentor');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 

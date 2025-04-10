@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +48,12 @@ const DashboardPage = () => {
   const getRoleDashboard = () => {
     // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
     if (user?.email) {
+      // Check for career advisor emails with both formats (hyphen and underscore)
+      if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
+        console.log("Email-based rendering: MentorDashboard");
+        return <MentorDashboard activeTab={activeTab} />;
+      }
+    
       // Check for assessment center email with both formats (hyphen and underscore)
       if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
         console.log("Email-based rendering: AssessmentCenterDashboard");
@@ -127,7 +134,7 @@ const DashboardPage = () => {
     }
     
     if (roles.includes('mentor') || roles.includes('career_advisor')) {
-      console.log("Rendering MentorDashboard");
+      console.log("Rendering MentorDashboard based on role");
       return <MentorDashboard activeTab={activeTab} />;
     }
     
@@ -157,6 +164,11 @@ const DashboardPage = () => {
         if (user.email.includes('training-center') || user.email.includes('training_center')) {
           console.log("Email-based fallback: TrainingCenterDashboard");
           return <TrainingCenterDashboard activeTab={activeTab} />;
+        }
+        
+        if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
+          console.log("Email-based fallback: MentorDashboard");
+          return <MentorDashboard activeTab={activeTab} />;
         }
       }
       
