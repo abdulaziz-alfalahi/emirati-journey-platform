@@ -38,6 +38,12 @@ export const useFetchUserRoles = () => {
           console.log("Setting career_advisor role based on email");
           return ['career_advisor', 'mentor'];
         }
+        
+        // Add check for recruiter emails
+        if (user.email.includes('recruit')) {
+          console.log("Setting private_sector_recruiter role based on email");
+          return ['private_sector_recruiter'];
+        }
       }
       
       // Only try the edge function if we haven't assigned roles based on email
@@ -80,6 +86,9 @@ export const useFetchUserRoles = () => {
         } else if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
           console.log("Setting career_advisor role based on email after error");
           return ['career_advisor', 'mentor'];
+        } else if (user.email.includes('recruit')) {
+          console.log("Setting private_sector_recruiter role based on email after error");
+          return ['private_sector_recruiter'];
         } else {
           // Default role if nothing else matches
           console.log("Setting default user role");

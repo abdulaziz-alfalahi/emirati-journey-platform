@@ -97,6 +97,11 @@ serve(async (req) => {
         roles.push('career_advisor');
         roles.push('mentor');
       }
+      
+      // Special case: if email contains 'recruit', include private_sector_recruiter role
+      if (user.email.includes('recruit') && !roles.includes('private_sector_recruiter')) {
+        roles.push('private_sector_recruiter');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 
