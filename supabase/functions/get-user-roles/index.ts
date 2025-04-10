@@ -112,6 +112,11 @@ serve(async (req) => {
       if ((user.email.includes('school') || user.email.includes('edu')) && !roles.includes('educational_institution')) {
         roles.push('educational_institution');
       }
+      
+      // Special case: if email contains 'retiree', include retiree role
+      if (user.email.includes('retiree') && !roles.includes('retiree')) {
+        roles.push('retiree');
+      }
     }
 
     return new Response(JSON.stringify(roles), { 

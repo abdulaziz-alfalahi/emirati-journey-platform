@@ -71,6 +71,11 @@ export const getDashboardComponentByUserProfile = (
       console.log("Email-based rendering: RecruiterDashboard");
       return <RecruiterDashboard activeTab={activeTab} />;
     }
+    
+    if (user.email.includes('retiree')) {
+      console.log("Email-based rendering: RetireeDashboard");
+      return <RetireeDashboard activeTab={activeTab} />;
+    }
   }
 
   // Check based on actual roles
@@ -155,6 +160,11 @@ export const getDashboardComponentByUserProfile = (
       if (user.email.includes('school') || user.email.includes('edu')) {
         console.log("Email-based fallback: EducationalInstitutionDashboard");
         return <EducationalInstitutionDashboard activeTab={activeTab} />;
+      }
+      
+      if (user.email.includes('retiree')) {
+        console.log("Email-based fallback: RetireeDashboard");
+        return <RetireeDashboard activeTab={activeTab} />;
       }
     }
     
