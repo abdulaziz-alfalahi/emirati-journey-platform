@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -32,9 +33,9 @@ const MainNav: React.FC<MainNavProps> = ({ items }) => {
       description: 'Your personalized overview'
     },
     {
-      title: 'Resume Builder',
-      href: '/resume-builder',
-      description: 'Create and manage your resumes'
+      title: 'CV Builder',
+      href: '/cv-builder',
+      description: 'Create and manage your CVs'
     },
     {
       title: 'Portfolio',

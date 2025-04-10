@@ -117,10 +117,10 @@ export default function Index() {
                   Start Your Journey
                 </button>
                 <Link 
-                  to="/resume-builder"
+                  to="/cv-builder"
                   className="bg-emirati-teal/20 hover:bg-emirati-teal/30 text-white font-medium py-4 px-8 rounded-full border border-emirati-teal/30 transition-all duration-300"
                 >
-                  Create Your Resume
+                  Create Your CV
                 </Link>
               </div>
             </div>

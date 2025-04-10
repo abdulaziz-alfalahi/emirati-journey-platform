@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FileText, Search, BookOpen, Users, Bell, Globe, Smartphone, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,10 +18,10 @@ const ServiceCards: React.FC = () => {
   const services: Service[] = [
     {
       id: 'resume',
-      title: 'Resume Builder',
-      description: 'Create professional bilingual resumes with UAE-specific templates designed for different career stages.',
+      title: 'CV Builder',
+      description: 'Create professional bilingual CVs with UAE-specific templates designed for different career stages.',
       icon: <FileText size={24} />,
-      path: '/resume-builder'
+      path: '/cv-builder'
     },
     {
       id: 'job-matching',

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ interface NavItem {
 const navigationItems = [
   { name: 'Home', href: '/' },
   { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Resume Builder', href: '/resume-builder' },
+  { name: 'CV Builder', href: '/cv-builder' },
   { name: 'Job Matching', href: '/job-matching' },
   { name: 'Scholarships', href: '/scholarships' },
   { name: 'Internships', href: '/internships' },
@@ -61,8 +62,8 @@ const Navbar: React.FC = () => {
         icon: <BarChart3 className="h-5 w-5 mr-2" />,
       },
       {
-        name: 'Resume Builder',
-        href: '/resume-builder',
+        name: 'CV Builder',
+        href: '/cv-builder',
         icon: <FilePlus className="h-5 w-5 mr-2" />,
       },
       {

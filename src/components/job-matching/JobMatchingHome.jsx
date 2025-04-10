@@ -16,14 +16,14 @@ export function JobMatchingHome() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Resume Parsing</CardTitle>
+            <CardTitle>CV Parsing</CardTitle>
             <CardDescription>
-              Upload and parse resumes to extract structured information
+              Upload and parse CVs to extract structured information
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              Our enhanced resume parser extracts key information from resumes including:
+              Our enhanced CV parser extracts key information from CVs including:
             </p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground mb-4">
               <li>Personal information and contact details</li>
@@ -34,8 +34,8 @@ export function JobMatchingHome() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => navigate('/resume-builder')}>
-              Go to Resume Builder
+            <Button onClick={() => navigate('/cv-builder')}>
+              Go to CV Builder
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </CardFooter>
