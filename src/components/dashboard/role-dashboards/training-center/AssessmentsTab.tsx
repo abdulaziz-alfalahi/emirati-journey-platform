@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAssessments } from '@/services/assessments';
+import { Assessment as ApiAssessment } from '@/types/assessments'; // Renamed import to avoid conflict
 
 // Import smaller components
 import AssessmentStatistics from './assessments/AssessmentStatistics';
@@ -28,7 +29,21 @@ const AssessmentsTab: React.FC = () => {
   const activeAssessments = assessmentsData?.filter(a => a.is_active)?.length || 0;
   const candidatesAssessed = 432; // Static for demonstration
 
-  const filteredAssessments = assessmentsData?.filter(assessment => {
+  // Convert API assessments to the format expected by AssessmentTable
+  const convertedAssessments = assessmentsData?.map(assessment => ({
+    id: Number(assessment.id), // Convert string ID to number
+    title: assessment.title,
+    assessment_type: assessment.assessment_type,
+    duration_minutes: assessment.duration_minutes || undefined,
+    is_active: assessment.is_active || false,
+    candidates: 0, // Default value, would need to be populated from real data
+    date: assessment.created_at || '',
+    type: assessment.assessment_type,
+    passingScore: 0, // Default value, would need to be populated from real data
+    duration: assessment.duration_minutes || 0
+  })) || [];
+
+  const filteredAssessments = convertedAssessments.filter(assessment => {
     // Filter by search query
     if (searchQuery && !assessment.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
@@ -44,7 +59,7 @@ const AssessmentsTab: React.FC = () => {
     }
     
     return true;
-  }) || [];
+  });
 
   return (
     <div className="space-y-6">
