@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Trainee } from '@/types/training-center';
+import TraineeProfileViewer from './trainees/TraineeProfileViewer';
 
 const TraineesTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddTraineeDialog, setShowAddTraineeDialog] = useState(false);
+  const [selectedTrainee, setSelectedTrainee] = useState<Trainee | null>(null);
   
   // Sample trainee data
   const trainees: Trainee[] = [
@@ -77,6 +78,10 @@ const TraineesTab: React.FC = () => {
       default:
         return <Badge>Unknown</Badge>;
     }
+  };
+
+  const handleViewTrainee = (trainee: Trainee) => {
+    setSelectedTrainee(trainee);
   };
 
   return (
@@ -239,7 +244,13 @@ const TraineesTab: React.FC = () => {
                   <TableCell>{trainee.enrollDate}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewTrainee(trainee)}
+                      >
+                        View
+                      </Button>
                       <Button variant="outline" size="sm">Edit</Button>
                     </div>
                   </TableCell>
@@ -325,6 +336,17 @@ const TraineesTab: React.FC = () => {
           />
         </CardContent>
       </Card>
+
+      {selectedTrainee && (
+        <Dialog open={!!selectedTrainee} onOpenChange={(open) => !open && setSelectedTrainee(null)}>
+          <DialogContent className="max-w-4xl p-0 overflow-hidden">
+            <TraineeProfileViewer 
+              trainee={selectedTrainee} 
+              onClose={() => setSelectedTrainee(null)} 
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
