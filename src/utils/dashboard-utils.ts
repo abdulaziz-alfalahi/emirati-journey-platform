@@ -1,6 +1,7 @@
 
 import { User } from '@supabase/supabase-js';
 import { UserRole } from '@/types/auth';
+import React from 'react';
 
 /**
  * Determines which dashboard component to render based on user email or roles
@@ -9,7 +10,7 @@ export const getDashboardComponentByUserProfile = (
   user: User | null, 
   roles: UserRole[], 
   activeTab: string
-) => {
+): React.ReactNode => {
   // Import all dashboard components dynamically to avoid circular dependencies
   const {
     AdminDashboard,
