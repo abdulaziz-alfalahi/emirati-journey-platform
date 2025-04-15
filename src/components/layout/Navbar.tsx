@@ -9,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, X, LogIn, BarChart3, FilePlus, Calendar, Award, BadgeCheck, Briefcase, GraduationCap } from 'lucide-react';
+import { Menu, X, LogIn, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, GraduationCap, HandHelp } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,8 +24,8 @@ interface NavItem {
 const navigationItems = [
   { name: 'Home', href: '/' },
   { name: 'Dashboard', href: '/dashboard' },
-  { name: 'CV Builder', href: '/cv-builder' },
-  { name: 'Job Matching', href: '/job-matching' },
+  { name: 'Portfolio Builder', href: '/cv-builder' },
+  { name: 'Career Exploration', href: '/job-matching' },
   { name: 'Scholarships', href: '/scholarships' },
   { name: 'Internships', href: '/internships' },
   { name: 'Summer Camps', href: '/summer-camps' },
@@ -58,19 +58,19 @@ const Navbar: React.FC = () => {
   const getMainNavItems = () => {
     const items = [
       {
-        name: 'Job Matching',
+        name: 'Career Exploration',
         href: '/job-matching',
-        icon: <BarChart3 className="h-5 w-5 mr-2" />,
+        icon: <Compass className="h-5 w-5 mr-2" />,
       },
       {
-        name: 'CV Builder',
+        name: 'Portfolio Builder',
         href: '/cv-builder',
-        icon: <FilePlus className="h-5 w-5 mr-2" />,
+        icon: <BookText className="h-5 w-5 mr-2" />,
       },
       {
-        name: 'Internships',
+        name: 'Work Experience',
         href: '/internships',
-        icon: <GraduationCap className="h-5 w-5 mr-2" />,
+        icon: <HandHelp className="h-5 w-5 mr-2" />,
       },
       {
         name: 'Summer Camps',
