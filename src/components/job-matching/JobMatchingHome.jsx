@@ -5,9 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, FileText, Users, Briefcase, Building } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export function JobMatchingHome() {
   const navigate = useNavigate();
+  const { user, roles } = useAuth();
+  
+  // Check if user has recruiter role or email
+  const isRecruiter = roles.includes('private_sector_recruiter') || 
+                      (user?.email && user.email.includes('recruit'));
 
   return (
     <div className="container mx-auto py-8">
@@ -107,19 +113,21 @@ export function JobMatchingHome() {
             </div>
           </div>
 
-          <div className="mt-6 p-4 border rounded-md bg-primary/10">
-            <div className="flex items-center gap-2 mb-3">
-              <Building className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">Recruiter Dashboard</h3>
+          {isRecruiter && (
+            <div className="mt-6 p-4 border rounded-md bg-primary/10">
+              <div className="flex items-center gap-2 mb-3">
+                <Building className="h-5 w-5 text-primary" />
+                <h3 className="font-medium">Recruiter Dashboard</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Access the comprehensive recruiter dashboard to manage job listings and find candidates that match your specific job requirements.
+              </p>
+              <Button onClick={() => navigate('/recruiter')} variant="outline" className="w-full">
+                Go to Recruiter Dashboard
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Access the comprehensive recruiter dashboard to manage job listings and find candidates that match your specific job requirements.
-            </p>
-            <Button onClick={() => navigate('/recruiter')} variant="outline" className="w-full">
-              Go to Recruiter Dashboard
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

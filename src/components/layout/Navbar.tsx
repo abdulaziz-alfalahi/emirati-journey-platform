@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -40,7 +39,8 @@ const Navbar: React.FC = () => {
   const isMobile = useIsMobile();
 
   const isAuthenticated = !!user;
-  const isRecruiter = isAuthenticated;
+  const isRecruiter = roles.includes('private_sector_recruiter') || 
+                      (user?.email && user.email.includes('recruit'));
 
   useEffect(() => {
     setIsMenuOpen(false);

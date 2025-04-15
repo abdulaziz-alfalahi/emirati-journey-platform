@@ -14,9 +14,18 @@ const RecruiterPage = () => {
   const { user, roles, isLoading } = useAuth();
   const navigate = useNavigate();
   
-  // Modified the condition to allow access even if roles array is empty for testing
+  // Check if the user is authenticated
   if (!isLoading && !user) {
     return <Navigate to="/auth" replace />;
+  }
+  
+  // Check if the user has the recruiter role
+  const isRecruiter = roles.includes('private_sector_recruiter') || 
+                      (user?.email && user.email.includes('recruit'));
+                      
+  // Redirect to dashboard if not a recruiter
+  if (!isLoading && !isRecruiter) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -63,3 +72,4 @@ const RecruiterPage = () => {
 };
 
 export default RecruiterPage;
+
