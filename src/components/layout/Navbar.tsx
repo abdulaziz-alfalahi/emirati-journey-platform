@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, X, LogIn, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, GraduationCap, HandHelp } from 'lucide-react';
+import { Menu, X, LogIn, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, GraduationCap, HelpingHand } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -70,7 +69,7 @@ const Navbar: React.FC = () => {
       {
         name: 'Work Experience',
         href: '/internships',
-        icon: <HandHelp className="h-5 w-5 mr-2" />,
+        icon: <HelpingHand className="h-5 w-5 mr-2" />,
       },
       {
         name: 'Summer Camps',
