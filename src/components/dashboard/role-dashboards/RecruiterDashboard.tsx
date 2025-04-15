@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, Briefcase, Calendar, User, Users, Video, Clock } from 'lucide-react';
+import { BarChart4, Briefcase, Calendar, User, Users, Video, Clock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
@@ -55,7 +55,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
                 title: "Job Matching", 
                 description: "Find suitable candidates", 
                 icon: Users,
-                link: "/job-matching"
+                link: "/matching"
               },
               {
                 title: "Post Job", 
@@ -67,6 +67,55 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
           />
         </CardContent>
       </Card>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Job Description Management</CardTitle>
+            <CardDescription>
+              Create and manage job descriptions for matching
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Our job description parser extracts structured information including:
+            </p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground mb-4">
+              <li>Job title, company, and location</li>
+              <li>Employment type and work mode</li>
+              <li>Responsibilities and requirements</li>
+              <li>Required skills, experience, and education</li>
+              <li>Benefits and compensation details</li>
+            </ul>
+            <Button onClick={() => window.location.href = '/job-descriptions'} className="w-full mt-2">
+              Manage Job Descriptions
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Candidate Matching</CardTitle>
+            <CardDescription>
+              Find the right talent for your positions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Our matching system connects your job requirements with candidate profiles:
+            </p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground mb-4">
+              <li>Skill-based matching algorithms</li>
+              <li>Education and experience scoring</li>
+              <li>Cultural fit assessment</li>
+              <li>Location and availability filters</li>
+            </ul>
+            <Button onClick={() => window.location.href = '/matching?tab=jobs'} className="w-full mt-2">
+              Match Jobs to Candidates
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </TabsContent>
     
     <TabsContent value="jobs" className="space-y-8">
@@ -118,7 +167,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ activeTab }) =>
           <DashboardActions 
             actions={[
               { title: "Post Job", description: "Create new listings", icon: Briefcase, link: "/job-descriptions" },
-              { title: "Job Matching", description: "Find suitable candidates", icon: Users, link: "/job-matching" },
+              { title: "Job Matching", description: "Find suitable candidates", icon: Users, link: "/matching" },
               { title: "Candidate Search", description: "Find talented candidates", icon: Users },
               { title: "Emiratization Tracker", description: "Monitor compliance", icon: BarChart4 }
             ]}
