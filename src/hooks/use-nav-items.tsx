@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, BarChart, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand } from 'lucide-react';
+import { BarChart, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand } from 'lucide-react';
 import { NavItem } from '@/components/layout/types';
 import { UserRole } from '@/types/auth';
 
@@ -13,13 +13,6 @@ export function useNavItems(
 ) {
   const getMainNavItems = () => {
     const items: NavItem[] = [];
-    
-    // Home is for everyone
-    items.push({
-      name: 'Home',
-      href: '/',
-      icon: <Home className="h-5 w-5 mr-2" />,
-    });
     
     // Dashboard is for everyone
     items.push({
@@ -104,3 +97,4 @@ export function useNavItems(
 
   return getMainNavItems();
 }
+
