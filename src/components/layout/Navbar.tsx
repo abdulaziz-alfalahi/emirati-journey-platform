@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, X, LogIn, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, GraduationCap, HelpingHand } from 'lucide-react';
+import { Menu, X, LogIn, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, GraduationCap, HelpingHand, BarChart, Home } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -41,6 +41,8 @@ const Navbar: React.FC = () => {
   const isAuthenticated = !!user;
   const isRecruiter = roles.includes('private_sector_recruiter') || 
                       (user?.email && user.email.includes('recruit'));
+  const isTrainingCenter = roles.includes('training_center') || 
+                      (user?.email && (user.email.includes('training-center') || user.email.includes('training_center')));
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -55,44 +57,73 @@ const Navbar: React.FC = () => {
   };
 
   const getMainNavItems = () => {
-    const items = [
-      {
-        name: 'Career Exploration',
-        href: '/job-matching',
-        icon: <Compass className="h-5 w-5 mr-2" />,
-      },
-      {
-        name: 'Portfolio Builder',
-        href: '/cv-builder',
-        icon: <BookText className="h-5 w-5 mr-2" />,
-      },
-      {
-        name: 'Work Experience',
-        href: '/internships',
-        icon: <HelpingHand className="h-5 w-5 mr-2" />,
-      },
-      {
-        name: 'Summer Camps',
-        href: '/summer-camps',
-        icon: <Calendar className="h-5 w-5 mr-2" />,
-      },
-      {
-        name: 'Scholarships',
-        href: '/scholarships',
-        icon: <Award className="h-5 w-5 mr-2" />,
-      },
-      {
+    const items = [];
+    
+    // Home is for everyone
+    items.push({
+      name: 'Home',
+      href: '/',
+      icon: <Home className="h-5 w-5 mr-2" />,
+    });
+    
+    // Dashboard is for everyone
+    items.push({
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: <BarChart className="h-5 w-5 mr-2" />,
+    });
+    
+    // Different navigation items based on user role
+    if (isTrainingCenter) {
+      // Training Center only needs dashboard and assessments
+      items.push({
         name: 'Assessments',
         href: '/assessments',
         icon: <BadgeCheck className="h-5 w-5 mr-2" />,
-      }
-    ];
-    
-    if (isRecruiter) {
+      });
+    } else if (isRecruiter) {
+      // Recruiter specific items
+      items.push({
+        name: 'Career Exploration',
+        href: '/job-matching',
+        icon: <Compass className="h-5 w-5 mr-2" />,
+      });
       items.push({
         name: 'Recruiter Dashboard',
         href: '/recruiter',
         icon: <Briefcase className="h-5 w-5 mr-2" />,
+      });
+    } else {
+      // Standard student/user navigation
+      items.push({
+        name: 'Career Exploration',
+        href: '/job-matching',
+        icon: <Compass className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Portfolio Builder',
+        href: '/cv-builder',
+        icon: <BookText className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Work Experience',
+        href: '/internships',
+        icon: <HelpingHand className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Summer Camps',
+        href: '/summer-camps',
+        icon: <Calendar className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Scholarships',
+        href: '/scholarships',
+        icon: <Award className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Assessments',
+        href: '/assessments',
+        icon: <BadgeCheck className="h-5 w-5 mr-2" />,
       });
     }
     
