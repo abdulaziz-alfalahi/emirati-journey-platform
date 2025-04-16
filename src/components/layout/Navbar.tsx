@@ -43,6 +43,8 @@ const Navbar: React.FC = () => {
                       (user?.email && user.email.includes('recruit'));
   const isTrainingCenter = roles.includes('training_center') || 
                       (user?.email && (user.email.includes('training-center') || user.email.includes('training_center')));
+  const isParent = roles.includes('parent') || 
+                      (user?.email && user.email.includes('parent'));
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -92,6 +94,23 @@ const Navbar: React.FC = () => {
         name: 'Recruiter Dashboard',
         href: '/recruiter',
         icon: <Briefcase className="h-5 w-5 mr-2" />,
+      });
+    } else if (isParent) {
+      // Parent specific navigation
+      items.push({
+        name: 'Assessments',
+        href: '/assessments',
+        icon: <BadgeCheck className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Scholarships',
+        href: '/scholarships',
+        icon: <Award className="h-5 w-5 mr-2" />,
+      });
+      items.push({
+        name: 'Summer Camps',
+        href: '/summer-camps',
+        icon: <Calendar className="h-5 w-5 mr-2" />,
       });
     } else {
       // Standard student/user navigation
