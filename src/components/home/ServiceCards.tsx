@@ -1,5 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
-import { FileText, Search, BookOpen, Users, Bell, Globe, Smartphone, Zap } from 'lucide-react';
+import { 
+  FileText, 
+  BookOpen, 
+  Users, 
+  Bell, 
+  Globe, 
+  Smartphone, 
+  Zap,
+  Award,
+  Calendar,
+  BadgeCheck,
+  FileText as BookText, // Using FileText as BookText
+  Compass,
+  Hands as HelpingHand // Using Hands as HelpingHand
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
