@@ -17,53 +17,46 @@ const ServiceCards: React.FC = () => {
   
   const services: Service[] = [
     {
-      id: 'resume',
-      title: 'CV Builder',
-      description: 'Create professional bilingual CVs with UAE-specific templates designed for different career stages.',
-      icon: <FileText size={24} />,
+      id: 'portfolio',
+      title: 'Portfolio Builder',
+      description: 'Create and showcase your professional portfolio with UAE-specific templates designed for different career stages.',
+      icon: <BookText size={24} />,
       path: '/cv-builder'
     },
     {
-      id: 'job-matching',
-      title: 'AI Job Matching',
-      description: 'Find opportunities matching your skills, preferences, and career goals with advanced AI-powered search.',
-      icon: <Search size={24} />
+      id: 'career',
+      title: 'Career Exploration',
+      description: 'Explore career opportunities matching your skills, preferences, and goals with advanced AI-powered guidance.',
+      icon: <Compass size={24} />,
+      path: '/job-matching'
     },
     {
-      id: 'training',
-      title: 'Training Services',
-      description: 'Access specialized training programs and upskilling opportunities aligned with industry demands.',
-      icon: <BookOpen size={24} />
+      id: 'internships',
+      title: 'Internships',
+      description: 'Find and apply for internship opportunities aligned with your career goals.',
+      icon: <HelpingHand size={24} />,
+      path: '/internships'
     },
     {
-      id: 'mentorship',
-      title: 'Mentorship Services',
-      description: 'Connect with experienced professionals for guidance, support, and networking opportunities.',
-      icon: <Users size={24} />
+      id: 'summer-camps',
+      title: 'Summer Camps',
+      description: 'Discover enriching summer camp programs to enhance your skills and experience.',
+      icon: <Calendar size={24} />,
+      path: '/summer-camps'
     },
     {
-      id: 'notifications',
-      title: 'Smart Notifications',
-      description: 'Receive personalized alerts about relevant opportunities, events, and deadlines.',
-      icon: <Bell size={24} />
+      id: 'scholarships',
+      title: 'Scholarships',
+      description: 'Access scholarship opportunities and funding for your educational journey.',
+      icon: <Award size={24} />,
+      path: '/scholarships'
     },
     {
-      id: 'multilingual',
-      title: 'Multi-Language Support',
-      description: 'Access the platform in Arabic, English, and other languages common in the UAE.',
-      icon: <Globe size={24} />
-    },
-    {
-      id: 'mobile',
-      title: 'Mobile Application',
-      description: 'Stay connected on the go with our feature-rich mobile app and push notifications.',
-      icon: <Smartphone size={24} />
-    },
-    {
-      id: 'analytics',
-      title: 'User Analytics',
-      description: 'Track your progress, identify opportunities, and receive personalized recommendations.',
-      icon: <Zap size={24} />
+      id: 'assessments',
+      title: 'Assessments',
+      description: 'Take professional assessments to identify your strengths and areas for development.',
+      icon: <BadgeCheck size={24} />,
+      path: '/assessments'
     }
   ];
   

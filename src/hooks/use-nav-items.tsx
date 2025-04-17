@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand } from 'lucide-react';
+import { BarChart, Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand, Wrench } from 'lucide-react';
 import { NavItem } from '@/components/layout/types';
 import { UserRole } from '@/types/auth';
 
@@ -19,6 +19,13 @@ export function useNavItems(
       name: 'Dashboard',
       href: '/dashboard',
       icon: <BarChart className="h-5 w-5 mr-2" />,
+    });
+
+    // Add Services link for the homepage that scrolls to services section
+    items.push({
+      name: 'Services',
+      href: '/#services',
+      icon: <Wrench className="h-5 w-5 mr-2" />,
     });
     
     // Different navigation items based on user role
@@ -97,4 +104,3 @@ export function useNavItems(
 
   return getMainNavItems();
 }
-
