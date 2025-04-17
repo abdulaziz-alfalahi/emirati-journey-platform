@@ -13,7 +13,7 @@ import {
   BadgeCheck,
   FileText as BookText, // Using FileText as BookText
   Compass,
-  Hands as HelpingHand // Using Hands as HelpingHand
+  Hand as HelpingHand // Changed from Hands to Hand
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
