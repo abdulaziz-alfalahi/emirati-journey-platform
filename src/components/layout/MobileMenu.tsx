@@ -46,7 +46,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               key={item.href}
               to={item.href}
               className="flex items-center p-2 text-lg font-semibold hover:bg-secondary/50"
-              onClick={closeMenu}
+              onClick={(e) => {
+                if (item.onClick) {
+                  e.preventDefault();
+                  item.onClick();
+                }
+                closeMenu();
+              }}
             >
               {item.icon}
               {item.name}

@@ -24,7 +24,13 @@ export function useNavItems(
     // Add Services link for the homepage that scrolls to services section
     items.push({
       name: 'Services',
-      href: '/#services',
+      href: '/',
+      onClick: () => {
+        const servicesSection = document.getElementById('services');
+        if (servicesSection) {
+          servicesSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      },
       icon: <Wrench className="h-5 w-5 mr-2" />,
     });
     

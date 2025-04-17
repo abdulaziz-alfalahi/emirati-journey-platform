@@ -21,6 +21,12 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems, isAuthenticated }) 
             key={item.href} 
             to={item.href} 
             className="flex items-center text-sm font-medium hover:underline"
+            onClick={(e) => {
+              if (item.onClick) {
+                e.preventDefault();
+                item.onClick();
+              }
+            }}
           >
             {item.icon}
             {item.name}
