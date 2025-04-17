@@ -71,7 +71,7 @@ export function useNavItems(
         icon: <BookText className="h-5 w-5 mr-2" />,
       });
       items.push({
-        name: 'Work Experience',
+        name: 'Internships',
         href: '/internships',
         icon: <HelpingHand className="h-5 w-5 mr-2" />,
       });
