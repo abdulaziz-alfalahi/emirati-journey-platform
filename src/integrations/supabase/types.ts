@@ -966,6 +966,57 @@ export type Database = {
         }
         Relationships: []
       }
+      training_materials: {
+        Row: {
+          category: string
+          center_id: string
+          created_at: string | null
+          description: string
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_public: boolean | null
+          material_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          center_id: string
+          created_at?: string | null
+          description: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_public?: boolean | null
+          material_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          center_id?: string
+          created_at?: string | null
+          description?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_public?: boolean | null
+          material_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_career_paths: {
         Row: {
           career_path_id: string

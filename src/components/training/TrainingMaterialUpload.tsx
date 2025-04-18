@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -93,7 +92,6 @@ export const TrainingMaterialUpload: React.FC = () => {
         
       if (error) throw error;
       
-      // Handle file upload
       if (material) {
         const fileExt = materialFile.name.split('.').pop();
         const filePath = `training-materials/${material.id}/${Date.now()}.${fileExt}`;
