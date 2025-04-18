@@ -34,8 +34,8 @@ const formSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   assessment_type: z.enum(['skills', 'behaviors', 'capabilities'] as const),
-  duration_minutes: z.coerce.number().min(0),
-  price_amount: z.coerce.number().min(0),
+  duration_minutes: z.coerce.number().min(0), // Coerce string to number
+  price_amount: z.coerce.number().min(0), // Coerce string to number
   skills_tested: z.string(),
   requirements: z.string(),
   is_active: z.boolean().default(true),
@@ -52,8 +52,8 @@ export const AssessmentUpload: React.FC = () => {
       title: '',
       description: '',
       assessment_type: 'skills',
-      duration_minutes: '60',
-      price_amount: '0',
+      duration_minutes: 60, // Change from string to number
+      price_amount: 0, // Change from string to number
       skills_tested: '',
       requirements: '',
       is_active: true,
