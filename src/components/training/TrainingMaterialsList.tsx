@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,23 +22,7 @@ import {
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/common/EmptyState';
-
-interface TrainingMaterial {
-  id: string;
-  title: string;
-  description: string;
-  material_type: 'document' | 'video' | 'presentation' | 'interactive' | 'assessment';
-  category: string;
-  tags: string[];
-  is_public: boolean;
-  file_path: string;
-  file_size: number;
-  file_type: string;
-  file_name: string;
-  center_id: string;
-  created_at: string;
-  updated_at: string;
-}
+import { TrainingMaterial } from '@/types/training-materials';
 
 interface TrainingMaterialsListProps {
   isManagement: boolean;
@@ -67,7 +50,7 @@ export const TrainingMaterialsList: React.FC<TrainingMaterialsListProps> = ({ is
     const { data, error } = await query.order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data as TrainingMaterial[];
+    return data as unknown as TrainingMaterial[];
   };
   
   const { data: materials = [], isLoading, error, refetch } = useQuery({

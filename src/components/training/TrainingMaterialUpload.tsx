@@ -28,11 +28,12 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, UploadCloud } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { TrainingMaterialType } from '@/types/training-materials';
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-  material_type: z.enum(['document', 'video', 'presentation', 'interactive', 'assessment']),
+  material_type: z.enum(['document', 'video', 'presentation', 'interactive', 'assessment'] as const),
   category: z.string().min(2, { message: "Category is required" }),
   tags: z.string(),
   is_public: z.boolean().default(true),
