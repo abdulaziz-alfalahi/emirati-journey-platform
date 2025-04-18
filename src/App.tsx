@@ -34,6 +34,7 @@ import JobDescriptionsPage from './pages/job-descriptions'
 import RecruiterPage from './pages/recruiter'
 import RecruiterMatchingPage from './pages/recruiter/matching/[id]'
 import TestFormPage from './pages/test-form'
+import TrainingMaterialsPage from './pages/training-materials'
 
 const App = () => {
   return (
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/scholarships" element={<ScholarshipsPage />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/assessments" element={<AssessmentsPage />} />
+            <Route path="/training-materials" element={<TrainingMaterialsPage />} />
             <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
             <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />
             <Route path="/career-advisory/sessions/:id" element={<SessionDetailsPage />} />
