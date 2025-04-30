@@ -211,6 +211,45 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_templates: {
+        Row: {
+          career_stage: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expense_categories: Json
+          id: string
+          income_categories: Json
+          is_system_template: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          career_stage: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_categories: Json
+          id?: string
+          income_categories: Json
+          is_system_template?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          career_stage?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expense_categories?: Json
+          id?: string
+          income_categories?: Json
+          is_system_template?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       camp_enrollments: {
         Row: {
           camp_id: string
@@ -402,6 +441,246 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "assessment_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_registrations: {
+        Row: {
+          event_id: string
+          feedback: string | null
+          id: string
+          rating: number | null
+          registration_date: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          feedback?: string | null
+          id?: string
+          rating?: number | null
+          registration_date?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          feedback?: string | null
+          id?: string
+          rating?: number | null
+          registration_date?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "networking_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_goals: {
+        Row: {
+          created_at: string
+          current_amount: number | null
+          deadline: string | null
+          description: string | null
+          goal_type: string
+          id: string
+          priority: string
+          status: string
+          target_amount: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type: string
+          id?: string
+          priority?: string
+          status?: string
+          target_amount: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          description?: string | null
+          goal_type?: string
+          id?: string
+          priority?: string
+          status?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_projections: {
+        Row: {
+          created_at: string
+          description: string | null
+          expense_data: Json | null
+          id: string
+          income_data: Json | null
+          investment_data: Json | null
+          savings_data: Json | null
+          scenario_type: string
+          time_period: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expense_data?: Json | null
+          id?: string
+          income_data?: Json | null
+          investment_data?: Json | null
+          savings_data?: Json | null
+          scenario_type: string
+          time_period: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expense_data?: Json | null
+          id?: string
+          income_data?: Json | null
+          investment_data?: Json | null
+          savings_data?: Json | null
+          scenario_type?: string
+          time_period?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_recommendations: {
+        Row: {
+          career_stage: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          income_level: string | null
+          is_system_recommendation: boolean
+          priority: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          career_stage?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          income_level?: string | null
+          is_system_recommendation?: boolean
+          priority?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          career_stage?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          income_level?: string | null
+          is_system_recommendation?: boolean
+          priority?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_posts: {
+        Row: {
+          attachment_url: string | null
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -705,6 +984,284 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mentors: {
+        Row: {
+          availability: Json | null
+          bio: string | null
+          created_at: string
+          expertise: string[]
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          rating: number | null
+          review_count: number | null
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          availability?: Json | null
+          bio?: string | null
+          created_at?: string
+          expertise?: string[]
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          rating?: number | null
+          review_count?: number | null
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          availability?: Json | null
+          bio?: string | null
+          created_at?: string
+          expertise?: string[]
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          rating?: number | null
+          review_count?: number | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      mentorship_relationships: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          goals: string | null
+          id: string
+          mentee_id: string
+          mentor_id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["mentorship_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id: string
+          mentor_id: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["mentorship_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          goals?: string | null
+          id?: string
+          mentee_id?: string
+          mentor_id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["mentorship_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_relationships_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          feedback: string | null
+          id: string
+          notes: string | null
+          rating: number | null
+          relationship_id: string
+          scheduled_date: string
+          status: string
+          topic: string | null
+          updated_at: string
+          video_call_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          relationship_id: string
+          scheduled_date: string
+          status?: string
+          topic?: string | null
+          updated_at?: string
+          video_call_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          relationship_id?: string
+          scheduled_date?: string
+          status?: string
+          topic?: string | null
+          updated_at?: string
+          video_call_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_sessions_relationship_id_fkey"
+            columns: ["relationship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_relationships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      networking_events: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          end_date: string
+          event_type: string
+          group_id: string | null
+          id: string
+          is_featured: boolean
+          is_virtual: boolean
+          location: string | null
+          max_participants: number | null
+          organizer_id: string
+          start_date: string
+          title: string
+          updated_at: string
+          virtual_meeting_url: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          end_date: string
+          event_type: string
+          group_id?: string | null
+          id?: string
+          is_featured?: boolean
+          is_virtual?: boolean
+          location?: string | null
+          max_participants?: number | null
+          organizer_id: string
+          start_date: string
+          title: string
+          updated_at?: string
+          virtual_meeting_url?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          event_type?: string
+          group_id?: string | null
+          id?: string
+          is_featured?: boolean
+          is_virtual?: boolean
+          location?: string | null
+          max_participants?: number | null
+          organizer_id?: string
+          start_date?: string
+          title?: string
+          updated_at?: string
+          virtual_meeting_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "networking_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_groups: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          creator_id: string
+          description: string | null
+          id: string
+          industry: string | null
+          is_private: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_private?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          creator_id?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_private?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1017,6 +1574,59 @@ export type Database = {
         }
         Relationships: []
       }
+      user_budgets: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          expense_data: Json
+          id: string
+          income_data: Json
+          start_date: string
+          status: string
+          template_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          expense_data: Json
+          id?: string
+          income_data: Json
+          start_date: string
+          status?: string
+          template_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          expense_data?: Json
+          id?: string
+          income_data?: Json
+          start_date?: string
+          status?: string
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_budgets_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "budget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_career_paths: {
         Row: {
           career_path_id: string
@@ -1058,6 +1668,149 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_connections: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_financial_plans: {
+        Row: {
+          career_stage: string
+          created_at: string
+          description: string | null
+          expense_details: Json | null
+          id: string
+          income_details: Json | null
+          investment_details: Json | null
+          savings_details: Json | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          career_stage: string
+          created_at?: string
+          description?: string | null
+          expense_details?: Json | null
+          id?: string
+          income_details?: Json | null
+          investment_details?: Json | null
+          savings_details?: Json | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          career_stage?: string
+          created_at?: string
+          description?: string | null
+          expense_details?: Json | null
+          id?: string
+          income_details?: Json | null
+          investment_details?: Json | null
+          savings_details?: Json | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_financial_recommendations: {
+        Row: {
+          created_at: string
+          id: string
+          implementation_date: string | null
+          implementation_notes: string | null
+          is_implemented: boolean
+          recommendation_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          implementation_date?: string | null
+          implementation_notes?: string | null
+          is_implemented?: boolean
+          recommendation_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          implementation_date?: string | null
+          implementation_notes?: string | null
+          is_implemented?: boolean
+          recommendation_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_financial_recommendations_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "financial_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message_text: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_text: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message_text?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1115,6 +1868,12 @@ export type Database = {
     }
     Enums: {
       assessment_type: "skills" | "behaviors" | "capabilities"
+      mentorship_status:
+        | "requested"
+        | "accepted"
+        | "active"
+        | "completed"
+        | "cancelled"
       user_role:
         | "school_student"
         | "national_service_participant"
@@ -1254,6 +2013,13 @@ export const Constants = {
   public: {
     Enums: {
       assessment_type: ["skills", "behaviors", "capabilities"],
+      mentorship_status: [
+        "requested",
+        "accepted",
+        "active",
+        "completed",
+        "cancelled",
+      ],
       user_role: [
         "school_student",
         "national_service_participant",
