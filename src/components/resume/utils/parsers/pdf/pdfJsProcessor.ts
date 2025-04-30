@@ -1,3 +1,4 @@
+
 /**
  * PDF processing using PDF.js library
  */
@@ -122,7 +123,9 @@ export const getPdfMetadata = async (file: File): Promise<Record<string, string>
     result.pageCount = pdfDocument.numPages.toString();
     
     // Add PDF/A compliance info if available
-    result.isTagged = String(!!metadata.metadata?.has('pdfaid:part'));
+    // Fix the type error: Use type checking instead of the 'has' method
+    const metadataObj = metadata.metadata as any;
+    result.isTagged = String(!!(metadataObj && metadataObj['pdfaid:part']));
     
     // Check if document is encrypted - using hasOwnProperty to check for property
     result.isEncrypted = String('encrypt' in pdfDocument);
