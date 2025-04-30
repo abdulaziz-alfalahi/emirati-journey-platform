@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -125,10 +124,10 @@ const UserCareerPaths: React.FC<UserCareerPathsProps> = ({
         </div>
         
         <CareerPathwayDetails 
-          careerPath={{
+          careerPath={selectedPath.career_path_id ? {
             ...selectedPath.career_path,
-            stages: selectedPath.stages
-          }}
+            stages: selectedPath.stages || []
+          } : null}
           currentStageId={selectedPath.current_stage_id}
           onStageSelect={(stageId) => {
             // This will be implemented later
