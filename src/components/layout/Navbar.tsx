@@ -1,59 +1,26 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavItems } from '@/hooks/use-nav-items';
-import DesktopMenu from './DesktopMenu';
+import { DesktopMenu } from './DesktopMenu';
 import MobileMenu from './MobileMenu';
 
-const Navbar: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, roles } = useAuth();
-  const location = useLocation();
+const Navbar = () => {
+  const { user, isLoading } = useAuth();
   const isMobile = useIsMobile();
-
-  const isAuthenticated = !!user;
-  const isRecruiter = roles.includes('private_sector_recruiter') || 
-                      (user?.email && user.email.includes('recruit'));
-  const isTrainingCenter = roles.includes('training_center') || 
-                      (user?.email && (user.email.includes('training-center') || user.email.includes('training_center')));
-  const isParent = roles.includes('parent') || 
-                      (user?.email && user.email.includes('parent'));
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location]);
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
-  const mainNavItems = useNavItems(isAuthenticated, isRecruiter, isTrainingCenter, isParent, roles);
+  const navItems = useNavItems();
 
   return (
-    <div className="bg-background border-b">
-      <div className="container flex items-center justify-between py-4">
-        <Link to="/" className="font-bold text-2xl">
-          Emirati Careers
-        </Link>
-        
+    <header className="sticky top-0 z-40 w-full border-b bg-background">
+      <div className="container flex h-16 items-center">
         {isMobile ? (
-          <MobileMenu 
-            isMenuOpen={isMenuOpen}
-            setIsMenuOpen={setIsMenuOpen}
-            navItems={mainNavItems}
-            isAuthenticated={isAuthenticated}
-            closeMenu={closeMenu}
-          />
+          <MobileMenu navItems={navItems} />
         ) : (
-          <DesktopMenu 
-            navItems={mainNavItems}
-            isAuthenticated={isAuthenticated}
-          />
+          <DesktopMenu navItems={navItems} />
         )}
       </div>
-    </div>
+    </header>
   );
 };
 
