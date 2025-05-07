@@ -57,7 +57,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         // Process message partners
         messagePartners?.forEach(msg => {
           const partnerId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
-          const partnerName = msg.sender_id === user.id ? msg.profiles!recipient.full_name : msg.profiles!sender.full_name;
+          const partnerName = msg.sender_id === user.id ? msg.profiles!["recipient"].full_name : msg.profiles!["sender"].full_name;
           
           if (!uniquePartners.has(partnerId)) {
             uniquePartners.add(partnerId);
