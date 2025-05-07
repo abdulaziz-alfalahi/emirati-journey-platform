@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavItems } from '@/hooks/use-nav-items';
-import { DesktopMenu } from './DesktopMenu';
+import DesktopMenu from './DesktopMenu';
 import MobileMenu from './MobileMenu';
 
 const Navbar = () => {
