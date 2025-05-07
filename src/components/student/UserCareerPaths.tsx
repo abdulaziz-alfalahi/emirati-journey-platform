@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { getUserCareerPaths, getUserCareerPathDetails, deleteUserCareerPath } from '@/services/careerPathService';
-import { UserCareerPath, UserCareerPathWithDetails } from '@/types/careerPath';
+import { UserCareerPath, UserCareerPathWithDetails, CareerPathWithStages } from '@/types/careerPath';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -125,9 +125,9 @@ const UserCareerPaths: React.FC<UserCareerPathsProps> = ({
         
         <CareerPathwayDetails 
           careerPath={selectedPath.career_path_id ? {
-            ...selectedPath.career_path,
+            ...(selectedPath.career_path || {}),
             stages: selectedPath.stages || []
-          } : null}
+          } as CareerPathWithStages : null}
           currentStageId={selectedPath.current_stage_id}
           onStageSelect={(stageId) => {
             // This will be implemented later
