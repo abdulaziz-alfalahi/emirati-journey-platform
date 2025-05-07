@@ -4,22 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CareerPath } from './CareerPathCard';
 
 interface PathDetailsViewProps {
-  selectedPath: {
-    id: string;
-    title: string;
-    description: string;
-    steps: {
-      id: string;
-      title: string;
-      description: string;
-      completed?: boolean;
-    }[];
-    duration: string;
-    difficulty: 'beginner' | 'intermediate' | 'advanced';
-    completionPercentage: number;
-  };
+  selectedPath: CareerPath;
   onBack: () => void;
 }
 

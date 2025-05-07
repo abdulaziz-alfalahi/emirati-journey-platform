@@ -1,152 +1,96 @@
-import {
-  Home,
-  BookOpen,
-  Briefcase,
-  GraduationCap,
-  Settings,
-  Bell,
-  MessageSquare,
-  BarChart,
-  Building2,
-  Contact2,
-  FileText,
-  LayoutDashboard,
-  LucideIcon,
-  LogOut
-} from "lucide-react"
 
-import { MainNavItem } from "@/types"
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import UserMenu from './UserMenu';
+import { NavItem } from './types';
 
 interface DesktopMenuProps {
-  isRecruiter?: boolean;
+  navItems: NavItem[];
 }
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon: LucideIcon;
-}
+export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems }) => {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
-export type SidebarNavItem = {
-  title: string
-  disabled?: boolean
-  external?: boolean
-  icon?: LucideIcon
-} & (
-  | {
-      href: string
-      items?: never
-    }
-  | {
-      href?: string
-      items: SidebarNavItem[]
-    }
-)
+  return (
+    <>
+      <Link to="/" className="flex items-center space-x-2 mr-6">
+        <span className="font-semibold text-lg">Career Edge</span>
+      </Link>
 
-export type DocumentationConfig = {
-  mainNav: MainNavItem[]
-  sidebarNav: SidebarNavItem[]
-}
+      <NavigationMenu className="hidden md:flex flex-1">
+        <NavigationMenuList>
+          {navItems.map((item) =>
+            item.items ? (
+              <NavigationMenuItem key={item.href}>
+                <NavigationMenuTrigger className="h-9">{item.title}</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid gap-3 p-4 w-[400px] md:w-[500px] lg:w-[600px]">
+                    {item.items.map((subItem) => (
+                      <li key={subItem.href}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={subItem.href}
+                            className={cn(
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            )}
+                          >
+                            <div className="text-sm font-medium leading-none">
+                              {subItem.title}
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              {subItem.description}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ) : (
+              <NavigationMenuItem key={item.href}>
+                <Link to={item.href} className={cn(
+                  "flex h-9 items-center px-4 text-sm font-medium transition-colors hover:text-primary"
+                )}>
+                  {item.title}
+                </Link>
+              </NavigationMenuItem>
+            )
+          )}
+        </NavigationMenuList>
+      </NavigationMenu>
 
-export const dashboardConfig = (isRecruiter: boolean = false): DocumentationConfig => {
-  const baseSidebarNav: SidebarNavItem[] = [
-    {
-      title: "Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Job Matching",
-      href: "/job-matching",
-      icon: Briefcase,
-    },
-    {
-      title: "Matching",
-      href: "/matching",
-      icon: Users,
-    },
-    {
-      title: "Resume Builder",
-      href: "/resume-builder",
-      icon: FileText,
-    },
-    {
-      title: "CV Builder",
-      href: "/cv-builder",
-      icon: FileText,
-    },
-    {
-      title: "Scholarships",
-      href: "/scholarships",
-      icon: GraduationCap,
-    },
-    {
-      title: "Internships",
-      href: "/internships",
-      icon: Building2,
-    },
-    {
-      title: "Assessments",
-      href: "/assessments",
-      icon: BarChart,
-    },
-    {
-      title: "Training Materials",
-      href: "/training-materials",
-      icon: BookOpen,
-    },
-    {
-      title: "Career Advisory",
-      href: "/career-advisory",
-      icon: Contact2,
-    },
-    {
-      title: "Messages",
-      href: "/messages",
-      icon: MessageSquare,
-    },
-    {
-      title: "Settings",
-      href: "/profile",
-      icon: Settings,
-    },
-  ];
-
-  const recruiterSidebarNav: SidebarNavItem[] = [
-    {
-      title: "Dashboard",
-      href: "/recruiter",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Job Descriptions",
-      href: "/job-descriptions",
-      icon: Briefcase,
-    },
-    {
-      title: "Candidate Matching",
-      href: "/recruiter",
-      icon: Users,
-    },
-    {
-      title: "Interviews",
-      href: "/recruiter",
-      icon: Contact2,
-    },
-    {
-      title: "Messages",
-      href: "/messages",
-      icon: MessageSquare,
-    },
-    {
-      title: "Settings",
-      href: "/profile",
-      icon: Settings,
-    },
-  ];
-
-  return {
-    mainNav: [],
-    sidebarNav: isRecruiter ? recruiterSidebarNav : baseSidebarNav,
-  }
-}
+      <div className="ml-auto flex items-center space-x-4">
+        {isAuthenticated ? (
+          <UserMenu />
+        ) : (
+          <div className="hidden md:flex space-x-4">
+            <Link
+              to="/auth?tab=sign-in"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/auth?tab=sign-up"
+              className="text-sm font-medium text-primary"
+            >
+              Sign Up
+            </Link>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};

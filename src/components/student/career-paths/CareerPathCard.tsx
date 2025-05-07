@@ -1,125 +1,97 @@
 
-import React, { useState } from 'react';
-import { UserCareerPath } from '@/types/careerPath';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Trash2, Star, Clock, Award } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-interface CareerPathCardProps {
-  userPath: UserCareerPath;
-  onViewDetails: (userPath: UserCareerPath) => void;
-  onDelete: (pathId: string) => void;
-  isDeleting: boolean;
+interface CareerPathStep {
+  id: string;
+  title: string;
+  description: string;
+  completed?: boolean;
 }
 
-const CareerPathCard: React.FC<CareerPathCardProps> = ({
-  userPath,
-  onViewDetails,
-  onDelete,
-  isDeleting
-}) => {
-  // Calculate progress based on current stage and total stages
-  const currentStageIndex = userPath.current_stage 
-    ? userPath.career_path?.stages?.findIndex(s => s.id === userPath.current_stage_id) || 0 
-    : 0;
-  const totalStages = userPath.career_path?.stages?.length || 4;
-  const progressPercentage = Math.round((currentStageIndex / (totalStages - 1)) * 100) || 25;
+export interface CareerPath {
+  id: string;
+  title: string;
+  description: string;
+  steps: CareerPathStep[];
+  duration: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  completionPercentage: number;
+  isEnrolled?: boolean;
+}
+
+interface CareerPathCardProps {
+  path: CareerPath;
+  onViewDetails: (path: CareerPath) => void;
+}
+
+const CareerPathCard: React.FC<CareerPathCardProps> = ({ path, onViewDetails }) => {
+  // Function to get badge color based on difficulty
+  const getDifficultyColor = (difficulty: string): string => {
+    switch (difficulty) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'advanced':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Get the number of steps in the path
+  const stepsCount = path.steps?.length || 0;
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-lg">
-              {userPath.career_path?.title || 'Career Path'}
-            </CardTitle>
-            <Badge className="mt-1">{userPath.career_path?.industry || 'Unknown Industry'}</Badge>
-          </div>
-          <div className="bg-primary/10 text-primary rounded-full h-10 w-10 flex items-center justify-center font-bold">
-            {progressPercentage}%
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="flex items-center text-muted-foreground">
-            <Calendar className="h-4 w-4 mr-1" /> 
-            {new Date(userPath.started_at).toLocaleDateString()}
-          </span>
-          {userPath.current_stage && (
-            <span className="flex items-center">
-              <Award className="h-4 w-4 mr-1 text-amber-500" />
-              <span className="text-amber-600">Stage {currentStageIndex + 1}/{totalStages}</span>
-            </span>
+    <div className="border rounded-lg p-5 bg-card shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex flex-col h-full">
+        <div className="mb-4 flex justify-between">
+          <Badge className={getDifficultyColor(path.difficulty)}>
+            {path.difficulty.charAt(0).toUpperCase() + path.difficulty.slice(1)}
+          </Badge>
+          {path.isEnrolled && (
+            <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
+              Enrolled
+            </Badge>
           )}
         </div>
-        
-        <Progress value={progressPercentage} className="h-2" />
-        
-        {userPath.current_stage && (
-          <div className="bg-muted/50 p-2 rounded-md">
-            <div className="text-sm font-medium flex items-center">
-              <Star className="h-3.5 w-3.5 mr-1 text-primary" />
-              Current: {userPath.current_stage.title}
+
+        <h3 className="text-xl font-bold mb-2">{path.title}</h3>
+        <p className="text-muted-foreground line-clamp-3 mb-4 flex-grow">
+          {path.description}
+        </p>
+
+        <div className="space-y-4 mt-auto">
+          <div>
+            <div className="flex justify-between text-sm mb-1">
+              <span>Progress</span>
+              <span>{path.completionPercentage}%</span>
             </div>
-            
-            {userPath.current_stage.duration && (
-              <div className="text-xs text-muted-foreground mt-1 flex items-center">
-                <Clock className="h-3 w-3 mr-1" />
-                {userPath.current_stage.duration}
-              </div>
-            )}
+            <Progress 
+              value={path.completionPercentage} 
+              className="h-2" 
+            />
           </div>
-        )}
-      </CardContent>
-      <CardFooter className="bg-muted/20 pt-2 flex justify-between">
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex-1 mr-2"
-          onClick={() => onViewDetails(userPath)}
-        >
-          View Details
-        </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Remove Career Path</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to remove this career path from your list? 
-                Your progress will be lost.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => onDelete(userPath.id)}
-              >
-                {isDeleting && isDeleting === userPath.id ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Removing...</>
-                ) : (
-                  "Yes, remove it"
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </CardFooter>
-    </Card>
+
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>{stepsCount} {stepsCount === 1 ? 'Step' : 'Steps'}</span>
+            <span>{path.duration}</span>
+          </div>
+
+          <Button 
+            className="w-full mt-2" 
+            onClick={() => onViewDetails(path)}
+          >
+            View Details
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
