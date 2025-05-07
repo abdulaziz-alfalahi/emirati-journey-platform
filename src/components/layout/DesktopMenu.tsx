@@ -1,51 +1,152 @@
+import {
+  Home,
+  BookOpen,
+  Briefcase,
+  GraduationCap,
+  Settings,
+  Bell,
+  MessageSquare,
+  BarChart,
+  Building2,
+  Contact2,
+  FileText,
+  LayoutDashboard,
+  LucideIcon,
+  LogOut
+} from "lucide-react"
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { LogIn } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
-import UserMenu from './UserMenu';
-import { NavItem } from './types';
+import { MainNavItem } from "@/types"
 
 interface DesktopMenuProps {
-  navItems: NavItem[];
-  isAuthenticated: boolean;
+  isRecruiter?: boolean;
 }
 
-const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems, isAuthenticated }) => {
-  return (
-    <div className="flex items-center gap-4">
-      <div className="flex items-center gap-6">
-        {navItems.map((item) => (
-          <Link 
-            key={item.href} 
-            to={item.href} 
-            className="flex items-center text-sm font-medium hover:underline"
-            onClick={(e) => {
-              if (item.onClick) {
-                e.preventDefault();
-                item.onClick();
-              }
-            }}
-          >
-            {item.icon}
-            {item.name}
-          </Link>
-        ))}
-      </div>
-      <ThemeToggle />
-      {isAuthenticated ? (
-        <UserMenu />
-      ) : (
-        <Link to="/auth">
-          <Button variant="outline">
-            <LogIn className="h-4 w-4 mr-2" />
-            Login
-          </Button>
-        </Link>
-      )}
-    </div>
-  );
-};
+interface NavItem {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+}
 
-export default DesktopMenu;
+export type SidebarNavItem = {
+  title: string
+  disabled?: boolean
+  external?: boolean
+  icon?: LucideIcon
+} & (
+  | {
+      href: string
+      items?: never
+    }
+  | {
+      href?: string
+      items: SidebarNavItem[]
+    }
+)
+
+export type DocumentationConfig = {
+  mainNav: MainNavItem[]
+  sidebarNav: SidebarNavItem[]
+}
+
+export const dashboardConfig = (isRecruiter: boolean = false): DocumentationConfig => {
+  const baseSidebarNav: SidebarNavItem[] = [
+    {
+      title: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Job Matching",
+      href: "/job-matching",
+      icon: Briefcase,
+    },
+    {
+      title: "Matching",
+      href: "/matching",
+      icon: Users,
+    },
+    {
+      title: "Resume Builder",
+      href: "/resume-builder",
+      icon: FileText,
+    },
+    {
+      title: "CV Builder",
+      href: "/cv-builder",
+      icon: FileText,
+    },
+    {
+      title: "Scholarships",
+      href: "/scholarships",
+      icon: GraduationCap,
+    },
+    {
+      title: "Internships",
+      href: "/internships",
+      icon: Building2,
+    },
+    {
+      title: "Assessments",
+      href: "/assessments",
+      icon: BarChart,
+    },
+    {
+      title: "Training Materials",
+      href: "/training-materials",
+      icon: BookOpen,
+    },
+    {
+      title: "Career Advisory",
+      href: "/career-advisory",
+      icon: Contact2,
+    },
+    {
+      title: "Messages",
+      href: "/messages",
+      icon: MessageSquare,
+    },
+    {
+      title: "Settings",
+      href: "/profile",
+      icon: Settings,
+    },
+  ];
+
+  const recruiterSidebarNav: SidebarNavItem[] = [
+    {
+      title: "Dashboard",
+      href: "/recruiter",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Job Descriptions",
+      href: "/job-descriptions",
+      icon: Briefcase,
+    },
+    {
+      title: "Candidate Matching",
+      href: "/recruiter",
+      icon: Users,
+    },
+    {
+      title: "Interviews",
+      href: "/recruiter",
+      icon: Contact2,
+    },
+    {
+      title: "Messages",
+      href: "/messages",
+      icon: MessageSquare,
+    },
+    {
+      title: "Settings",
+      href: "/profile",
+      icon: Settings,
+    },
+  ];
+
+  return {
+    mainNav: [],
+    sidebarNav: isRecruiter ? recruiterSidebarNav : baseSidebarNav,
+  }
+}
