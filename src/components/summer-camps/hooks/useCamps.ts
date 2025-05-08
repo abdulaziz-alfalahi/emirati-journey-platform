@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { SummerCamp, CampFilters } from '@/types/summerCamps';
+import { toast } from '@/hooks/use-toast';
 import { 
   getCamps,
   getUserEnrollments, 
