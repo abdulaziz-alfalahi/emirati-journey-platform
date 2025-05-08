@@ -7,3 +7,6 @@ export * from './assessments';
 export { mockAssessments } from './assessments/mockAssessments';
 export { mockAssessmentSessions } from './assessments/mockSessionData';
 export { mockCoachingRecommendations } from './assessments/mockCoachingData';
+
+// Explicitly re-export the fetchCoachAssignments function for CoachDashboard.tsx
+export { fetchCoachAssignments } from './assessments/coachingService';

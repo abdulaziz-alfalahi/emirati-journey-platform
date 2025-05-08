@@ -80,6 +80,57 @@ export const fetchUserCoachingRecommendations = async (userId: string) => {
   return data as CoachingRecommendation[];
 };
 
+// New function to fetch coach assignments (coaching recommendations where coach_id matches)
+export const fetchCoachAssignments = async (coachId: string) => {
+  if (USE_MOCK_DATA) {
+    return mockCoachingRecommendations
+      .filter(rec => rec.coach_id === coachId)
+      .map(recommendation => ({
+        ...recommendation,
+        // Ensure the coach always sees the full assessment session details
+        assessment_sessions: recommendation.assessment_sessions || {
+          id: recommendation.session_id,
+          user_id: recommendation.user_id,
+          status: 'completed',
+          score: 0,
+          feedback: null,
+          results: null,
+          assessments: {
+            title: 'Unknown Assessment',
+            assessment_type: 'skills'
+          }
+        }
+      }));
+  }
+
+  const { data, error } = await supabase
+    .from('coaching_recommendations')
+    .select(`
+      *,
+      assessment_sessions (
+        id,
+        user_id,
+        status,
+        score,
+        feedback,
+        results,
+        assessments (
+          title,
+          assessment_type
+        )
+      )
+    `)
+    .eq('coach_id', coachId)
+    .order('scheduled_date', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching coach assignments:', error);
+    throw error;
+  }
+
+  return data as CoachingRecommendation[];
+};
+
 export const createCoachingRecommendation = async (recommendationData: Omit<CoachingRecommendation, 'id' | 'created_at' | 'updated_at'>) => {
   if (USE_MOCK_DATA) {
     const newRecommendation: CoachingRecommendation = {

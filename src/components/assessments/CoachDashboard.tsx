@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCoachAssignments } from '@/services/assessmentService';
@@ -15,10 +14,11 @@ export const CoachDashboard: React.FC = () => {
   const { user } = useAuth();
   const [openDialog, setOpenDialog] = React.useState<string | null>(null);
 
+  // Updated query with proper error handling
   const { data: assignments, isLoading, error } = useQuery({
     queryKey: ['coach-assignments', user?.id],
-    queryFn: () => user ? fetchCoachAssignments(user.id) : Promise.resolve([]),
-    enabled: !!user,
+    queryFn: () => user?.id ? fetchCoachAssignments(user.id) : Promise.resolve([]),
+    enabled: !!user?.id,
   });
 
   if (isLoading) {
