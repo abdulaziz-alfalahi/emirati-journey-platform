@@ -120,8 +120,21 @@ const UserCareerPaths = () => {
     setEnrolledPaths([...enrolledPaths, updatedPath]);
   };
 
+  // Fix the type issue - we need to adapt the UserCareerPath to match what PathDetailsView expects
   if (selectedPath) {
-    return <PathDetailsView selectedPath={selectedPath} onBack={handleBackToList} />;
+    // Create a compatible object that matches what PathDetailsView expects
+    const adaptedPath = {
+      id: selectedPath.id,
+      title: selectedPath.career_path?.title || 'Career Path',
+      description: selectedPath.career_path?.description || '',
+      steps: selectedPath.steps || [],
+      duration: selectedPath.duration || '',
+      difficulty: selectedPath.difficulty || 'beginner',
+      completionPercentage: selectedPath.completionPercentage || 0,
+      isEnrolled: selectedPath.isEnrolled || false
+    };
+    
+    return <PathDetailsView selectedPath={adaptedPath} onBack={handleBackToList} />;
   }
 
   return (
