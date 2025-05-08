@@ -50,7 +50,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
           .single();
           
         if (profileError) throw profileError;
-        setParticipantName(profileData.full_name || 'Unknown User');
+        setParticipantName(profileData?.full_name || 'Unknown User');
         
         // Fetch messages
         const { data: messageData, error: messageError } = await supabase
@@ -62,7 +62,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
             message_text,
             created_at,
             is_read,
-            profiles!sender:sender_id(full_name)
+            profiles(full_name)
           `)
           .or(`and(sender_id.eq.${user.id},recipient_id.eq.${conversationId}),and(sender_id.eq.${conversationId},recipient_id.eq.${user.id})`)
           .order('created_at', { ascending: true });
@@ -70,7 +70,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
         if (messageError) throw messageError;
         
         // Transform data to match our interface
-        const formattedMessages: Message[] = messageData.map(msg => ({
+        const formattedMessages: Message[] = messageData?.map(msg => ({
           id: msg.id,
           senderId: msg.sender_id,
           senderName: msg.profiles?.full_name || 'Unknown User',
@@ -78,7 +78,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
           content: msg.message_text,
           timestamp: msg.created_at,
           isRead: msg.is_read
-        }));
+        })) || [];
         
         setMessages(formattedMessages);
       } catch (error) {

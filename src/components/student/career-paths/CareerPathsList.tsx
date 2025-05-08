@@ -33,7 +33,7 @@ const CareerPathsList: React.FC<CareerPathsListProps> = ({
           <CareerPathCard
             key={userPath.id}
             userPath={userPath}
-            onViewDetails={onViewDetails}
+            onViewDetails={() => onViewDetails(userPath)}
             onDelete={onDelete}
             isDeleting={deletingId === userPath.id}
           />

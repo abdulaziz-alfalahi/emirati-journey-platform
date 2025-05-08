@@ -6,18 +6,29 @@ import CareerPathsList from './career-paths/CareerPathsList';
 import PathDetailsView from './career-paths/PathDetailsView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { CareerPath } from './career-paths/CareerPathCard';
+import { CareerPath, UserCareerPath } from '@/types/careerPath';
 
 const UserCareerPaths = () => {
   const { user } = useAuth();
-  const [selectedPath, setSelectedPath] = useState<CareerPath | null>(null);
+  const [selectedPath, setSelectedPath] = useState<UserCareerPath | null>(null);
   
   // Demo paths data - in a real app, this would come from your API
-  const [availablePaths] = useState<CareerPath[]>([
+  const [availablePaths] = useState<UserCareerPath[]>([
     {
       id: '1',
-      title: 'Web Development Fundamentals',
-      description: 'Learn the basics of HTML, CSS, and JavaScript to build responsive websites.',
+      user_id: user?.id || '',
+      career_path_id: '101',
+      current_stage_id: null,
+      started_at: new Date().toISOString(),
+      updated_at: null,
+      career_path: {
+        id: '101',
+        title: 'Web Development Fundamentals',
+        description: 'Learn the basics of HTML, CSS, and JavaScript to build responsive websites.',
+        industry: 'Technology',
+        created_at: new Date().toISOString(),
+        updated_at: null
+      },
       steps: [
         { id: '101', title: 'HTML Structure', description: 'Learn the basic building blocks of web pages', completed: true },
         { id: '102', title: 'CSS Styling', description: 'Style your web pages with CSS', completed: true },
@@ -31,8 +42,19 @@ const UserCareerPaths = () => {
     },
     {
       id: '2',
-      title: 'Data Science Career Path',
-      description: 'Master data analysis, visualization, and machine learning algorithms.',
+      user_id: user?.id || '',
+      career_path_id: '102',
+      current_stage_id: null,
+      started_at: new Date().toISOString(),
+      updated_at: null,
+      career_path: {
+        id: '102',
+        title: 'Data Science Career Path',
+        description: 'Master data analysis, visualization, and machine learning algorithms.',
+        industry: 'Technology',
+        created_at: new Date().toISOString(),
+        updated_at: null
+      },
       steps: [
         { id: '201', title: 'Python for Data Analysis', description: 'Learn the fundamentals of Python for data science', completed: false },
         { id: '202', title: 'Data Visualization', description: 'Create compelling visualizations with matplotlib and seaborn', completed: false },
@@ -45,8 +67,19 @@ const UserCareerPaths = () => {
     },
     {
       id: '3',
-      title: 'Cloud Architecture',
-      description: 'Design and implement scalable cloud infrastructure on major platforms like AWS, Azure, and GCP.',
+      user_id: user?.id || '',
+      career_path_id: '103',
+      current_stage_id: null,
+      started_at: new Date().toISOString(),
+      updated_at: null,
+      career_path: {
+        id: '103',
+        title: 'Cloud Architecture',
+        description: 'Design and implement scalable cloud infrastructure on major platforms like AWS, Azure, and GCP.',
+        industry: 'Technology',
+        created_at: new Date().toISOString(),
+        updated_at: null
+      },
       steps: [
         { id: '301', title: 'Cloud Fundamentals', description: 'Understand cloud computing concepts', completed: false },
         { id: '302', title: 'AWS Services', description: 'Learn major AWS services and their use cases', completed: false },
@@ -60,11 +93,11 @@ const UserCareerPaths = () => {
     }
   ]);
   
-  const [enrolledPaths, setEnrolledPaths] = useState<CareerPath[]>(() => {
+  const [enrolledPaths, setEnrolledPaths] = useState<UserCareerPath[]>(() => {
     return availablePaths.filter(path => path.isEnrolled);
   });
 
-  const handleViewPathDetails = (path: CareerPath) => {
+  const handleViewPathDetails = (path: UserCareerPath) => {
     setSelectedPath(path);
   };
 
@@ -109,18 +142,22 @@ const UserCareerPaths = () => {
         </TabsList>
         <TabsContent value="enrolled" className="mt-6">
           <CareerPathsList 
-            paths={enrolledPaths} 
+            userPaths={enrolledPaths} 
+            onViewDetails={handleViewPathDetails}
+            onDelete={() => {}}
+            deletingId={null}
             emptyStateMessage="You haven't enrolled in any career paths yet."
             emptyStateAction="Explore available paths to get started."
-            onViewDetails={handleViewPathDetails}
           />
         </TabsContent>
         <TabsContent value="explore" className="mt-6">
           <CareerPathsList 
-            paths={availablePaths.filter(path => !path.isEnrolled)} 
+            userPaths={availablePaths.filter(path => !path.isEnrolled)}
+            onViewDetails={handleViewPathDetails}
+            onDelete={() => {}}
+            deletingId={null}
             showEnrollButton={true}
             onEnroll={handleEnroll}
-            onViewDetails={handleViewPathDetails}
           />
         </TabsContent>
       </Tabs>

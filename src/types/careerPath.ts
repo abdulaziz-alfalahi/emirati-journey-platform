@@ -33,6 +33,17 @@ export type UserCareerPath = {
   // Joined data
   career_path?: CareerPath;
   current_stage?: CareerPathStage;
+  // Additional fields for UI functionality
+  steps?: {
+    id: string;
+    title: string;
+    description: string;
+    completed: boolean;
+  }[];
+  duration?: string;
+  difficulty?: string;
+  completionPercentage?: number;
+  isEnrolled?: boolean;
 };
 
 export type CareerPathWithStages = CareerPath & {
