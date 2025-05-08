@@ -7,7 +7,7 @@ import { DesktopMenu } from './DesktopMenu';
 import MobileMenu from './MobileMenu';
 
 const Navbar = () => {
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const navItems = useNavItems();
 

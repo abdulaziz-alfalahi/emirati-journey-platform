@@ -15,7 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-display font-medium">Emirati Journey</h3>
+              <h3 className="text-xl font-display font-medium">Emirati Gateway</h3>
               <p className="text-white/70 mt-1">Supporting UAE citizens from education to retirement</p>
             </div>
             <div className="flex space-x-8">
@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-white/10 text-center text-white/50 text-sm">
-            © {new Date().getFullYear()} Emirati Journey. All rights reserved.
+            © {new Date().getFullYear()} Emirati Gateway. All rights reserved.
           </div>
         </div>
       </footer>

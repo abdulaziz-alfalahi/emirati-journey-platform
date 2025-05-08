@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
@@ -13,22 +13,21 @@ import { Menu, LogIn } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import UserMenu from './UserMenu';
 import { NavItem } from './types';
+import { useAuth } from '@/context/AuthContext';
 
 interface MobileMenuProps {
-  isMenuOpen: boolean;
-  setIsMenuOpen: (isOpen: boolean) => void;
   navItems: NavItem[];
-  isAuthenticated: boolean;
-  closeMenu: () => void;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({
-  isMenuOpen,
-  setIsMenuOpen,
-  navItems,
-  isAuthenticated,
-  closeMenu
-}) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({ navItems }) => {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <SheetTrigger asChild>
