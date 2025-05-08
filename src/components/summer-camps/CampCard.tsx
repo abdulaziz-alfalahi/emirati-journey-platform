@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, MapPin, Clock, Plane, TowerControl, Satellite } from 'lucide-react';
+import { Calendar, Users, MapPin, Clock, Airplane, TowerControl, Satellite } from 'lucide-react';
 import { SummerCamp } from '@/types/summerCamps';
 import { format } from 'date-fns';
 import { getCampImage } from './utils/campImageMapping';
@@ -91,7 +92,7 @@ const CampCard: React.FC<CampCardProps> = ({
     } else if (category.includes('operation') || category.includes('leadership')) {
       return <TowerControl className="h-4 w-4 mr-2 text-muted-foreground" />;
     } else {
-      return <Plane className="h-4 w-4 mr-2 text-muted-foreground" />;
+      return <Airplane className="h-4 w-4 mr-2 text-muted-foreground" />;
     }
   };
 
