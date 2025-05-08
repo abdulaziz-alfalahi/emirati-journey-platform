@@ -180,31 +180,35 @@ export const getScholarshipsWithApplicationCounts = async (providerId: string): 
     }
     
     // For each scholarship, get application counts
-    const scholarshipsWithCounts: ScholarshipWithApplications[] = await Promise.all(
-      scholarships.map(async (scholarship: Scholarship) => {
-        const { data: counts, error: countsError } = await supabase
-          .from('scholarship_applications')
-          .select('status')
-          .eq('scholarship_id', scholarship.id);
-          
-        if (countsError) {
-          console.error('Error fetching application counts:', countsError);
-          return {
-            ...scholarship,
-            applications: { pending: 0, approved: 0, rejected: 0, total: 0 }
-          };
-        }
+    const scholarshipsWithCounts: ScholarshipWithApplications[] = [];
+    
+    for (const scholarship of scholarships) {
+      const { data: counts, error: countsError } = await supabase
+        .from('scholarship_applications')
+        .select('status')
+        .eq('scholarship_id', scholarship.id);
         
-        const applications = {
-          pending: counts.filter((app: any) => app.status === 'pending').length,
-          approved: counts.filter((app: any) => app.status === 'approved').length,
-          rejected: counts.filter((app: any) => app.status === 'rejected').length,
-          total: counts.length
-        };
-        
-        return { ...scholarship, applications };
-      })
-    );
+      if (countsError) {
+        console.error('Error fetching application counts:', countsError);
+        scholarshipsWithCounts.push({
+          ...scholarship as unknown as Scholarship,
+          applications: { pending: 0, approved: 0, rejected: 0, total: 0 }
+        });
+        continue;
+      }
+      
+      const applications = {
+        pending: counts.filter((app: any) => app.status === 'pending').length,
+        approved: counts.filter((app: any) => app.status === 'approved').length,
+        rejected: counts.filter((app: any) => app.status === 'rejected').length,
+        total: counts.length
+      };
+      
+      scholarshipsWithCounts.push({
+        ...scholarship as unknown as Scholarship,
+        applications
+      });
+    }
     
     return scholarshipsWithCounts;
   }
@@ -286,9 +290,18 @@ export const createScholarship = async (scholarshipData: Partial<Scholarship>): 
     
     return newScholarship;
   } else {
+    // When using Supabase, ensure all required fields are set
+    const dataToInsert = {
+      ...scholarshipData,
+      provider: scholarshipData.provider || '',  // Ensure required fields are set
+      provider_type: scholarshipData.provider_type || 'university',
+      title: scholarshipData.title || '',
+      is_active: scholarshipData.is_active ?? true,
+    };
+    
     const { data, error } = await supabase
       .from('scholarships')
-      .insert(scholarshipData)
+      .insert(dataToInsert)
       .select()
       .single();
     
@@ -299,4 +312,9 @@ export const createScholarship = async (scholarshipData: Partial<Scholarship>): 
     
     return data as Scholarship;
   }
+};
+
+// Add the missing function that ScholarshipsApplied.tsx is trying to import
+export const getApplicationsByUser = async (userId: string): Promise<Application[]> => {
+  return getUserApplications(userId);
 };

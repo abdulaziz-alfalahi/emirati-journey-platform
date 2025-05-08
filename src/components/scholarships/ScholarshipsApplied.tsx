@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarIcon, ExternalLink, Bookmark, Download, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { Application } from '@/types/scholarships';
-import { getApplicationsByUser } from '@/services/scholarshipService';
+import { getUserApplications } from '@/services/scholarshipService';
 import { useAuth } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
@@ -33,7 +33,8 @@ export const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({
       
       setIsLoading(true);
       try {
-        const data = await getApplicationsByUser(user.id);
+        // Changed from getApplicationsByUser to getUserApplications
+        const data = await getUserApplications(user.id);
         
         // Apply filters
         let filtered = data;
