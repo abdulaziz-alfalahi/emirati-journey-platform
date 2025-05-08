@@ -23,8 +23,15 @@ const CampCard: React.FC<CampCardProps> = ({
   onCancel,
   isEnrolled 
 }) => {
+  // Apply the name and location change for the specific camp
+  const displayCamp = {
+    ...camp,
+    title: camp.title === "Tech Innovators Summer Camp" ? "Emirates Masar Program" : camp.title,
+    location: camp.title === "Tech Innovators Summer Camp" ? "Dubai" : camp.location
+  };
+  
   // Get the image URL, ensuring it has a fallback
-  const imageUrl = camp.image_url || getCampImage(camp);
+  const imageUrl = displayCamp.image_url || getCampImage(displayCamp);
   
   // Add error handler for images with better fallback chain
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -40,12 +47,12 @@ const CampCard: React.FC<CampCardProps> = ({
   };
 
   return (
-    <Card key={camp.id}>
+    <Card key={displayCamp.id}>
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100 relative">
           <img 
             src={imageUrl}
-            alt={camp.title} 
+            alt={displayCamp.title} 
             className="w-full h-full object-cover"
             onError={handleImageError}
             loading="lazy"
@@ -54,50 +61,50 @@ const CampCard: React.FC<CampCardProps> = ({
         <div className="md:w-3/4">
           <CardHeader>
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge>{camp.category}</Badge>
-              <Badge variant="outline">{camp.age_group} years</Badge>
+              <Badge>{displayCamp.category}</Badge>
+              <Badge variant="outline">{displayCamp.age_group} years</Badge>
             </div>
-            <CardTitle>{camp.title}</CardTitle>
-            <CardDescription>{camp.organizer}</CardDescription>
+            <CardTitle>{displayCamp.title}</CardTitle>
+            <CardDescription>{displayCamp.organizer}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">{camp.description}</p>
+            <p className="mb-4">{displayCamp.description}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span>
-                  {format(new Date(camp.start_date), 'MMM d, yyyy')} - {format(new Date(camp.end_date), 'MMM d, yyyy')}
+                  {format(new Date(displayCamp.start_date), 'MMM d, yyyy')} - {format(new Date(displayCamp.end_date), 'MMM d, yyyy')}
                 </span>
               </div>
               <div className="flex items-center">
                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{camp.duration}</span>
+                <span>{displayCamp.duration}</span>
               </div>
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{camp.location}</span>
+                <span>{displayCamp.location}</span>
               </div>
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{camp.enrolled}/{camp.capacity} enrolled</span>
+                <span>{displayCamp.enrolled}/{displayCamp.capacity} enrolled</span>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between items-center">
-            <div className="font-semibold text-lg">{camp.price} AED</div>
+            <div className="font-semibold text-lg">{displayCamp.price} AED</div>
             {type === "available" ? (
               <Button 
-                onClick={() => onEnroll && onEnroll(camp.id)}
-                disabled={camp.enrolled >= camp.capacity}
+                onClick={() => onEnroll && onEnroll(displayCamp.id)}
+                disabled={displayCamp.enrolled >= displayCamp.capacity}
               >
-                {camp.enrolled >= camp.capacity ? "Fully Booked" : "Register Now"}
+                {displayCamp.enrolled >= displayCamp.capacity ? "Fully Booked" : "Register Now"}
               </Button>
             ) : type === "registered" ? (
               <div className="flex gap-2">
                 <Button variant="outline">View Details</Button>
                 <Button 
                   variant="destructive"
-                  onClick={() => onCancel && onCancel(camp.id)}
+                  onClick={() => onCancel && onCancel(displayCamp.id)}
                 >
                   Cancel
                 </Button>
