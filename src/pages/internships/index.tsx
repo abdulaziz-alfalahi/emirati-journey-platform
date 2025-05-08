@@ -23,6 +23,9 @@ const InternshipsPage: React.FC = () => {
   const { user, roles } = useAuth();
   const { toast } = useToast();
 
+  // For demonstration purposes, use mock data
+  const useMockData = true;
+
   const handleFilterChange = (newFilters: {
     industry?: string[];
     isPaid?: boolean;
@@ -80,7 +83,7 @@ const InternshipsPage: React.FC = () => {
                   <InternshipsFilter onFilterChange={handleFilterChange} />
                 </div>
                 <div className="md:col-span-3">
-                  <InternshipsList filters={filters} />
+                  <InternshipsList filters={filters} useMockData={useMockData} />
                 </div>
               </div>
             </TabsContent>
@@ -95,7 +98,7 @@ const InternshipsPage: React.FC = () => {
               <InternshipsFilter onFilterChange={handleFilterChange} />
             </div>
             <div className="md:col-span-3">
-              <InternshipsList filters={filters} />
+              <InternshipsList filters={filters} useMockData={useMockData} />
             </div>
           </div>
         )}

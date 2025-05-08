@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
@@ -13,8 +12,13 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { mockInternships } from '@/services/demoData';
 
-export const InternshipsManage: React.FC = () => {
+interface InternshipsManageProps {
+  useMockData?: boolean;
+}
+
+export const InternshipsManage: React.FC<InternshipsManageProps> = ({ useMockData = true }) => {
   const [internships, setInternships] = useState<InternshipWithApplications[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -26,8 +30,32 @@ export const InternshipsManage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const data = await getInternshipsWithApplicationCounts(user.id);
-      setInternships(data);
+      if (useMockData) {
+        // Generate mock data for internships with application counts
+        setTimeout(() => {
+          const mockInternshipsWithApplications = mockInternships
+            .filter((_, index) => index < 5) // Take first 5 for management view
+            .map(internship => ({
+              ...internship,
+              applications: {
+                pending: Math.floor(Math.random() * 10),
+                approved: Math.floor(Math.random() * 5),
+                rejected: Math.floor(Math.random() * 3),
+                withdrawn: Math.floor(Math.random() * 2),
+                get total() { 
+                  return this.pending + this.approved + this.rejected + this.withdrawn;
+                }
+              }
+            }));
+          
+          setInternships(mockInternshipsWithApplications);
+          setIsLoading(false);
+        }, 800);
+      } else {
+        const data = await getInternshipsWithApplicationCounts(user.id);
+        setInternships(data);
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching internships:', error);
       toast({
@@ -35,10 +63,9 @@ export const InternshipsManage: React.FC = () => {
         description: "Failed to load your internship listings",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, useMockData]);
 
   useEffect(() => {
     fetchInternships();
@@ -55,21 +82,37 @@ export const InternshipsManage: React.FC = () => {
 
   const toggleInternshipStatus = async (internship: InternshipWithApplications) => {
     try {
-      await updateInternshipStatus(internship.id, !internship.is_active);
-      
-      // Update local state
-      setInternships(prev => 
-        prev.map(item => 
-          item.id === internship.id 
-            ? { ...item, is_active: !item.is_active } 
-            : item
-        )
-      );
-      
-      toast({
-        title: internship.is_active ? "Internship Deactivated" : "Internship Activated",
-        description: `${internship.title} has been ${internship.is_active ? 'deactivated' : 'activated'}`
-      });
+      if (useMockData) {
+        // For demo, just update the state locally
+        setInternships(prev => 
+          prev.map(item => 
+            item.id === internship.id 
+              ? { ...item, is_active: !item.is_active } 
+              : item
+          )
+        );
+
+        toast({
+          title: internship.is_active ? "Internship Deactivated" : "Internship Activated",
+          description: `${internship.title} has been ${internship.is_active ? 'deactivated' : 'activated'}`
+        });
+      } else {
+        await updateInternshipStatus(internship.id, !internship.is_active);
+        
+        // Update local state
+        setInternships(prev => 
+          prev.map(item => 
+            item.id === internship.id 
+              ? { ...item, is_active: !item.is_active } 
+              : item
+          )
+        );
+        
+        toast({
+          title: internship.is_active ? "Internship Deactivated" : "Internship Activated",
+          description: `${internship.title} has been ${internship.is_active ? 'deactivated' : 'activated'}`
+        });
+      }
     } catch (error) {
       console.error("Error toggling internship status:", error);
       toast({

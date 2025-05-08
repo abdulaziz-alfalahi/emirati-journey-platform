@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Internship } from '@/types/internships';
 import { getInternships, applyForInternship } from '@/services/internshipService';
@@ -11,6 +10,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Skeleton } from '@/components/ui/skeleton';
+import { mockInternships } from '@/services/demoData';
 
 interface InternshipsListProps {
   filters?: {
@@ -19,9 +19,10 @@ interface InternshipsListProps {
     location?: string[];
     search?: string;
   };
+  useMockData?: boolean;
 }
 
-export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => {
+export const InternshipsList: React.FC<InternshipsListProps> = ({ filters, useMockData = false }) => {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [applying, setApplying] = useState<string | null>(null);
@@ -32,8 +33,52 @@ export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => 
   const fetchInternships = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getInternships(filters);
-      setInternships(data);
+      if (useMockData) {
+        // Use mock data for demo purposes
+        setTimeout(() => {
+          let filteredData = [...mockInternships];
+          
+          // Apply filters if provided
+          if (filters) {
+            if (filters.industry && filters.industry.length > 0) {
+              filteredData = filteredData.filter(item => 
+                filters.industry?.includes(item.industry)
+              );
+            }
+            
+            if (filters.isPaid !== undefined) {
+              filteredData = filteredData.filter(item => 
+                item.is_paid === filters.isPaid
+              );
+            }
+            
+            if (filters.location && filters.location.length > 0) {
+              filteredData = filteredData.filter(item => 
+                filters.location?.some(loc => 
+                  item.location.toLowerCase().includes(loc.toLowerCase())
+                )
+              );
+            }
+            
+            if (filters.search) {
+              const searchLower = filters.search.toLowerCase();
+              filteredData = filteredData.filter(item => 
+                item.title.toLowerCase().includes(searchLower) ||
+                item.company.toLowerCase().includes(searchLower) ||
+                item.description.toLowerCase().includes(searchLower)
+              );
+            }
+          }
+          
+          setInternships(filteredData);
+          setIsLoading(false);
+        }, 800); // Simulate network delay
+      } else {
+        // Use real API data
+        const data = await getInternships(filters);
+        setInternships(data);
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching internships:', error);
       toast({
@@ -41,10 +86,9 @@ export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => 
         description: "Failed to load internships. Please try again later.",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
-  }, [filters, toast]);
+  }, [filters, toast, useMockData]);
 
   useEffect(() => {
     fetchInternships();
@@ -62,12 +106,20 @@ export const InternshipsList: React.FC<InternshipsListProps> = ({ filters }) => 
 
     setApplying(internshipId);
     try {
-      await applyForInternship(internshipId, user.id);
-      
-      toast({
-        title: "Application submitted",
-        description: "Your application has been submitted successfully."
-      });
+      if (useMockData) {
+        // Simulate API call for demo purposes
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        toast({
+          title: "Application submitted",
+          description: "Your application has been submitted successfully."
+        });
+      } else {
+        await applyForInternship(internshipId, user.id);
+        toast({
+          title: "Application submitted",
+          description: "Your application has been submitted successfully."
+        });
+      }
     } catch (error) {
       console.error('Error applying for internship:', error);
       toast({
