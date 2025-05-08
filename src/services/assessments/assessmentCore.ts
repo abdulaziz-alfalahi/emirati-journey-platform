@@ -1,8 +1,16 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Assessment } from '@/types/assessments';
+import { mockAssessments } from './mockAssessments';
+
+// Flag to determine whether to use mock data or real data
+const USE_MOCK_DATA = true;
 
 export const fetchAssessments = async () => {
+  if (USE_MOCK_DATA) {
+    return mockAssessments;
+  }
+
   const { data, error } = await supabase
     .from('assessments')
     .select('*')
@@ -17,6 +25,14 @@ export const fetchAssessments = async () => {
 };
 
 export const fetchAssessmentById = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    const assessment = mockAssessments.find(a => a.id === id);
+    if (!assessment) {
+      throw new Error(`Assessment with ID ${id} not found`);
+    }
+    return assessment;
+  }
+
   const { data, error } = await supabase
     .from('assessments')
     .select('*')
@@ -32,6 +48,18 @@ export const fetchAssessmentById = async (id: string) => {
 };
 
 export const createAssessment = async (assessmentData: Omit<Assessment, 'id' | 'created_at' | 'updated_at'>) => {
+  if (USE_MOCK_DATA) {
+    const newAssessment: Assessment = {
+      ...assessmentData,
+      id: `ASSMT${String(mockAssessments.length + 1).padStart(3, '0')}`,
+      created_at: new Date().toISOString(),
+      updated_at: null
+    };
+    // In a real implementation, we would add this to the mock data
+    // mockAssessments.push(newAssessment);
+    return newAssessment;
+  }
+
   const { data, error } = await supabase
     .from('assessments')
     .insert([assessmentData])
@@ -47,6 +75,24 @@ export const createAssessment = async (assessmentData: Omit<Assessment, 'id' | '
 };
 
 export const updateAssessment = async (id: string, assessmentData: Partial<Assessment>) => {
+  if (USE_MOCK_DATA) {
+    const index = mockAssessments.findIndex(a => a.id === id);
+    if (index === -1) {
+      throw new Error(`Assessment with ID ${id} not found`);
+    }
+    
+    const updatedAssessment: Assessment = {
+      ...mockAssessments[index],
+      ...assessmentData,
+      updated_at: new Date().toISOString()
+    };
+    
+    // In a real implementation, we would update the mock data
+    // mockAssessments[index] = updatedAssessment;
+    
+    return updatedAssessment;
+  }
+
   const { data, error } = await supabase
     .from('assessments')
     .update(assessmentData)
@@ -63,6 +109,18 @@ export const updateAssessment = async (id: string, assessmentData: Partial<Asses
 };
 
 export const deleteAssessment = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    const index = mockAssessments.findIndex(a => a.id === id);
+    if (index === -1) {
+      throw new Error(`Assessment with ID ${id} not found`);
+    }
+    
+    // In a real implementation, we would remove from mock data
+    // mockAssessments.splice(index, 1);
+    
+    return true;
+  }
+
   const { error } = await supabase
     .from('assessments')
     .delete()
@@ -72,4 +130,6 @@ export const deleteAssessment = async (id: string) => {
     console.error('Error deleting assessment:', error);
     throw error;
   }
+
+  return true;
 };
