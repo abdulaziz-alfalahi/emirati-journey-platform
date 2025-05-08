@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Briefcase, CircleDollarSign, MapPin, Search, X } from 'lucide-react';
+import { Briefcase, MapPin, Search, X } from 'lucide-react';
 import { getInternships } from '@/services/internshipService';
 
 // Define unique industries based on mockInternships
@@ -26,15 +26,18 @@ const INDUSTRIES = [
   'Hospitality'
 ];
 
-// Define common locations in UAE
+// Define business districts in Dubai
 const LOCATIONS = [
-  'Dubai',
-  'Abu Dhabi',
-  'Sharjah',
-  'Ajman',
-  'Fujairah',
-  'Ras Al Khaimah',
-  'Umm Al Quwain'
+  'Dubai Internet City',
+  'Dubai Media City',
+  'Dubai Marina',
+  'Business Bay',
+  'DIFC',
+  'Downtown Dubai',
+  'Dubai Silicon Oasis',
+  'Dubai Knowledge Park',
+  'JLT',
+  'Deira'
 ];
 
 interface InternshipsFilterProps {
@@ -113,7 +116,7 @@ export const InternshipsFilter: React.FC<InternshipsFilterProps> = ({ onFilterCh
           {/* Paid Filter */}
           <div>
             <Label className="text-sm font-medium flex items-center mb-2">
-              <CircleDollarSign className="h-4 w-4 mr-2 text-gray-500" />
+              <span className="mr-2 text-gray-500 font-medium">AED</span>
               Payment
             </Label>
             <div className="flex gap-2">
