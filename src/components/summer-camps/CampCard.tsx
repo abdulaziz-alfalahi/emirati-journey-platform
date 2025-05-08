@@ -23,14 +23,24 @@ const CampCard: React.FC<CampCardProps> = ({
   onCancel,
   isEnrolled 
 }) => {
+  // Get the image URL, ensuring it has a fallback
+  const imageUrl = camp.image_url || getCampImage(camp);
+  
+  // Add error handler for images
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error("Image failed to load:", e.currentTarget.src);
+    e.currentTarget.src = "https://images.unsplash.com/photo-1501854140801-50d01698950b"; // Default fallback
+  };
+
   return (
     <Card key={camp.id}>
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100">
           <img 
-            src={camp.image_url || getCampImage(camp)} 
+            src={imageUrl}
             alt={camp.title} 
             className="w-full h-full object-cover"
+            onError={handleImageError}
           />
         </div>
         <div className="md:w-3/4">
