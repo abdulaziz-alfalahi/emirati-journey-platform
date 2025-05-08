@@ -10,6 +10,16 @@ import { SummerCamp, CampFilters } from '@/types/summerCamps';
 import { getCamps, getUserEnrollments, enrollInCamp, cancelEnrollment, getCampsByInstitution } from '@/services/summerCampService';
 import { format } from 'date-fns';
 
+// Camp image mapping based on category
+const campImages = {
+  'Technology': 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9', // Pine trees
+  'Science': 'https://images.unsplash.com/photo-1433086966358-54859d0ed716', // Waterfall
+  'Arts': 'https://images.unsplash.com/photo-1500673922987-e212871fec22', // Yellow lights between trees
+  'Leadership': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e', // Mountain landscape
+  'Sports': 'https://images.unsplash.com/photo-1615729947596-a598e5de0ab3', // Mountain with grass
+  'default': 'https://images.unsplash.com/photo-1501854140801-50d01698950b' // Bird's eye view of green mountains
+};
+
 interface CampsListProps {
   type: "available" | "registered" | "managed";
   filters: CampFilters;
@@ -65,6 +75,14 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
 
     fetchCamps();
   }, [type, user, JSON.stringify(combinedFilters)]);
+
+  // Get camp image based on camp category or use default
+  const getCampImage = (camp: SummerCamp): string => {
+    if (camp.category && campImages[camp.category as keyof typeof campImages]) {
+      return campImages[camp.category as keyof typeof campImages];
+    }
+    return campImages.default;
+  };
 
   const handleEnroll = async (campId: string) => {
     if (!user) {
@@ -144,7 +162,7 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100">
               <img 
-                src={camp.image_url} 
+                src={camp.image_url || getCampImage(camp)} 
                 alt={camp.title} 
                 className="w-full h-full object-cover"
               />

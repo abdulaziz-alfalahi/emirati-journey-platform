@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,12 +31,18 @@ const ageGroups = [
   { id: '14-18', label: '14-18 years' },
 ];
 
+// Updated locations to match Dubai business districts
 const locations = [
-  { id: 'abu-dhabi', label: 'Abu Dhabi' },
-  { id: 'dubai', label: 'Dubai' },
-  { id: 'sharjah', label: 'Sharjah' },
-  { id: 'ajman', label: 'Ajman' },
-  { id: 'rak', label: 'Ras Al Khaimah' },
+  { id: 'dubai-internet-city', label: 'Dubai Internet City' },
+  { id: 'dubai-media-city', label: 'Dubai Media City' },
+  { id: 'dubai-marina', label: 'Dubai Marina' },
+  { id: 'business-bay', label: 'Business Bay' },
+  { id: 'difc', label: 'DIFC' },
+  { id: 'downtown-dubai', label: 'Downtown Dubai' },
+  { id: 'dubai-silicon-oasis', label: 'Dubai Silicon Oasis' },
+  { id: 'dubai-knowledge-park', label: 'Dubai Knowledge Park' },
+  { id: 'jlt', label: 'JLT' },
+  { id: 'deira', label: 'Deira' },
 ];
 
 const CampsFilter: React.FC<CampsFilterProps> = ({ 

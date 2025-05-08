@@ -23,7 +23,7 @@ const SummerCampsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">Summer Knowledge Camps</h1>
             <p className="text-muted-foreground">
-              Discover and register for educational summer camps across the UAE
+              Discover and register for educational summer camps across Dubai
             </p>
           </div>
           
@@ -41,7 +41,7 @@ const SummerCampsPage: React.FC = () => {
                 <School className="h-10 w-10 text-blue-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">40+ Camps</h3>
-                  <p className="text-sm text-muted-foreground">Available across the UAE</p>
+                  <p className="text-sm text-muted-foreground">Available across Dubai</p>
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg flex items-center">
