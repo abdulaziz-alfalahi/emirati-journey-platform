@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, MapPin, Clock } from 'lucide-react';
+import { Calendar, Users, MapPin, Clock, Airplane, TowerControl, Satellite } from 'lucide-react';
 import { SummerCamp } from '@/types/summerCamps';
 import { format } from 'date-fns';
 import { getCampImage } from './utils/campImageMapping';
@@ -23,11 +23,49 @@ const CampCard: React.FC<CampCardProps> = ({
   onCancel,
   isEnrolled 
 }) => {
-  // Apply the name and location change for the specific camp
+  // Transform camp information to be aviation-themed
+  const aviationThemes = {
+    "Tech Innovators Summer Camp": "Emirates Aviation Academy",
+    "Science Explorers Camp": "Aerospace Engineering Camp",
+    "Arts & Creativity Workshop": "Aviation Design Workshop",
+    "Leadership & Innovation Camp": "Air Traffic Control Leadership Program",
+    "Sports & Adventure Camp": "Flight Simulation Adventure"
+  };
+
+  const aviationLocations = {
+    "Tech Innovators Summer Camp": "Dubai International Airport",
+    "Science Explorers Camp": "Abu Dhabi Aerospace Hub",
+    "Arts & Creativity Workshop": "Sharjah Aviation Museum",
+    "Leadership & Innovation Camp": "Emirates Training Academy",
+    "Sports & Adventure Camp": "Al Ain Airport"
+  };
+
+  const aviationCategories = {
+    "Technology": "Aviation Technology",
+    "Science": "Aerospace Engineering",
+    "Arts": "Aviation Design",
+    "Leadership": "Flight Operations",
+    "Sports": "Flight Simulation"
+  };
+
+  // Apply aviation theme transformations
   const displayCamp = {
     ...camp,
-    title: camp.title === "Tech Innovators Summer Camp" ? "Emirates Masar Program" : camp.title,
-    location: camp.title === "Tech Innovators Summer Camp" ? "Dubai" : camp.location
+    title: aviationThemes[camp.title as keyof typeof aviationThemes] || camp.title,
+    location: aviationLocations[camp.title as keyof typeof aviationLocations] || camp.location,
+    category: aviationCategories[camp.category as keyof typeof aviationCategories] || camp.category,
+    description: camp.description.replace(/summer camp|camp|tech|science|arts|leadership|sports/gi, match => {
+      const replacements: Record<string, string> = {
+        'summer camp': 'aviation program',
+        'camp': 'aviation program',
+        'tech': 'aviation technology',
+        'science': 'aerospace science',
+        'arts': 'aviation design',
+        'leadership': 'flight leadership',
+        'sports': 'flight training'
+      };
+      return replacements[match.toLowerCase()] || match;
+    })
   };
   
   // Get the image URL, ensuring it has a fallback
@@ -38,12 +76,24 @@ const CampCard: React.FC<CampCardProps> = ({
     console.error("Image failed to load:", e.currentTarget.src);
     
     // Set a default landscape image as fallback
-    e.currentTarget.src = "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=60";
+    e.currentTarget.src = "https://images.unsplash.com/photo-1487887235947-a955ef187fcc?auto=format&fit=crop&w=800&q=60";
     
     // Remove any broken dimensions that might be causing display issues
     e.currentTarget.style.height = '100%';
     e.currentTarget.style.width = '100%';
     e.currentTarget.style.objectFit = 'cover';
+  };
+
+  // Choose appropriate icon based on category
+  const getCategoryIcon = () => {
+    const category = displayCamp.category.toLowerCase();
+    if (category.includes('technology') || category.includes('engineering')) {
+      return <Satellite className="h-4 w-4 mr-2 text-muted-foreground" />;
+    } else if (category.includes('operation') || category.includes('leadership')) {
+      return <TowerControl className="h-4 w-4 mr-2 text-muted-foreground" />;
+    } else {
+      return <Airplane className="h-4 w-4 mr-2 text-muted-foreground" />;
+    }
   };
 
   return (
@@ -61,7 +111,10 @@ const CampCard: React.FC<CampCardProps> = ({
         <div className="md:w-3/4">
           <CardHeader>
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge>{displayCamp.category}</Badge>
+              <Badge className="flex items-center">
+                {getCategoryIcon()}
+                <span>{displayCamp.category}</span>
+              </Badge>
               <Badge variant="outline">{displayCamp.age_group} years</Badge>
             </div>
             <CardTitle>{displayCamp.title}</CardTitle>
@@ -111,7 +164,7 @@ const CampCard: React.FC<CampCardProps> = ({
               </div>
             ) : (
               <div className="flex gap-2">
-                <Button variant="outline">Edit Camp</Button>
+                <Button variant="outline">Edit Program</Button>
                 <Button>Manage Enrollments</Button>
               </div>
             )}
