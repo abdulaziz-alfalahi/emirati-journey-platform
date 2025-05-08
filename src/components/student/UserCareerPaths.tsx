@@ -6,7 +6,7 @@ import CareerPathsList from './career-paths/CareerPathsList';
 import PathDetailsView from './career-paths/PathDetailsView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { CareerPath, UserCareerPath } from '@/types/careerPath';
+import { UserCareerPath } from '@/types/careerPath';
 
 const UserCareerPaths = () => {
   const { user } = useAuth();

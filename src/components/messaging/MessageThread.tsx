@@ -62,7 +62,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
             message_text,
             created_at,
             is_read,
-            profiles(full_name)
+            profiles!sender_id (full_name)
           `)
           .or(`and(sender_id.eq.${user.id},recipient_id.eq.${conversationId}),and(sender_id.eq.${conversationId},recipient_id.eq.${user.id})`)
           .order('created_at', { ascending: true });

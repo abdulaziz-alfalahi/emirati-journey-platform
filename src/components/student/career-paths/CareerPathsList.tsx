@@ -12,6 +12,11 @@ interface CareerPathsListProps {
   deletingId: string | null;
   showViewAll?: boolean;
   onViewAll?: () => void;
+  // Add new props to match what's being passed in UserCareerPaths.tsx
+  showEnrollButton?: boolean;
+  onEnroll?: (pathId: string) => void;
+  emptyStateMessage?: string;
+  emptyStateAction?: string;
 }
 
 const CareerPathsList: React.FC<CareerPathsListProps> = ({
@@ -20,10 +25,17 @@ const CareerPathsList: React.FC<CareerPathsListProps> = ({
   onDelete,
   deletingId,
   showViewAll = false,
-  onViewAll
+  onViewAll,
+  showEnrollButton,
+  onEnroll,
+  emptyStateMessage,
+  emptyStateAction
 }) => {
   if (userPaths.length === 0) {
-    return <EmptyCareerPathState />;
+    return <EmptyCareerPathState 
+      message={emptyStateMessage} 
+      action={emptyStateAction} 
+    />;
   }
 
   return (
@@ -36,6 +48,8 @@ const CareerPathsList: React.FC<CareerPathsListProps> = ({
             onViewDetails={() => onViewDetails(userPath)}
             onDelete={onDelete}
             isDeleting={deletingId === userPath.id}
+            showEnrollButton={showEnrollButton}
+            onEnroll={onEnroll}
           />
         ))}
       </div>
