@@ -27,7 +27,11 @@ const CampCard: React.FC<CampCardProps> = ({
   const displayCamp = {
     ...camp,
     title: camp.title === "Tech Innovators Summer Camp" ? "Emirates Masar Program" : camp.title,
-    location: camp.title === "Tech Innovators Summer Camp" ? "Dubai" : camp.location
+    location: camp.title === "Tech Innovators Summer Camp" ? "Dubai" : camp.location,
+    organizer: camp.organizer === "Abu Dhabi Innovation Center" ? "Emirates Group" : camp.organizer,
+    description: camp.description === "Learn coding, robotics, and AI fundamentals in this immersive tech camp" ? 
+      "Learn Aviation Basics, STEM Skills, Safety and Emergency Procedures, Teamwork and Leadership, and Growth in Aviation Sector" : 
+      camp.description
   };
   
   // Get the image URL, ensuring it has a fallback
