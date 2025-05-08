@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Airplane } from 'lucide-react';
+import { Plane } from 'lucide-react';
 
 interface EmptyStateProps {
   type: "available" | "registered" | "managed";
@@ -27,7 +27,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
     <Card className="bg-white border shadow-sm">
       <CardHeader className="text-center pb-2">
         <div className="mx-auto bg-primary/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
-          <Airplane className="h-6 w-6 text-primary" />
+          <Plane className="h-6 w-6 text-primary" />
         </div>
         <CardTitle>{messages[type].title}</CardTitle>
         <CardDescription>{messages[type].description}</CardDescription>
