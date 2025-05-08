@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, MapPin, Clock } from 'lucide-react';
+import { Calendar, Users, MapPin, Clock, Plane } from 'lucide-react';
 import { SummerCamp } from '@/types/summerCamps';
 import { format } from 'date-fns';
 import { getCampImage } from './utils/campImageMapping';
