@@ -42,38 +42,50 @@ const MessageThread: React.FC<MessageThreadProps> = ({ conversationId }) => {
     const fetchMessages = async () => {
       setLoading(true);
       try {
-        // Fetch participant name
+        // First fetch participant name separately
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('full_name')
           .eq('id', conversationId)
           .single();
           
-        if (profileError) throw profileError;
-        setParticipantName(profileData?.full_name || 'Unknown User');
+        if (profileError) {
+          console.error('Error fetching profile data:', profileError);
+        } else {
+          setParticipantName(profileData?.full_name || 'Unknown User');
+        }
         
-        // Fetch messages
+        // Then fetch messages separately
         const { data: messageData, error: messageError } = await supabase
           .from('user_messages')
-          .select(`
-            id,
-            sender_id,
-            recipient_id,
-            message_text,
-            created_at,
-            is_read,
-            profiles!sender_id (full_name)
-          `)
+          .select('id, sender_id, recipient_id, message_text, created_at, is_read')
           .or(`and(sender_id.eq.${user.id},recipient_id.eq.${conversationId}),and(sender_id.eq.${conversationId},recipient_id.eq.${user.id})`)
           .order('created_at', { ascending: true });
           
         if (messageError) throw messageError;
         
+        // Fetch all sender names in a separate query
+        const senderIds = Array.from(new Set(messageData?.map(msg => msg.sender_id) || []));
+        const { data: senderProfiles, error: sendersError } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', senderIds);
+          
+        if (sendersError) {
+          console.error('Error fetching sender profiles:', sendersError);
+        }
+        
+        // Create a map of user IDs to names
+        const nameMap: Record<string, string> = {};
+        senderProfiles?.forEach(profile => {
+          nameMap[profile.id] = profile.full_name || 'Unknown User';
+        });
+        
         // Transform data to match our interface
         const formattedMessages: Message[] = messageData?.map(msg => ({
           id: msg.id,
           senderId: msg.sender_id,
-          senderName: msg.profiles?.full_name || 'Unknown User',
+          senderName: nameMap[msg.sender_id] || 'Unknown User',
           recipientId: msg.recipient_id,
           content: msg.message_text,
           timestamp: msg.created_at,

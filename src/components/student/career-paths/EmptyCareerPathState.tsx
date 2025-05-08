@@ -1,22 +1,29 @@
 
 import React from 'react';
-import { BookX } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Compass } from 'lucide-react';
 
 interface EmptyCareerPathStateProps {
-  message?: string;
-  action?: string;
+  message: string;
+  action: string;
 }
 
-const EmptyCareerPathState: React.FC<EmptyCareerPathStateProps> = ({
-  message = "You haven't enrolled in any career paths yet.",
-  action = "Explore available paths to get started."
+const EmptyCareerPathState: React.FC<EmptyCareerPathStateProps> = ({ 
+  message = "No career paths available", 
+  action = "Check back later for new career paths" 
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <BookX className="w-16 h-16 text-muted-foreground mb-4" />
-      <h3 className="text-xl font-medium mb-2">{message}</h3>
-      <p className="text-muted-foreground">{action}</p>
-    </div>
+    <Card className="w-full">
+      <CardContent className="py-10 flex flex-col items-center justify-center text-center">
+        <div className="rounded-full bg-muted p-3 mb-4">
+          <Compass className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-medium mb-2">{message}</h3>
+        <p className="text-sm text-muted-foreground">
+          {action}
+        </p>
+      </CardContent>
+    </Card>
   );
 };
 

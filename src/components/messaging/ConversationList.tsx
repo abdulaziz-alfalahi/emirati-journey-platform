@@ -38,52 +38,54 @@ const ConversationList: React.FC<ConversationListProps> = ({
     const fetchConversations = async () => {
       try {
         setLoading(true);
-        // First get all unique conversation partners
+        
+        // First get all unique conversation partners without using joins
         const { data: messagePartners, error: partnersError } = await supabase
           .from('user_messages')
-          .select(`
-            sender_id,
-            recipient_id,
-            profiles!sender_id (full_name),
-            profiles!recipient_id (full_name)
-          `)
+          .select('sender_id, recipient_id')
           .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`);
             
         if (partnersError) throw partnersError;
         
         // Create a Set of unique conversation partners
         const uniquePartners = new Set<string>();
-        const conversationsList: Conversation[] = [];
+        const partnerIds: string[] = [];
         
         // Process message partners
         messagePartners?.forEach(msg => {
           const partnerId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
           
-          // Handle potential undefined properties by using optional chaining and nullish coalescing
-          const senderProfileName = msg.profiles?.full_name;
-          const recipientProfileName = msg["profiles!recipient_id"]?.full_name;
-          
-          const partnerName = msg.sender_id === user.id ? 
-            recipientProfileName : 
-            senderProfileName;
-          
           if (!uniquePartners.has(partnerId)) {
             uniquePartners.add(partnerId);
+            partnerIds.push(partnerId);
+          }
+        });
+        
+        // Now fetch profile information for each partner
+        const conversationsList: Conversation[] = [];
+        
+        if (partnerIds.length > 0) {
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', partnerIds);
             
-            // For each unique partner, get last message and unread count
+          if (profilesError) throw profilesError;
+          
+          // Create conversation objects with profile information
+          profiles?.forEach(profile => {
             conversationsList.push({
-              id: crypto.randomUUID(), // Temporary ID
-              participantId: partnerId,
-              participantName: partnerName || 'Unknown User',
-              participantRole: 'Unknown', // This would need to be fetched from user_roles
+              id: crypto.randomUUID(),
+              participantId: profile.id,
+              participantName: profile.full_name || 'Unknown User',
+              participantRole: 'Unknown',
               lastMessage: "Loading...",
               lastMessageTime: new Date().toISOString(),
               unreadCount: 0
             });
-          }
-        });
+          });
+        }
         
-        // Update with last messages and unread counts (simplified for now)
         setConversations(conversationsList);
       } catch (error) {
         console.error('Error fetching conversations:', error);
