@@ -26,21 +26,29 @@ const CampCard: React.FC<CampCardProps> = ({
   // Get the image URL, ensuring it has a fallback
   const imageUrl = camp.image_url || getCampImage(camp);
   
-  // Add error handler for images
+  // Add error handler for images with better fallback chain
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error("Image failed to load:", e.currentTarget.src);
-    e.currentTarget.src = "https://images.unsplash.com/photo-1501854140801-50d01698950b"; // Default fallback
+    
+    // Set a default landscape image as fallback
+    e.currentTarget.src = "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=60";
+    
+    // Remove any broken dimensions that might be causing display issues
+    e.currentTarget.style.height = '100%';
+    e.currentTarget.style.width = '100%';
+    e.currentTarget.style.objectFit = 'cover';
   };
 
   return (
     <Card key={camp.id}>
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100">
+        <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100 relative">
           <img 
             src={imageUrl}
             alt={camp.title} 
             className="w-full h-full object-cover"
             onError={handleImageError}
+            loading="lazy"
           />
         </div>
         <div className="md:w-3/4">

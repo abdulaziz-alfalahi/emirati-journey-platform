@@ -1,26 +1,43 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { School } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar } from 'lucide-react';
 
 interface EmptyStateProps {
   type: "available" | "registered" | "managed";
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
+  const messages = {
+    available: {
+      title: "No Camps Available",
+      description: "There are no summer camps available matching your filter criteria."
+    },
+    registered: {
+      title: "Not Registered for Any Camps",
+      description: "You haven't registered for any summer camps yet. Browse available camps to find one that interests you."
+    },
+    managed: {
+      title: "No Managed Camps",
+      description: "You don't have any summer camps set up yet. Create your first camp to start managing registrations."
+    }
+  };
+
   return (
-    <Card>
-      <CardContent className="py-10 text-center">
-        <School className="mx-auto h-12 w-12 text-muted-foreground/50" />
-        <h3 className="mt-4 text-lg font-medium">No camps found</h3>
-        <p className="text-sm text-muted-foreground mt-2">
-          {type === "available" ? 
-            "No available camps match your filters. Try adjusting your search criteria." :
-            type === "registered" ?
-            "You haven't registered for any summer camps yet." :
-            "You aren't managing any summer camps yet."
-          }
-        </p>
+    <Card className="bg-white border shadow-sm">
+      <CardHeader className="text-center pb-2">
+        <div className="mx-auto bg-primary/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
+          <Calendar className="h-6 w-6 text-primary" />
+        </div>
+        <CardTitle>{messages[type].title}</CardTitle>
+        <CardDescription>{messages[type].description}</CardDescription>
+      </CardHeader>
+      <CardContent className="text-center pt-2">
+        {type === "managed" && (
+          <p className="text-sm text-muted-foreground">
+            Click "Create New Camp" to set up your first educational summer program.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
