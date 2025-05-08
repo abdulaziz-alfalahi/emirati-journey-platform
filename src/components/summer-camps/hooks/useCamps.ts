@@ -1,9 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/hooks/use-toast';
 import { SummerCamp, CampFilters } from '@/types/summerCamps';
-import { getCamps, getUserEnrollments, enrollInCamp, cancelEnrollment, getCampsByInstitution } from '@/services/summerCampService';
+import { 
+  getCamps,
+  getUserEnrollments, 
+  enrollInCamp, 
+  cancelEnrollment, 
+  getCampsByInstitution 
+} from '@/services/summerCamps';
 
 export interface UseCampsReturn {
   camps: SummerCamp[];
