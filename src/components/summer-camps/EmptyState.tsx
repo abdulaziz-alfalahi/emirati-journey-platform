@@ -24,17 +24,17 @@ const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
   };
 
   return (
-    <Card className="bg-white border shadow-sm">
+    <Card className="bg-white border border-gov-lightGray shadow-gov">
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto bg-primary/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
-          <Plane className="h-6 w-6 text-primary" />
+        <div className="mx-auto bg-gov-blue/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
+          <Plane className="h-6 w-6 text-gov-blue" />
         </div>
-        <CardTitle>{messages[type].title}</CardTitle>
-        <CardDescription>{messages[type].description}</CardDescription>
+        <CardTitle className="text-gov-black font-gov">{messages[type].title}</CardTitle>
+        <CardDescription className="text-gov-darkGray">{messages[type].description}</CardDescription>
       </CardHeader>
       <CardContent className="text-center pt-2">
         {type === "managed" && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gov-mediumGray">
             Click "Create New Camp" to set up your first educational aviation program.
           </p>
         )}

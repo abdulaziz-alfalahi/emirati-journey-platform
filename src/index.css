@@ -1,5 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Import the Dubai font for Government theme */
+@import url('https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,39 +10,44 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 0 0% 9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 187 53% 48%;
-    --primary-foreground: 210 40% 98%;
+    /* Government theme primary color - blue */
+    --primary: 200 95% 31%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Neutral gray for secondary elements */
+    --secondary: 214 9% 87%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Subtle backgrounds */
+    --muted: 214 9% 95%;
+    --muted-foreground: 0 0% 46%;
 
-    --accent: 37 70% 55%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Government gold for accents */
+    --accent: 44 64% 47%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Alert red */
+    --destructive: 0 87% 36%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 187 53% 48%;
+    --border: 214 9% 87%;
+    --input: 214 9% 87%;
+    --ring: 200 95% 31%;
 
-    --radius: 0.75rem;
+    --radius: 0.375rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 200 95% 31%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
@@ -48,42 +55,47 @@
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 9%;
+    --foreground: 0 0% 100%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 187 53% 48%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Lighter version of blue for dark mode */
+    --primary: 200 70% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Darker gray for secondary buttons */
+    --secondary: 0 0% 27%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Dark mode muted colors */
+    --muted: 0 0% 27%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 37 70% 55%;
-    --accent-foreground: 210 40% 98%;
+    /* Brighter accent for dark mode */
+    --accent: 44 80% 60%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Brighter red for danger actions */
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 187 53% 48%;
+    --border: 0 0% 27%;
+    --input: 0 0% 27%;
+    --ring: 200 70% 50%;
     
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 0 0% 13%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 200 70% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 200 70% 50%;
   }
 }
 
@@ -100,11 +112,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-gov;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium tracking-tight;
+    @apply font-gov font-medium tracking-tight;
   }
 }
 
@@ -113,13 +125,14 @@
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
   }
   
+  /* Updated button styling to match government style guide */
   .premium-button {
-    @apply relative overflow-hidden bg-emirati-teal text-white font-medium py-3 px-6 rounded-full 
-    shadow-sm hover:shadow-md transition-all duration-300 ease-out;
+    @apply relative overflow-hidden bg-gov-blue text-white font-medium py-3 px-6 rounded-md
+    shadow-gov hover:shadow-gov-strong transition-all duration-300 ease-out;
   }
   
   .premium-button::before {
-    @apply content-[''] absolute top-0 left-[-100%] w-full h-full bg-white/20 
+    @apply content-[''] absolute top-0 left-[-100%] w-full h-full bg-white/10 
     transform skew-x-[45deg] transition-all duration-700 ease-out;
   }
   
@@ -127,12 +140,13 @@
     @apply left-[100%];
   }
   
+  /* Government style indicators */
   .stage-indicator {
     @apply w-4 h-4 rounded-full bg-muted relative z-10 transition-all duration-300;
   }
   
   .stage-indicator.active {
-    @apply bg-emirati-teal scale-125;
+    @apply bg-gov-blue scale-125;
   }
   
   .stage-connector {
@@ -140,11 +154,36 @@
   }
   
   .stage-connector.active {
-    @apply bg-emirati-teal;
+    @apply bg-gov-blue;
   }
   
   .section {
-    @apply py-20 px-6 md:px-10 w-full max-w-7xl mx-auto;
+    @apply py-16 px-6 md:px-8 w-full max-w-7xl mx-auto;
+  }
+  
+  /* Government-specific components */
+  .gov-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .gov-card {
+    @apply bg-white border border-lightGray rounded-md shadow-gov p-6;
+  }
+  
+  .gov-header {
+    @apply bg-gov-blue text-white py-4;
+  }
+  
+  .gov-footer {
+    @apply bg-gov-black text-white py-8;
+  }
+  
+  .gov-button-primary {
+    @apply bg-gov-blue text-white px-6 py-2 rounded-md hover:brightness-110 transition-all;
+  }
+  
+  .gov-button-secondary {
+    @apply bg-gov-lightGray text-gov-black px-6 py-2 rounded-md hover:bg-opacity-80 transition-all;
   }
 }
 

@@ -51,9 +51,9 @@ const CampCard: React.FC<CampCardProps> = ({
   };
 
   return (
-    <Card key={displayCamp.id}>
+    <Card key={displayCamp.id} className="overflow-hidden border-gov-lightGray">
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gray-100 relative">
+        <div className="md:w-1/4 h-48 md:h-auto overflow-hidden bg-gov-lightGray relative">
           <img 
             src={imageUrl}
             alt={displayCamp.title} 
@@ -65,58 +65,60 @@ const CampCard: React.FC<CampCardProps> = ({
         <div className="md:w-3/4">
           <CardHeader>
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge>{displayCamp.category}</Badge>
-              <Badge variant="outline">{displayCamp.age_group} years</Badge>
+              <Badge className="bg-gov-blue text-white">{displayCamp.category}</Badge>
+              <Badge variant="outline" className="border-gov-lightGray text-gov-darkGray">{displayCamp.age_group} years</Badge>
             </div>
-            <CardTitle>{displayCamp.title}</CardTitle>
-            <CardDescription>{displayCamp.organizer}</CardDescription>
+            <CardTitle className="text-gov-black font-gov">{displayCamp.title}</CardTitle>
+            <CardDescription className="text-gov-darkGray">{displayCamp.organizer}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">{displayCamp.description}</p>
+            <p className="mb-4 text-gov-darkGray">{displayCamp.description}</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="flex items-center text-gov-mediumGray">
+                <Calendar className="h-4 w-4 mr-2 text-gov-blue" />
                 <span>
                   {format(new Date(displayCamp.start_date), 'MMM d, yyyy')} - {format(new Date(displayCamp.end_date), 'MMM d, yyyy')}
                 </span>
               </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="flex items-center text-gov-mediumGray">
+                <Clock className="h-4 w-4 mr-2 text-gov-blue" />
                 <span>{displayCamp.duration}</span>
               </div>
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="flex items-center text-gov-mediumGray">
+                <MapPin className="h-4 w-4 mr-2 text-gov-blue" />
                 <span>{displayCamp.location}</span>
               </div>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="flex items-center text-gov-mediumGray">
+                <Users className="h-4 w-4 mr-2 text-gov-blue" />
                 <span>{displayCamp.enrolled}/{displayCamp.capacity} enrolled</span>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between items-center">
-            <div className="font-semibold text-lg">{displayCamp.price} AED</div>
+            <div className="font-semibold text-lg text-gov-darkGray">{displayCamp.price} AED</div>
             {type === "available" ? (
               <Button 
                 onClick={() => onEnroll && onEnroll(displayCamp.id)}
                 disabled={displayCamp.enrolled >= displayCamp.capacity}
+                className={`bg-gov-blue text-white hover:brightness-110 ${displayCamp.enrolled >= displayCamp.capacity ? 'opacity-50' : ''}`}
               >
                 {displayCamp.enrolled >= displayCamp.capacity ? "Fully Booked" : "Register Now"}
               </Button>
             ) : type === "registered" ? (
               <div className="flex gap-2">
-                <Button variant="outline">View Details</Button>
+                <Button variant="outline" className="border-gov-blue text-gov-blue hover:bg-gov-blue/10">View Details</Button>
                 <Button 
                   variant="destructive"
                   onClick={() => onCancel && onCancel(displayCamp.id)}
+                  className="bg-gov-red text-white hover:brightness-110"
                 >
                   Cancel
                 </Button>
               </div>
             ) : (
               <div className="flex gap-2">
-                <Button variant="outline">Edit Camp</Button>
-                <Button>Manage Enrollments</Button>
+                <Button variant="outline" className="border-gov-blue text-gov-blue hover:bg-gov-blue/10">Edit Camp</Button>
+                <Button className="bg-gov-blue text-white hover:brightness-110">Manage Enrollments</Button>
               </div>
             )}
           </CardFooter>
