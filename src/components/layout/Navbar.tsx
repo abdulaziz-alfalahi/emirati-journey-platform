@@ -12,8 +12,8 @@ const Navbar = () => {
   const navItems = useNavItems();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
-      <div className="container flex h-16 items-center">
+    <header className="w-full border-b bg-background shadow-sm">
+      <div className="container mx-auto flex h-16 items-center">
         {isMobile ? (
           <MobileMenu navItems={navItems} />
         ) : (

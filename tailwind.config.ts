@@ -73,7 +73,9 @@ export default {
 					darkGray: '#454545',
 					mediumGray: '#767676',
 					lightGray: '#DCDEE0',
-					white: '#FFFFFF'
+					white: '#FFFFFF',
+					teal: '#00736A',  // Added from the Emirati logo
+					dubai: '#C32026'   // Dubai government logo red color
 				}
 			},
 			fontFamily: {

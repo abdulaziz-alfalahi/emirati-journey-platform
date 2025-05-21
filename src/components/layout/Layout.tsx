@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Navbar from './Navbar';
+import GovLogos from '../logos/GovLogos';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,13 +10,21 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <div className="bg-white border-b border-gov-lightGray">
+        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+          <GovLogos size="small" />
+          <div className="text-sm text-gov-darkGray">
+            {new Date().toLocaleDateString('en-AE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+        </div>
+      </div>
       <Navbar />
       <main className="flex-1">{children}</main>
-      <footer className="py-8 px-6 bg-emirati-navy text-white">
+      <footer className="py-8 px-6 bg-gov-blue text-white">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-display font-medium">Emirati Gateway</h3>
+              <GovLogos variant="vertical" size="medium" className="mb-4" />
               <p className="text-white/70 mt-1">Supporting UAE citizens from education to retirement</p>
             </div>
             <div className="flex space-x-8">

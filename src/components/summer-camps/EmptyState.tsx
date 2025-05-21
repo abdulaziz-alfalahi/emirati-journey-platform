@@ -23,11 +23,12 @@ const EmptyState: React.FC<EmptyStateProps> = ({ type }) => {
     }
   };
 
+  // Updated to use the teal color from the government logo
   return (
     <Card className="bg-white border border-gov-lightGray shadow-gov">
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto bg-gov-blue/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
-          <Plane className="h-6 w-6 text-gov-blue" />
+        <div className="mx-auto bg-[#00736A]/10 w-12 h-12 flex items-center justify-center rounded-full mb-4">
+          <Plane className="h-6 w-6 text-[#00736A]" />
         </div>
         <CardTitle className="text-gov-black font-gov">{messages[type].title}</CardTitle>
         <CardDescription className="text-gov-darkGray">{messages[type].description}</CardDescription>
