@@ -15,9 +15,9 @@ export const GovLogos: React.FC<GovLogosProps> = ({
 }) => {
   // Set consistent fixed heights based on size prop
   const logoSize = {
-    small: 'h-6 md:h-8',
-    medium: 'h-8 md:h-10',
-    large: 'h-10 md:h-14',
+    small: 'h-8 md:h-10',
+    medium: 'h-10 md:h-12',
+    large: 'h-12 md:h-16',
   };
 
   return (
@@ -28,7 +28,6 @@ export const GovLogos: React.FC<GovLogosProps> = ({
           src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
           alt="Government of Dubai"
           className={`${logoSize[size]}`}
-          style={{ height: logoSize[size].split(' ')[0].replace('h-', '') + 'rem' }}
         />
       </a>
 
@@ -38,7 +37,6 @@ export const GovLogos: React.FC<GovLogosProps> = ({
           src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
           alt="Emirati Human Resources Development Council"
           className={`${logoSize[size]}`}
-          style={{ height: logoSize[size].split(' ')[0].replace('h-', '') + 'rem' }}
         />
       </Link>
     </div>
