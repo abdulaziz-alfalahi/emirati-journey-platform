@@ -63,10 +63,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Government theme colors based on guidelines
+				// Government theme colors updated based on EHRDC logo colors
 				gov: {
 					red: '#AE0F0A',
-					green: '#00694E',
+					green: '#00736A', // Updated to match EHRDC logo teal color
 					blue: '#046B99',
 					gold: '#C3992A',
 					black: '#171717',
@@ -74,8 +74,13 @@ export default {
 					mediumGray: '#767676',
 					lightGray: '#DCDEE0',
 					white: '#FFFFFF',
-					teal: '#00736A',  // Added from the Emirati logo
-					dubai: '#C32026'   // Dubai government logo red color
+					teal: '#00736A', // Main EHRDC logo color
+					dubai: '#C32026',   // Dubai government logo red color
+					ehrdc: {
+						primary: '#00736A', // Primary teal from EHRDC logo
+						secondary: '#004D46', // Darker shade of teal for accents
+						light: '#E6F2F1', // Light teal for backgrounds
+					}
 				}
 			},
 			fontFamily: {

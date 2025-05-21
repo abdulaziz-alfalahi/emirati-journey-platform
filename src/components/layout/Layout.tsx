@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
       <Navbar />
       <main className="flex-1">{children}</main>
-      <footer className="py-8 px-6 bg-gov-blue text-white">
+      <footer className="py-8 px-6 bg-gov-teal text-white">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
