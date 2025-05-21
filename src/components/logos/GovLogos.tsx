@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface GovLogosProps {
   variant?: 'horizontal' | 'vertical';
@@ -22,24 +23,24 @@ export const GovLogos: React.FC<GovLogosProps> = ({
   return (
     <div className={`flex ${variant === 'horizontal' ? 'flex-row space-x-6 md:space-x-10 justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`}>
       {/* Dubai Government Logo - Left */}
-      <div className="flex items-center">
+      <a href="https://tec.gov.ae/" target="_blank" rel="noopener noreferrer" className="flex items-center">
         <img 
           src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
           alt="Government of Dubai"
           className={`${logoSize[size]}`}
           style={{ height: logoSize[size].split(' ')[0].replace('h-', '') + 'rem' }}
         />
-      </div>
+      </a>
 
       {/* Emirati Human Resources Development Council Logo - Right */}
-      <div className="flex items-center">
+      <Link to="/" className="flex items-center">
         <img 
-          src="/lovable-uploads/856b95de-60c1-4994-a684-4ad2ff7c37e1.png"
+          src="/lovable-uploads/2e2851a5-be5e-4411-9f32-7ca28fd8b1b2.png"
           alt="Emirati Human Resources Development Council"
           className={`${logoSize[size]}`}
           style={{ height: logoSize[size].split(' ')[0].replace('h-', '') + 'rem' }}
         />
-      </div>
+      </Link>
     </div>
   );
 };
