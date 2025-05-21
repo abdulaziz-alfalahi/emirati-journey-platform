@@ -1,11 +1,16 @@
+
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-  return <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
+  
+  return (
+    <section className="relative min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden pt-16 pb-12 md:pt-20 md:pb-16">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-emirati-sand bg-dot-pattern opacity-50 pointer-events-none"></div>
       
@@ -44,6 +49,8 @@ const Hero: React.FC = () => {
       {/* Decorative Elements */}
       <div className="absolute top-1/3 -right-20 w-96 h-96 bg-emirati-teal/10 rounded-full filter blur-3xl"></div>
       <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-emirati-gold/10 rounded-full filter blur-3xl"></div>
-    </section>;
+    </section>
+  );
 };
+
 export default Hero;
