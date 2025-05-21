@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              {/* Removed GovLogos from here */}
+              <GovLogos variant="vertical" size="medium" className="mb-4" />
               <p className="text-white/70 mt-1">Supporting UAE citizens from education to retirement</p>
             </div>
             <div className="flex space-x-8">
