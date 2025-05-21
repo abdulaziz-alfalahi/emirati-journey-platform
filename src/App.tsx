@@ -35,6 +35,7 @@ import RecruiterPage from './pages/recruiter'
 import RecruiterMatchingPage from './pages/recruiter/matching/[id]'
 import TestFormPage from './pages/test-form'
 import TrainingMaterialsPage from './pages/training-materials'
+import TrainingPage from './pages/training'
 import MessagesPage from './pages/messages'
 
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/scholarships" element={<ScholarshipsPage />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/assessments" element={<AssessmentsPage />} />
+            <Route path="/training" element={<TrainingPage />} />
             <Route path="/training-materials" element={<TrainingMaterialsPage />} />
             <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
             <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />

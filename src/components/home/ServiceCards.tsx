@@ -13,7 +13,8 @@ import {
   BadgeCheck,
   FileText as BookText, // Using FileText as BookText
   Compass,
-  Hand as HelpingHand // Changed from Hands to Hand
+  Hand as HelpingHand, // Changed from Hands to Hand
+  GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -58,6 +59,13 @@ const ServiceCards: React.FC = () => {
       description: 'Discover enriching summer camp programs to enhance your skills and experience.',
       icon: <Calendar size={24} />,
       path: '/summer-camps'
+    },
+    {
+      id: 'training',
+      title: 'Training',
+      description: 'Access personalized AI-recommended training opportunities to develop your professional skills.',
+      icon: <GraduationCap size={24} />,
+      path: '/training'
     },
     {
       id: 'scholarships',

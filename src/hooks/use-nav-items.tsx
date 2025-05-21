@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand } from 'lucide-react';
+import { Compass, BookText, Calendar, Award, BadgeCheck, Briefcase, HelpingHand, GraduationCap } from 'lucide-react';
 import { NavItem } from '@/components/layout/types';
 import { UserRole } from '@/types/auth';
 
@@ -31,6 +31,12 @@ export function useNavItems() {
       name: 'Summer Camps',
       href: '/summer-camps',
       icon: <Calendar className="h-5 w-5 mr-2" />,
+    });
+    
+    items.push({
+      name: 'Training',
+      href: '/training',
+      icon: <GraduationCap className="h-5 w-5 mr-2" />,
     });
     
     items.push({
