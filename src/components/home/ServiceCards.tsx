@@ -1,20 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
-  FileText, 
-  BookOpen, 
-  Users, 
-  Bell, 
-  Globe, 
-  Smartphone, 
-  Zap,
-  Award,
   Calendar,
-  BadgeCheck,
-  FileText as BookText, // Using FileText as BookText
-  Compass,
+  Award,
   Hand as HelpingHand, // Changed from Hands to Hand
-  GraduationCap
+  BadgeCheck,
+  GraduationCap,
+  FileText as BookText, // Using FileText as BookText
+  Compass
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +25,41 @@ const ServiceCards: React.FC = () => {
   
   const services: Service[] = [
     {
+      id: 'summer-camps',
+      title: 'Summer Camps',
+      description: 'Discover enriching summer camp programs to enhance your skills and experience.',
+      icon: <Calendar size={24} />,
+      path: '/summer-camps'
+    },
+    {
+      id: 'scholarships',
+      title: 'Scholarships',
+      description: 'Access scholarship opportunities and funding for your educational journey.',
+      icon: <Award size={24} />,
+      path: '/scholarships'
+    },
+    {
+      id: 'internships',
+      title: 'Internships',
+      description: 'Find and apply for internship opportunities aligned with your career goals.',
+      icon: <HelpingHand size={24} />,
+      path: '/internships'
+    },
+    {
+      id: 'assessments',
+      title: 'Assessments',
+      description: 'Take professional assessments to identify your strengths and areas for development.',
+      icon: <BadgeCheck size={24} />,
+      path: '/assessments'
+    },
+    {
+      id: 'training',
+      title: 'Training',
+      description: 'Access personalized AI-recommended training opportunities to develop your professional skills.',
+      icon: <GraduationCap size={24} />,
+      path: '/training'
+    },
+    {
       id: 'portfolio',
       title: 'Portfolio Builder',
       description: 'Create and showcase your professional portfolio with UAE-specific templates designed for different career stages.',
@@ -45,41 +72,6 @@ const ServiceCards: React.FC = () => {
       description: 'Explore career opportunities matching your skills, preferences, and goals with advanced AI-powered guidance.',
       icon: <Compass size={24} />,
       path: '/job-matching'
-    },
-    {
-      id: 'internships',
-      title: 'Internships',
-      description: 'Find and apply for internship opportunities aligned with your career goals.',
-      icon: <HelpingHand size={24} />,
-      path: '/internships'
-    },
-    {
-      id: 'summer-camps',
-      title: 'Summer Camps',
-      description: 'Discover enriching summer camp programs to enhance your skills and experience.',
-      icon: <Calendar size={24} />,
-      path: '/summer-camps'
-    },
-    {
-      id: 'training',
-      title: 'Training',
-      description: 'Access personalized AI-recommended training opportunities to develop your professional skills.',
-      icon: <GraduationCap size={24} />,
-      path: '/training'
-    },
-    {
-      id: 'scholarships',
-      title: 'Scholarships',
-      description: 'Access scholarship opportunities and funding for your educational journey.',
-      icon: <Award size={24} />,
-      path: '/scholarships'
-    },
-    {
-      id: 'assessments',
-      title: 'Assessments',
-      description: 'Take professional assessments to identify your strengths and areas for development.',
-      icon: <BadgeCheck size={24} />,
-      path: '/assessments'
     }
   ];
   

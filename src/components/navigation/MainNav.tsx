@@ -25,7 +25,7 @@ const MainNav: React.FC<MainNavProps> = ({ items }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Default navigation items that are available to all users
+  // Default navigation items that are available to all users - updated with career journey order
   const defaultNavItems = [
     {
       title: 'Dashboard',
@@ -33,14 +33,39 @@ const MainNav: React.FC<MainNavProps> = ({ items }) => {
       description: 'Your personalized overview'
     },
     {
-      title: 'CV Builder',
-      href: '/cv-builder',
-      description: 'Create and manage your CVs'
+      title: 'Summer Camps',
+      href: '/summer-camps',
+      description: 'Discover summer camp programs'
+    },
+    {
+      title: 'Scholarships',
+      href: '/scholarships',
+      description: 'Education funding opportunities'
+    },
+    {
+      title: 'Internships',
+      href: '/internships',
+      description: 'Professional experience opportunities'
+    },
+    {
+      title: 'Assessments',
+      href: '/assessments',
+      description: 'Evaluate your skills'
+    },
+    {
+      title: 'Training',
+      href: '/training',
+      description: 'Develop professional skills'
     },
     {
       title: 'Portfolio',
       href: '/portfolio',
       description: 'Showcase your achievements'
+    },
+    {
+      title: 'Career Exploration',
+      href: '/job-matching',
+      description: 'Find your career path'
     },
     {
       title: 'Analytics',
