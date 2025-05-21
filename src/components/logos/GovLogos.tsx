@@ -20,8 +20,8 @@ export const GovLogos: React.FC<GovLogosProps> = ({
   };
 
   return (
-    <div className={`flex ${variant === 'horizontal' ? 'flex-row space-x-6' : 'flex-col space-y-4'} items-center ${className}`}>
-      {/* Dubai Government Logo */}
+    <div className={`flex ${variant === 'horizontal' ? 'flex-row space-x-6 justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`}>
+      {/* Dubai Government Logo - Left */}
       <div className="flex items-center">
         <img 
           src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
@@ -30,7 +30,7 @@ export const GovLogos: React.FC<GovLogosProps> = ({
         />
       </div>
 
-      {/* Emirati HR Development Council Logo */}
+      {/* Emirati HR Development Council Logo - Right */}
       <div className="flex items-center">
         <img 
           src="/lovable-uploads/856b95de-60c1-4994-a684-4ad2ff7c37e1.png"

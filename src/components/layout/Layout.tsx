@@ -11,11 +11,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="bg-white border-b border-gov-lightGray">
-        <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-2">
           <GovLogos size="small" />
-          <div className="text-sm text-gov-darkGray">
-            {new Date().toLocaleDateString('en-AE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
         </div>
       </div>
       <Navbar />
