@@ -1,12 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar,
   Award,
-  Hand as HelpingHand, // Changed from Hands to Hand
+  Hand as HelpingHand,
   BadgeCheck,
   GraduationCap,
-  FileText as BookText, // Using FileText as BookText
-  Compass
+  FileText as BookText,
+  Compass,
+  Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +74,13 @@ const ServiceCards: React.FC = () => {
       description: 'Explore career opportunities matching your skills, preferences, and goals with advanced AI-powered guidance.',
       icon: <Compass size={24} />,
       path: '/job-matching'
+    },
+    {
+      id: 'retiree',
+      title: 'Retiree Services',
+      description: 'Access specialized services and opportunities designed to support UAE citizens during their retirement journey.',
+      icon: <Briefcase size={24} />,
+      path: '/retiree'
     }
   ];
   
