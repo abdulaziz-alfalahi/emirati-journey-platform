@@ -35,7 +35,7 @@ export const GovLogos: React.FC<GovLogosProps> = ({
       {/* Emirati Human Resources Development Council Logo - Right */}
       <Link to="/" className="flex items-center">
         <img 
-          src="/lovable-uploads/2e2851a5-be5e-4411-9f32-7ca28fd8b1b2.png"
+          src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
           alt="Emirati Human Resources Development Council"
           className={`${logoSize[size]}`}
           style={{ height: logoSize[size].split(' ')[0].replace('h-', '') + 'rem' }}
