@@ -2,6 +2,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import GovLogos from '../logos/GovLogos';
+import { MessageSquare, Zap, Youtube } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -41,8 +42,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-white/10 text-center text-white/50 text-sm">
-            © {new Date().getFullYear()} Emirati Gateway. All rights reserved.
+          
+          {/* Dubai Government Standard Footer Icons */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* DubaiAI Icon */}
+                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
+                  <Zap className="h-6 w-6" />
+                  <span className="font-medium">DubaiAI</span>
+                </a>
+                
+                {/* 04 Suggestions/Complaints */}
+                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
+                  <MessageSquare className="h-6 w-6" />
+                  <span className="font-medium">Suggestions & Complaints</span>
+                </a>
+                
+                {/* Happiness Meter */}
+                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
+                  <Youtube className="h-6 w-6" />
+                  <span className="font-medium">Happiness Meter</span>
+                </a>
+              </div>
+              
+              <div className="text-center text-white/50 text-sm">
+                © {new Date().getFullYear()} Emirati Gateway. All rights reserved.
+              </div>
+            </div>
           </div>
         </div>
       </footer>
