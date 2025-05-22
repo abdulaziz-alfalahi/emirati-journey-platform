@@ -9,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, LogIn, ChevronDown, ChevronRight } from 'lucide-react';
+import { Menu, LogIn, ChevronDown, ChevronRight, Activity } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import UserMenu from './UserMenu';
 import { NavGroup, NavItem } from './types';
