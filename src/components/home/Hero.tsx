@@ -1,16 +1,11 @@
-
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-  
-  return (
-    <section className="relative min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden pt-16 pb-12 md:pt-20 md:pb-16">
+  return <section className="relative min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden pt-16 pb-12 md:pt-20 md:pb-16">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-emirati-sand bg-dot-pattern opacity-50 pointer-events-none"></div>
       
@@ -40,7 +35,7 @@ const Hero: React.FC = () => {
         {/* Scroll Indicator - Increasing the bottom spacing to 12 from 8 */}
         <div className={`absolute bottom-12 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <a href="#journey" className="flex flex-col items-center text-foreground/60 hover:text-emirati-teal transition-colors">
-            <span className="text-sm mb-2">Discover More</span>
+            <span className="text-sm mb-2 text-center">Discover More</span>
             <ChevronDown className="animate-bounce" />
           </a>
         </div>
@@ -49,8 +44,6 @@ const Hero: React.FC = () => {
       {/* Decorative Elements */}
       <div className="absolute top-1/3 -right-20 w-96 h-96 bg-emirati-teal/10 rounded-full filter blur-3xl"></div>
       <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-emirati-gold/10 rounded-full filter blur-3xl"></div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
