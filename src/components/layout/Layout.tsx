@@ -1,8 +1,8 @@
-
 import React from 'react';
 import Navbar from './Navbar';
 import GovLogos from '../logos/GovLogos';
 import { MessageSquare, Zap, Youtube } from 'lucide-react';
+import DubaiGovFooterIcons from './DubaiGovFooterIcons';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -73,6 +73,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
+      
+      {/* Add the floating Dubai Government footer icons */}
+      <DubaiGovFooterIcons />
     </div>
   );
 };
