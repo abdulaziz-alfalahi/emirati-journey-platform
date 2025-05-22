@@ -3,110 +3,88 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { Activity } from 'lucide-react';
+import { Activity, ChevronDown } from 'lucide-react';
+import { NavGroup } from '@/components/layout/types';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 interface MainNavProps {
-  items?: {
-    title: string;
-    href: string;
-    description?: string;
-  }[];
+  navGroups?: NavGroup[];
 }
 
-const MainNav: React.FC<MainNavProps> = ({ items }) => {
+const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Default navigation items that are available to all users - updated with career journey order
-  const defaultNavItems = [
-    {
-      title: 'Dashboard',
-      href: '/dashboard',
-      description: 'Your personalized overview'
-    },
-    {
-      title: 'Summer Camps',
-      href: '/summer-camps',
-      description: 'Discover summer camp programs'
-    },
-    {
-      title: 'Scholarships',
-      href: '/scholarships',
-      description: 'Education funding opportunities'
-    },
-    {
-      title: 'Internships',
-      href: '/internships',
-      description: 'Professional experience opportunities'
-    },
-    {
-      title: 'Assessments',
-      href: '/assessments',
-      description: 'Evaluate your skills'
-    },
-    {
-      title: 'Training',
-      href: '/training',
-      description: 'Develop professional skills'
-    },
-    {
-      title: 'Portfolio',
-      href: '/portfolio',
-      description: 'Showcase your achievements'
-    },
-    {
-      title: 'Career Exploration',
-      href: '/job-matching',
-      description: 'Find your career path'
-    },
-    {
-      title: 'Analytics',
-      href: '/analytics',
-      description: 'Data-driven insights'
-    }
-  ];
-
-  // Add role-specific navigation items
-  const getNavItemsByRole = () => {
-    const navItems = [...defaultNavItems];
+  // Add role-specific navigation items if needed
+  const getNavGroups = () => {
+    const groups = [...navGroups];
     
     if (roles.includes('administrator') || roles.includes('super_user')) {
-      navItems.push({
-        title: 'Admin Panel',
-        href: '/admin',
-        description: 'Manage users and settings'
-      });
+      // Add admin navigation group or items if needed
     }
 
-    return navItems;
+    return groups;
   };
 
-  const navItems = items || getNavItemsByRole();
+  const displayNavGroups = getNavGroups();
 
   return (
     <nav className="hidden md:flex gap-6">
-      {navItems.map((item, index) => (
-        <Link
-          key={index}
-          to={item.href}
-          className={cn(
-            "text-sm font-medium transition-colors hover:text-foreground/80",
-            pathname === item.href ? "text-foreground" : "text-foreground/60",
-            item.href === "/analytics" && "flex items-center gap-1"
-          )}
-        >
-          {item.href === "/analytics" && <Activity className="h-3 w-3" />}
-          {item.title}
-        </Link>
+      {displayNavGroups.map((group) => (
+        <DropdownMenu key={group.id}>
+          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80 outline-none">
+            {group.name}
+            <ChevronDown className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56 bg-white">
+            {group.items.map((item) => (
+              <DropdownMenuItem key={item.href} asChild>
+                <Link
+                  to={item.href}
+                  className={cn(
+                    "flex w-full items-center gap-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                    pathname === item.href ? "text-foreground font-medium" : "text-foreground/70"
+                  )}
+                  onClick={(e) => {
+                    if (item.onClick) {
+                      e.preventDefault();
+                      item.onClick();
+                    }
+                  }}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       ))}
+      <Link
+        to="/dashboard"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-foreground/80",
+          pathname === "/dashboard" ? "text-foreground" : "text-foreground/60"
+        )}
+      >
+        Dashboard
+      </Link>
+      <Link
+        to="/analytics"
+        className={cn(
+          "flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80",
+          pathname === "/analytics" ? "text-foreground" : "text-foreground/60"
+        )}
+      >
+        <Activity className="h-3 w-3" />
+        Analytics
+      </Link>
     </nav>
   );
 };

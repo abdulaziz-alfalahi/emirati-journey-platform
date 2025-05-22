@@ -7,3 +7,9 @@ export interface NavItem {
   icon: ReactNode;
   onClick?: () => void;
 }
+
+export interface NavGroup {
+  id: string;
+  name: string;
+  items: NavItem[];
+}

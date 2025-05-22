@@ -9,15 +9,15 @@ import MobileMenu from './MobileMenu';
 const Navbar = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const navItems = useNavItems();
+  const { navItems, navGroups } = useNavItems();
 
   return (
     <header className="w-full border-b bg-background shadow-sm">
       <div className="container mx-auto flex h-16 items-center">
         {isMobile ? (
-          <MobileMenu navItems={navItems} />
+          <MobileMenu navItems={navItems} navGroups={navGroups} />
         ) : (
-          <DesktopMenu navItems={navItems} />
+          <DesktopMenu navItems={navItems} navGroups={navGroups} />
         )}
       </div>
     </header>

@@ -9,17 +9,24 @@ import {
   SheetTitle,
   SheetTrigger 
 } from '@/components/ui/sheet';
-import { Menu, LogIn } from 'lucide-react';
+import { Menu, LogIn, ChevronDown, ChevronRight } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import UserMenu from './UserMenu';
-import { NavItem } from './types';
+import { NavGroup, NavItem } from './types';
 import { useAuth } from '@/context/AuthContext';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface MobileMenuProps {
-  navItems: NavItem[];
+  navItems?: NavItem[];
+  navGroups?: NavGroup[];
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({ navItems }) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({ navItems = [], navGroups = [] }) => {
   const { user } = useAuth();
   const isAuthenticated = !!user;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,29 +42,62 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems }) => {
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="p-0 pt-6">
+      <SheetContent side="left" className="p-0 pt-6 overflow-y-auto max-h-screen">
         <SheetHeader className="pl-6 pb-4">
           <SheetTitle>Menu</SheetTitle>
         </SheetHeader>
-        <div className="grid gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className="flex items-center p-2 text-lg font-semibold hover:bg-secondary/50"
-              onClick={(e) => {
-                if (item.onClick) {
-                  e.preventDefault();
-                  item.onClick();
-                }
-                closeMenu();
-              }}
-            >
-              {item.icon}
-              {item.name}
-            </Link>
-          ))}
-          <div className="border-t" />
+        
+        <div className="grid gap-2">
+          <Link
+            to="/dashboard"
+            className="flex items-center p-2 pl-6 text-lg font-semibold hover:bg-secondary/50"
+            onClick={closeMenu}
+          >
+            Dashboard
+          </Link>
+
+          <Accordion type="multiple" className="w-full">
+            {navGroups.map((group) => (
+              <AccordionItem key={group.id} value={group.id} className="border-0">
+                <AccordionTrigger className="py-2 px-6 text-lg font-semibold hover:bg-secondary/50">
+                  {group.name}
+                </AccordionTrigger>
+                <AccordionContent className="pb-0">
+                  <div className="grid gap-1">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className="flex items-center p-2 pl-10 hover:bg-secondary/50"
+                        onClick={(e) => {
+                          if (item.onClick) {
+                            e.preventDefault();
+                            item.onClick();
+                          }
+                          closeMenu();
+                        }}
+                      >
+                        {item.icon}
+                        <span className="ml-2">{item.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+
+          <Link
+            to="/analytics"
+            className="flex items-center p-2 pl-6 text-lg font-semibold hover:bg-secondary/50"
+            onClick={closeMenu}
+          >
+            <Activity className="h-4 w-4 mr-2" />
+            Analytics
+          </Link>
+          
+          <div className="border-t my-4" />
+          
           <div className="flex flex-col gap-2 px-6">
             <ThemeToggle />
             {isAuthenticated ? (

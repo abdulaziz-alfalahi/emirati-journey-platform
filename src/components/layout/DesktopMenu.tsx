@@ -12,13 +12,15 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import UserMenu from './UserMenu';
-import { NavItem } from './types';
+import { NavItem, NavGroup } from './types';
+import MainNav from '@/components/navigation/MainNav';
 
 interface DesktopMenuProps {
-  navItems: NavItem[];
+  navItems?: NavItem[];
+  navGroups?: NavGroup[];
 }
 
-export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems }) => {
+export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems, navGroups = [] }) => {
   const { user } = useAuth();
   const isAuthenticated = !!user;
 
@@ -28,31 +30,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems }) => {
         <span className="font-semibold text-lg">Emirati Gateway</span>
       </Link>
 
-      <NavigationMenu className="hidden md:flex flex-1">
-        <NavigationMenuList>
-          {navItems.map((item) => (
-            <NavigationMenuItem key={item.href}>
-              {item.onClick ? (
-                <Link to={item.href} className={cn(
-                  "flex h-9 items-center px-4 text-sm font-medium transition-colors hover:text-primary"
-                )}
-                onClick={(e) => {
-                  e.preventDefault();
-                  item.onClick();
-                }}>
-                  {item.name}
-                </Link>
-              ) : (
-                <Link to={item.href} className={cn(
-                  "flex h-9 items-center px-4 text-sm font-medium transition-colors hover:text-primary"
-                )}>
-                  {item.name}
-                </Link>
-              )}
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
+      <MainNav navGroups={navGroups} />
 
       <div className="ml-auto flex items-center space-x-4">
         {isAuthenticated ? (
