@@ -54,16 +54,16 @@ export default function Index() {
     }
   };
 
-  // Style for decorative elements inspired by UAE heritage
+  // Style for decorative elements using Dubai Design System colors
   const decorationStyle: React.CSSProperties = {
-    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(204,170,102,0.1) 100%)",
+    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(0,121,193,0.1) 100%)",
     pointerEvents: "none" as const,
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-emirati-teal">Loading...</div>
+        <div className="animate-pulse text-dubai-blue dubai-text-body">Loading...</div>
       </div>
     );
   }
@@ -71,22 +71,22 @@ export default function Index() {
   return (
     <Layout>
       <div className="relative">
-        {/* Decorative element inspired by UAE desert patterns */}
+        {/* Decorative element using Dubai Design System colors */}
         <div 
           className="absolute top-0 right-0 w-64 h-64 -z-10 opacity-30 pointer-events-none"
           style={decorationStyle}
         ></div>
         
         <ErrorBoundary fallback={
-          <div className="p-4 border border-red-300 bg-red-50 rounded-md text-red-900">
-            <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
-            <p>We're sorry, but there was an error loading this section. Please try refreshing the page.</p>
+          <div className="p-4 border border-dubai-red bg-red-50 rounded-lg text-dubai-red">
+            <h3 className="dubai-text-heading-3 mb-2">Something went wrong</h3>
+            <p className="dubai-text-body">We're sorry, but there was an error loading this section. Please try refreshing the page.</p>
           </div>
         }>
           {/* Hero section with get started button */}
           <Hero />
           <div className="flex justify-center mt-8 mb-16">
-            <button onClick={handleGetStartedClick} className="premium-button px-8 py-4 text-base">
+            <button onClick={handleGetStartedClick} className="dubai-button-primary px-8 py-4 text-base">
               Get Started Today
             </button>
           </div>
@@ -96,29 +96,29 @@ export default function Index() {
           <PersonaSelector />
           <ServiceCards />
           
-          {/* Call to Action Section */}
-          <section className="section bg-emirati-navy text-white py-16 rounded-3xl my-16 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-emirati-teal/20 rounded-full filter blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-emirati-gold/20 rounded-full filter blur-3xl"></div>
+          {/* Call to Action Section using Dubai Design System styling */}
+          <section className="section bg-dubai-blue text-white py-16 rounded-lg my-16 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-dubai-teal/20 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-dubai-gray-300/20 rounded-full filter blur-3xl"></div>
             
-            <div className="container mx-auto text-center relative z-10 px-6">
-              <h2 className="text-3xl md:text-4xl font-display font-semibold mb-6">
+            <div className="dubai-container text-center relative z-10 px-6">
+              <h2 className="dubai-text-heading-2 mb-6">
                 Ready to Begin Your Emirati Journey?
               </h2>
-              <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+              <p className="dubai-text-body-large text-white/80 mb-8 max-w-2xl mx-auto">
                 Join thousands of UAE citizens who have found success through our platform. 
                 Your future career path starts here.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button 
                   onClick={handleGetStartedClick}
-                  className="bg-white text-emirati-navy font-medium py-4 px-8 rounded-full shadow-sm hover:shadow-lg transition-all duration-300"
+                  className="bg-white text-dubai-blue font-medium py-4 px-8 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300"
                 >
                   Start Your Journey
                 </button>
                 <Link 
                   to="/cv-builder"
-                  className="bg-emirati-teal/20 hover:bg-emirati-teal/30 text-white font-medium py-4 px-8 rounded-full border border-emirati-teal/30 transition-all duration-300"
+                  className="bg-dubai-teal/20 hover:bg-dubai-teal/30 text-white font-medium py-4 px-8 rounded-lg border border-dubai-teal/30 transition-all duration-300"
                 >
                   Create Your CV
                 </Link>
@@ -127,7 +127,7 @@ export default function Index() {
           </section>
         </ErrorBoundary>
         
-        {/* Decorative element inspired by UAE desert patterns */}
+        {/* Decorative element using Dubai Design System colors */}
         <div 
           className="absolute bottom-0 left-0 w-64 h-64 -z-10 opacity-30 pointer-events-none"
           style={decorationStyle}

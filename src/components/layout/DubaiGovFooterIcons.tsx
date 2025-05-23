@@ -33,7 +33,7 @@ export function DubaiGovFooterIcons() {
         aria-label="Call 04 for suggestions"
       >
         <div className="flex flex-col items-center justify-center">
-          <span className="text-xs font-bold text-gov-teal">04</span>
+          <span className="text-04">04</span>
         </div>
         {showTooltips && <span className="tooltip">Call 04</span>}
       </a>

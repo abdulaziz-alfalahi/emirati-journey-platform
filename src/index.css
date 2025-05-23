@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 /* Import the Dubai font for Government theme */
 @import url('https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap');
@@ -17,20 +18,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Updated to EHRDC teal color */
-    --primary: 173 100% 23%;
+    /* Dubai Design System Primary Colors */
+    --primary: 206 100% 38%; /* Dubai Blue #0079C1 */
     --primary-foreground: 0 0% 100%;
 
-    /* Neutral gray for secondary elements */
+    /* Dubai Design System Secondary Colors */
     --secondary: 214 9% 87%;
     --secondary-foreground: 0 0% 9%;
 
-    /* Subtle backgrounds with teal tint */
+    /* Dubai Design System Accent Colors */
     --muted: 173 33% 95%;
     --muted-foreground: 0 0% 46%;
 
-    /* Using gold for accents */
-    --accent: 44 64% 47%;
+    --accent: 173 100% 35%; /* Dubai Teal #00ABB3 */
     --accent-foreground: 0 0% 9%;
 
     /* Alert red */
@@ -39,18 +39,36 @@
 
     --border: 214 9% 87%;
     --input: 214 9% 87%;
-    --ring: 173 100% 23%;
+    --ring: 206 100% 38%;
 
-    --radius: 0.375rem;
+    --radius: 0.5rem; /* Updated to match Dubai Design System */
+
+    /* Dubai Design System specific variables */
+    --dubai-blue: #0079C1;
+    --dubai-teal: #00ABB3;
+    --dubai-green: #00A651;
+    --dubai-orange: #F57C00;
+    --dubai-red: #D32F2F;
+    --dubai-purple: #7B1FA2;
+    --dubai-gray-50: #FAFAFA;
+    --dubai-gray-100: #F5F5F5;
+    --dubai-gray-200: #EEEEEE;
+    --dubai-gray-300: #E0E0E0;
+    --dubai-gray-400: #BDBDBD;
+    --dubai-gray-500: #9E9E9E;
+    --dubai-gray-600: #757575;
+    --dubai-gray-700: #616161;
+    --dubai-gray-800: #424242;
+    --dubai-gray-900: #212121;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 173 100% 23%;
+    --sidebar-primary: 206 100% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 206 100% 38%;
   }
 
   .dark {
@@ -63,38 +81,33 @@
     --popover: 0 0% 13%;
     --popover-foreground: 0 0% 100%;
 
-    /* Lighter version of teal for dark mode */
-    --primary: 173 70% 35%;
+    --primary: 206 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Darker gray for secondary buttons */
     --secondary: 0 0% 27%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Dark mode muted colors with teal tint */
     --muted: 173 15% 20%;
     --muted-foreground: 0 0% 64%;
 
-    /* Brighter accent for dark mode */
-    --accent: 44 80% 60%;
+    --accent: 173 70% 45%;
     --accent-foreground: 0 0% 9%;
 
-    /* Brighter red for danger actions */
     --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 27%;
     --input: 0 0% 27%;
-    --ring: 173 70% 35%;
+    --ring: 206 100% 50%;
     
     --sidebar-background: 0 0% 13%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 173 70% 35%;
+    --sidebar-primary: 206 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 20%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 173 70% 35%;
+    --sidebar-ring: 206 100% 50%;
   }
 }
 
@@ -124,10 +137,26 @@
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
   }
   
-  /* Updated button styling to match EHRDC style guide */
+  /* Dubai Design System Button Styles */
+  .dubai-button-primary {
+    @apply relative overflow-hidden bg-[var(--dubai-blue)] text-white font-medium py-3 px-6 rounded-lg
+    shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:brightness-110;
+  }
+  
+  .dubai-button-secondary {
+    @apply bg-[var(--dubai-teal)] text-white font-medium py-3 px-6 rounded-lg
+    shadow-md hover:shadow-lg transition-all duration-300 ease-out hover:brightness-110;
+  }
+  
+  .dubai-button-outline {
+    @apply bg-transparent border-2 border-[var(--dubai-blue)] text-[var(--dubai-blue)] 
+    font-medium py-3 px-6 rounded-lg hover:bg-[var(--dubai-blue)] hover:text-white 
+    transition-all duration-300 ease-out;
+  }
+  
+  /* Updated premium button to match Dubai Design System */
   .premium-button {
-    @apply relative overflow-hidden bg-gov-teal text-white font-medium py-3 px-6 rounded-md
-    shadow-gov hover:shadow-gov-strong transition-all duration-300 ease-out;
+    @apply dubai-button-primary;
   }
   
   .premium-button::before {
@@ -139,51 +168,81 @@
     @apply left-[100%];
   }
   
-  /* Government style indicators updated for EHRDC color */
+  /* Dubai Design System Card Styles */
+  .dubai-card {
+    @apply bg-white border border-[var(--dubai-gray-200)] rounded-lg shadow-sm p-6 
+    hover:shadow-md transition-shadow duration-200;
+  }
+  
+  /* Dubai Design System Form Styles */
+  .dubai-input {
+    @apply w-full px-4 py-3 border border-[var(--dubai-gray-300)] rounded-lg 
+    focus:outline-none focus:ring-2 focus:ring-[var(--dubai-blue)] focus:border-transparent
+    transition-all duration-200;
+  }
+  
+  .dubai-input:focus {
+    @apply shadow-lg;
+  }
+  
+  /* Government stage indicators updated for Dubai Design System */
   .stage-indicator {
-    @apply w-4 h-4 rounded-full bg-muted relative z-10 transition-all duration-300;
+    @apply w-4 h-4 rounded-full bg-[var(--dubai-gray-300)] relative z-10 transition-all duration-300;
   }
   
   .stage-indicator.active {
-    @apply bg-gov-teal scale-125;
+    @apply bg-[var(--dubai-blue)] scale-125;
   }
   
   .stage-connector {
-    @apply absolute top-2 left-4 h-0.5 bg-muted w-full -z-10 transition-all duration-700;
+    @apply absolute top-2 left-4 h-0.5 bg-[var(--dubai-gray-300)] w-full -z-10 transition-all duration-700;
   }
   
   .stage-connector.active {
-    @apply bg-gov-teal;
+    @apply bg-[var(--dubai-blue)];
   }
   
   .section {
     @apply py-16 px-6 md:px-8 w-full max-w-7xl mx-auto;
   }
   
-  /* Government-specific components updated with EHRDC colors */
-  .gov-container {
+  /* Dubai Design System specific components */
+  .dubai-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   
-  .gov-card {
-    @apply bg-white border border-lightGray rounded-md shadow-gov p-6;
+  .dubai-header {
+    @apply bg-[var(--dubai-blue)] text-white py-4;
   }
   
-  .gov-header {
-    @apply bg-gov-teal text-white py-4;
+  .dubai-footer {
+    @apply bg-[var(--dubai-gray-800)] text-white py-8;
   }
-  
-  .gov-footer {
-    @apply bg-gov-black text-white py-8;
-  }
-  
-  .gov-button-primary {
-    @apply bg-gov-teal text-white px-6 py-2 rounded-md hover:brightness-110 transition-all;
-  }
-  
-  .gov-button-secondary {
-    @apply bg-gov-lightGray text-gov-black px-6 py-2 rounded-md hover:bg-opacity-80 transition-all;
-  }
+}
+
+/* Dubai Design System Typography */
+.dubai-text-heading-1 {
+  @apply text-4xl md:text-5xl font-bold leading-tight;
+}
+
+.dubai-text-heading-2 {
+  @apply text-3xl md:text-4xl font-semibold leading-tight;
+}
+
+.dubai-text-heading-3 {
+  @apply text-2xl md:text-3xl font-medium leading-tight;
+}
+
+.dubai-text-body-large {
+  @apply text-lg leading-relaxed;
+}
+
+.dubai-text-body {
+  @apply text-base leading-relaxed;
+}
+
+.dubai-text-body-small {
+  @apply text-sm leading-relaxed;
 }
 
 /* Animations and transitions */

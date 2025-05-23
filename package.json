@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@affinda/affinda": "^7.4.0",
+    "@dubai-design-system/components-react": "^3.1.13",
     "@hookform/resolvers": "^3.9.0",
     "@mapbox/mapbox-gl-geocoder": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.0",

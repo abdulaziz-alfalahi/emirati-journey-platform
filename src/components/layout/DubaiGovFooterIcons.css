@@ -1,14 +1,16 @@
 
-/* Dubai Government Footer Icons Styles */
+/* Dubai Government Footer Icons Styles - Updated for Dubai Design System */
 
 .dubai-gov-footer-icons {
   --icon-size: 3.5rem;
   --icon-size-mobile: 3rem;
   --icon-spacing: 0.75rem;
+  --gov-blue: #0079C1;
+  --gov-blue-hover: #005DA8;
   --gov-teal: #00ABB3;
   --gov-teal-hover: #008F96;
-  --gov-blue: #0079C1;
   --transition-speed: 0.2s;
+  --border-radius: 0.5rem; /* Updated to match Dubai Design System */
 }
 
 .dubai-gov-footer-icons {
@@ -31,21 +33,23 @@
   width: var(--icon-size-mobile);
   height: var(--icon-size-mobile);
   background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: var(--border-radius); /* Updated to use Dubai Design System border radius */
+  box-shadow: 0 2px 8px rgba(0, 121, 193, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06); /* Updated to Dubai Design System shadow */
   transition: all var(--transition-speed) ease-in-out;
   cursor: pointer;
+  border: 1px solid #E0E0E0; /* Added subtle border */
 }
 
 .dubai-gov-footer-icon:hover {
-  background-color: #f9f9f9;
+  background-color: #FAFAFA; /* Updated to Dubai Design System gray */
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 24px rgba(0, 121, 193, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1); /* Updated shadow */
+  border-color: var(--gov-blue);
 }
 
 .dubai-gov-footer-icon:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 171, 179, 0.3), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 121, 193, 0.3), 0 2px 8px rgba(0, 121, 193, 0.1);
 }
 
 .dubai-gov-footer-icon img {
@@ -57,22 +61,24 @@
 .dubai-gov-footer-icon svg {
   width: 50%;
   height: 50%;
-  color: var(--gov-teal);
+  color: var(--gov-blue); /* Updated to use Dubai blue */
 }
 
-/* Tooltip styles */
+/* Tooltip styles - Updated for Dubai Design System */
 .dubai-gov-footer-icon .tooltip {
   position: absolute;
-  right: calc(100% + 10px);
-  background-color: #333;
+  right: calc(100% + 12px);
+  background-color: var(--gov-blue);
   color: white;
   padding: 0.5rem 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 0.75rem;
+  font-weight: 500;
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--transition-speed) ease-in-out;
+  box-shadow: 0 2px 8px rgba(0, 121, 193, 0.2);
 }
 
 .dubai-gov-footer-icon:hover .tooltip {
@@ -94,19 +100,26 @@
   }
 }
 
-/* Animation for new messages/notifications */
+/* Animation for new messages/notifications - Updated colors */
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(0, 171, 179, 0.4);
+    box-shadow: 0 0 0 0 rgba(0, 121, 193, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(0, 171, 179, 0);
+    box-shadow: 0 0 0 10px rgba(0, 121, 193, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(0, 171, 179, 0);
+    box-shadow: 0 0 0 0 rgba(0, 121, 193, 0);
   }
 }
 
 .dubai-gov-footer-icon.has-notification {
   animation: pulse 2s infinite;
+}
+
+/* Special styling for 04 icon text */
+.dubai-gov-footer-icon .text-04 {
+  color: var(--gov-blue);
+  font-weight: 700;
+  font-size: 0.875rem;
 }
