@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 const Hero: React.FC = () => {
@@ -31,8 +30,8 @@ const Hero: React.FC = () => {
           </div>
         </div>
         
-        {/* Scroll Indicator - Moving down by increasing bottom spacing to 4 from 8 */}
-        <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Scroll Indicator - Moving down further by changing bottom spacing to 2 */}
+        <div className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <a href="#journey" className="flex flex-col items-center text-foreground/60 hover:text-emirati-teal transition-colors">
             <span className="text-sm mb-2 text-center">Discover More</span>
             <ChevronDown className="animate-bounce" />
@@ -46,4 +45,3 @@ const Hero: React.FC = () => {
     </section>;
 };
 export default Hero;
-
