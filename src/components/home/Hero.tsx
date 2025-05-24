@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 const Hero: React.FC = () => {
@@ -6,9 +7,6 @@ const Hero: React.FC = () => {
     setIsLoaded(true);
   }, []);
   return <section className="relative min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden pt-16 pb-12 md:pt-20 md:pb-16">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-emirati-sand bg-dot-pattern opacity-50 pointer-events-none"></div>
-      
       {/* Main Content */}
       <div className="container px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
