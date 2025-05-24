@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 const Hero: React.FC = () => {
@@ -6,7 +7,7 @@ const Hero: React.FC = () => {
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-  return <section className="relative min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden pt-16 pb-12 md:pt-20 md:pb-16">
+  return <section className="relative min-h-[75vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-8 pb-8 md:pt-12 md:pb-12">
       {/* Main Content */}
       <div className="container px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -30,8 +31,8 @@ const Hero: React.FC = () => {
           </div>
         </div>
         
-        {/* Scroll Indicator - Increasing the bottom spacing to 12 from 8 */}
-        <div className={`absolute bottom-12 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Scroll Indicator - Reducing bottom spacing to 8 from 12 */}
+        <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <a href="#journey" className="flex flex-col items-center text-foreground/60 hover:text-emirati-teal transition-colors">
             <span className="text-sm mb-2 text-center">Discover More</span>
             <ChevronDown className="animate-bounce" />
@@ -45,3 +46,4 @@ const Hero: React.FC = () => {
     </section>;
 };
 export default Hero;
+
