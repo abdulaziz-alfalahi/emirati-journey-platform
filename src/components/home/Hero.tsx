@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
         <div className={`absolute -bottom-4 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <a href="#journey" className="flex flex-col items-center text-foreground/60 hover:text-emirati-teal transition-colors">
             <span className="text-sm mb-2 text-center">Discover More</span>
-            <ChevronDown className="animate-bounce and go to the below section upon clicking." />
+            <ChevronDown className="animate-bounce" />
           </a>
         </div>
       </div>
