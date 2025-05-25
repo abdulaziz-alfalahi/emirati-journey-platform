@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ResumeData } from "@/components/resume/types";
 import { UserRole } from "@/types/auth";
@@ -113,7 +114,16 @@ class RecommendationEngine {
       let resumeContent: ResumeData | null = null;
 
       if (resumeData?.resume_data?.[0]?.data) {
-        resumeContent = resumeData.resume_data[0].data as ResumeData;
+        // Safely convert Json to ResumeData with proper type checking
+        const rawData = resumeData.resume_data[0].data as unknown;
+        
+        // Basic validation to ensure it's an object with required structure
+        if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
+          const data = rawData as any;
+          if (data.personal || data.summary || data.experience || data.education || data.skills) {
+            resumeContent = data as ResumeData;
+          }
+        }
       }
 
       // If no resume data found, create a basic profile from user info
