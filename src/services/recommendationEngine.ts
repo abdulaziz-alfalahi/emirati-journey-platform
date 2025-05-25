@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ResumeData } from "@/components/resume/types";
 import { UserRole } from "@/types/auth";
@@ -101,35 +100,57 @@ class RecommendationEngine {
 
   private async getUserProfile(userId: string): Promise<UserProfile | null> {
     try {
-      // Get resume data
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('resume_data')
-        .eq('id', userId)
+      // First try to get resume data from the resumes table
+      const { data: resumeData } = await supabase
+        .from('resumes')
+        .select(`
+          *,
+          resume_data (data)
+        `)
+        .eq('user_id', userId)
         .single();
 
-      if (!profileData?.resume_data) {
-        return null;
+      let resumeContent: ResumeData | null = null;
+
+      if (resumeData?.resume_data?.[0]?.data) {
+        resumeContent = resumeData.resume_data[0].data as ResumeData;
       }
 
-      const resumeData = profileData.resume_data as ResumeData;
+      // If no resume data found, create a basic profile from user info
+      if (!resumeContent) {
+        console.log("No resume data found, creating basic profile");
+        return {
+          skills: [],
+          education: [],
+          experience: [],
+          careerGoals: [],
+          interests: [],
+        };
+      }
 
-      // Extract user profile information
+      // Extract user profile information from resume data
       const profile: UserProfile = {
-        skills: resumeData.skills || [],
-        education: resumeData.education?.map(edu => edu.degree || edu.institution) || [],
-        experience: resumeData.experience?.map(exp => exp.jobTitle || exp.company) || [],
-        careerGoals: resumeData.summary ? [resumeData.summary] : [],
-        interests: [],
-        location: resumeData.personalInfo?.location,
-        educationLevel: this.determineEducationLevel(resumeData.education || []),
-        yearsExperience: this.calculateYearsExperience(resumeData.experience || [])
+        skills: resumeContent.skills?.map(skill => typeof skill === 'string' ? skill : skill.name) || [],
+        education: resumeContent.education?.map(edu => edu.degree || edu.institution) || [],
+        experience: resumeContent.experience?.map(exp => exp.position || exp.company) || [],
+        careerGoals: resumeContent.summary ? [resumeContent.summary] : [],
+        interests: resumeContent.interests || [],
+        location: resumeContent.personal?.location,
+        educationLevel: this.determineEducationLevel(resumeContent.education || []),
+        yearsExperience: this.calculateYearsExperience(resumeContent.experience || [])
       };
 
       return profile;
     } catch (error) {
       console.error("Error getting user profile:", error);
-      return null;
+      // Return a basic profile instead of null to prevent blocking recommendations
+      return {
+        skills: [],
+        education: [],
+        experience: [],
+        careerGoals: [],
+        interests: [],
+      };
     }
   }
 
@@ -418,8 +439,8 @@ class RecommendationEngine {
     const currentYear = new Date().getFullYear();
     
     for (const exp of experience) {
-      const startYear = exp.startYear ? parseInt(exp.startYear) : currentYear;
-      const endYear = exp.endYear ? parseInt(exp.endYear) : currentYear;
+      const startYear = exp.startDate ? new Date(exp.startDate).getFullYear() : currentYear;
+      const endYear = exp.endDate ? new Date(exp.endDate).getFullYear() : currentYear;
       totalYears += Math.max(0, endYear - startYear);
     }
     
