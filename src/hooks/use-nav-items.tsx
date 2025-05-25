@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   BookOpen, 
@@ -9,7 +10,8 @@ import {
   Calendar, 
   Compass, 
   FileText, 
-  HelpingHand 
+  HelpingHand,
+  MapPin
 } from 'lucide-react';
 import { NavItem, NavGroup } from '@/components/layout/types';
 import { UserRole } from '@/types/auth';
@@ -67,6 +69,11 @@ export function useNavItems() {
             name: 'Career Exploration',
             href: '/job-matching',
             icon: <Compass className="h-5 w-5 mr-2" />,
+          },
+          {
+            name: 'Career Journey',
+            href: '/career-journey',
+            icon: <MapPin className="h-5 w-5 mr-2" />,
           },
         ],
       },
