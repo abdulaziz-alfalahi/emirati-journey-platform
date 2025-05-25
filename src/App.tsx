@@ -39,6 +39,7 @@ import TrainingMaterialsPage from './pages/training-materials'
 import TrainingPage from './pages/training'
 import MessagesPage from './pages/messages'
 import RetireeServicesPage from './pages/retiree'
+import CareerJourneyPage from './pages/career-journey'
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const App = () => {
               <Route path="/career-advisory/advisors/:id" element={<AdvisorPortfolioPage />} />
               <Route path="/career-advisory/interviews" element={<InterviewsPage />} />
               <Route path="/career-advisory/interviews/schedule" element={<ScheduleInterviewPage />} />
+              <Route path="/career-journey" element={<CareerJourneyPage />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/portfolio/:id" element={<PortfolioViewPage />} />
               <Route path="/profile" element={<ProfilePage />} />
