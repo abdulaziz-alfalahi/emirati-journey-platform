@@ -20,13 +20,16 @@ import {
 } from '@/components/dashboard/role-dashboards';
 
 /**
- * Determines which dashboard component to render based on user email or roles
+ * Determines which dashboard component to render based on user email or active role
  */
 export const getDashboardComponentByUserProfile = (
   user: User | null, 
   roles: UserRole[], 
   activeTab: string
 ): React.ReactNode => {
+  // Get the active role (should be single role now)
+  const activeRole = roles[0];
+
   // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
   if (user?.email) {
     // Check for career advisor emails with both formats (hyphen and underscore)
@@ -83,102 +86,102 @@ export const getDashboardComponentByUserProfile = (
     }
   }
 
-  // Check based on actual roles
-  if (roles.includes('administrator') || roles.includes('super_user')) {
-    console.log("Rendering AdminDashboard");
+  // Check based on active role
+  if (activeRole === 'administrator' || activeRole === 'super_user') {
+    console.log("Rendering AdminDashboard for role:", activeRole);
     return <AdminDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('school_student')) {
-    console.log("Rendering StudentDashboard");
+  if (activeRole === 'school_student') {
+    console.log("Rendering StudentDashboard for role:", activeRole);
     return <StudentDashboard activeTab={activeTab} />;
   }
 
-  if (roles.includes('educational_institution')) {
-    console.log("Rendering EducationalInstitutionDashboard");
+  if (activeRole === 'educational_institution') {
+    console.log("Rendering EducationalInstitutionDashboard for role:", activeRole);
     return <EducationalInstitutionDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('parent')) {
-    console.log("Rendering ParentDashboard");
+  if (activeRole === 'parent') {
+    console.log("Rendering ParentDashboard for role:", activeRole);
     return <ParentDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('private_sector_recruiter')) {
-    console.log("Rendering RecruiterDashboard");
+  if (activeRole === 'private_sector_recruiter') {
+    console.log("Rendering RecruiterDashboard for role:", activeRole);
     return <RecruiterDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('government_representative')) {
-    console.log("Rendering GovRepDashboard");
+  if (activeRole === 'government_representative') {
+    console.log("Rendering GovRepDashboard for role:", activeRole);
     return <GovRepDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('entrepreneur')) {
-    console.log("Rendering EntrepreneurDashboard");
+  if (activeRole === 'entrepreneur') {
+    console.log("Rendering EntrepreneurDashboard for role:", activeRole);
     return <EntrepreneurDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('retiree') || roles.includes('retiree_advocate')) {
-    console.log("Rendering RetireeDashboard");
+  if (activeRole === 'retiree' || activeRole === 'retiree_advocate') {
+    console.log("Rendering RetireeDashboard for role:", activeRole);
     return <RetireeDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('mentor') || roles.includes('career_advisor')) {
-    console.log("Rendering MentorDashboard based on role");
+  if (activeRole === 'mentor' || activeRole === 'career_advisor') {
+    console.log("Rendering MentorDashboard for role:", activeRole);
     return <MentorDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('training_center')) {
-    console.log("Rendering TrainingCenterDashboard based on role");
+  if (activeRole === 'training_center') {
+    console.log("Rendering TrainingCenterDashboard for role:", activeRole);
     return <TrainingCenterDashboard activeTab={activeTab} />;
   }
   
-  if (roles.includes('assessment_center')) {
-    console.log("Rendering AssessmentCenterDashboard based on role");
+  if (activeRole === 'assessment_center') {
+    console.log("Rendering AssessmentCenterDashboard for role:", activeRole);
     return <AssessmentCenterDashboard activeTab={activeTab} />;
   }
   
-  // Default dashboard if no role matches
-  console.log("Rendering DefaultDashboard with first role:", roles[0] || "no-role");
-  if (roles.length > 0) {
-    return <DefaultDashboard userRole={roles[0]} activeTab={activeTab} />;
-  } else {
-    // If email contains assessment-center, assessment_center, training-center, training_center,
-    // or school/edu but no roles assigned, show the appropriate dashboard
-    if (user?.email) {
-      if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
-        console.log("Email-based fallback: AssessmentCenterDashboard");
-        return <AssessmentCenterDashboard activeTab={activeTab} />;
-      }
-      
-      if (user.email.includes('training-center') || user.email.includes('training_center')) {
-        console.log("Email-based fallback: TrainingCenterDashboard");
-        return <TrainingCenterDashboard activeTab={activeTab} />;
-      }
-      
-      if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
-        console.log("Email-based fallback: MentorDashboard");
-        return <MentorDashboard activeTab={activeTab} />;
-      }
-      
-      if (user.email.includes('school') || user.email.includes('edu')) {
-        console.log("Email-based fallback: EducationalInstitutionDashboard");
-        return <EducationalInstitutionDashboard activeTab={activeTab} />;
-      }
-      
-      if (user.email.includes('retiree')) {
-        console.log("Email-based fallback: RetireeDashboard");
-        return <RetireeDashboard activeTab={activeTab} />;
-      }
-      
-      if (user.email.includes('entrepreneur')) {
-        console.log("Email-based fallback: EntrepreneurDashboard");
-        return <EntrepreneurDashboard activeTab={activeTab} />;
-      }
+  // Default dashboard if active role doesn't match specific dashboards
+  if (activeRole) {
+    console.log("Rendering DefaultDashboard for role:", activeRole);
+    return <DefaultDashboard userRole={activeRole} activeTab={activeTab} />;
+  }
+  
+  // If email contains assessment-center, assessment_center, training-center, training_center,
+  // or school/edu but no roles assigned, show the appropriate dashboard
+  if (user?.email) {
+    if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
+      console.log("Email-based fallback: AssessmentCenterDashboard");
+      return <AssessmentCenterDashboard activeTab={activeTab} />;
     }
     
-    // Default to student dashboard as a fallback
-    return <StudentDashboard activeTab={activeTab} />;
+    if (user.email.includes('training-center') || user.email.includes('training_center')) {
+      console.log("Email-based fallback: TrainingCenterDashboard");
+      return <TrainingCenterDashboard activeTab={activeTab} />;
+    }
+    
+    if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
+      console.log("Email-based fallback: MentorDashboard");
+      return <MentorDashboard activeTab={activeTab} />;
+    }
+    
+    if (user.email.includes('school') || user.email.includes('edu')) {
+      console.log("Email-based fallback: EducationalInstitutionDashboard");
+      return <EducationalInstitutionDashboard activeTab={activeTab} />;
+    }
+    
+    if (user.email.includes('retiree')) {
+      console.log("Email-based fallback: RetireeDashboard");
+      return <RetireeDashboard activeTab={activeTab} />;
+    }
+    
+    if (user.email.includes('entrepreneur')) {
+      console.log("Email-based fallback: EntrepreneurDashboard");
+      return <EntrepreneurDashboard activeTab={activeTab} />;
+    }
   }
+  
+  // Default to student dashboard as a fallback
+  return <StudentDashboard activeTab={activeTab} />;
 };

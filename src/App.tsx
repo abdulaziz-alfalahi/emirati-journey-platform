@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/context/AuthContext';
+import { RoleProvider } from '@/context/RoleContext';
 
 import './App.css'
 import HomePage from './pages/home'
@@ -39,46 +42,52 @@ import RetireeServicesPage from './pages/retiree'
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/job-matching" element={<JobMatchingPage />} />
-        <Route path="/matching" element={<MatchingPage />} />
-        <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-        <Route path="/cv-builder" element={<CVBuilderPage />} />
-        <Route path="/scholarships" element={<ScholarshipsPage />} />
-        <Route path="/internships" element={<InternshipsPage />} />
-        <Route path="/assessments" element={<AssessmentsPage />} />
-        <Route path="/training" element={<TrainingPage />} />
-        <Route path="/training-materials" element={<TrainingMaterialsPage />} />
-        <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
-        <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />
-        <Route path="/career-advisory/sessions/:id" element={<SessionDetailsPage />} />
-        <Route path="/career-advisory/advisors/:id" element={<AdvisorPortfolioPage />} />
-        <Route path="/career-advisory/interviews" element={<InterviewsPage />} />
-        <Route path="/career-advisory/interviews/schedule" element={<ScheduleInterviewPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/portfolio/:id" element={<PortfolioViewPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/api-keys" element={<ApiKeysPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/summer-camps" element={<SummerCampsPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
-        <Route path="/test-form" element={<TestFormPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
-        <Route path="/retiree" element={<RetireeServicesPage />} />
-        {/* Recruiter routes */}
-        <Route path="/recruiter" element={<RecruiterPage />} />
-        <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
-        {/* Redirect legacy routes */}
-        <Route path="/job-matching/index" element={<Navigate to="/job-matching" replace />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <RoleProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/job-matching" element={<JobMatchingPage />} />
+              <Route path="/matching" element={<MatchingPage />} />
+              <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+              <Route path="/cv-builder" element={<CVBuilderPage />} />
+              <Route path="/scholarships" element={<ScholarshipsPage />} />
+              <Route path="/internships" element={<InternshipsPage />} />
+              <Route path="/assessments" element={<AssessmentsPage />} />
+              <Route path="/training" element={<TrainingPage />} />
+              <Route path="/training-materials" element={<TrainingMaterialsPage />} />
+              <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
+              <Route path="/career-advisory/schedule" element={<ScheduleSessionPage />} />
+              <Route path="/career-advisory/sessions/:id" element={<SessionDetailsPage />} />
+              <Route path="/career-advisory/advisors/:id" element={<AdvisorPortfolioPage />} />
+              <Route path="/career-advisory/interviews" element={<InterviewsPage />} />
+              <Route path="/career-advisory/interviews/schedule" element={<ScheduleInterviewPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/portfolio/:id" element={<PortfolioViewPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/api-keys" element={<ApiKeysPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/summer-camps" element={<SummerCampsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/job-descriptions" element={<JobDescriptionsPage />} />
+              <Route path="/test-form" element={<TestFormPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/retiree" element={<RetireeServicesPage />} />
+              {/* Recruiter routes */}
+              <Route path="/recruiter" element={<RecruiterPage />} />
+              <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
+              {/* Redirect legacy routes */}
+              <Route path="/job-matching/index" element={<Navigate to="/job-matching" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </Router>
+        </RoleProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
