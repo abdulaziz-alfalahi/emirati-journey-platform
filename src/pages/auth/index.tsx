@@ -20,7 +20,8 @@ type PersonaOption = {
   label: string;
 };
 
-const personaOptions: PersonaOption[] = [
+// Public signup persona options (excludes administrative roles)
+const signupPersonaOptions: PersonaOption[] = [
   { value: 'school_student', label: 'School Student' },
   { value: 'national_service_participant', label: 'National Service Participant' },
   { value: 'university_student', label: 'University Student' },
@@ -411,7 +412,7 @@ const AuthPage = () => {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2">
-                  {personaOptions.map((persona) => (
+                  {signupPersonaOptions.map((persona) => (
                     <Button
                       key={persona.value}
                       variant="outline"

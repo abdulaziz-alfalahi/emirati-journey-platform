@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,6 +48,8 @@ const personaOptions: PersonaOption[] = [
   
   // Platform Management
   { value: 'platform_operator', label: 'Platform Operator', category: 'Platform Management' },
+  { value: 'administrator', label: 'Platform Administrator', category: 'Platform Management' },
+  { value: 'super_user', label: 'Super User', category: 'Platform Management' },
 ];
 
 // Group options by category
