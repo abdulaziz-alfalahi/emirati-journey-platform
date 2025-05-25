@@ -82,6 +82,11 @@ serve(async (req) => {
         roles.push('administrator');
       }
       
+      // Special case: if email contains 'university-student', include university_student role
+      if ((user.email.includes('university-student') || user.email.includes('university_student')) && !roles.includes('university_student')) {
+        roles.push('university_student');
+      }
+      
       // Special case: if email contains 'training-center', include training_center role
       if ((user.email.includes('training-center') || user.email.includes('training_center')) && !roles.includes('training_center')) {
         roles.push('training_center');

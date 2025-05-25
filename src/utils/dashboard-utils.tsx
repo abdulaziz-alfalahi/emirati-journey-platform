@@ -32,6 +32,12 @@ export const getDashboardComponentByUserProfile = (
 
   // For testing, if email contains specific keywords, use appropriate dashboard regardless of roles
   if (user?.email) {
+    // Check for university student first (more specific)
+    if (user.email.includes('university-student') || user.email.includes('university_student')) {
+      console.log("Email-based rendering: StudentDashboard for university student");
+      return <StudentDashboard activeTab={activeTab} />;
+    }
+    
     // Check for career advisor emails with both formats (hyphen and underscore)
     if (user.email.includes('career-advisor') || user.email.includes('career_advisor')) {
       console.log("Email-based rendering: MentorDashboard");
@@ -50,6 +56,7 @@ export const getDashboardComponentByUserProfile = (
       return <TrainingCenterDashboard activeTab={activeTab} />;
     }
     
+    // Then check for general student
     if (user.email.includes('student')) {
       console.log("Email-based rendering: StudentDashboard");
       return <StudentDashboard activeTab={activeTab} />;
@@ -92,7 +99,7 @@ export const getDashboardComponentByUserProfile = (
     return <AdminDashboard activeTab={activeTab} />;
   }
   
-  if (activeRole === 'school_student') {
+  if (activeRole === 'school_student' || activeRole === 'university_student') {
     console.log("Rendering StudentDashboard for role:", activeRole);
     return <StudentDashboard activeTab={activeTab} />;
   }
@@ -151,6 +158,11 @@ export const getDashboardComponentByUserProfile = (
   // If email contains assessment-center, assessment_center, training-center, training_center,
   // or school/edu but no roles assigned, show the appropriate dashboard
   if (user?.email) {
+    if (user.email.includes('university-student') || user.email.includes('university_student')) {
+      console.log("Email-based fallback: StudentDashboard for university student");
+      return <StudentDashboard activeTab={activeTab} />;
+    }
+    
     if (user.email.includes('assessment-center') || user.email.includes('assessment_center')) {
       console.log("Email-based fallback: AssessmentCenterDashboard");
       return <AssessmentCenterDashboard activeTab={activeTab} />;

@@ -16,6 +16,13 @@ export const useFetchUserRoles = () => {
           return ['administrator'];
         }
         
+        // Check for university student first (more specific)
+        if (user.email.includes('university-student') || user.email.includes('university_student')) {
+          console.log("Setting university_student role based on email");
+          return ['university_student'];
+        }
+        
+        // Then check for general student
         if (user.email.includes('student')) {
           console.log("Setting school_student role based on email");
           return ['school_student'];
@@ -98,6 +105,9 @@ export const useFetchUserRoles = () => {
         if (user.email.includes('admin')) {
           console.log("Setting admin role based on email after error");
           return ['administrator'];
+        } else if (user.email.includes('university-student') || user.email.includes('university_student')) {
+          console.log("Setting university_student role based on email after error");
+          return ['university_student'];
         } else if (user.email.includes('student')) {
           console.log("Setting school_student role based on email after error");
           return ['school_student'];
