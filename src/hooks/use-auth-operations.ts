@@ -54,7 +54,7 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, fullName: string, roles: UserRole[]) => {
     try {
       setIsLoading(true);
       
@@ -83,30 +83,37 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
         throw new Error('User creation failed');
       }
 
-      // 2. Manually insert role using RPC to bypass RLS
-      const { error: roleError } = await supabase.functions.invoke(
-        'assign-user-role',
-        {
+      // 2. Assign all selected roles using the edge function
+      const roleAssignmentPromises = roles.map(role => 
+        supabase.functions.invoke('assign-user-role', {
           body: { 
             userId: userData.user.id,
             role: role
           }
-        }
+        })
       );
 
-      if (roleError) {
+      const roleResults = await Promise.allSettled(roleAssignmentPromises);
+      
+      // Check if any role assignments failed
+      const failedRoles = roleResults
+        .map((result, index) => ({ result, role: roles[index] }))
+        .filter(({ result }) => result.status === 'rejected')
+        .map(({ role }) => role);
+
+      if (failedRoles.length > 0) {
+        console.warn('Some role assignments failed:', failedRoles);
         toast({
-          title: "Role assignment failed",
-          description: roleError.message,
+          title: "Partial success",
+          description: `Account created but some roles couldn't be assigned: ${failedRoles.join(', ')}`,
           variant: "destructive"
         });
-        throw roleError;
+      } else {
+        toast({
+          title: "Account created",
+          description: `You've successfully registered with ${roles.length} role(s). You can now log in.`
+        });
       }
-
-      toast({
-        title: "Account created",
-        description: "You've successfully registered. You can now log in."
-      });
       
       return;
     } catch (error) {

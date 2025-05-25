@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth, UserRole } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import RoleSelector from '@/components/auth/RoleSelector';
 
 const AUTH_TABS = {
   SIGN_IN: 'sign-in',
@@ -63,7 +62,7 @@ const AuthPage = () => {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole | ''>('');
+  const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
   
   // Loading states
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -109,10 +108,10 @@ const AuthPage = () => {
     e.preventDefault();
     
     // Validate form inputs
-    if (!fullName || !newEmail || !newPassword || !confirmPassword || !selectedRole) {
+    if (!fullName || !newEmail || !newPassword || !confirmPassword || selectedRoles.length === 0) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all fields and select at least one role",
         variant: "destructive"
       });
       return;
@@ -129,17 +128,60 @@ const AuthPage = () => {
     
     try {
       setIsSigningUp(true);
-      await signUp(newEmail, newPassword, fullName, selectedRole as UserRole);
+      
+      // Create the user account first
+      const { data: userData, error: signUpError } = await supabase.auth.signUp({
+        email: newEmail,
+        password: newPassword,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+          emailRedirectTo: window.location.origin + '/auth',
+        },
+      });
+
+      if (signUpError) {
+        toast({
+          title: "Registration failed",
+          description: signUpError.message,
+          variant: "destructive"
+        });
+        throw signUpError;
+      }
+
+      if (!userData.user) {
+        throw new Error('User creation failed');
+      }
+
+      // Assign all selected roles
+      for (const role of selectedRoles) {
+        const { error: roleError } = await supabase.functions.invoke(
+          'assign-user-role',
+          {
+            body: { 
+              userId: userData.user.id,
+              role: role
+            }
+          }
+        );
+
+        if (roleError) {
+          console.error(`Failed to assign role ${role}:`, roleError);
+          // Continue with other roles even if one fails
+        }
+      }
+
+      toast({
+        title: "Account created",
+        description: `You've successfully registered with ${selectedRoles.length} role(s). You can now log in.`
+      });
       
       // After successful signup, switch to sign in tab
       setActiveTab(AUTH_TABS.SIGN_IN);
       setEmail(newEmail);
       setPassword('');
       
-      toast({
-        title: "Registration Successful",
-        description: "You can now sign in with your credentials",
-      });
     } catch (error) {
       console.error('Sign up error:', error);
       toast({
@@ -152,7 +194,6 @@ const AuthPage = () => {
     }
   };
   
-  // For creating all test accounts at once
   const createAllTestAccounts = async () => {
     try {
       setIsCreatingTestAccounts(true);
@@ -199,7 +240,6 @@ const AuthPage = () => {
     }
   };
   
-  // For quick login with a specific persona
   const loginWithPersona = (persona: PersonaOption) => {
     const email = `${persona.value.replace(/_/g, '-')}@gmail.com`;
     const password = "journey123!";
@@ -326,24 +366,10 @@ const AuthPage = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Select Your Role</Label>
-                    <Select
-                      value={selectedRole}
-                      onValueChange={(value) => setSelectedRole(value as UserRole)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {personaOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <RoleSelector
+                    selectedRoles={selectedRoles}
+                    onRolesChange={setSelectedRoles}
+                  />
                 </CardContent>
                 <CardFooter>
                   <Button 
