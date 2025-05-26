@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@affinda/affinda": "^7.4.0",
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
     "@dubai-design-system/components-react": "^3.1.13",
     "@hookform/resolvers": "^3.9.0",
     "@mapbox/mapbox-gl-geocoder": "^5.0.1",
