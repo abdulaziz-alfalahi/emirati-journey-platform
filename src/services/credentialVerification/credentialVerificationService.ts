@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import {
   CredentialVerificationRequest,
@@ -209,7 +208,13 @@ class CredentialVerificationService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Type assertion to ensure the data matches our expected types
+      return (data || []).map(item => ({
+        ...item,
+        credential_type: item.credential_type as 'education' | 'employment' | 'certification',
+        verification_status: item.verification_status as 'active' | 'expired' | 'revoked'
+      }));
     } catch (error) {
       console.error("Error fetching user credentials:", error);
       return [];
@@ -225,7 +230,13 @@ class CredentialVerificationService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Type assertion to ensure the data matches our expected types
+      return (data || []).map(item => ({
+        ...item,
+        verification_type: item.verification_type as 'education' | 'employment' | 'certification',
+        status: item.status as 'pending' | 'verified' | 'failed' | 'expired'
+      }));
     } catch (error) {
       console.error("Error fetching verification requests:", error);
       return [];
@@ -254,7 +265,13 @@ class CredentialVerificationService {
       .single();
 
     if (error) throw error;
-    return data;
+    
+    // Type assertion for the response
+    return {
+      ...data,
+      verification_type: data.verification_type as 'education' | 'employment' | 'certification',
+      status: data.status as 'pending' | 'verified' | 'failed' | 'expired'
+    };
   }
 
   private async updateVerificationRequestStatus(
@@ -307,7 +324,13 @@ class CredentialVerificationService {
       .single();
 
     if (error) throw error;
-    return data;
+    
+    // Type assertion for the response
+    return {
+      ...data,
+      credential_type: data.credential_type as 'education' | 'employment' | 'certification',
+      verification_status: data.verification_status as 'active' | 'expired' | 'revoked'
+    };
   }
 
   private async getDatabaseConfig(databaseName: string): Promise<ExternalDatabaseConfig | null> {
@@ -322,7 +345,12 @@ class CredentialVerificationService {
       console.error(`Error fetching config for ${databaseName}:`, error);
       return null;
     }
-    return data;
+    
+    // Type assertion for the response
+    return {
+      ...data,
+      authentication_type: data.authentication_type as 'oauth' | 'api_key' | 'certificate'
+    };
   }
 
   private async performExternalVerification(
