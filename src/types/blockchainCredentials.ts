@@ -1,4 +1,6 @@
 
+import { Json } from '@/integrations/supabase/types';
+
 export interface BlockchainCredential {
   id: string;
   recipient_id: string;
@@ -15,7 +17,7 @@ export interface BlockchainCredential {
   verification_status: 'verified' | 'pending' | 'revoked';
   revocation_reason?: string;
   revoked_at?: string;
-  metadata?: Record<string, any>;
+  metadata?: Json;
   skills?: string[];
   created_at: string;
   updated_at: string;
