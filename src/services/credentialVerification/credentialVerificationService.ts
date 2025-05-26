@@ -213,7 +213,8 @@ class CredentialVerificationService {
       return (data || []).map(item => ({
         ...item,
         credential_type: item.credential_type as 'education' | 'employment' | 'certification',
-        verification_status: item.verification_status as 'active' | 'expired' | 'revoked'
+        verification_status: item.verification_status as 'active' | 'expired' | 'revoked',
+        metadata: (item.metadata as Record<string, any>) || {}
       }));
     } catch (error) {
       console.error("Error fetching user credentials:", error);
@@ -235,7 +236,9 @@ class CredentialVerificationService {
       return (data || []).map(item => ({
         ...item,
         verification_type: item.verification_type as 'education' | 'employment' | 'certification',
-        status: item.status as 'pending' | 'verified' | 'failed' | 'expired'
+        status: item.status as 'pending' | 'verified' | 'failed' | 'expired',
+        request_data: (item.request_data as Record<string, any>) || {},
+        response_data: (item.response_data as Record<string, any>) || undefined
       }));
     } catch (error) {
       console.error("Error fetching verification requests:", error);
@@ -270,7 +273,9 @@ class CredentialVerificationService {
     return {
       ...data,
       verification_type: data.verification_type as 'education' | 'employment' | 'certification',
-      status: data.status as 'pending' | 'verified' | 'failed' | 'expired'
+      status: data.status as 'pending' | 'verified' | 'failed' | 'expired',
+      request_data: (data.request_data as Record<string, any>) || {},
+      response_data: (data.response_data as Record<string, any>) || undefined
     };
   }
 
@@ -329,7 +334,8 @@ class CredentialVerificationService {
     return {
       ...data,
       credential_type: data.credential_type as 'education' | 'employment' | 'certification',
-      verification_status: data.verification_status as 'active' | 'expired' | 'revoked'
+      verification_status: data.verification_status as 'active' | 'expired' | 'revoked',
+      metadata: (data.metadata as Record<string, any>) || {}
     };
   }
 
