@@ -15,7 +15,7 @@ const BlockchainCredentialsPage: React.FC = () => {
 
   const canIssueCredentials = roles.includes('training_center') || 
                              roles.includes('educational_institution') || 
-                             roles.includes('admin');
+                             roles.includes('administrator');
 
   const handleCredentialIssued = () => {
     setRefreshTrigger(prev => prev + 1);

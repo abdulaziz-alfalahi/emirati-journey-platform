@@ -211,6 +211,72 @@ export type Database = {
         }
         Relationships: []
       }
+      blockchain_credentials: {
+        Row: {
+          block_number: number
+          created_at: string
+          credential_hash: string
+          credential_type: Database["public"]["Enums"]["credential_type"]
+          description: string | null
+          expiry_date: string | null
+          id: string
+          issued_date: string
+          issuer_id: string
+          merkle_proof: string[]
+          metadata: Json | null
+          recipient_id: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          skills: string[] | null
+          title: string
+          transaction_hash: string
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+        }
+        Insert: {
+          block_number: number
+          created_at?: string
+          credential_hash: string
+          credential_type: Database["public"]["Enums"]["credential_type"]
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          issued_date?: string
+          issuer_id: string
+          merkle_proof?: string[]
+          metadata?: Json | null
+          recipient_id: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          skills?: string[] | null
+          title: string
+          transaction_hash: string
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+        }
+        Update: {
+          block_number?: number
+          created_at?: string
+          credential_hash?: string
+          credential_type?: Database["public"]["Enums"]["credential_type"]
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          issued_date?: string
+          issuer_id?: string
+          merkle_proof?: string[]
+          metadata?: Json | null
+          recipient_id?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          skills?: string[] | null
+          title?: string
+          transaction_hash?: string
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+        }
+        Relationships: []
+      }
       budget_templates: {
         Row: {
           career_stage: string
@@ -1994,6 +2060,11 @@ export type Database = {
     }
     Enums: {
       assessment_type: "skills" | "behaviors" | "capabilities"
+      credential_type:
+        | "certification"
+        | "degree"
+        | "skill_badge"
+        | "completion_certificate"
       mentorship_status:
         | "requested"
         | "accepted"
@@ -2023,6 +2094,7 @@ export type Database = {
         | "career_advisor"
         | "administrator"
         | "super_user"
+      verification_status: "verified" | "pending" | "revoked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2139,6 +2211,12 @@ export const Constants = {
   public: {
     Enums: {
       assessment_type: ["skills", "behaviors", "capabilities"],
+      credential_type: [
+        "certification",
+        "degree",
+        "skill_badge",
+        "completion_certificate",
+      ],
       mentorship_status: [
         "requested",
         "accepted",
@@ -2170,6 +2248,7 @@ export const Constants = {
         "administrator",
         "super_user",
       ],
+      verification_status: ["verified", "pending", "revoked"],
     },
   },
 } as const

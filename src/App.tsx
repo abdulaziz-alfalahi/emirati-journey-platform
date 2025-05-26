@@ -40,6 +40,7 @@ import TrainingPage from './pages/training'
 import MessagesPage from './pages/messages'
 import RetireeServicesPage from './pages/retiree'
 import CareerJourneyPage from './pages/career-journey'
+import BlockchainCredentialsPage from './pages/blockchain-credentials'
 
 const App = () => {
   return (
@@ -78,6 +79,7 @@ const App = () => {
               <Route path="/test-form" element={<TestFormPage />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/retiree" element={<RetireeServicesPage />} />
+              <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
               {/* Recruiter routes */}
               <Route path="/recruiter" element={<RecruiterPage />} />
               <Route path="/recruiter/matching/:id" element={<RecruiterMatchingPage />} />
