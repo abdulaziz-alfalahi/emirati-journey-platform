@@ -445,6 +445,48 @@ export type Database = {
           },
         ]
       }
+      credential_verification_requests: {
+        Row: {
+          created_at: string
+          database_source: string
+          expires_at: string | null
+          id: string
+          request_data: Json
+          response_data: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+          verification_type: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          database_source: string
+          expires_at?: string | null
+          id?: string
+          request_data: Json
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verification_type: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          database_source?: string
+          expires_at?: string | null
+          id?: string
+          request_data?: Json
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verification_type?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       event_registrations: {
         Row: {
           event_id: string
@@ -482,6 +524,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      external_database_configs: {
+        Row: {
+          api_endpoint: string
+          authentication_type: string
+          created_at: string
+          database_name: string
+          id: string
+          is_active: boolean
+          rate_limit_per_minute: number | null
+          timeout_seconds: number | null
+          updated_at: string
+        }
+        Insert: {
+          api_endpoint: string
+          authentication_type: string
+          created_at?: string
+          database_name: string
+          id?: string
+          is_active?: boolean
+          rate_limit_per_minute?: number | null
+          timeout_seconds?: number | null
+          updated_at?: string
+        }
+        Update: {
+          api_endpoint?: string
+          authentication_type?: string
+          created_at?: string
+          database_name?: string
+          id?: string
+          is_active?: boolean
+          rate_limit_per_minute?: number | null
+          timeout_seconds?: number | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       financial_goals: {
         Row: {
@@ -1830,6 +1908,54 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      verified_credentials: {
+        Row: {
+          created_at: string
+          credential_number: string | null
+          credential_title: string
+          credential_type: string
+          expiry_date: string | null
+          id: string
+          institution_name: string
+          issue_date: string | null
+          metadata: Json | null
+          updated_at: string
+          user_id: string
+          verification_source: string
+          verification_status: string
+        }
+        Insert: {
+          created_at?: string
+          credential_number?: string | null
+          credential_title: string
+          credential_type: string
+          expiry_date?: string | null
+          id?: string
+          institution_name: string
+          issue_date?: string | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id: string
+          verification_source: string
+          verification_status?: string
+        }
+        Update: {
+          created_at?: string
+          credential_number?: string | null
+          credential_title?: string
+          credential_type?: string
+          expiry_date?: string | null
+          id?: string
+          institution_name?: string
+          issue_date?: string | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+          verification_source?: string
+          verification_status?: string
         }
         Relationships: []
       }
