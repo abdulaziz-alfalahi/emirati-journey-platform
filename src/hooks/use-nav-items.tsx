@@ -24,25 +24,25 @@ const useNavItems = () => {
   const { user } = useAuth();
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Profile', href: '/profile', icon: User },
-    { label: 'Portfolio', href: '/portfolio', icon: FileText },
-    { label: 'Resume Builder', href: '/resume-builder', icon: FileText },
-    { label: 'Career Journey', href: '/career-journey', icon: MapPin },
-    { label: 'Summer Camps', href: '/summer-camps', icon: Calendar },
-    { label: 'Scholarships', href: '/scholarships', icon: GraduationCap },
-    { label: 'Internships', href: '/internships', icon: Briefcase },
-    { label: 'Training', href: '/training', icon: BookOpen },
-    { label: 'LMS', href: '/lms', icon: Monitor },
-    { label: 'Assessments', href: '/assessments', icon: CheckSquare },
-    { label: 'Collaborative Assessments', href: '/collaborative-assessments', icon: Users },
-    { label: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
-    { label: 'Job Matching', href: '/job-matching', icon: Search },
-    { label: 'Mentorship', href: '/mentorship', icon: UserCheck },
-    { label: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
-    { label: 'Credentials', href: '/credentials', icon: Award },
-    { label: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
-    { label: 'Analytics', href: '/analytics', icon: BarChart3 }
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Profile', href: '/profile', icon: User },
+    { name: 'Portfolio', href: '/portfolio', icon: FileText },
+    { name: 'Resume Builder', href: '/resume-builder', icon: FileText },
+    { name: 'Career Journey', href: '/career-journey', icon: MapPin },
+    { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
+    { name: 'Scholarships', href: '/scholarships', icon: GraduationCap },
+    { name: 'Internships', href: '/internships', icon: Briefcase },
+    { name: 'Training', href: '/training', icon: BookOpen },
+    { name: 'LMS', href: '/lms', icon: Monitor },
+    { name: 'Assessments', href: '/assessments', icon: CheckSquare },
+    { name: 'Collaborative Assessments', href: '/collaborative-assessments', icon: Users },
+    { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
+    { name: 'Job Matching', href: '/job-matching', icon: Search },
+    { name: 'Mentorship', href: '/mentorship', icon: UserCheck },
+    { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
+    { name: 'Credentials', href: '/credentials', icon: Award },
+    { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 }
   ];
 
   const authenticatedNavItems = useMemo(() => {
