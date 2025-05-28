@@ -31,14 +31,14 @@ export class VirtualEventsService {
       // Convert string to enum type for filtering
       const eventTypeOptions = ['career_fair', 'job_expo', 'networking_event', 'workshop', 'webinar', 'conference'];
       if (eventTypeOptions.includes(filters.event_type)) {
-        query = query.eq('event_type', filters.event_type);
+        query = query.eq('event_type', filters.event_type as 'career_fair' | 'job_expo' | 'networking_event' | 'workshop' | 'webinar' | 'conference');
       }
     }
     if (filters?.status) {
       // Convert string to enum type for filtering
       const statusOptions = ['draft', 'published', 'live', 'completed', 'cancelled'];
       if (statusOptions.includes(filters.status)) {
-        query = query.eq('status', filters.status);
+        query = query.eq('status', filters.status as 'draft' | 'published' | 'live' | 'completed' | 'cancelled');
       }
     }
     if (filters?.upcoming) {
@@ -227,16 +227,22 @@ export class VirtualEventsService {
 
     if (error) throw error;
 
-    // Update booth visitor count directly
-    const { error: updateError } = await supabase
+    // Update booth visitor count by fetching current count and incrementing it
+    const { data: currentBooth } = await supabase
       .from('virtual_booths')
-      .update({ 
-        visitor_count: supabase.raw('visitor_count + 1') 
-      })
-      .eq('id', boothId);
+      .select('visitor_count')
+      .eq('id', boothId)
+      .single();
 
-    if (updateError) {
-      console.warn('Failed to update booth visitor count:', updateError);
+    if (currentBooth) {
+      const { error: updateError } = await supabase
+        .from('virtual_booths')
+        .update({ visitor_count: (currentBooth.visitor_count || 0) + 1 })
+        .eq('id', boothId);
+
+      if (updateError) {
+        console.warn('Failed to update booth visitor count:', updateError);
+      }
     }
 
     return this.transformBoothVisit(data);
