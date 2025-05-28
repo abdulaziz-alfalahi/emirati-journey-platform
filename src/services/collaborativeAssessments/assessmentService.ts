@@ -92,7 +92,7 @@ export const inviteCollaborator = async (
   return {
     ...data,
     role: data.role as CollaboratorRole,
-    permissions: data.permissions as CollaboratorPermissions
+    permissions: data.permissions as unknown as CollaboratorPermissions
   } as AssessmentCollaborator;
 };
 
@@ -117,7 +117,7 @@ export const respondToInvitation = async (collaboratorId: string, status: 'accep
   return {
     ...data,
     role: data.role as CollaboratorRole,
-    permissions: data.permissions as CollaboratorPermissions
+    permissions: data.permissions as unknown as CollaboratorPermissions
   } as AssessmentCollaborator;
 };
 
@@ -126,7 +126,7 @@ export const fetchAssessmentCollaborators = async (assessmentId: string) => {
     .from('assessment_collaborators')
     .select(`
       *,
-      user:profiles(*)
+      user:user_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .order('invited_at', { ascending: false });
@@ -139,7 +139,7 @@ export const fetchAssessmentCollaborators = async (assessmentId: string) => {
   return (data || []).map(item => ({
     ...item,
     role: item.role as CollaboratorRole,
-    permissions: item.permissions as CollaboratorPermissions
+    permissions: item.permissions as unknown as CollaboratorPermissions
   })) as (AssessmentCollaborator & { user?: any })[];
 };
 
@@ -176,6 +176,6 @@ export const updateCollaboratorRole = async (collaboratorId: string, role: Colla
   return {
     ...data,
     role: data.role as CollaboratorRole,
-    permissions: data.permissions as CollaboratorPermissions
+    permissions: data.permissions as unknown as CollaboratorPermissions
   } as AssessmentCollaborator;
 };

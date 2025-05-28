@@ -17,12 +17,12 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     throw assessmentError;
   }
 
-  // Fetch all evaluations
+  // Fetch all evaluations with evaluator profiles
   const { data: evaluations, error: evaluationsError } = await supabase
     .from('assessment_evaluations')
     .select(`
       *,
-      evaluator:profiles(*)
+      evaluator:evaluator_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .not('submitted_at', 'is', null);
@@ -31,12 +31,12 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     throw evaluationsError;
   }
 
-  // Fetch collaborators
+  // Fetch collaborators with user profiles  
   const { data: collaborators, error: collaboratorsError } = await supabase
     .from('assessment_collaborators')
     .select(`
       *,
-      user:profiles(*)
+      user:user_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .eq('status', 'accepted');
@@ -58,7 +58,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
       
       const evaluatorScores = criterionEvaluations.map(evaluation => ({
         evaluator_id: evaluation.evaluator_id,
-        evaluator_name: evaluation.evaluator?.full_name || 'Unknown',
+        evaluator_name: evaluation.evaluator?.email || evaluation.evaluator?.full_name || 'Unknown',
         score: evaluation.score || 0,
         comments: evaluation.comments
       }));
@@ -117,7 +117,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
 
     return {
       collaborator_id: collaborator.user_id,
-      collaborator_name: collaborator.user?.full_name || 'Unknown',
+      collaborator_name: collaborator.user?.email || collaborator.user?.full_name || 'Unknown',
       role: collaborator.role as CollaboratorRole,
       sections_evaluated: sectionsEvaluated,
       average_score_given: avgScoreGiven,

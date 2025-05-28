@@ -20,7 +20,7 @@ export const createAssessmentTemplate = async (template: Omit<AssessmentTemplate
 
   return {
     ...data,
-    sections: data.sections as AssessmentTemplate['sections'],
+    sections: data.sections as unknown as AssessmentTemplate['sections'],
     scoring_criteria: data.scoring_criteria as AssessmentTemplate['scoring_criteria'],
     status: data.status as AssessmentTemplateStatus
   } as AssessmentTemplate;
@@ -49,7 +49,7 @@ export const fetchAssessmentTemplates = async (createdBy?: string, status?: Asse
 
   return (data || []).map(item => ({
     ...item,
-    sections: item.sections as AssessmentTemplate['sections'],
+    sections: item.sections as unknown as AssessmentTemplate['sections'],
     scoring_criteria: item.scoring_criteria as AssessmentTemplate['scoring_criteria'],
     status: item.status as AssessmentTemplateStatus
   })) as AssessmentTemplate[];
@@ -74,7 +74,7 @@ export const updateAssessmentTemplate = async (id: string, updates: Partial<Asse
 
   return {
     ...data,
-    sections: data.sections as AssessmentTemplate['sections'],
+    sections: data.sections as unknown as AssessmentTemplate['sections'],
     scoring_criteria: data.scoring_criteria as AssessmentTemplate['scoring_criteria'],
     status: data.status as AssessmentTemplateStatus
   } as AssessmentTemplate;
@@ -110,7 +110,7 @@ export const duplicateAssessmentTemplate = async (templateId: string, newTitle: 
     title: newTitle,
     description: originalTemplate.description,
     category: originalTemplate.category,
-    sections: originalTemplate.sections as AssessmentTemplate['sections'],
+    sections: originalTemplate.sections as unknown as AssessmentTemplate['sections'],
     scoring_criteria: originalTemplate.scoring_criteria as AssessmentTemplate['scoring_criteria'],
     estimated_duration_minutes: originalTemplate.estimated_duration_minutes,
     is_public: originalTemplate.is_public,
