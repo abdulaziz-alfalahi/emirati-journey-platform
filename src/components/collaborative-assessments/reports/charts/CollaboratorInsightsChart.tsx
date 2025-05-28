@@ -57,7 +57,9 @@ export const CollaboratorInsightsChart: React.FC<CollaboratorInsightsChartProps>
                 if (name === 'sectionsEvaluated') {
                   return [value, 'Sections Evaluated'];
                 }
-                return [value?.toFixed(1), 'Average Score Given'];
+                // Type check before calling toFixed
+                const numericValue = typeof value === 'number' ? value : parseFloat(value as string);
+                return [isNaN(numericValue) ? value : numericValue.toFixed(1), 'Average Score Given'];
               }}
               labelFormatter={(label, payload) => 
                 payload?.[0]?.payload?.fullName || label
