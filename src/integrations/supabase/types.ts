@@ -470,6 +470,66 @@ export type Database = {
         }
         Relationships: []
       }
+      booth_visits: {
+        Row: {
+          booth_id: string
+          created_at: string | null
+          duration_minutes: number | null
+          event_registration_id: string
+          follow_up_requested: boolean | null
+          id: string
+          interactions: Json | null
+          is_lead: boolean | null
+          lead_notes: string | null
+          visit_end: string | null
+          visit_start: string | null
+          visitor_id: string
+        }
+        Insert: {
+          booth_id: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_registration_id: string
+          follow_up_requested?: boolean | null
+          id?: string
+          interactions?: Json | null
+          is_lead?: boolean | null
+          lead_notes?: string | null
+          visit_end?: string | null
+          visit_start?: string | null
+          visitor_id: string
+        }
+        Update: {
+          booth_id?: string
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_registration_id?: string
+          follow_up_requested?: boolean | null
+          id?: string
+          interactions?: Json | null
+          is_lead?: boolean | null
+          lead_notes?: string | null
+          visit_end?: string | null
+          visit_start?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booth_visits_booth_id_fkey"
+            columns: ["booth_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_booths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booth_visits_event_registration_id_fkey"
+            columns: ["event_registration_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_event_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_templates: {
         Row: {
           career_stage: string
@@ -1023,6 +1083,80 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "networking_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_sessions: {
+        Row: {
+          created_at: string | null
+          current_attendees: number | null
+          description: string | null
+          end_time: string
+          event_id: string
+          id: string
+          is_recording_enabled: boolean | null
+          materials: Json | null
+          max_attendees: number | null
+          meeting_url: string | null
+          recording_url: string | null
+          room_name: string | null
+          session_type: string | null
+          speaker_id: string | null
+          speakers: Json | null
+          start_time: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_attendees?: number | null
+          description?: string | null
+          end_time: string
+          event_id: string
+          id?: string
+          is_recording_enabled?: boolean | null
+          materials?: Json | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          recording_url?: string | null
+          room_name?: string | null
+          session_type?: string | null
+          speaker_id?: string | null
+          speakers?: Json | null
+          start_time: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_attendees?: number | null
+          description?: string | null
+          end_time?: string
+          event_id?: string
+          id?: string
+          is_recording_enabled?: boolean | null
+          materials?: Json | null
+          max_attendees?: number | null
+          meeting_url?: string | null
+          recording_url?: string | null
+          room_name?: string | null
+          session_type?: string | null
+          speaker_id?: string | null
+          speakers?: Json | null
+          start_time?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
             referencedColumns: ["id"]
           },
         ]
@@ -1995,6 +2129,74 @@ export type Database = {
           },
         ]
       }
+      networking_rooms: {
+        Row: {
+          career_level: string | null
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          event_id: string
+          host_id: string | null
+          id: string
+          industry_focus: string | null
+          is_active: boolean | null
+          max_participants: number | null
+          meeting_url: string | null
+          name: string
+          room_type: string | null
+          scheduled_end: string | null
+          scheduled_start: string | null
+          topics: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          career_level?: string | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          event_id: string
+          host_id?: string | null
+          id?: string
+          industry_focus?: string | null
+          is_active?: boolean | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          name: string
+          room_type?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          topics?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          career_level?: string | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          event_id?: string
+          host_id?: string | null
+          id?: string
+          industry_focus?: string | null
+          is_active?: boolean | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          name?: string
+          room_type?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          topics?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "networking_rooms_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_comments: {
         Row: {
           content: string
@@ -2536,6 +2738,57 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      session_registrations: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number | null
+          event_registration_id: string
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          session_id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_registration_id: string
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          session_id: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          event_registration_id?: string
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          session_id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_registrations_event_registration_id_fkey"
+            columns: ["event_registration_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_event_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_registrations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "event_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       skill_applications: {
         Row: {
@@ -3193,6 +3446,330 @@ export type Database = {
         }
         Relationships: []
       }
+      virtual_booths: {
+        Row: {
+          banner_url: string | null
+          booth_position: Json | null
+          booth_size: string | null
+          booth_type: Database["public"]["Enums"]["booth_type"]
+          chat_enabled: boolean | null
+          company_id: string
+          contact_info: Json | null
+          created_at: string | null
+          description: string | null
+          event_id: string
+          id: string
+          is_featured: boolean | null
+          lead_count: number | null
+          logo_url: string | null
+          meeting_room_url: string | null
+          resources: Json | null
+          title: string
+          updated_at: string | null
+          video_enabled: boolean | null
+          visitor_count: number | null
+        }
+        Insert: {
+          banner_url?: string | null
+          booth_position?: Json | null
+          booth_size?: string | null
+          booth_type: Database["public"]["Enums"]["booth_type"]
+          chat_enabled?: boolean | null
+          company_id: string
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          is_featured?: boolean | null
+          lead_count?: number | null
+          logo_url?: string | null
+          meeting_room_url?: string | null
+          resources?: Json | null
+          title: string
+          updated_at?: string | null
+          video_enabled?: boolean | null
+          visitor_count?: number | null
+        }
+        Update: {
+          banner_url?: string | null
+          booth_position?: Json | null
+          booth_size?: string | null
+          booth_type?: Database["public"]["Enums"]["booth_type"]
+          chat_enabled?: boolean | null
+          company_id?: string
+          contact_info?: Json | null
+          created_at?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          is_featured?: boolean | null
+          lead_count?: number | null
+          logo_url?: string | null
+          meeting_room_url?: string | null
+          resources?: Json | null
+          title?: string
+          updated_at?: string | null
+          video_enabled?: boolean | null
+          visitor_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_booths_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_event_analytics: {
+        Row: {
+          dimensions: Json | null
+          event_id: string
+          id: string
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at: string | null
+        }
+        Insert: {
+          dimensions?: Json | null
+          event_id: string
+          id?: string
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at?: string | null
+        }
+        Update: {
+          dimensions?: Json | null
+          event_id?: string
+          id?: string
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_event_analytics_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_event_registrations: {
+        Row: {
+          booths_visited: string[] | null
+          check_in_time: string | null
+          check_out_time: string | null
+          created_at: string | null
+          event_id: string
+          feedback: Json | null
+          id: string
+          networking_connections: number | null
+          rating: number | null
+          registration_data: Json | null
+          registration_date: string | null
+          session_duration: number | null
+          sessions_attended: string[] | null
+          status: Database["public"]["Enums"]["registration_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booths_visited?: string[] | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          created_at?: string | null
+          event_id: string
+          feedback?: Json | null
+          id?: string
+          networking_connections?: number | null
+          rating?: number | null
+          registration_data?: Json | null
+          registration_date?: string | null
+          session_duration?: number | null
+          sessions_attended?: string[] | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booths_visited?: string[] | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          created_at?: string | null
+          event_id?: string
+          feedback?: Json | null
+          id?: string
+          networking_connections?: number | null
+          rating?: number | null
+          registration_data?: Json | null
+          registration_date?: string | null
+          session_duration?: number | null
+          sessions_attended?: string[] | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_events: {
+        Row: {
+          agenda: Json | null
+          analytics_data: Json | null
+          banner_image_url: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          id: string
+          is_public: boolean | null
+          max_attendees: number | null
+          meeting_id: string | null
+          meeting_password: string | null
+          meeting_platform: string | null
+          meeting_url: string | null
+          organizer_id: string
+          registration_deadline: string | null
+          registration_fields: Json | null
+          settings: Json | null
+          speakers: Json | null
+          sponsors: Json | null
+          start_date: string
+          status: Database["public"]["Enums"]["event_status"] | null
+          tags: string[] | null
+          timezone: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          agenda?: Json | null
+          analytics_data?: Json | null
+          banner_image_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
+          id?: string
+          is_public?: boolean | null
+          max_attendees?: number | null
+          meeting_id?: string | null
+          meeting_password?: string | null
+          meeting_platform?: string | null
+          meeting_url?: string | null
+          organizer_id: string
+          registration_deadline?: string | null
+          registration_fields?: Json | null
+          settings?: Json | null
+          speakers?: Json | null
+          sponsors?: Json | null
+          start_date: string
+          status?: Database["public"]["Enums"]["event_status"] | null
+          tags?: string[] | null
+          timezone?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          agenda?: Json | null
+          analytics_data?: Json | null
+          banner_image_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
+          id?: string
+          is_public?: boolean | null
+          max_attendees?: number | null
+          meeting_id?: string | null
+          meeting_password?: string | null
+          meeting_platform?: string | null
+          meeting_url?: string | null
+          organizer_id?: string
+          registration_deadline?: string | null
+          registration_fields?: Json | null
+          settings?: Json | null
+          speakers?: Json | null
+          sponsors?: Json | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["event_status"] | null
+          tags?: string[] | null
+          timezone?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      virtual_networking_connections: {
+        Row: {
+          connection_type: string | null
+          created_at: string | null
+          event_id: string
+          id: string
+          initiator_id: string
+          message: string | null
+          recipient_id: string
+          room_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          connection_type?: string | null
+          created_at?: string | null
+          event_id: string
+          id?: string
+          initiator_id: string
+          message?: string | null
+          recipient_id: string
+          room_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          connection_type?: string | null
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          initiator_id?: string
+          message?: string | null
+          recipient_id?: string
+          room_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_networking_connections_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "virtual_networking_connections_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "networking_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       resume_view: {
@@ -3234,6 +3811,12 @@ export type Database = {
         | "completed"
         | "cancelled"
       assessment_type: "skills" | "behaviors" | "capabilities"
+      booth_type:
+        | "company"
+        | "university"
+        | "government"
+        | "training_center"
+        | "startup"
       certificate_status: "pending" | "issued" | "revoked"
       course_status: "draft" | "published" | "archived"
       credential_type:
@@ -3242,6 +3825,14 @@ export type Database = {
         | "skill_badge"
         | "completion_certificate"
       enrollment_status: "active" | "completed" | "dropped" | "suspended"
+      event_status: "draft" | "published" | "live" | "completed" | "cancelled"
+      event_type:
+        | "career_fair"
+        | "job_expo"
+        | "networking_event"
+        | "workshop"
+        | "webinar"
+        | "conference"
       lesson_type: "video" | "text" | "quiz" | "assignment" | "interactive"
       mentorship_status:
         | "requested"
@@ -3255,6 +3846,12 @@ export type Database = {
         | "consultation"
         | "mentoring"
       project_status: "open" | "in_progress" | "completed" | "cancelled"
+      registration_status:
+        | "registered"
+        | "confirmed"
+        | "attended"
+        | "no_show"
+        | "cancelled"
       skill_level: "beginner" | "intermediate" | "advanced" | "expert"
       user_role:
         | "school_student"
@@ -3403,6 +4000,13 @@ export const Constants = {
         "cancelled",
       ],
       assessment_type: ["skills", "behaviors", "capabilities"],
+      booth_type: [
+        "company",
+        "university",
+        "government",
+        "training_center",
+        "startup",
+      ],
       certificate_status: ["pending", "issued", "revoked"],
       course_status: ["draft", "published", "archived"],
       credential_type: [
@@ -3412,6 +4016,15 @@ export const Constants = {
         "completion_certificate",
       ],
       enrollment_status: ["active", "completed", "dropped", "suspended"],
+      event_status: ["draft", "published", "live", "completed", "cancelled"],
+      event_type: [
+        "career_fair",
+        "job_expo",
+        "networking_event",
+        "workshop",
+        "webinar",
+        "conference",
+      ],
       lesson_type: ["video", "text", "quiz", "assignment", "interactive"],
       mentorship_status: [
         "requested",
@@ -3427,6 +4040,13 @@ export const Constants = {
         "mentoring",
       ],
       project_status: ["open", "in_progress", "completed", "cancelled"],
+      registration_status: [
+        "registered",
+        "confirmed",
+        "attended",
+        "no_show",
+        "cancelled",
+      ],
       skill_level: ["beginner", "intermediate", "advanced", "expert"],
       user_role: [
         "school_student",
