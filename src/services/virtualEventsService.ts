@@ -28,10 +28,18 @@ export class VirtualEventsService {
       .order('start_date', { ascending: true });
 
     if (filters?.event_type) {
-      query = query.eq('event_type', filters.event_type as any);
+      // Convert string to enum type for filtering
+      const eventTypeOptions = ['career_fair', 'job_expo', 'networking_event', 'workshop', 'webinar', 'conference'];
+      if (eventTypeOptions.includes(filters.event_type)) {
+        query = query.eq('event_type', filters.event_type);
+      }
     }
     if (filters?.status) {
-      query = query.eq('status', filters.status as any);
+      // Convert string to enum type for filtering
+      const statusOptions = ['draft', 'published', 'live', 'completed', 'cancelled'];
+      if (statusOptions.includes(filters.status)) {
+        query = query.eq('status', filters.status);
+      }
     }
     if (filters?.upcoming) {
       query = query.gte('start_date', new Date().toISOString());
@@ -219,8 +227,17 @@ export class VirtualEventsService {
 
     if (error) throw error;
 
-    // Update booth visitor count
-    await supabase.rpc('increment_booth_visitors', { booth_id: boothId });
+    // Update booth visitor count directly
+    const { error: updateError } = await supabase
+      .from('virtual_booths')
+      .update({ 
+        visitor_count: supabase.raw('visitor_count + 1') 
+      })
+      .eq('id', boothId);
+
+    if (updateError) {
+      console.warn('Failed to update booth visitor count:', updateError);
+    }
 
     return this.transformBoothVisit(data);
   }
@@ -393,37 +410,37 @@ export class VirtualEventsService {
   private static transformVirtualEvent(data: any): VirtualEvent {
     return {
       ...data,
-      agenda: Array.isArray(data.agenda) ? data.agenda : [],
-      speakers: Array.isArray(data.speakers) ? data.speakers : [],
-      sponsors: Array.isArray(data.sponsors) ? data.sponsors : [],
-      registration_fields: typeof data.registration_fields === 'object' ? data.registration_fields : {},
-      settings: typeof data.settings === 'object' ? data.settings : {},
-      analytics_data: typeof data.analytics_data === 'object' ? data.analytics_data : {}
+      agenda: Array.isArray(data.agenda) ? data.agenda : (typeof data.agenda === 'string' ? JSON.parse(data.agenda || '[]') : []),
+      speakers: Array.isArray(data.speakers) ? data.speakers : (typeof data.speakers === 'string' ? JSON.parse(data.speakers || '[]') : []),
+      sponsors: Array.isArray(data.sponsors) ? data.sponsors : (typeof data.sponsors === 'string' ? JSON.parse(data.sponsors || '[]') : []),
+      registration_fields: typeof data.registration_fields === 'object' && data.registration_fields !== null ? data.registration_fields : (typeof data.registration_fields === 'string' ? JSON.parse(data.registration_fields || '{}') : {}),
+      settings: typeof data.settings === 'object' && data.settings !== null ? data.settings : (typeof data.settings === 'string' ? JSON.parse(data.settings || '{}') : {}),
+      analytics_data: typeof data.analytics_data === 'object' && data.analytics_data !== null ? data.analytics_data : (typeof data.analytics_data === 'string' ? JSON.parse(data.analytics_data || '{}') : {})
     };
   }
 
   private static transformVirtualBooth(data: any): VirtualBooth {
     return {
       ...data,
-      booth_position: typeof data.booth_position === 'object' ? data.booth_position : {},
-      contact_info: typeof data.contact_info === 'object' ? data.contact_info : {},
-      resources: Array.isArray(data.resources) ? data.resources : []
+      booth_position: typeof data.booth_position === 'object' && data.booth_position !== null ? data.booth_position : (typeof data.booth_position === 'string' ? JSON.parse(data.booth_position || '{}') : {}),
+      contact_info: typeof data.contact_info === 'object' && data.contact_info !== null ? data.contact_info : (typeof data.contact_info === 'string' ? JSON.parse(data.contact_info || '{}') : {}),
+      resources: Array.isArray(data.resources) ? data.resources : (typeof data.resources === 'string' ? JSON.parse(data.resources || '[]') : [])
     };
   }
 
   private static transformEventRegistration(data: any): EventRegistration {
     return {
       ...data,
-      registration_data: typeof data.registration_data === 'object' ? data.registration_data : {},
-      feedback: typeof data.feedback === 'object' ? data.feedback : undefined
+      registration_data: typeof data.registration_data === 'object' && data.registration_data !== null ? data.registration_data : (typeof data.registration_data === 'string' ? JSON.parse(data.registration_data || '{}') : {}),
+      feedback: data.feedback && typeof data.feedback === 'object' ? data.feedback : (typeof data.feedback === 'string' ? JSON.parse(data.feedback || '{}') : undefined)
     };
   }
 
   private static transformEventSession(data: any): EventSession {
     return {
       ...data,
-      speakers: Array.isArray(data.speakers) ? data.speakers : [],
-      materials: Array.isArray(data.materials) ? data.materials : []
+      speakers: Array.isArray(data.speakers) ? data.speakers : (typeof data.speakers === 'string' ? JSON.parse(data.speakers || '[]') : []),
+      materials: Array.isArray(data.materials) ? data.materials : (typeof data.materials === 'string' ? JSON.parse(data.materials || '[]') : [])
     };
   }
 
@@ -438,14 +455,14 @@ export class VirtualEventsService {
   private static transformBoothVisit(data: any): BoothVisit {
     return {
       ...data,
-      interactions: typeof data.interactions === 'object' ? data.interactions : {}
+      interactions: typeof data.interactions === 'object' && data.interactions !== null ? data.interactions : (typeof data.interactions === 'string' ? JSON.parse(data.interactions || '{}') : {})
     };
   }
 
   private static transformEventAnalytics(data: any): EventAnalytics {
     return {
       ...data,
-      dimensions: typeof data.dimensions === 'object' ? data.dimensions : {}
+      dimensions: typeof data.dimensions === 'object' && data.dimensions !== null ? data.dimensions : (typeof data.dimensions === 'string' ? JSON.parse(data.dimensions || '{}') : {})
     };
   }
 }
