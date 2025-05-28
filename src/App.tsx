@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/context/QueryContext';
@@ -50,6 +49,7 @@ import Messages from '@/pages/messages';
 import RetireePage from '@/pages/retiree';
 import SuccessStoriesPage from '@/pages/success-stories';
 import NotFound from '@/pages/NotFound';
+import CommunitiesPage from '@/pages/communities';
 import './App.css';
 
 function App() {
@@ -103,6 +103,7 @@ function App() {
                     <Route path="/cv-builder" element={<CVBuilder />} />
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/retiree" element={<RetireePage />} />
+                    <Route path="/communities" element={<CommunitiesPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                   <Toaster />

@@ -1200,6 +1200,8 @@ export type Database = {
           group_id: string
           id: string
           joined_at: string
+          last_active: string | null
+          notifications_enabled: boolean | null
           role: string
           user_id: string
         }
@@ -1207,6 +1209,8 @@ export type Database = {
           group_id: string
           id?: string
           joined_at?: string
+          last_active?: string | null
+          notifications_enabled?: boolean | null
           role?: string
           user_id: string
         }
@@ -1214,6 +1218,8 @@ export type Database = {
           group_id?: string
           id?: string
           joined_at?: string
+          last_active?: string | null
+          notifications_enabled?: boolean | null
           role?: string
           user_id?: string
         }
@@ -1234,6 +1240,10 @@ export type Database = {
           created_at: string
           group_id: string
           id: string
+          is_pinned: boolean | null
+          like_count: number | null
+          post_type: string | null
+          reply_count: number | null
           updated_at: string
           user_id: string
         }
@@ -1243,6 +1253,10 @@ export type Database = {
           created_at?: string
           group_id: string
           id?: string
+          is_pinned?: boolean | null
+          like_count?: number | null
+          post_type?: string | null
+          reply_count?: number | null
           updated_at?: string
           user_id: string
         }
@@ -1252,12 +1266,72 @@ export type Database = {
           created_at?: string
           group_id?: string
           id?: string
+          is_pinned?: boolean | null
+          like_count?: number | null
+          post_type?: string | null
+          reply_count?: number | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_resources: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          download_count: number | null
+          external_url: string | null
+          file_url: string | null
+          group_id: string
+          id: string
+          is_approved: boolean | null
+          resource_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
+          group_id: string
+          id?: string
+          is_approved?: boolean | null
+          resource_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
+          group_id?: string
+          id?: string
+          is_approved?: boolean | null
+          resource_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_resources_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "professional_groups"
@@ -1805,6 +1879,57 @@ export type Database = {
           },
         ]
       }
+      moderation_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          duration_hours: number | null
+          group_id: string
+          id: string
+          moderator_id: string
+          reason: string | null
+          target_post_id: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          duration_hours?: number | null
+          group_id: string
+          id?: string
+          moderator_id: string
+          reason?: string | null
+          target_post_id?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          duration_hours?: number | null
+          group_id?: string
+          id?: string
+          moderator_id?: string
+          reason?: string | null
+          target_post_id?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_logs_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_logs_target_post_id_fkey"
+            columns: ["target_post_id"]
+            isOneToOne: false
+            referencedRelation: "group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       networking_events: {
         Row: {
           cover_image_url: string | null
@@ -1905,8 +2030,38 @@ export type Database = {
           },
         ]
       }
+      post_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_groups: {
         Row: {
+          category: string | null
           cover_image_url: string | null
           created_at: string
           creator_id: string
@@ -1914,10 +2069,14 @@ export type Database = {
           id: string
           industry: string | null
           is_private: boolean
+          member_count: number | null
           name: string
+          rules: string | null
+          tags: string[] | null
           updated_at: string
         }
         Insert: {
+          category?: string | null
           cover_image_url?: string | null
           created_at?: string
           creator_id: string
@@ -1925,10 +2084,14 @@ export type Database = {
           id?: string
           industry?: string | null
           is_private?: boolean
+          member_count?: number | null
           name: string
+          rules?: string | null
+          tags?: string[] | null
           updated_at?: string
         }
         Update: {
+          category?: string | null
           cover_image_url?: string | null
           created_at?: string
           creator_id?: string
@@ -1936,7 +2099,10 @@ export type Database = {
           id?: string
           industry?: string | null
           is_private?: boolean
+          member_count?: number | null
           name?: string
+          rules?: string | null
+          tags?: string[] | null
           updated_at?: string
         }
         Relationships: []

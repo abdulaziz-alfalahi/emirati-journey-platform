@@ -38,6 +38,7 @@ const useNavItems = () => {
     { name: 'Collaborative Assessments', href: '/collaborative-assessments', icon: Users },
     { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
     { name: 'Job Matching', href: '/job-matching', icon: Search },
+    { name: 'Communities', href: '/communities', icon: Users },
     { name: 'Mentorship', href: '/mentorship', icon: UserCheck },
     { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
     { name: 'Credentials', href: '/credentials', icon: Award },
