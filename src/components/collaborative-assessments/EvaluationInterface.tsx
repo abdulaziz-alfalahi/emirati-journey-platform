@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
@@ -186,7 +185,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   const getSectionProgress = () => {
     const evaluatedCriteria = currentSection.criteria?.filter(c => {
       const key = `${currentSection.id}-${c.id}`;
-      return evaluations[key]?.score !== undefined || evaluations[key]?.comments;
+      return evaluations[key]?.score !== undefined || Boolean(evaluations[key]?.comments);
     }).length || 0;
     
     const totalCriteria = currentSection.criteria?.length || 0;
@@ -196,7 +195,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   const getEvaluatedCriteriaCount = () => {
     return currentSection.criteria?.filter(c => {
       const key = `${currentSection.id}-${c.id}`;
-      return evaluations[key]?.score !== undefined || evaluations[key]?.comments;
+      return evaluations[key]?.score !== undefined || Boolean(evaluations[key]?.comments);
     }).length || 0;
   };
 
@@ -225,7 +224,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
         {currentSection.criteria?.map((criterion) => {
           const key = `${currentSection.id}-${criterion.id}`;
           const evaluation = evaluations[key] || {};
-          const hasEvaluation = evaluation.score !== undefined || evaluation.comments;
+          const hasEvaluation = Boolean(evaluation.score !== undefined || evaluation.comments);
 
           return (
             <CriterionCard
