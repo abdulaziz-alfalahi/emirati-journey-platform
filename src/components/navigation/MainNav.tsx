@@ -43,26 +43,29 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
             <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56 bg-white">
-            {group.items.map((item) => (
-              <DropdownMenuItem key={item.href} asChild>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "flex w-full items-center gap-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                    pathname === item.href ? "text-foreground font-medium" : "text-foreground/70"
-                  )}
-                  onClick={(e) => {
-                    if (item.onClick) {
-                      e.preventDefault();
-                      item.onClick();
-                    }
-                  }}
-                >
-                  {item.icon}
-                  {item.name}
-                </Link>
-              </DropdownMenuItem>
-            ))}
+            {group.items.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link
+                    to={item.href}
+                    className={cn(
+                      "flex w-full items-center gap-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                      pathname === item.href ? "text-foreground font-medium" : "text-foreground/70"
+                    )}
+                    onClick={(e) => {
+                      if (item.onClick) {
+                        e.preventDefault();
+                        item.onClick();
+                      }
+                    }}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       ))}

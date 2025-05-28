@@ -64,23 +64,26 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ navItems = [], navGroups = [] }
                 </AccordionTrigger>
                 <AccordionContent className="pb-0">
                   <div className="grid gap-1">
-                    {group.items.map((item) => (
-                      <Link
-                        key={item.href}
-                        to={item.href}
-                        className="flex items-center p-2 pl-10 hover:bg-secondary/50"
-                        onClick={(e) => {
-                          if (item.onClick) {
-                            e.preventDefault();
-                            item.onClick();
-                          }
-                          closeMenu();
-                        }}
-                      >
-                        {item.icon}
-                        <span className="ml-2">{item.name}</span>
-                      </Link>
-                    ))}
+                    {group.items.map((item) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          to={item.href}
+                          className="flex items-center p-2 pl-10 hover:bg-secondary/50"
+                          onClick={(e) => {
+                            if (item.onClick) {
+                              e.preventDefault();
+                              item.onClick();
+                            }
+                            closeMenu();
+                          }}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          <span className="ml-2">{item.name}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
