@@ -10,6 +10,9 @@ import { SectionNavigation } from './evaluation/SectionNavigation';
 import { CriterionCard } from './evaluation/CriterionCard';
 import { NavigationFooter } from './evaluation/NavigationFooter';
 import { ErrorState } from './evaluation/ErrorState';
+import { CollaboratorManagement } from './CollaboratorManagement';
+import { Button } from '@/components/ui/button';
+import { Users } from 'lucide-react';
 
 interface EvaluationInterfaceProps {
   assessmentId: string;
@@ -24,6 +27,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [evaluations, setEvaluations] = useState<Record<string, { score?: number; comments?: string }>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCollaborators, setShowCollaborators] = useState(false);
 
   // Fetch assessment details
   const { data: assessments } = useQuery({
@@ -54,6 +58,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
 
   const currentCollaborator = collaborators?.find(c => c.user_id === user?.id);
   const canEvaluate = currentCollaborator?.permissions?.can_evaluate;
+  const canManageCollaborators = currentCollaborator?.permissions?.can_invite_others;
 
   // Load existing evaluations into local state
   useEffect(() => {
@@ -124,6 +129,20 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
         message="This assessment template doesn't have any sections to evaluate."
         onBack={onBack}
       />
+    );
+  }
+
+  // If showing collaborators, render the collaborator management interface
+  if (showCollaborators) {
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <Button variant="outline" onClick={() => setShowCollaborators(false)}>
+            ← Back to Evaluation
+          </Button>
+        </div>
+        <CollaboratorManagement assessmentId={assessmentId} />
+      </div>
     );
   }
 
@@ -201,11 +220,24 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <EvaluationHeader
-        title={assessment.title}
-        onBack={onBack}
-        progressPercentage={getProgressPercentage()}
-      />
+      <div className="flex items-center justify-between">
+        <EvaluationHeader
+          title={assessment.title}
+          onBack={onBack}
+          progressPercentage={getProgressPercentage()}
+        />
+        
+        {canManageCollaborators && (
+          <Button
+            variant="outline"
+            onClick={() => setShowCollaborators(true)}
+            className="ml-4"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Manage Collaborators
+          </Button>
+        )}
+      </div>
 
       <SectionNavigation
         currentSection={currentSection}
