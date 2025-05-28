@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart, LineChart, PieChart, Activity, TrendingUp, Users, Briefcase } from 'lucide-react';
+import { BarChart, LineChart, PieChart, Activity, TrendingUp, Users, Briefcase, Flag } from 'lucide-react';
 import SkillGapAnalysis from '@/components/analytics/SkillGapAnalysis';
 import MarketTrendsChart from '@/components/analytics/MarketTrendsChart';
 import PortfolioInsights from '@/components/analytics/PortfolioInsights';
 import WorkforceAnalytics from '@/components/analytics/WorkforceAnalytics';
+import UAEWorkforceAnalytics from '@/components/analytics/UAEWorkforceAnalytics';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const AnalyticsPage = () => {
@@ -33,6 +33,9 @@ const AnalyticsPage = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="overview">
               <Activity className="h-4 w-4 mr-2" /> Overview
+            </TabsTrigger>
+            <TabsTrigger value="uae-workforce">
+              <Flag className="h-4 w-4 mr-2" /> UAE Workforce
             </TabsTrigger>
             <TabsTrigger value="workforce">
               <TrendingUp className="h-4 w-4 mr-2" /> Market Trends
@@ -79,6 +82,10 @@ const AnalyticsPage = () => {
                 <PerformanceMetricsChart />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="uae-workforce" className="space-y-8">
+            <UAEWorkforceAnalytics />
           </TabsContent>
 
           <TabsContent value="workforce" className="space-y-8">
