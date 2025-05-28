@@ -135,7 +135,7 @@ export const CollaboratorRoleSelector: React.FC<CollaboratorRoleSelectorProps> =
             <Checkbox
               id="custom-permissions"
               checked={useCustomPermissions}
-              onCheckedChange={setUseCustomPermissions}
+              onCheckedChange={(checked) => setUseCustomPermissions(!!checked)}
             />
             <Label htmlFor="custom-permissions">Customize permissions</Label>
           </div>
