@@ -11,7 +11,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/dashboard';
 import Profile from '@/pages/profile';
-import PortfolioEditor from '@/components/portfolio/PortfolioEditor';
+import PortfolioPage from '@/pages/portfolio/index';
 import PortfolioViewer from '@/pages/portfolio/[id]';
 import ResumeBuilder from '@/pages/resume-builder';
 import CareerJourney from '@/pages/career-journey';
@@ -64,7 +64,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/portfolio" element={<PortfolioEditor />} />
+                    <Route path="/portfolio" element={<PortfolioPage />} />
                     <Route path="/portfolio/:id" element={<PortfolioViewer />} />
                     <Route path="/resume-builder" element={<ResumeBuilder />} />
                     <Route path="/career-journey" element={<CareerJourney />} />
