@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Users, Clock, CheckCircle, AlertCircle, FileText, Plus } from 'lucide-react';
-import { CollaborativeAssessment, AssessmentProgress } from '@/types/collaborativeAssessments';
+import { CollaborativeAssessment, AssessmentProgress, CollaborativeAssessmentStatus } from '@/types/collaborativeAssessments';
 import { fetchCollaborativeAssessments } from '@/services/collaborativeAssessments/assessmentService';
 import { calculateAssessmentProgress } from '@/services/collaborativeAssessments/evaluationService';
 import { useAuth } from '@/context/AuthContext';
@@ -16,12 +16,17 @@ interface AssessmentDashboardProps {
   onViewAssessment?: (assessment: CollaborativeAssessment) => void;
 }
 
+type AssessmentWithExtras = CollaborativeAssessment & { 
+  template?: any; 
+  collaborators?: any[] 
+};
+
 export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
   onCreateAssessment,
   onViewAssessment
 }) => {
   const { user } = useAuth();
-  const [assessments, setAssessments] = useState<CollaborativeAssessment[]>([]);
+  const [assessments, setAssessments] = useState<AssessmentWithExtras[]>([]);
   const [progressData, setProgressData] = useState<Record<string, AssessmentProgress>>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,7 +63,7 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: CollaborativeAssessmentStatus) => {
     switch (status) {
       case 'completed': return 'bg-green-500';
       case 'in_progress': return 'bg-blue-500';
@@ -68,12 +73,12 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
     }
   };
 
-  const filterAssessments = (status?: string) => {
+  const filterAssessments = (status?: CollaborativeAssessmentStatus) => {
     if (!status) return assessments;
     return assessments.filter(assessment => assessment.status === status);
   };
 
-  const AssessmentCard: React.FC<{ assessment: CollaborativeAssessment }> = ({ assessment }) => {
+  const AssessmentCard: React.FC<{ assessment: AssessmentWithExtras }> = ({ assessment }) => {
     const progress = progressData[assessment.id];
     
     return (

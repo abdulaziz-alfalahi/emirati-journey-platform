@@ -19,7 +19,7 @@ export const submitEvaluation = async (evaluation: Omit<AssessmentEvaluation, 'i
     throw error;
   }
 
-  return data;
+  return data as AssessmentEvaluation;
 };
 
 export const fetchAssessmentEvaluations = async (assessmentId: string) => {
@@ -37,7 +37,7 @@ export const fetchAssessmentEvaluations = async (assessmentId: string) => {
     throw error;
   }
 
-  return data;
+  return (data || []) as (AssessmentEvaluation & { evaluator?: any })[];
 };
 
 export const addComment = async (comment: Omit<AssessmentComment, 'id' | 'created_at' | 'updated_at'>) => {
@@ -55,7 +55,7 @@ export const addComment = async (comment: Omit<AssessmentComment, 'id' | 'create
     throw error;
   }
 
-  return data;
+  return data as AssessmentComment & { user?: any };
 };
 
 export const fetchAssessmentComments = async (assessmentId: string) => {
@@ -75,7 +75,7 @@ export const fetchAssessmentComments = async (assessmentId: string) => {
     throw error;
   }
 
-  return data;
+  return (data || []) as (AssessmentComment & { user?: any; replies?: any[] })[];
 };
 
 export const calculateAssessmentProgress = async (assessmentId: string): Promise<AssessmentProgress> => {
@@ -94,9 +94,11 @@ export const calculateAssessmentProgress = async (assessmentId: string): Promise
   }
 
   const template = assessment.template;
-  const sections = template.sections || [];
+  const sections = Array.isArray(template?.sections) ? template.sections : [];
   const totalSections = sections.length;
-  const totalCriteria = sections.reduce((acc: number, section: any) => acc + (section.criteria?.length || 0), 0);
+  const totalCriteria = sections.reduce((acc: number, section: any) => {
+    return acc + (Array.isArray(section.criteria) ? section.criteria.length : 0);
+  }, 0);
 
   // Fetch evaluations
   const { data: evaluations } = await supabase

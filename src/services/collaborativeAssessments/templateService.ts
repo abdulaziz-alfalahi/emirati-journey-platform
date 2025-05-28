@@ -5,7 +5,11 @@ import { AssessmentTemplate, AssessmentTemplateStatus } from '@/types/collaborat
 export const createAssessmentTemplate = async (template: Omit<AssessmentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
   const { data, error } = await supabase
     .from('assessment_templates')
-    .insert([template])
+    .insert([{
+      ...template,
+      sections: template.sections as any,
+      scoring_criteria: template.scoring_criteria as any
+    }])
     .select()
     .single();
 
@@ -14,7 +18,12 @@ export const createAssessmentTemplate = async (template: Omit<AssessmentTemplate
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    sections: data.sections as AssessmentTemplate['sections'],
+    scoring_criteria: data.scoring_criteria as AssessmentTemplate['scoring_criteria'],
+    status: data.status as AssessmentTemplateStatus
+  } as AssessmentTemplate;
 };
 
 export const fetchAssessmentTemplates = async (createdBy?: string, status?: AssessmentTemplateStatus) => {
@@ -38,13 +47,22 @@ export const fetchAssessmentTemplates = async (createdBy?: string, status?: Asse
     throw error;
   }
 
-  return data as AssessmentTemplate[];
+  return (data || []).map(item => ({
+    ...item,
+    sections: item.sections as AssessmentTemplate['sections'],
+    scoring_criteria: item.scoring_criteria as AssessmentTemplate['scoring_criteria'],
+    status: item.status as AssessmentTemplateStatus
+  })) as AssessmentTemplate[];
 };
 
 export const updateAssessmentTemplate = async (id: string, updates: Partial<AssessmentTemplate>) => {
   const { data, error } = await supabase
     .from('assessment_templates')
-    .update(updates)
+    .update({
+      ...updates,
+      sections: updates.sections as any,
+      scoring_criteria: updates.scoring_criteria as any
+    })
     .eq('id', id)
     .select()
     .single();
@@ -54,7 +72,12 @@ export const updateAssessmentTemplate = async (id: string, updates: Partial<Asse
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    sections: data.sections as AssessmentTemplate['sections'],
+    scoring_criteria: data.scoring_criteria as AssessmentTemplate['scoring_criteria'],
+    status: data.status as AssessmentTemplateStatus
+  } as AssessmentTemplate;
 };
 
 export const deleteAssessmentTemplate = async (id: string) => {
@@ -84,13 +107,16 @@ export const duplicateAssessmentTemplate = async (templateId: string, newTitle: 
   }
 
   const duplicatedTemplate = {
-    ...originalTemplate,
     title: newTitle,
+    description: originalTemplate.description,
+    category: originalTemplate.category,
+    sections: originalTemplate.sections as AssessmentTemplate['sections'],
+    scoring_criteria: originalTemplate.scoring_criteria as AssessmentTemplate['scoring_criteria'],
+    estimated_duration_minutes: originalTemplate.estimated_duration_minutes,
+    is_public: originalTemplate.is_public,
+    tags: originalTemplate.tags,
     status: 'draft' as AssessmentTemplateStatus,
-    created_by: userId,
-    created_at: undefined,
-    updated_at: undefined,
-    id: undefined
+    created_by: userId
   };
 
   return createAssessmentTemplate(duplicatedTemplate);

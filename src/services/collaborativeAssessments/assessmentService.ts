@@ -1,11 +1,14 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CollaborativeAssessment, AssessmentCollaborator, CollaboratorRole, CollaboratorPermissions } from '@/types/collaborativeAssessments';
+import { CollaborativeAssessment, AssessmentCollaborator, CollaboratorRole, CollaboratorPermissions, CollaborativeAssessmentStatus } from '@/types/collaborativeAssessments';
 
 export const createCollaborativeAssessment = async (assessment: Omit<CollaborativeAssessment, 'id' | 'created_at' | 'updated_at'>) => {
   const { data, error } = await supabase
     .from('collaborative_assessments')
-    .insert([assessment])
+    .insert([{
+      ...assessment,
+      metadata: assessment.metadata as any
+    }])
     .select(`
       *,
       template:assessment_templates(*)
@@ -17,7 +20,16 @@ export const createCollaborativeAssessment = async (assessment: Omit<Collaborati
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    status: data.status as CollaborativeAssessmentStatus,
+    template: data.template ? {
+      ...data.template,
+      sections: data.template.sections as any,
+      scoring_criteria: data.template.scoring_criteria as any,
+      status: data.template.status as any
+    } : undefined
+  } as CollaborativeAssessment & { template?: any };
 };
 
 export const fetchCollaborativeAssessments = async (userId: string) => {
@@ -36,7 +48,17 @@ export const fetchCollaborativeAssessments = async (userId: string) => {
     throw error;
   }
 
-  return data;
+  return (data || []).map(item => ({
+    ...item,
+    status: item.status as CollaborativeAssessmentStatus,
+    template: item.template ? {
+      ...item.template,
+      sections: item.template.sections as any,
+      scoring_criteria: item.template.scoring_criteria as any,
+      status: item.template.status as any
+    } : undefined,
+    collaborators: item.collaborators || []
+  })) as (CollaborativeAssessment & { template?: any; collaborators?: any[] })[];
 };
 
 export const inviteCollaborator = async (
@@ -46,14 +68,14 @@ export const inviteCollaborator = async (
   invitedBy: string,
   permissions: CollaboratorPermissions
 ) => {
-  const collaborator: Omit<AssessmentCollaborator, 'id'> = {
+  const collaborator = {
     assessment_id: assessmentId,
     user_id: userId,
     role,
     invited_by: invitedBy,
     invited_at: new Date().toISOString(),
-    status: 'pending',
-    permissions
+    status: 'pending' as const,
+    permissions: permissions as any
   };
 
   const { data, error } = await supabase
@@ -67,7 +89,11 @@ export const inviteCollaborator = async (
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    role: data.role as CollaboratorRole,
+    permissions: data.permissions as CollaboratorPermissions
+  } as AssessmentCollaborator;
 };
 
 export const respondToInvitation = async (collaboratorId: string, status: 'accepted' | 'declined') => {
@@ -88,7 +114,11 @@ export const respondToInvitation = async (collaboratorId: string, status: 'accep
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    role: data.role as CollaboratorRole,
+    permissions: data.permissions as CollaboratorPermissions
+  } as AssessmentCollaborator;
 };
 
 export const fetchAssessmentCollaborators = async (assessmentId: string) => {
@@ -106,7 +136,11 @@ export const fetchAssessmentCollaborators = async (assessmentId: string) => {
     throw error;
   }
 
-  return data;
+  return (data || []).map(item => ({
+    ...item,
+    role: item.role as CollaboratorRole,
+    permissions: item.permissions as CollaboratorPermissions
+  })) as (AssessmentCollaborator & { user?: any })[];
 };
 
 export const removeCollaborator = async (collaboratorId: string) => {
@@ -126,7 +160,10 @@ export const removeCollaborator = async (collaboratorId: string) => {
 export const updateCollaboratorRole = async (collaboratorId: string, role: CollaboratorRole, permissions: CollaboratorPermissions) => {
   const { data, error } = await supabase
     .from('assessment_collaborators')
-    .update({ role, permissions })
+    .update({ 
+      role, 
+      permissions: permissions as any 
+    })
     .eq('id', collaboratorId)
     .select()
     .single();
@@ -136,5 +173,9 @@ export const updateCollaboratorRole = async (collaboratorId: string, role: Colla
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    role: data.role as CollaboratorRole,
+    permissions: data.permissions as CollaboratorPermissions
+  } as AssessmentCollaborator;
 };

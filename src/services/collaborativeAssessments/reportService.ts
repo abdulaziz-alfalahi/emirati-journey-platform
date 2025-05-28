@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { AssessmentReport, SectionScore, CriterionScore, CollaboratorInsight } from '@/types/collaborativeAssessments';
+import { AssessmentReport, SectionScore, CriterionScore, CollaboratorInsight, CollaboratorRole } from '@/types/collaborativeAssessments';
 
 export const generateAssessmentReport = async (assessmentId: string): Promise<AssessmentReport> => {
   // Fetch assessment with template
@@ -46,21 +46,21 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
   }
 
   const template = assessment.template;
-  const sections = template.sections || [];
+  const sections = Array.isArray(template?.sections) ? template.sections : [];
 
   // Calculate section scores
   const sectionScores: SectionScore[] = sections.map((section: any) => {
     const sectionEvaluations = evaluations?.filter(e => e.section_id === section.id) || [];
-    const criteria = section.criteria || [];
+    const criteria = Array.isArray(section.criteria) ? section.criteria : [];
     
     const criteriaScores: CriterionScore[] = criteria.map((criterion: any) => {
       const criterionEvaluations = sectionEvaluations.filter(e => e.criterion_id === criterion.id);
       
-      const evaluatorScores = criterionEvaluations.map(eval => ({
-        evaluator_id: eval.evaluator_id,
-        evaluator_name: eval.evaluator?.full_name || 'Unknown',
-        score: eval.score || 0,
-        comments: eval.comments
+      const evaluatorScores = criterionEvaluations.map(evaluation => ({
+        evaluator_id: evaluation.evaluator_id,
+        evaluator_name: evaluation.evaluator?.full_name || 'Unknown',
+        score: evaluation.score || 0,
+        comments: evaluation.comments
       }));
 
       const avgScore = evaluatorScores.length > 0 
@@ -118,7 +118,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     return {
       collaborator_id: collaborator.user_id,
       collaborator_name: collaborator.user?.full_name || 'Unknown',
-      role: collaborator.role,
+      role: collaborator.role as CollaboratorRole,
       sections_evaluated: sectionsEvaluated,
       average_score_given: avgScoreGiven,
       key_comments: keyComments
