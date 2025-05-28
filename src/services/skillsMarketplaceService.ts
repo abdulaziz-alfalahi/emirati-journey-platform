@@ -14,6 +14,12 @@ import type {
   ProjectStatus
 } from '@/types/skillsMarketplace';
 
+// Extended types for database responses
+interface SkillOpportunityWithExtras extends SkillOpportunity {
+  skills?: Skill[];
+  application_count?: number;
+}
+
 export class SkillsMarketplaceService {
   // Skills Management
   async getAllSkills(): Promise<Skill[]> {
@@ -119,7 +125,7 @@ export class SkillsMarketplaceService {
   }
 
   // Opportunities Management
-  async getOpportunities(filters?: SkillFilters): Promise<SkillOpportunity[]> {
+  async getOpportunities(filters?: SkillFilters): Promise<SkillOpportunityWithExtras[]> {
     let query = supabase
       .from('skill_opportunities')
       .select(`
@@ -157,7 +163,7 @@ export class SkillsMarketplaceService {
     if (error) throw error;
 
     // Get skills for each opportunity
-    const opportunities = data || [];
+    const opportunities: SkillOpportunityWithExtras[] = data || [];
     for (const opportunity of opportunities) {
       if (opportunity.required_skills?.length > 0) {
         const { data: skills } = await supabase
@@ -178,7 +184,7 @@ export class SkillsMarketplaceService {
     return opportunities;
   }
 
-  async getOpportunityById(id: string): Promise<SkillOpportunity | null> {
+  async getOpportunityById(id: string): Promise<SkillOpportunityWithExtras | null> {
     const { data, error } = await supabase
       .from('skill_opportunities')
       .select(`
@@ -190,16 +196,18 @@ export class SkillsMarketplaceService {
 
     if (error) return null;
 
+    const opportunity: SkillOpportunityWithExtras = data;
+
     // Get required skills
-    if (data.required_skills?.length > 0) {
+    if (opportunity.required_skills?.length > 0) {
       const { data: skills } = await supabase
         .from('skills')
         .select('*')
-        .in('id', data.required_skills);
-      data.skills = skills || [];
+        .in('id', opportunity.required_skills);
+      opportunity.skills = skills || [];
     }
 
-    return data;
+    return opportunity;
   }
 
   async createOpportunity(opportunityData: {
@@ -245,7 +253,7 @@ export class SkillsMarketplaceService {
     return data;
   }
 
-  async getUserOpportunities(): Promise<SkillOpportunity[]> {
+  async getUserOpportunities(): Promise<SkillOpportunityWithExtras[]> {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return [];
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/context/QueryContext';
@@ -10,8 +11,8 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/dashboard';
 import Profile from '@/pages/profile';
-import { PortfolioEditor } from '@/components/portfolio/PortfolioEditor';
-import { PortfolioViewer } from '@/pages/portfolio/[id]';
+import PortfolioEditor from '@/components/portfolio/PortfolioEditor';
+import PortfolioViewer from '@/pages/portfolio/[id]';
 import ResumeBuilder from '@/pages/resume-builder';
 import CareerJourney from '@/pages/career-journey';
 import SummerCamps from '@/pages/summer-camps';
