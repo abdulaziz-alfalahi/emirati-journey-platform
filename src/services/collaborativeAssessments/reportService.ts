@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { AssessmentReport, SectionScore, CriterionScore, CollaboratorInsight, CollaboratorRole } from '@/types/collaborativeAssessments';
 
@@ -22,7 +21,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     .from('assessment_evaluations')
     .select(`
       *,
-      evaluator:profiles!evaluator_id(*)
+      evaluator:profiles!assessment_evaluations_evaluator_id_fkey(*)
     `)
     .eq('assessment_id', assessmentId)
     .not('submitted_at', 'is', null);
@@ -36,7 +35,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     .from('assessment_collaborators')
     .select(`
       *,
-      user:profiles!user_id(*)
+      user:profiles!assessment_collaborators_user_id_fkey(*)
     `)
     .eq('assessment_id', assessmentId)
     .eq('status', 'accepted');

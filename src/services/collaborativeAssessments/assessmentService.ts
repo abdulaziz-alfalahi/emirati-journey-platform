@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { CollaborativeAssessment, AssessmentCollaborator, CollaboratorRole, CollaboratorPermissions, CollaborativeAssessmentStatus } from '@/types/collaborativeAssessments';
 
@@ -126,7 +125,7 @@ export const fetchAssessmentCollaborators = async (assessmentId: string) => {
     .from('assessment_collaborators')
     .select(`
       *,
-      user:profiles!user_id(*)
+      user:profiles!assessment_collaborators_user_id_fkey(*)
     `)
     .eq('assessment_id', assessmentId)
     .order('invited_at', { ascending: false });
