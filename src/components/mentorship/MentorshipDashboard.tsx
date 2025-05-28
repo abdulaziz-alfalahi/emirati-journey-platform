@@ -147,7 +147,7 @@ export const MentorshipDashboard: React.FC = () => {
       case 'active': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-blue-100 text-blue-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'on_hold': return 'bg-gray-100 text-gray-800';
+      case 'accepted': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -394,7 +394,7 @@ export const MentorshipDashboard: React.FC = () => {
                             Mark as Completed
                           </Button>
                           <Button 
-                            onClick={() => handleStatusUpdate(selectedRelationship.id, 'on_hold')}
+                            onClick={() => handleStatusUpdate(selectedRelationship.id, 'accepted')}
                             variant="outline"
                           >
                             Put on Hold
