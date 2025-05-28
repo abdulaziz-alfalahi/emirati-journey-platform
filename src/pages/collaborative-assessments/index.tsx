@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { AssessmentDashboard } from '@/components/collaborative-assessments/AssessmentDashboard';
 import { TemplateBuilder } from '@/components/collaborative-assessments/TemplateBuilder';
+import { EvaluationInterface } from '@/components/collaborative-assessments/EvaluationInterface';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
 
-type ViewMode = 'dashboard' | 'create-template' | 'create-assessment' | 'view-assessment';
+type ViewMode = 'dashboard' | 'create-template' | 'create-assessment' | 'view-assessment' | 'evaluate-assessment';
 
 const CollaborativeAssessmentsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
@@ -20,6 +21,11 @@ const CollaborativeAssessmentsPage: React.FC = () => {
   const handleViewAssessment = (assessment: CollaborativeAssessment) => {
     setSelectedAssessment(assessment);
     setViewMode('view-assessment');
+  };
+
+  const handleEvaluateAssessment = (assessment: CollaborativeAssessment) => {
+    setSelectedAssessment(assessment);
+    setViewMode('evaluate-assessment');
   };
 
   const handleBackToDashboard = () => {
@@ -43,6 +49,7 @@ const CollaborativeAssessmentsPage: React.FC = () => {
           <AssessmentDashboard
             onCreateAssessment={handleCreateAssessment}
             onViewAssessment={handleViewAssessment}
+            onEvaluateAssessment={handleEvaluateAssessment}
           />
         )}
 
@@ -68,8 +75,15 @@ const CollaborativeAssessmentsPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold mb-6">{selectedAssessment.title}</h1>
             {/* Assessment view would go here */}
-            <p>Assessment evaluation interface coming soon...</p>
+            <p>Assessment overview interface coming soon...</p>
           </div>
+        )}
+
+        {viewMode === 'evaluate-assessment' && selectedAssessment && (
+          <EvaluationInterface
+            assessmentId={selectedAssessment.id}
+            onBack={handleBackToDashboard}
+          />
         )}
       </div>
     </Layout>
