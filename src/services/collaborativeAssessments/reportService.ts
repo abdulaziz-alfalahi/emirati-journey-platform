@@ -17,13 +17,10 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     throw assessmentError;
   }
 
-  // Fetch all evaluations with evaluator profiles
+  // Fetch all evaluations without joining profiles first
   const { data: evaluations, error: evaluationsError } = await supabase
     .from('assessment_evaluations')
-    .select(`
-      *,
-      evaluator:profiles(*)
-    `)
+    .select('*')
     .eq('assessment_id', assessmentId)
     .not('submitted_at', 'is', null);
 
@@ -31,19 +28,42 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     throw evaluationsError;
   }
 
-  // Fetch collaborators with user profiles  
+  // Fetch evaluator profiles separately
+  const evaluatorIds = [...new Set(evaluations?.map(e => e.evaluator_id) || [])];
+  const { data: evaluatorProfiles } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('id', evaluatorIds);
+
+  // Create a map of evaluator profiles for easy lookup
+  const evaluatorProfilesMap = (evaluatorProfiles || []).reduce((acc, profile) => {
+    acc[profile.id] = profile;
+    return acc;
+  }, {} as Record<string, any>);
+
+  // Fetch collaborators without joining profiles first
   const { data: collaborators, error: collaboratorsError } = await supabase
     .from('assessment_collaborators')
-    .select(`
-      *,
-      user:profiles(*)
-    `)
+    .select('*')
     .eq('assessment_id', assessmentId)
     .eq('status', 'accepted');
 
   if (collaboratorsError) {
     throw collaboratorsError;
   }
+
+  // Fetch collaborator profiles separately
+  const collaboratorIds = [...new Set(collaborators?.map(c => c.user_id) || [])];
+  const { data: collaboratorProfiles } = await supabase
+    .from('profiles')
+    .select('*')
+    .in('id', collaboratorIds);
+
+  // Create a map of collaborator profiles for easy lookup
+  const collaboratorProfilesMap = (collaboratorProfiles || []).reduce((acc, profile) => {
+    acc[profile.id] = profile;
+    return acc;
+  }, {} as Record<string, any>);
 
   const template = assessment.template;
   const sections = Array.isArray(template?.sections) ? template.sections : [];
@@ -56,12 +76,15 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     const criteriaScores: CriterionScore[] = criteria.map((criterion: any) => {
       const criterionEvaluations = sectionEvaluations.filter(e => e.criterion_id === criterion.id);
       
-      const evaluatorScores = criterionEvaluations.map(evaluation => ({
-        evaluator_id: evaluation.evaluator_id,
-        evaluator_name: evaluation.evaluator?.email || evaluation.evaluator?.full_name || 'Unknown',
-        score: evaluation.score || 0,
-        comments: evaluation.comments
-      }));
+      const evaluatorScores = criterionEvaluations.map(evaluation => {
+        const evaluatorProfile = evaluatorProfilesMap[evaluation.evaluator_id];
+        return {
+          evaluator_id: evaluation.evaluator_id,
+          evaluator_name: evaluatorProfile?.email || evaluatorProfile?.full_name || 'Unknown',
+          score: evaluation.score || 0,
+          comments: evaluation.comments
+        };
+      });
 
       const avgScore = evaluatorScores.length > 0 
         ? evaluatorScores.reduce((sum, es) => sum + es.score, 0) / evaluatorScores.length 
@@ -115,9 +138,11 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
       .map(e => e.comments!)
       .slice(0, 3);
 
+    const collaboratorProfile = collaboratorProfilesMap[collaborator.user_id];
+
     return {
       collaborator_id: collaborator.user_id,
-      collaborator_name: collaborator.user?.email || collaborator.user?.full_name || 'Unknown',
+      collaborator_name: collaboratorProfile?.email || collaboratorProfile?.full_name || 'Unknown',
       role: collaborator.role as CollaboratorRole,
       sections_evaluated: sectionsEvaluated,
       average_score_given: avgScoreGiven,
