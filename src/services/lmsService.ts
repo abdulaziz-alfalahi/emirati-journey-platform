@@ -14,7 +14,8 @@ import type {
   CreateModuleData,
   CreateLessonData,
   CreateQuizData,
-  QuizQuestionData
+  QuizQuestionData,
+  CourseStatus
 } from '@/types/lms';
 
 export class LMSService {
@@ -36,7 +37,7 @@ export class LMSService {
     return data;
   }
 
-  async getCourses(filters?: { status?: string; category?: string; featured?: boolean }): Promise<Course[]> {
+  async getCourses(filters?: { status?: CourseStatus; category?: string; featured?: boolean }): Promise<Course[]> {
     let query = supabase.from('courses').select('*');
 
     if (filters?.status) {
@@ -156,7 +157,11 @@ export class LMSService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      options: data.options as Record<string, any>,
+      correct_answer: data.correct_answer as Record<string, any>
+    };
   }
 
   async getQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
@@ -167,7 +172,11 @@ export class LMSService {
       .order('order_index', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      options: item.options as Record<string, any>,
+      correct_answer: item.correct_answer as Record<string, any>
+    }));
   }
 
   // Enrollment management
@@ -284,7 +293,10 @@ export class LMSService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      answers: data.answers as Record<string, any>
+    };
   }
 
   // Certificate generation
@@ -310,7 +322,10 @@ export class LMSService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      template_data: data.template_data as Record<string, any>
+    };
   }
 
   async getUserCertificates(): Promise<Certificate[]> {
@@ -330,7 +345,10 @@ export class LMSService {
       .order('issued_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      template_data: item.template_data as Record<string, any>
+    }));
   }
 }
 

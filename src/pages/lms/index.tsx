@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +19,7 @@ const LMSPage: React.FC = () => {
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isInstructor = roles.includes('training_center') || roles.includes('instructor');
+  const isInstructor = roles.includes('training_center');
 
   useEffect(() => {
     if (user) {
