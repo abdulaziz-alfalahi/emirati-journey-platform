@@ -1,106 +1,58 @@
-
-import React from 'react';
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Award, 
-  BadgeCheck, 
-  BookText, 
-  Briefcase, 
-  Calendar, 
-  Compass, 
-  FileText, 
-  HelpingHand,
-  MapPin
+import { useMemo } from 'react';
+import {
+  LayoutDashboard,
+  User,
+  FileText,
+  MapPin,
+  Calendar,
+  GraduationCap,
+  Briefcase,
+  BookOpen,
+  Monitor,
+  CheckSquare,
+  Users,
+  UserCheck,
+  Search,
+  Award,
+  Shield,
+  BarChart3
 } from 'lucide-react';
-import { NavItem, NavGroup } from '@/components/layout/types';
-import { UserRole } from '@/types/auth';
+import { useAuth } from '@/context/AuthContext';
 
-export function useNavItems() {
-  const getMainNavGroups = (): NavGroup[] => {
-    const groups: NavGroup[] = [
-      {
-        id: 'student-services',
-        name: 'Student Services',
-        items: [
-          {
-            name: 'Summer Camps',
-            href: '/summer-camps',
-            icon: <Calendar className="h-5 w-5 mr-2" />,
-          },
-          {
-            name: 'Scholarships',
-            href: '/scholarships',
-            icon: <Award className="h-5 w-5 mr-2" />,
-          },
-          {
-            name: 'Internships',
-            href: '/internships',
-            icon: <HelpingHand className="h-5 w-5 mr-2" />,
-          },
-        ],
-      },
-      {
-        id: 'professional-development',
-        name: 'Professional Development',
-        items: [
-          {
-            name: 'Assessments',
-            href: '/assessments',
-            icon: <BadgeCheck className="h-5 w-5 mr-2" />,
-          },
-          {
-            name: 'Training',
-            href: '/training',
-            icon: <GraduationCap className="h-5 w-5 mr-2" />,
-          },
-          {
-            name: 'Portfolio Builder',
-            href: '/cv-builder',
-            icon: <FileText className="h-5 w-5 mr-2" />,
-          },
-        ],
-      },
-      {
-        id: 'career-management',
-        name: 'Career Management',
-        items: [
-          {
-            name: 'Career Exploration',
-            href: '/job-matching',
-            icon: <Compass className="h-5 w-5 mr-2" />,
-          },
-          {
-            name: 'Career Journey',
-            href: '/career-journey',
-            icon: <MapPin className="h-5 w-5 mr-2" />,
-          },
-        ],
-      },
-      {
-        id: 'retirement-services',
-        name: 'Retirement Services',
-        items: [
-          {
-            name: 'Retiree Services',
-            href: '/retiree',
-            icon: <Briefcase className="h-5 w-5 mr-2" />,
-          },
-        ],
-      },
-    ];
-    
-    return groups;
-  };
+const useNavItems = () => {
+  const { user } = useAuth();
 
-  // Keep a flat list of all nav items for mobile view and other uses
-  const getAllNavItems = (): NavItem[] => {
-    const groups = getMainNavGroups();
-    return groups.flatMap(group => group.items);
-  };
+  const navItems = [
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Profile', href: '/profile', icon: User },
+    { label: 'Portfolio', href: '/portfolio', icon: FileText },
+    { label: 'Resume Builder', href: '/resume-builder', icon: FileText },
+    { label: 'Career Journey', href: '/career-journey', icon: MapPin },
+    { label: 'Summer Camps', href: '/summer-camps', icon: Calendar },
+    { label: 'Scholarships', href: '/scholarships', icon: GraduationCap },
+    { label: 'Internships', href: '/internships', icon: Briefcase },
+    { label: 'Training', href: '/training', icon: BookOpen },
+    { label: 'LMS', href: '/lms', icon: Monitor },
+    { label: 'Assessments', href: '/assessments', icon: CheckSquare },
+    { label: 'Collaborative Assessments', href: '/collaborative-assessments', icon: Users },
+    { label: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
+    { label: 'Job Matching', href: '/job-matching', icon: Search },
+    { label: 'Mentorship', href: '/mentorship', icon: UserCheck },
+    { label: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
+    { label: 'Credentials', href: '/credentials', icon: Award },
+    { label: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
+    { label: 'Analytics', href: '/analytics', icon: BarChart3 }
+  ];
 
-  return {
-    navGroups: getMainNavGroups(),
-    navItems: getAllNavItems()
-  };
-}
+  const authenticatedNavItems = useMemo(() => {
+    if (!user) {
+      return [];
+    }
+
+    return navItems;
+  }, [user]);
+
+  return authenticatedNavItems;
+};
+
+export default useNavItems;

@@ -1968,6 +1968,78 @@ export type Database = {
         }
         Relationships: []
       }
+      project_collaborations: {
+        Row: {
+          agreed_budget: number | null
+          agreed_timeline: string | null
+          application_id: string
+          client_feedback: string | null
+          client_id: string
+          client_rating: number | null
+          collaborator_feedback: string | null
+          collaborator_id: string
+          collaborator_rating: number | null
+          created_at: string
+          end_date: string | null
+          id: string
+          opportunity_id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          updated_at: string
+        }
+        Insert: {
+          agreed_budget?: number | null
+          agreed_timeline?: string | null
+          application_id: string
+          client_feedback?: string | null
+          client_id: string
+          client_rating?: number | null
+          collaborator_feedback?: string | null
+          collaborator_id: string
+          collaborator_rating?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          opportunity_id: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Update: {
+          agreed_budget?: number | null
+          agreed_timeline?: string | null
+          application_id?: string
+          client_feedback?: string | null
+          client_id?: string
+          client_rating?: number | null
+          collaborator_feedback?: string | null
+          collaborator_id?: string
+          collaborator_rating?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          opportunity_id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_collaborations_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "skill_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_collaborations_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "skill_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_attempts: {
         Row: {
           answers: Json
@@ -2296,6 +2368,197 @@ export type Database = {
           title?: string
           updated_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      skill_applications: {
+        Row: {
+          applicant_id: string
+          applied_at: string
+          cover_letter: string | null
+          id: string
+          opportunity_id: string
+          portfolio_links: string[] | null
+          proposed_budget: number | null
+          proposed_timeline: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          applied_at?: string
+          cover_letter?: string | null
+          id?: string
+          opportunity_id: string
+          portfolio_links?: string[] | null
+          proposed_budget?: number | null
+          proposed_timeline?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          applied_at?: string
+          cover_letter?: string | null
+          id?: string
+          opportunity_id?: string
+          portfolio_links?: string[] | null
+          proposed_budget?: number | null
+          proposed_timeline?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "skill_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_exchange_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          id: string
+          matched_with: string | null
+          offered_skill_id: string
+          requested_skill_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["application_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          matched_with?: string | null
+          offered_skill_id: string
+          requested_skill_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["application_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          matched_with?: string | null
+          offered_skill_id?: string
+          requested_skill_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_exchange_requests_offered_skill_id_fkey"
+            columns: ["offered_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_exchange_requests_requested_skill_id_fkey"
+            columns: ["requested_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_opportunities: {
+        Row: {
+          budget_amount: number | null
+          budget_currency: string | null
+          created_at: string
+          created_by: string
+          deadline: string | null
+          description: string
+          duration_hours: number | null
+          id: string
+          is_remote: boolean | null
+          location: string | null
+          max_applicants: number | null
+          opportunity_type: Database["public"]["Enums"]["opportunity_type"]
+          required_skills: string[]
+          skill_level_required: Database["public"]["Enums"]["skill_level"]
+          status: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_amount?: number | null
+          budget_currency?: string | null
+          created_at?: string
+          created_by: string
+          deadline?: string | null
+          description: string
+          duration_hours?: number | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_applicants?: number | null
+          opportunity_type: Database["public"]["Enums"]["opportunity_type"]
+          required_skills: string[]
+          skill_level_required?: Database["public"]["Enums"]["skill_level"]
+          status?: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_amount?: number | null
+          budget_currency?: string | null
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          description?: string
+          duration_hours?: number | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_applicants?: number | null
+          opportunity_type?: Database["public"]["Enums"]["opportunity_type"]
+          required_skills?: string[]
+          skill_level_required?: Database["public"]["Enums"]["skill_level"]
+          status?: Database["public"]["Enums"]["project_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2672,6 +2935,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_skills: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          portfolio_links: string[] | null
+          skill_id: string
+          skill_level: Database["public"]["Enums"]["skill_level"]
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          portfolio_links?: string[] | null
+          skill_id: string
+          skill_level?: Database["public"]["Enums"]["skill_level"]
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          portfolio_links?: string[] | null
+          skill_id?: string
+          skill_level?: Database["public"]["Enums"]["skill_level"]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       verified_credentials: {
         Row: {
           created_at: string
@@ -2754,6 +3061,12 @@ export type Database = {
       }
     }
     Enums: {
+      application_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "completed"
+        | "cancelled"
       assessment_type: "skills" | "behaviors" | "capabilities"
       certificate_status: "pending" | "issued" | "revoked"
       course_status: "draft" | "published" | "archived"
@@ -2770,6 +3083,13 @@ export type Database = {
         | "active"
         | "completed"
         | "cancelled"
+      opportunity_type:
+        | "skill_exchange"
+        | "project_based"
+        | "consultation"
+        | "mentoring"
+      project_status: "open" | "in_progress" | "completed" | "cancelled"
+      skill_level: "beginner" | "intermediate" | "advanced" | "expert"
       user_role:
         | "school_student"
         | "national_service_participant"
@@ -2909,6 +3229,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      application_status: [
+        "pending",
+        "accepted",
+        "rejected",
+        "completed",
+        "cancelled",
+      ],
       assessment_type: ["skills", "behaviors", "capabilities"],
       certificate_status: ["pending", "issued", "revoked"],
       course_status: ["draft", "published", "archived"],
@@ -2927,6 +3254,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      opportunity_type: [
+        "skill_exchange",
+        "project_based",
+        "consultation",
+        "mentoring",
+      ],
+      project_status: ["open", "in_progress", "completed", "cancelled"],
+      skill_level: ["beginner", "intermediate", "advanced", "expert"],
       user_role: [
         "school_student",
         "national_service_participant",
