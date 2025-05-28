@@ -28,10 +28,10 @@ export class VirtualEventsService {
       .order('start_date', { ascending: true });
 
     if (filters?.event_type) {
-      query = query.eq('event_type', filters.event_type);
+      query = query.eq('event_type', filters.event_type as any);
     }
     if (filters?.status) {
-      query = query.eq('status', filters.status);
+      query = query.eq('status', filters.status as any);
     }
     if (filters?.upcoming) {
       query = query.gte('start_date', new Date().toISOString());
@@ -42,7 +42,7 @@ export class VirtualEventsService {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformVirtualEvent);
   }
 
   static async getEventById(id: string): Promise<VirtualEvent | null> {
@@ -53,7 +53,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) return null;
-    return data;
+    return data ? this.transformVirtualEvent(data) : null;
   }
 
   static async createEvent(eventData: CreateEventData): Promise<VirtualEvent> {
@@ -70,7 +70,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformVirtualEvent(data);
   }
 
   static async updateEvent(id: string, updates: Partial<CreateEventData>): Promise<VirtualEvent> {
@@ -82,7 +82,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformVirtualEvent(data);
   }
 
   static async deleteEvent(id: string): Promise<void> {
@@ -110,7 +110,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformEventRegistration(data);
   }
 
   static async getEventRegistrations(eventId: string): Promise<EventRegistration[]> {
@@ -124,7 +124,7 @@ export class VirtualEventsService {
       .order('registration_date', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformEventRegistration);
   }
 
   static async getUserRegistration(eventId: string): Promise<EventRegistration | null> {
@@ -139,7 +139,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) return null;
-    return data;
+    return data ? this.transformEventRegistration(data) : null;
   }
 
   static async checkInToEvent(eventId: string): Promise<void> {
@@ -170,7 +170,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformVirtualBooth(data);
   }
 
   static async getEventBooths(eventId: string): Promise<VirtualBooth[]> {
@@ -182,7 +182,7 @@ export class VirtualEventsService {
       .order('created_at', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformVirtualBooth);
   }
 
   static async visitBooth(boothId: string): Promise<BoothVisit> {
@@ -222,7 +222,7 @@ export class VirtualEventsService {
     // Update booth visitor count
     await supabase.rpc('increment_booth_visitors', { booth_id: boothId });
 
-    return data;
+    return this.transformBoothVisit(data);
   }
 
   // Session Management
@@ -237,7 +237,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformEventSession(data);
   }
 
   static async getEventSessions(eventId: string): Promise<EventSession[]> {
@@ -248,7 +248,7 @@ export class VirtualEventsService {
       .order('start_time', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformEventSession);
   }
 
   static async registerForSession(sessionId: string): Promise<void> {
@@ -294,7 +294,7 @@ export class VirtualEventsService {
       .order('created_at', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformNetworkingRoom);
   }
 
   static async createNetworkingConnection(
@@ -317,7 +317,7 @@ export class VirtualEventsService {
       .single();
 
     if (error) throw error;
-    return data;
+    return this.transformNetworkingConnection(data);
   }
 
   static async getNetworkingConnections(eventId: string): Promise<NetworkingConnection[]> {
@@ -336,7 +336,7 @@ export class VirtualEventsService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformNetworkingConnection);
   }
 
   // Analytics
@@ -368,7 +368,7 @@ export class VirtualEventsService {
       .order('recorded_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(this.transformEventAnalytics);
   }
 
   static async getAnalyticsSummary(eventId: string): Promise<Record<string, any>> {
@@ -387,5 +387,65 @@ export class VirtualEventsService {
     };
 
     return summary;
+  }
+
+  // Transform methods to handle Json to proper types
+  private static transformVirtualEvent(data: any): VirtualEvent {
+    return {
+      ...data,
+      agenda: Array.isArray(data.agenda) ? data.agenda : [],
+      speakers: Array.isArray(data.speakers) ? data.speakers : [],
+      sponsors: Array.isArray(data.sponsors) ? data.sponsors : [],
+      registration_fields: typeof data.registration_fields === 'object' ? data.registration_fields : {},
+      settings: typeof data.settings === 'object' ? data.settings : {},
+      analytics_data: typeof data.analytics_data === 'object' ? data.analytics_data : {}
+    };
+  }
+
+  private static transformVirtualBooth(data: any): VirtualBooth {
+    return {
+      ...data,
+      booth_position: typeof data.booth_position === 'object' ? data.booth_position : {},
+      contact_info: typeof data.contact_info === 'object' ? data.contact_info : {},
+      resources: Array.isArray(data.resources) ? data.resources : []
+    };
+  }
+
+  private static transformEventRegistration(data: any): EventRegistration {
+    return {
+      ...data,
+      registration_data: typeof data.registration_data === 'object' ? data.registration_data : {},
+      feedback: typeof data.feedback === 'object' ? data.feedback : undefined
+    };
+  }
+
+  private static transformEventSession(data: any): EventSession {
+    return {
+      ...data,
+      speakers: Array.isArray(data.speakers) ? data.speakers : [],
+      materials: Array.isArray(data.materials) ? data.materials : []
+    };
+  }
+
+  private static transformNetworkingRoom(data: any): NetworkingRoom {
+    return data;
+  }
+
+  private static transformNetworkingConnection(data: any): NetworkingConnection {
+    return data;
+  }
+
+  private static transformBoothVisit(data: any): BoothVisit {
+    return {
+      ...data,
+      interactions: typeof data.interactions === 'object' ? data.interactions : {}
+    };
+  }
+
+  private static transformEventAnalytics(data: any): EventAnalytics {
+    return {
+      ...data,
+      dimensions: typeof data.dimensions === 'object' ? data.dimensions : {}
+    };
   }
 }
