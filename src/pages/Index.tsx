@@ -10,6 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import ErrorBoundary from "@/components/ui/error-boundary";
 import MobileLayout from "@/components/mobile/MobileLayout";
 import { useMobileDetection } from "@/hooks/use-mobile-detection";
+import SuccessStoriesShowcase from "@/components/home/SuccessStoriesShowcase";
 
 export default function Index() {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
@@ -96,6 +97,29 @@ export default function Index() {
         <JourneyStages />
         <PersonaSelector />
         <ServiceCards />
+        
+        {/* Success Stories Section */}
+        <section className="section my-16">
+          <div className="dubai-container px-6">
+            <div className="text-center mb-12">
+              <h2 className="dubai-text-heading-2 mb-4">Success Stories</h2>
+              <p className="dubai-text-body-large text-dubai-gray-600 max-w-2xl mx-auto">
+                Be inspired by the journeys of fellow Emiratis who have achieved remarkable success across various fields
+              </p>
+            </div>
+            
+            <SuccessStoriesShowcase variant="featured" limit={3} showFilters={false} />
+            
+            <div className="text-center mt-8">
+              <Link 
+                to="/success-stories"
+                className="dubai-button-secondary px-6 py-3"
+              >
+                Read More Stories
+              </Link>
+            </div>
+          </div>
+        </section>
         
         {/* Call to Action Section using Dubai Design System styling */}
         <section className="section bg-dubai-blue text-white py-16 rounded-lg my-16 relative overflow-hidden">

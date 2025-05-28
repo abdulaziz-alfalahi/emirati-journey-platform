@@ -94,6 +94,7 @@ function App() {
                     <Route path="/credentials" element={<Credentials />} />
                     <Route path="/blockchain-credentials" element={<BlockchainCredentials />} />
                     <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/success-stories" element={<SuccessStoriesPage />} />
                     <Route path="/onboarding" element={<OnboardingPage />} />
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/api-keys" element={<ApiKeysPage />} />
