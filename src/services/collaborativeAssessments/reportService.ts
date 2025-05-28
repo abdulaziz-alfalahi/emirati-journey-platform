@@ -22,7 +22,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     .from('assessment_evaluations')
     .select(`
       *,
-      evaluator:evaluator_id(*)
+      evaluator:profiles!evaluator_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .not('submitted_at', 'is', null);
@@ -36,7 +36,7 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
     .from('assessment_collaborators')
     .select(`
       *,
-      user:user_id(*)
+      user:profiles!user_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .eq('status', 'accepted');
