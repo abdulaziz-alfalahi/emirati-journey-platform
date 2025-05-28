@@ -126,7 +126,7 @@ export const fetchAssessmentCollaborators = async (assessmentId: string) => {
     .from('assessment_collaborators')
     .select(`
       *,
-      user:profiles!assessment_collaborators_user_id_fkey(*)
+      user:profiles!user_id(*)
     `)
     .eq('assessment_id', assessmentId)
     .order('invited_at', { ascending: false });
