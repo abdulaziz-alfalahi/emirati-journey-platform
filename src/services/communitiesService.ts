@@ -100,13 +100,18 @@ export class CommunitiesService {
       .from('group_members')
       .select(`
         *,
-        profiles!group_members_user_id_fkey(id, full_name, email)
+        profiles(id, full_name, email)
       `)
       .eq('group_id', groupId)
       .order('joined_at', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    
+    // Cast the role to the proper type
+    return (data || []).map(member => ({
+      ...member,
+      role: member.role as 'admin' | 'moderator' | 'member'
+    }));
   }
 
   static async joinGroup(groupId: string, role: GroupMember['role'] = 'member'): Promise<GroupMember> {
@@ -124,7 +129,10 @@ export class CommunitiesService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      role: data.role as 'admin' | 'moderator' | 'member'
+    };
   }
 
   static async leaveGroup(groupId: string): Promise<void> {
@@ -156,14 +164,19 @@ export class CommunitiesService {
       .from('group_posts')
       .select(`
         *,
-        profiles!group_posts_user_id_fkey(id, full_name, avatar_url)
+        profiles(id, full_name, avatar_url)
       `)
       .eq('group_id', groupId)
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    // Cast post_type to the proper type
+    return (data || []).map(post => ({
+      ...post,
+      post_type: post.post_type as 'discussion' | 'announcement' | 'resource' | 'event'
+    }));
   }
 
   static async createPost(groupId: string, postData: CreatePostData): Promise<GroupPost> {
@@ -181,7 +194,10 @@ export class CommunitiesService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      post_type: data.post_type as 'discussion' | 'announcement' | 'resource' | 'event'
+    };
   }
 
   static async togglePostLike(postId: string): Promise<boolean> {
@@ -225,7 +241,7 @@ export class CommunitiesService {
       .from('post_comments')
       .select(`
         *,
-        profiles!post_comments_user_id_fkey(id, full_name, avatar_url)
+        profiles(id, full_name, avatar_url)
       `)
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
@@ -258,14 +274,19 @@ export class CommunitiesService {
       .from('group_resources')
       .select(`
         *,
-        profiles!group_resources_user_id_fkey(id, full_name)
+        profiles(id, full_name)
       `)
       .eq('group_id', groupId)
       .eq('is_approved', true)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    // Cast resource_type to the proper type
+    return (data || []).map(resource => ({
+      ...resource,
+      resource_type: resource.resource_type as 'document' | 'link' | 'video' | 'image'
+    }));
   }
 
   static async createResource(groupId: string, resourceData: CreateResourceData): Promise<GroupResource> {
@@ -283,7 +304,10 @@ export class CommunitiesService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      resource_type: data.resource_type as 'document' | 'link' | 'video' | 'image'
+    };
   }
 
   // Events
@@ -292,7 +316,7 @@ export class CommunitiesService {
       .from('networking_events')
       .select(`
         *,
-        profiles!networking_events_organizer_id_fkey(id, full_name)
+        profiles(id, full_name)
       `)
       .eq('group_id', groupId)
       .gte('end_date', new Date().toISOString())
@@ -333,7 +357,12 @@ export class CommunitiesService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    // Cast action_type to the proper type
+    return (data || []).map(log => ({
+      ...log,
+      action_type: log.action_type as 'warn' | 'mute' | 'ban' | 'delete_post' | 'pin_post' | 'unpin_post'
+    }));
   }
 
   static async moderatePost(
@@ -376,6 +405,9 @@ export class CommunitiesService {
       .single();
 
     if (error) return null;
-    return data;
+    return {
+      ...data,
+      role: data.role as 'admin' | 'moderator' | 'member'
+    };
   }
 }
