@@ -74,9 +74,9 @@ const EditorialReviewDashboard: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "destructive" | "secondary" | "outline" | "success" => {
     switch (status) {
-      case 'submitted': return 'warning';
+      case 'submitted': return 'secondary';
       case 'under_review': return 'secondary';
       case 'approved': case 'published': return 'default';
       case 'rejected': return 'destructive';

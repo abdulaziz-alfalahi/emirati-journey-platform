@@ -132,6 +132,11 @@ export class SuccessStoriesService {
   static async submitStory(data: StorySubmissionData): Promise<SuccessStory> {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Convert Files to strings for storage
+    const processedGallery = data.media.gallery?.map(item => 
+      typeof item === 'string' ? item : '/placeholder.svg?height=300&width=400'
+    );
+    
     const newStory: SuccessStory = {
       id: Date.now().toString(),
       ...data,
@@ -142,8 +147,9 @@ export class SuccessStoriesService {
         location: 'UAE'
       },
       media: {
-        ...data.media,
-        featured_image: typeof data.media.featured_image === 'string' ? data.media.featured_image : '/placeholder.svg?height=400&width=600'
+        featured_image: typeof data.media.featured_image === 'string' ? data.media.featured_image : '/placeholder.svg?height=400&width=600',
+        gallery: processedGallery,
+        video_url: data.media.video_url
       },
       status: 'submitted',
       submitted_at: new Date().toISOString(),

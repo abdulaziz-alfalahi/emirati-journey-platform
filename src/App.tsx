@@ -48,6 +48,7 @@ import TestFormPage from '@/pages/test-form';
 import CVBuilder from '@/pages/cv-builder';
 import Messages from '@/pages/messages';
 import RetireePage from '@/pages/retiree';
+import SuccessStoriesPage from '@/pages/success-stories';
 import NotFound from '@/pages/NotFound';
 import './App.css';
 

@@ -14,7 +14,7 @@ const SuccessStoriesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('browse');
   
   const isAdmin = roles.includes('administrator');
-  const isEditor = roles.includes('editor') || isAdmin;
+  const isEditor = roles.includes('administrator') || isAdmin;
 
   return (
     <Layout>
