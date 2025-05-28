@@ -285,10 +285,7 @@ export class MentorshipService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []).map(item => ({
-      ...item,
-      status: item.status as MentorshipRelationship['status']
-    })) as MentorshipRelationship[];
+    return (data || []) as MentorshipRelationship[];
   }
 
   // Session management
@@ -310,10 +307,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return {
-      ...data,
-      status: data.status as MentorshipSession['status']
-    } as MentorshipSession;
+    return data as MentorshipSession;
   }
 
   async updateSession(
@@ -328,10 +322,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return {
-      ...data,
-      status: data.status as MentorshipSession['status']
-    } as MentorshipSession;
+    return data as MentorshipSession;
   }
 
   async getSessionsForRelationship(relationshipId: string): Promise<MentorshipSession[]> {
@@ -342,90 +333,7 @@ export class MentorshipService {
       .order('scheduled_date', { ascending: true });
 
     if (error) throw error;
-    return (data || []).map(session => ({
-      ...session,
-      status: session.status as MentorshipSession['status']
-    })) as MentorshipSession[];
-  }
-
-  private calculateExpertiseMatch(mentorExpertise: string[], desiredExpertise: string[]): number {
-    if (!mentorExpertise.length || !desiredExpertise.length) return 0;
-    
-    const matches = mentorExpertise.filter(skill => 
-      desiredExpertise.some(desired => 
-        skill.toLowerCase().includes(desired.toLowerCase()) ||
-        desired.toLowerCase().includes(skill.toLowerCase())
-      )
-    ).length;
-    
-    return matches / desiredExpertise.length;
-  }
-
-  private calculateAvailabilityMatch(
-    mentorAvailability?: { days: string[]; hours: string[]; timezone: string },
-    menteeAvailability?: { days: string[]; hours: string[]; timezone: string }
-  ): number {
-    if (!mentorAvailability || !menteeAvailability) return 0.5;
-    
-    const dayMatches = mentorAvailability.days.filter(day => 
-      menteeAvailability.days.includes(day)
-    ).length;
-    
-    const hourMatches = mentorAvailability.hours.filter(hour => 
-      menteeAvailability.hours.includes(hour)
-    ).length;
-    
-    const dayScore = dayMatches / Math.max(menteeAvailability.days.length, 1);
-    const hourScore = hourMatches / Math.max(menteeAvailability.hours.length, 1);
-    
-    return (dayScore + hourScore) / 2;
-  }
-
-  private calculateExperienceCompatibility(mentorYears: number, menteeLevel: string): number {
-    const levelRequirements = {
-      'beginner': { min: 1, ideal: 3 },
-      'intermediate': { min: 2, ideal: 5 },
-      'advanced': { min: 3, ideal: 7 }
-    };
-    
-    const req = levelRequirements[menteeLevel] || levelRequirements.beginner;
-    
-    if (mentorYears < req.min) return 0.2;
-    if (mentorYears >= req.ideal) return 1.0;
-    
-    return 0.5 + (mentorYears - req.min) / (req.ideal - req.min) * 0.5;
-  }
-
-  private generateMatchReasons(
-    mentor: Mentor,
-    preferences: MenteePreferences,
-    expertiseMatch: number,
-    availabilityMatch: number,
-    experienceMatch: number
-  ): string[] {
-    const reasons: string[] = [];
-    
-    if (expertiseMatch > 0.7) {
-      reasons.push(`Strong expertise match in ${mentor.expertise.slice(0, 2).join(', ')}`);
-    }
-    
-    if (availabilityMatch > 0.6) {
-      reasons.push('Compatible schedules for regular meetings');
-    }
-    
-    if (experienceMatch > 0.8) {
-      reasons.push(`${mentor.years_experience}+ years experience ideal for your level`);
-    }
-    
-    if (mentor.rating && mentor.rating > 4.5) {
-      reasons.push(`Highly rated mentor (${mentor.rating}/5.0)`);
-    }
-    
-    if (mentor.is_verified) {
-      reasons.push('Verified mentor profile');
-    }
-    
-    return reasons;
+    return (data || []) as MentorshipSession[];
   }
 }
 
