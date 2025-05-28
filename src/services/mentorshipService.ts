@@ -9,6 +9,20 @@ import type {
   MatchSuggestion
 } from '@/types/mentorship';
 
+// Helper function to cast availability from database
+const castAvailability = (availability: any): { days: string[]; hours: string[]; timezone: string } | undefined => {
+  if (!availability) return undefined;
+  return availability as { days: string[]; hours: string[]; timezone: string };
+};
+
+// Helper function to cast mentor data from database
+const castMentorData = (data: any): Mentor => {
+  return {
+    ...data,
+    availability: castAvailability(data.availability)
+  } as Mentor;
+};
+
 export class MentorshipService {
   // Mentor profile management
   async createMentorProfile(profileData: MentorProfile): Promise<Mentor> {
@@ -25,7 +39,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return data;
+    return castMentorData(data);
   }
 
   async updateMentorProfile(updates: Partial<MentorProfile>): Promise<Mentor> {
@@ -40,7 +54,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return data;
+    return castMentorData(data);
   }
 
   async getMentorProfile(userId?: string): Promise<Mentor | null> {
@@ -54,7 +68,7 @@ export class MentorshipService {
       .single();
 
     if (error) return null;
-    return data;
+    return castMentorData(data);
   }
 
   // Mentor discovery and matching
@@ -84,7 +98,7 @@ export class MentorshipService {
 
     const { data, error } = await query.order('rating', { ascending: false });
     if (error) throw error;
-    return data || [];
+    return (data || []).map(castMentorData);
   }
 
   // Advanced matching algorithm
@@ -234,7 +248,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as MentorshipRelationship;
   }
 
   async updateRelationshipStatus(
@@ -253,7 +267,7 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as MentorshipRelationship;
   }
 
   async getUserRelationships(): Promise<MentorshipRelationship[]> {
@@ -271,7 +285,10 @@ export class MentorshipService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      status: item.status as MentorshipRelationship['status']
+    })) as MentorshipRelationship[];
   }
 
   // Session management
@@ -286,13 +303,17 @@ export class MentorshipService {
       .from('mentorship_sessions')
       .insert({
         ...sessionData,
-        duration_minutes: sessionData.duration_minutes || 60
+        duration_minutes: sessionData.duration_minutes || 60,
+        status: 'scheduled'
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      status: data.status as MentorshipSession['status']
+    } as MentorshipSession;
   }
 
   async updateSession(
@@ -307,7 +328,10 @@ export class MentorshipService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      status: data.status as MentorshipSession['status']
+    } as MentorshipSession;
   }
 
   async getSessionsForRelationship(relationshipId: string): Promise<MentorshipSession[]> {
@@ -318,7 +342,90 @@ export class MentorshipService {
       .order('scheduled_date', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(session => ({
+      ...session,
+      status: session.status as MentorshipSession['status']
+    })) as MentorshipSession[];
+  }
+
+  private calculateExpertiseMatch(mentorExpertise: string[], desiredExpertise: string[]): number {
+    if (!mentorExpertise.length || !desiredExpertise.length) return 0;
+    
+    const matches = mentorExpertise.filter(skill => 
+      desiredExpertise.some(desired => 
+        skill.toLowerCase().includes(desired.toLowerCase()) ||
+        desired.toLowerCase().includes(skill.toLowerCase())
+      )
+    ).length;
+    
+    return matches / desiredExpertise.length;
+  }
+
+  private calculateAvailabilityMatch(
+    mentorAvailability?: { days: string[]; hours: string[]; timezone: string },
+    menteeAvailability?: { days: string[]; hours: string[]; timezone: string }
+  ): number {
+    if (!mentorAvailability || !menteeAvailability) return 0.5;
+    
+    const dayMatches = mentorAvailability.days.filter(day => 
+      menteeAvailability.days.includes(day)
+    ).length;
+    
+    const hourMatches = mentorAvailability.hours.filter(hour => 
+      menteeAvailability.hours.includes(hour)
+    ).length;
+    
+    const dayScore = dayMatches / Math.max(menteeAvailability.days.length, 1);
+    const hourScore = hourMatches / Math.max(menteeAvailability.hours.length, 1);
+    
+    return (dayScore + hourScore) / 2;
+  }
+
+  private calculateExperienceCompatibility(mentorYears: number, menteeLevel: string): number {
+    const levelRequirements = {
+      'beginner': { min: 1, ideal: 3 },
+      'intermediate': { min: 2, ideal: 5 },
+      'advanced': { min: 3, ideal: 7 }
+    };
+    
+    const req = levelRequirements[menteeLevel] || levelRequirements.beginner;
+    
+    if (mentorYears < req.min) return 0.2;
+    if (mentorYears >= req.ideal) return 1.0;
+    
+    return 0.5 + (mentorYears - req.min) / (req.ideal - req.min) * 0.5;
+  }
+
+  private generateMatchReasons(
+    mentor: Mentor,
+    preferences: MenteePreferences,
+    expertiseMatch: number,
+    availabilityMatch: number,
+    experienceMatch: number
+  ): string[] {
+    const reasons: string[] = [];
+    
+    if (expertiseMatch > 0.7) {
+      reasons.push(`Strong expertise match in ${mentor.expertise.slice(0, 2).join(', ')}`);
+    }
+    
+    if (availabilityMatch > 0.6) {
+      reasons.push('Compatible schedules for regular meetings');
+    }
+    
+    if (experienceMatch > 0.8) {
+      reasons.push(`${mentor.years_experience}+ years experience ideal for your level`);
+    }
+    
+    if (mentor.rating && mentor.rating > 4.5) {
+      reasons.push(`Highly rated mentor (${mentor.rating}/5.0)`);
+    }
+    
+    if (mentor.is_verified) {
+      reasons.push('Verified mentor profile');
+    }
+    
+    return reasons;
   }
 }
 
