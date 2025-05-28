@@ -22,7 +22,7 @@ export interface MentorshipRelationship {
   id: string;
   mentor_id: string;
   mentee_id: string;
-  status: 'requested' | 'active' | 'completed' | 'cancelled' | 'on_hold';
+  status: 'requested' | 'active' | 'completed' | 'cancelled' | 'accepted';
   goals?: string;
   start_date?: string;
   end_date?: string;
