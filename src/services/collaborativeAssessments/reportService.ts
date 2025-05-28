@@ -49,11 +49,11 @@ export const generateAssessmentReport = async (assessmentId: string): Promise<As
   const sections = template.sections || [];
 
   // Calculate section scores
-  const sectionScores: SectionScore[] = sections.map(section => {
+  const sectionScores: SectionScore[] = sections.map((section: any) => {
     const sectionEvaluations = evaluations?.filter(e => e.section_id === section.id) || [];
     const criteria = section.criteria || [];
     
-    const criteriaScores: CriterionScore[] = criteria.map(criterion => {
+    const criteriaScores: CriterionScore[] = criteria.map((criterion: any) => {
       const criterionEvaluations = sectionEvaluations.filter(e => e.criterion_id === criterion.id);
       
       const evaluatorScores = criterionEvaluations.map(eval => ({

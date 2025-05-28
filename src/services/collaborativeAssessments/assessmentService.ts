@@ -6,7 +6,10 @@ export const createCollaborativeAssessment = async (assessment: Omit<Collaborati
   const { data, error } = await supabase
     .from('collaborative_assessments')
     .insert([assessment])
-    .select('*, template:assessment_templates(*)')
+    .select(`
+      *,
+      template:assessment_templates(*)
+    `)
     .single();
 
   if (error) {
@@ -25,7 +28,7 @@ export const fetchCollaborativeAssessments = async (userId: string) => {
       template:assessment_templates(*),
       collaborators:assessment_collaborators(*)
     `)
-    .or(`created_by.eq.${userId},collaborators.user_id.eq.${userId}`)
+    .or(`created_by.eq.${userId},candidate_id.eq.${userId}`)
     .order('created_at', { ascending: false });
 
   if (error) {

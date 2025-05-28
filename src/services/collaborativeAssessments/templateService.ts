@@ -71,7 +71,7 @@ export const deleteAssessmentTemplate = async (id: string) => {
   return true;
 };
 
-export const duplicateAssessmentTemplate = async (templateId: string, newTitle: string) => {
+export const duplicateAssessmentTemplate = async (templateId: string, newTitle: string, userId: string) => {
   const { data: originalTemplate, error: fetchError } = await supabase
     .from('assessment_templates')
     .select('*')
@@ -87,6 +87,7 @@ export const duplicateAssessmentTemplate = async (templateId: string, newTitle: 
     ...originalTemplate,
     title: newTitle,
     status: 'draft' as AssessmentTemplateStatus,
+    created_by: userId,
     created_at: undefined,
     updated_at: undefined,
     id: undefined

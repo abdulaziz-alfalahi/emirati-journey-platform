@@ -104,6 +104,151 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_collaborators: {
+        Row: {
+          assessment_id: string
+          id: string
+          invited_at: string
+          invited_by: string
+          joined_at: string | null
+          permissions: Json
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id: string
+          id?: string
+          invited_at?: string
+          invited_by: string
+          joined_at?: string | null
+          permissions?: Json
+          role: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string
+          joined_at?: string | null
+          permissions?: Json
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_collaborators_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_comments: {
+        Row: {
+          assessment_id: string
+          content: string
+          created_at: string
+          criterion_id: string | null
+          id: string
+          parent_comment_id: string | null
+          section_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id: string
+          content: string
+          created_at?: string
+          criterion_id?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          section_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string
+          content?: string
+          created_at?: string
+          criterion_id?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          section_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_comments_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_evaluations: {
+        Row: {
+          assessment_id: string
+          comments: string | null
+          created_at: string
+          criterion_id: string
+          evaluator_id: string
+          evidence_urls: string[] | null
+          id: string
+          score: number | null
+          section_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessment_id: string
+          comments?: string | null
+          created_at?: string
+          criterion_id: string
+          evaluator_id: string
+          evidence_urls?: string[] | null
+          id?: string
+          score?: number | null
+          section_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string
+          comments?: string | null
+          created_at?: string
+          criterion_id?: string
+          evaluator_id?: string
+          evidence_urls?: string[] | null
+          id?: string
+          score?: number | null
+          section_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_evaluations_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_sessions: {
         Row: {
           assessment_id: string
@@ -159,6 +304,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      assessment_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string | null
+          estimated_duration_minutes: number | null
+          id: string
+          is_public: boolean
+          scoring_criteria: Json
+          sections: Json
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_public?: boolean
+          scoring_criteria?: Json
+          sections?: Json
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_public?: boolean
+          scoring_criteria?: Json
+          sections?: Json
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       assessments: {
         Row: {
@@ -507,6 +700,56 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "assessment_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaborative_assessments: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by: string
+          due_date: string | null
+          id: string
+          instructions: string | null
+          metadata: Json | null
+          status: string
+          template_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          metadata?: Json | null
+          status?: string
+          template_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          metadata?: Json | null
+          status?: string
+          template_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborative_assessments_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_templates"
             referencedColumns: ["id"]
           },
         ]

@@ -79,7 +79,7 @@ export const fetchAssessmentComments = async (assessmentId: string) => {
 };
 
 export const calculateAssessmentProgress = async (assessmentId: string): Promise<AssessmentProgress> => {
-  // Fetch template sections and criteria count
+  // Fetch assessment with template
   const { data: assessment, error: assessmentError } = await supabase
     .from('collaborative_assessments')
     .select(`
@@ -96,7 +96,7 @@ export const calculateAssessmentProgress = async (assessmentId: string): Promise
   const template = assessment.template;
   const sections = template.sections || [];
   const totalSections = sections.length;
-  const totalCriteria = sections.reduce((acc, section) => acc + (section.criteria?.length || 0), 0);
+  const totalCriteria = sections.reduce((acc: number, section: any) => acc + (section.criteria?.length || 0), 0);
 
   // Fetch evaluations
   const { data: evaluations } = await supabase

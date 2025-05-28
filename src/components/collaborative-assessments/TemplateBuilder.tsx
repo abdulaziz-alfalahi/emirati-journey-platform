@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Move, Save } from 'lucide-react';
+import { Plus, Trash2, Save } from 'lucide-react';
 import { AssessmentTemplate, AssessmentSection, AssessmentCriterion } from '@/types/collaborativeAssessments';
 import { createAssessmentTemplate, updateAssessmentTemplate } from '@/services/collaborativeAssessments/templateService';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 interface TemplateBuilderProps {
   template?: AssessmentTemplate;
@@ -23,6 +23,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
   onCancel
 }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [formData, setFormData] = useState<Partial<AssessmentTemplate>>({
     title: template?.title || '',
     description: template?.description || '',
@@ -124,6 +125,15 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
   };
 
   const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save templates.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       let savedTemplate;
@@ -133,7 +143,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
       } else {
         savedTemplate = await createAssessmentTemplate({
           ...formData,
-          created_by: 'current-user-id', // This should come from auth context
+          created_by: user.id,
           scoring_criteria: {}
         } as Omit<AssessmentTemplate, 'id' | 'created_at' | 'updated_at'>);
       }
@@ -281,7 +291,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {formData.sections?.map((section, sectionIndex) => (
+          {formData.sections?.map((section) => (
             <Card key={section.id} className="mb-4">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -331,7 +341,7 @@ export const TemplateBuilder: React.FC<TemplateBuilderProps> = ({
                 </div>
               </CardHeader>
               <CardContent>
-                {section.criteria.map((criterion, criterionIndex) => (
+                {section.criteria.map((criterion) => (
                   <div key={criterion.id} className="border rounded p-4 mb-3 bg-muted/30">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                       <Input
