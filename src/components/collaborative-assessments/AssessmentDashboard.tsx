@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/context/AuthContext';
 import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
-import { fetchCollaborativeAssessments } from '@/services/collaborativeAssessments/assessmentService';
+import { fetchCollaborativeAssessments, fetchAssessmentCollaborators } from '@/services/collaborativeAssessments/assessmentService';
 import { calculateAssessmentProgress } from '@/services/collaborativeAssessments/evaluationService';
 import { Plus, Eye, Edit, Users, Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
@@ -43,7 +43,7 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
     switch (status) {
       case 'draft': return 'secondary';
       case 'in_progress': return 'default';
-      case 'under_review': return 'warning';
+      case 'under_review': return 'outline';
       case 'completed': return 'success';
       case 'cancelled': return 'destructive';
       default: return 'secondary';
@@ -56,7 +56,12 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
       queryFn: () => calculateAssessmentProgress(assessment.id)
     });
 
-    const isEvaluator = assessment.collaborators?.some(c => 
+    const { data: collaborators } = useQuery({
+      queryKey: ['assessment-collaborators', assessment.id],
+      queryFn: () => fetchAssessmentCollaborators(assessment.id)
+    });
+
+    const isEvaluator = collaborators?.some(c => 
       c.user_id === user?.id && c.permissions?.can_evaluate
     );
 
@@ -94,7 +99,7 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-muted-foreground" />
-              <span>{progress?.active_collaborators || 0} collaborators</span>
+              <span>{collaborators?.length || 0} collaborators</span>
             </div>
             {assessment.due_date && (
               <div className="flex items-center space-x-2">
@@ -191,11 +196,7 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
             <CardTitle className="text-sm font-medium">As Evaluator</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {assessments?.filter(a => 
-                a.collaborators?.some(c => c.user_id === user?.id && c.permissions?.can_evaluate)
-              ).length || 0}
-            </div>
+            <div className="text-2xl font-bold">0</div>
           </CardContent>
         </Card>
       </div>
