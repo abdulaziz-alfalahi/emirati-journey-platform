@@ -16,7 +16,8 @@ import {
   ExternalLink,
   CheckSquare,
   Square,
-  Settings
+  Settings,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { blockchainCredentialService } from '@/services/blockchain/blockchainCredentialService';
@@ -24,6 +25,8 @@ import { auditLogger } from '@/services/blockchain/auditLogger';
 import { BlockchainCredential } from '@/types/blockchainCredentials';
 import TransactionHistory from './TransactionHistory';
 import BatchOperationsDialog from './BatchOperationsDialog';
+import CredentialTemplate from './CredentialTemplate';
+import CredentialPreviewDialog from './CredentialPreviewDialog';
 import { toast } from 'sonner';
 
 const DigitalWallet: React.FC = () => {
@@ -32,6 +35,9 @@ const DigitalWallet: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCredentials, setSelectedCredentials] = useState<string[]>([]);
   const [showBatchDialog, setShowBatchDialog] = useState(false);
+  const [previewCredential, setPreviewCredential] = useState<BlockchainCredential | null>(null);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
 
   useEffect(() => {
     if (user) {
@@ -77,6 +83,11 @@ const DigitalWallet: React.FC = () => {
   const canRevokeCredentials = roles.includes('training_center') || 
                               roles.includes('educational_institution') || 
                               roles.includes('administrator');
+
+  const handlePreviewCredential = (credential: BlockchainCredential) => {
+    setPreviewCredential(credential);
+    setShowPreviewDialog(true);
+  };
 
   const handleDownloadCredential = async (credential: BlockchainCredential) => {
     try {
@@ -281,94 +292,53 @@ const DigitalWallet: React.FC = () => {
                       )}
                     </div>
                     
-                    {selectedCredentials.length > 0 && (
+                    <div className="flex items-center space-x-2">
                       <Button
-                        onClick={() => setShowBatchDialog(true)}
-                        className="flex items-center"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                       >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Batch Operations
+                        {viewMode === 'grid' ? 'List View' : 'Grid View'}
                       </Button>
-                    )}
+                      
+                      {selectedCredentials.length > 0 && (
+                        <Button
+                          onClick={() => setShowBatchDialog(true)}
+                          className="flex items-center"
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Batch Operations
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Credentials Grid */}
-                  <div className="grid gap-4">
-                    {credentials.map((credential) => (
-                      <Card key={credential.id} className="hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-center space-x-3">
-                              <Checkbox
-                                checked={selectedCredentials.includes(credential.id)}
-                                onCheckedChange={(checked) => 
-                                  handleSelectCredential(credential.id, checked as boolean)
-                                }
-                              />
-                              <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                {getCredentialTypeIcon(credential.credential_type)}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold">{credential.title}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {credential.credential_type.replace('_', ' ').toUpperCase()}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge 
-                              variant="outline" 
-                              className={`text-white ${getStatusColor(credential.verification_status)}`}
-                            >
-                              {credential.verification_status}
-                            </Badge>
+                  {/* Credentials Display */}
+                  {viewMode === 'grid' ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {credentials.map((credential) => (
+                        <div key={credential.id} className="relative">
+                          <div className="absolute top-2 left-2 z-10">
+                            <Checkbox
+                              checked={selectedCredentials.includes(credential.id)}
+                              onCheckedChange={(checked) => 
+                                handleSelectCredential(credential.id, checked as boolean)
+                              }
+                              className="bg-white/90 border-gray-300"
+                            />
                           </div>
-                        </CardHeader>
-                        
-                        <CardContent className="pt-0">
-                          {credential.description && (
-                            <p className="text-sm text-muted-foreground mb-4">
-                              {credential.description}
-                            </p>
-                          )}
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                            <div className="flex items-center text-muted-foreground">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              Issued: {formatDate(credential.issued_date)}
-                            </div>
-                            
-                            {credential.expiry_date && (
-                              <div className="flex items-center text-muted-foreground">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                Expires: {formatDate(credential.expiry_date)}
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center text-muted-foreground">
-                              <Shield className="h-3 w-3 mr-1" />
-                              Block: #{credential.block_number}
-                            </div>
-                            
-                            <div className="flex items-center text-muted-foreground">
-                              <ExternalLink className="h-3 w-3 mr-1" />
-                              Tx: {credential.transaction_hash.substring(0, 12)}...
-                            </div>
-                          </div>
-
-                          {credential.skills && credential.skills.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-sm font-medium mb-2">Skills Certified:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {credential.skills.map((skill, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
-                                    {skill}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex space-x-2">
+                          <CredentialTemplate credential={credential} variant="card" />
+                          
+                          <div className="flex justify-center space-x-2 mt-3">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handlePreviewCredential(credential)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Preview
+                            </Button>
                             <Button 
                               variant="outline" 
                               size="sm" 
@@ -386,10 +356,117 @@ const DigitalWallet: React.FC = () => {
                               Share
                             </Button>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    // List view (keeping original implementation for compact display)
+                    <div className="grid gap-4">
+                      {credentials.map((credential) => (
+                        <Card key={credential.id} className="hover:shadow-md transition-shadow">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Checkbox
+                                  checked={selectedCredentials.includes(credential.id)}
+                                  onCheckedChange={(checked) => 
+                                    handleSelectCredential(credential.id, checked as boolean)
+                                  }
+                                />
+                                <div className="p-2 bg-primary/10 rounded-full text-primary">
+                                  {getCredentialTypeIcon(credential.credential_type)}
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold">{credential.title}</h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    {credential.credential_type.replace('_', ' ').toUpperCase()}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-white ${getStatusColor(credential.verification_status)}`}
+                              >
+                                {credential.verification_status}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          
+                          <CardContent className="pt-0">
+                            {credential.description && (
+                              <p className="text-sm text-muted-foreground mb-4">
+                                {credential.description}
+                              </p>
+                            )}
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                              <div className="flex items-center text-muted-foreground">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                Issued: {formatDate(credential.issued_date)}
+                              </div>
+                              
+                              {credential.expiry_date && (
+                                <div className="flex items-center text-muted-foreground">
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  Expires: {formatDate(credential.expiry_date)}
+                                </div>
+                              )}
+                              
+                              <div className="flex items-center text-muted-foreground">
+                                <Shield className="h-3 w-3 mr-1" />
+                                Block: #{credential.block_number}
+                              </div>
+                              
+                              <div className="flex items-center text-muted-foreground">
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                Tx: {credential.transaction_hash.substring(0, 12)}...
+                              </div>
+                            </div>
+
+                            {credential.skills && credential.skills.length > 0 && (
+                              <div className="mb-4">
+                                <p className="text-sm font-medium mb-2">Skills Certified:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {credential.skills.map((skill, index) => (
+                                    <Badge key={index} variant="secondary" className="text-xs">
+                                      {skill}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handlePreviewCredential(credential)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Preview
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleDownloadCredential(credential)}
+                              >
+                                <Download className="h-4 w-4 mr-2" />
+                                Download
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleShareCredential(credential)}
+                              >
+                                <Share className="h-4 w-4 mr-2" />
+                                Share
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
@@ -408,6 +485,15 @@ const DigitalWallet: React.FC = () => {
         selectedCredentials={getSelectedCredentials()}
         userId={user.id}
         canRevoke={canRevokeCredentials}
+      />
+
+      {/* Credential Preview Dialog */}
+      <CredentialPreviewDialog
+        isOpen={showPreviewDialog}
+        onClose={() => setShowPreviewDialog(false)}
+        credential={previewCredential}
+        onDownload={handleDownloadCredential}
+        onShare={handleShareCredential}
       />
     </div>
   );
