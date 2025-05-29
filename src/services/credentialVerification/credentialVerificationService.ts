@@ -10,7 +10,7 @@ import {
 } from "@/types/credentialVerification";
 
 import { EducationVerifier } from "./verifiers/educationVerifier";
-import { EmploymentVerifier } from "./verifiers/employmentVerifier";
+import { EmploymentVerifier } from "./verifiers/employment";
 import { CertificationVerifier } from "./verifiers/certificationVerifier";
 
 class CredentialVerificationService {
