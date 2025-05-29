@@ -1,4 +1,3 @@
-
 import { batchDownloadService, BatchDownloadResult } from "./batch/batchDownloadService";
 import { batchShareService } from "./batch/batchShareService";
 import { batchRevokeService } from "./batch/batchRevokeService";
@@ -9,7 +8,7 @@ export interface BatchOperationResult {
   totalProcessed: number;
 }
 
-export { BatchDownloadResult };
+export type { BatchDownloadResult };
 
 class BatchCredentialService {
   async batchDownload(credentialIds: string[], userId: string): Promise<BatchDownloadResult> {
