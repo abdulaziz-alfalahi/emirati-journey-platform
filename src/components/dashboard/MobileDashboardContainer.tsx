@@ -2,7 +2,7 @@
 import React from 'react';
 import { User } from '@supabase/supabase-js';
 import { UserRole } from '@/types/auth';
-import MobileDashboard from '@/components/mobile/MobileDashboard';
+import MobileTouchOptimizedDashboard from '@/components/mobile/MobileTouchOptimizedDashboard';
 import MobileNotifications from '@/components/mobile/MobileNotifications';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 
@@ -23,8 +23,7 @@ const MobileDashboardContainer: React.FC<MobileDashboardContainerProps> = ({
 
   return (
     <div className="space-y-6">
-      <MobileDashboard user={user} roles={roles} />
-      <MobileNotifications />
+      <MobileTouchOptimizedDashboard user={user} roles={roles} />
     </div>
   );
 };
