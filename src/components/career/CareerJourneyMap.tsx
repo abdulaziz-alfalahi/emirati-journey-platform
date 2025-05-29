@@ -16,12 +16,14 @@ import {
   CheckCircle,
   Circle,
   ArrowRight,
-  Download
+  Download,
+  GitCompare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getUserCareerPaths } from '@/services/careerPathService';
 import { UserCareerPath } from '@/types/careerPath';
 import ExportJourneyDialog from './ExportJourneyDialog';
+import CareerPathComparison from './CareerPathComparison';
 
 interface CareerStage {
   id: string;
@@ -53,6 +55,7 @@ const CareerJourneyMap: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const journeyMapRef = useRef<HTMLDivElement>(null);
 
   // Sample career paths data (in real app, this would come from the database)
@@ -328,6 +331,16 @@ const CareerJourneyMap: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setIsComparisonOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <GitCompare className="h-4 w-4" />
+            Compare Paths
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setIsExportDialogOpen(true)}
             className="flex items-center gap-2"
           >
@@ -508,6 +521,12 @@ const CareerJourneyMap: React.FC = () => {
         onOpenChange={setIsExportDialogOpen}
         elementRef={journeyMapRef}
         journeyData={exportData}
+      />
+
+      <CareerPathComparison
+        availablePaths={emiratiCareerPaths}
+        isOpen={isComparisonOpen}
+        onClose={() => setIsComparisonOpen(false)}
       />
     </div>
   );
