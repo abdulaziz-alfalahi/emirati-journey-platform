@@ -1,22 +1,13 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Download, 
-  Share, 
-  X,
-  CheckCircle,
-  AlertTriangle,
-  Loader2
-} from 'lucide-react';
 import { BlockchainCredential } from '@/types/blockchainCredentials';
 import { batchCredentialService, BatchOperationResult } from '@/services/blockchain/batchCredentialService';
 import { toast } from 'sonner';
+import SelectedCredentialsSection from './batch-operations/SelectedCredentialsSection';
+import OperationButtons from './batch-operations/OperationButtons';
+import ProcessingState from './batch-operations/ProcessingState';
+import ResultsDisplay from './batch-operations/ResultsDisplay';
 
 interface BatchOperationsDialogProps {
   isOpen: boolean;
@@ -141,110 +132,23 @@ const BatchOperationsDialog: React.FC<BatchOperationsDialogProps> = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Selected Credentials Summary */}
-          <div className="p-3 bg-muted rounded-lg">
-            <h4 className="font-medium mb-2">Selected Credentials ({selectedCredentials.length})</h4>
-            <div className="max-h-32 overflow-y-auto space-y-1">
-              {selectedCredentials.map((credential) => (
-                <div key={credential.id} className="text-sm flex items-center justify-between">
-                  <span className="truncate">{credential.title}</span>
-                  <Badge variant="outline" className="ml-2">
-                    {credential.credential_type}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SelectedCredentialsSection credentials={selectedCredentials} />
 
-          {/* Operation Buttons */}
           {!operation && !result && (
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                onClick={handleBatchDownload}
-                disabled={isProcessing}
-                className="flex items-center"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download All
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={handleBatchShare}
-                disabled={isProcessing}
-                className="flex items-center"
-              >
-                <Share className="h-4 w-4 mr-2" />
-                Share All
-              </Button>
-              
-              {canRevoke && (
-                <div className="col-span-2">
-                  <Textarea
-                    placeholder="Enter revocation reason..."
-                    value={revocationReason}
-                    onChange={(e) => setRevocationReason(e.target.value)}
-                    className="mb-2"
-                  />
-                  <Button
-                    variant="destructive"
-                    onClick={handleBatchRevoke}
-                    disabled={isProcessing || !revocationReason.trim()}
-                    className="w-full flex items-center"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Revoke All
-                  </Button>
-                </div>
-              )}
-            </div>
+            <OperationButtons
+              isProcessing={isProcessing}
+              canRevoke={canRevoke}
+              revocationReason={revocationReason}
+              onRevocationReasonChange={setRevocationReason}
+              onBatchDownload={handleBatchDownload}
+              onBatchShare={handleBatchShare}
+              onBatchRevoke={handleBatchRevoke}
+            />
           )}
 
-          {/* Processing State */}
-          {isProcessing && (
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                <span className="text-sm">
-                  Processing {operation} operation...
-                </span>
-              </div>
-              <Progress value={progress} className="w-full" />
-            </div>
-          )}
+          <ProcessingState operation={operation} progress={progress} />
 
-          {/* Results */}
-          {result && (
-            <div className="space-y-3">
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Operation completed: {result.successful.length} successful, {result.failed.length} failed
-                </AlertDescription>
-              </Alert>
-
-              {result.failed.length > 0 && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="space-y-1">
-                      <p>Failed operations:</p>
-                      {result.failed.map((failure) => (
-                        <p key={failure.id} className="text-xs">
-                          {failure.id}: {failure.error}
-                        </p>
-                      ))}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <Button onClick={resetDialog} className="w-full">
-                Start New Operation
-              </Button>
-            </div>
-          )}
+          {result && <ResultsDisplay result={result} onReset={resetDialog} />}
         </div>
       </DialogContent>
     </Dialog>
