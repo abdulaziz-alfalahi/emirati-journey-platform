@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTouchInteractions } from '@/hooks/use-touch-interactions';
+import { useOfflineStorage } from '@/hooks/use-offline-storage';
 import MobilePullToRefresh from './MobilePullToRefresh';
 import MobileSwipeableCard from './MobileSwipeableCard';
+import MobileOfflineIndicator from './MobileOfflineIndicator';
 import { 
   Briefcase, 
   GraduationCap, 
@@ -19,7 +21,8 @@ import {
   Heart,
   BookmarkPlus,
   Share,
-  Trash2
+  Trash2,
+  WifiOff
 } from 'lucide-react';
 
 interface MobileTouchOptimizedDashboardProps {
@@ -33,6 +36,7 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
 }) => {
   const navigate = useNavigate();
   const { triggerHaptic } = useTouchInteractions();
+  const { isOnline } = useOfflineStorage();
 
   const handleRefresh = async () => {
     // Simulate data refresh
@@ -45,44 +49,49 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
     navigate(path);
   };
 
+  // Update quick actions based on offline status
   const quickActions = [
     { 
       icon: FileText, 
       label: 'CV Builder', 
       path: '/cv-builder',
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      offline: true // Available offline
     },
     { 
       icon: Briefcase, 
-      label: 'Jobs', 
-      path: '/job-matching',
-      color: 'bg-green-500'
+      label: isOnline ? 'Jobs' : 'Saved Jobs', 
+      path: isOnline ? '/job-matching' : '/mobile-offline',
+      color: 'bg-green-500',
+      offline: false // Limited offline functionality
     },
     { 
       icon: GraduationCap, 
       label: 'Training', 
       path: '/training',
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      offline: false
     },
     { 
       icon: MessageSquare, 
       label: 'Messages', 
       path: '/messages',
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      offline: false
     },
   ];
 
   const stats = [
     { label: 'Profile Complete', value: '85%', icon: User },
-    { label: 'Job Matches', value: '12', icon: TrendingUp },
+    { label: 'Job Matches', value: isOnline ? '12' : 'Offline', icon: TrendingUp },
     { label: 'Next Session', value: 'Tomorrow', icon: Calendar },
   ];
 
   const mockNotifications = [
     {
       id: '1',
-      title: 'New Job Match',
-      message: 'Software Developer at Emirates Group',
+      title: isOnline ? 'New Job Match' : 'Offline Mode Active',
+      message: isOnline ? 'Software Developer at Emirates Group' : 'Your data is saved locally',
       time: '2h ago'
     },
     {
@@ -96,13 +105,23 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
   return (
     <MobilePullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-6 p-4">
+        {/* Offline Indicator */}
+        <MobileOfflineIndicator />
+
         {/* Welcome Section */}
         <Card className="bg-gradient-to-r from-emirati-teal to-emirati-navy text-white">
           <CardContent className="p-6">
-            <h2 className="text-xl font-bold mb-2">
-              Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || 'User'}
-            </h2>
-            <p className="text-white/80">Your Emirati Journey continues</p>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xl font-bold">
+                Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || 'User'}
+              </h2>
+              {!isOnline && (
+                <WifiOff className="h-5 w-5 text-white/80" />
+              )}
+            </div>
+            <p className="text-white/80">
+              {isOnline ? 'Your Emirati Journey continues' : 'Working offline - data saved locally'}
+            </p>
             <div className="flex flex-wrap gap-2 mt-3">
               {roles.slice(0, 2).map((role) => (
                 <Badge key={role} variant="secondary" className="bg-white/20 text-white">
@@ -124,14 +143,18 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
                 <Button
                   key={action.path}
                   variant="outline"
-                  className="h-24 flex-col space-y-2 touch-manipulation"
-                  style={{ minHeight: '48px' }} // Ensure touch target is at least 48px
+                  className="h-24 flex-col space-y-2 touch-manipulation relative"
+                  style={{ minHeight: '48px' }}
                   onClick={() => handleQuickAction(action.path)}
+                  disabled={!isOnline && !action.offline}
                 >
-                  <div className={`p-3 rounded-full ${action.color}`}>
+                  <div className={`p-3 rounded-full ${action.color} ${!isOnline && !action.offline ? 'opacity-50' : ''}`}>
                     <action.icon className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-sm font-medium">{action.label}</span>
+                  {!isOnline && !action.offline && (
+                    <WifiOff className="h-3 w-3 absolute top-2 right-2 text-gray-400" />
+                  )}
                 </Button>
               ))}
             </div>
