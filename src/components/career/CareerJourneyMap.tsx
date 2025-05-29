@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,11 +15,13 @@ import {
   Filter,
   CheckCircle,
   Circle,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { getUserCareerPaths } from '@/services/careerPathService';
 import { UserCareerPath } from '@/types/careerPath';
+import ExportJourneyDialog from './ExportJourneyDialog';
 
 interface CareerStage {
   id: string;
@@ -51,6 +52,8 @@ const CareerJourneyMap: React.FC = () => {
   const [selectedPath, setSelectedPath] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const journeyMapRef = useRef<HTMLDivElement>(null);
 
   // Sample career paths data (in real app, this would come from the database)
   const emiratiCareerPaths: CareerPath[] = [
@@ -295,6 +298,14 @@ const CareerJourneyMap: React.FC = () => {
     }
   };
 
+  const exportData = {
+    selectedPath,
+    selectedCategory,
+    filteredPaths,
+    userCareerPaths,
+    exportedAt: new Date().toISOString()
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -314,6 +325,16 @@ const CareerJourneyMap: React.FC = () => {
         </div>
         
         <div className="flex gap-4 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsExportDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export Map
+          </Button>
+          
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={selectedPath} onValueChange={setSelectedPath}>
             <SelectTrigger className="w-48">
@@ -368,8 +389,8 @@ const CareerJourneyMap: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Career Paths */}
-      <div className="space-y-8">
+      {/* Career Paths - with ref for export */}
+      <div ref={journeyMapRef} className="space-y-8">
         {filteredPaths.map(path => (
           <Card key={path.id} className="overflow-hidden">
             <CardHeader>
@@ -481,6 +502,13 @@ const CareerJourneyMap: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      <ExportJourneyDialog
+        isOpen={isExportDialogOpen}
+        onOpenChange={setIsExportDialogOpen}
+        elementRef={journeyMapRef}
+        journeyData={exportData}
+      />
     </div>
   );
 };
