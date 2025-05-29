@@ -91,19 +91,29 @@ export const useGeolocation = () => {
       return () => navigator.geolocation.clearWatch(watchId);
     }
 
-    const watchId = Geolocation.watchPosition({
-      enableHighAccuracy: true,
-      timeout: 10000
-    }, (position) => {
-      if (position) {
-        const coords: LocationCoordinates = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        };
-        callback(coords);
+    let watchId: string | undefined;
+    
+    const startWatch = async () => {
+      try {
+        watchId = await Geolocation.watchPosition({
+          enableHighAccuracy: true,
+          timeout: 10000
+        }, (position) => {
+          if (position) {
+            const coords: LocationCoordinates = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+            callback(coords);
+          }
+        });
+      } catch (error) {
+        console.error('Watch position error:', error);
       }
-    });
+    };
+
+    startWatch();
 
     return () => {
       if (watchId) {

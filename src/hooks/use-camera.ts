@@ -1,14 +1,13 @@
 
 import { useState, useCallback } from 'react';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { useMobileDetection } from './use-mobile-detection';
 import { toast } from 'sonner';
 
 export interface CameraOptions {
   quality?: number;
   allowEditing?: boolean;
-  source?: CameraSource;
-  resultType?: CameraResultType;
+  source?: any;
+  resultType?: any;
 }
 
 export const useCamera = () => {
@@ -23,6 +22,8 @@ export const useCamera = () => {
 
     setIsCapturing(true);
     try {
+      const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+      
       const image = await Camera.getPhoto({
         quality: options.quality || 90,
         allowEditing: options.allowEditing || true,
@@ -44,6 +45,7 @@ export const useCamera = () => {
     if (!isCapacitor) return false;
 
     try {
+      const { Camera } = await import('@capacitor/camera');
       const permissions = await Camera.requestPermissions();
       return permissions.camera === 'granted';
     } catch (error) {

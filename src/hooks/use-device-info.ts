@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { Device } from '@capacitor/device';
 import { useMobileDetection } from './use-mobile-detection';
 
 export interface DeviceInfo {
@@ -42,6 +41,7 @@ export const useDeviceInfo = () => {
       }
 
       try {
+        const { Device } = await import('@capacitor/device');
         const [info, batteryInfo] = await Promise.all([
           Device.getInfo(),
           Device.getBatteryInfo().catch(() => null)
