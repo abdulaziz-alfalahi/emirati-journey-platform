@@ -1,124 +1,142 @@
 
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryProvider } from '@/context/QueryContext';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from '@/context/AuthContext';
-import { RoleProvider } from '@/context/RoleContext';
 import { CVProvider } from '@/context/CVContext';
 import { ResumeProvider } from '@/context/ResumeContext';
+import { RoleProvider } from '@/context/RoleContext';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { Toaster } from '@/components/ui/toaster';
+
+// Pages
 import Index from '@/pages/Index';
-import Dashboard from '@/pages/dashboard';
-import Profile from '@/pages/profile';
-import PortfolioPage from '@/pages/portfolio/index';
-import PortfolioViewer from '@/pages/portfolio/[id]';
-import ResumeBuilder from '@/pages/resume-builder';
-import CareerJourney from '@/pages/career-journey';
-import SummerCamps from '@/pages/summer-camps';
-import Scholarships from '@/pages/scholarships';
-import Internships from '@/pages/internships';
-import TrainingPage from '@/pages/training';
-import TrainingMaterials from '@/pages/training-materials';
-import LMS from '@/pages/lms';
-import Assessments from '@/pages/assessments';
-import CollaborativeAssessments from '@/pages/collaborative-assessments';
-import AssessmentReports from '@/pages/collaborative-assessments/reports/[id]';
-import CareerAdvisory from '@/pages/career-advisory';
-import AdvisorProfile from '@/pages/career-advisory/advisors/[id]';
-import InterviewsList from '@/pages/career-advisory/interviews';
-import ScheduleInterview from '@/pages/career-advisory/interviews/schedule';
+import Dashboard from '@/pages/dashboard/index';
+import Auth from '@/pages/auth/index';
+import CVBuilder from '@/pages/cv-builder/index';
+import ResumeBuilder from '@/pages/resume-builder/index';
+import JobMatching from '@/pages/job-matching/index';
+import JobDescriptions from '@/pages/job-descriptions';
+import JobDescriptionsList from '@/pages/job-descriptions/list';
+import JobDescriptionDetails from '@/pages/job-descriptions/[id]';
+import Matching from '@/pages/matching/index';
+import MatchingDetails from '@/pages/matching/[id]';
+import Training from '@/pages/training/index';
+import TrainingMaterials from '@/pages/training-materials/index';
+import Internships from '@/pages/internships/index';
+import Scholarships from '@/pages/scholarships/index';
+import SummerCamps from '@/pages/summer-camps/index';
+import SuccessStories from '@/pages/success-stories/index';
+import VirtualEvents from '@/pages/virtual-events/index';
+import VirtualEventDetails from '@/pages/virtual-events/[id]';
+import Communities from '@/pages/communities/index';
+import SkillsMarketplace from '@/pages/skills-marketplace/index';
+import LMS from '@/pages/lms/index';
+import Mentorship from '@/pages/mentorship/index';
+import CareerJourney from '@/pages/career-journey/index';
+import CareerAdvisory from '@/pages/career-advisory/index';
+import CareerAdvisorySchedule from '@/pages/career-advisory/schedule';
+import CareerAdvisoryInterviews from '@/pages/career-advisory/interviews/index';
+import CareerAdvisoryInterviewsSchedule from '@/pages/career-advisory/interviews/schedule';
+import AdvisorDetails from '@/pages/career-advisory/advisors/[id]';
 import SessionDetails from '@/pages/career-advisory/sessions/[id]';
-import JobMatching from '@/pages/job-matching';
-import JobDescriptions from '@/pages/job-descriptions.jsx';
-import JobDescriptionDetail from '@/pages/job-descriptions/[id].jsx';
-import JobDescriptionsList from '@/pages/job-descriptions/list.jsx';
-import MatchingDetail from '@/pages/matching/[id].jsx';
-import RecruiterDashboard from '@/pages/recruiter';
-import RecruiterMatching from '@/pages/recruiter/matching/[id]';
-import MentorshipPage from '@/pages/mentorship';
-import SkillsMarketplace from '@/pages/skills-marketplace';
-import Credentials from '@/pages/credentials';
-import BlockchainCredentials from '@/pages/blockchain-credentials';
-import Analytics from '@/pages/analytics';
-import OnboardingPage from '@/pages/onboarding';
-import AuthPage from '@/pages/auth';
-import ApiKeysPage from '@/pages/api-keys';
-import TestFormPage from '@/pages/test-form';
-import CVBuilder from '@/pages/cv-builder';
+import Portfolio from '@/pages/portfolio/index';
+import PortfolioDetails from '@/pages/portfolio/[id]';
+import Profile from '@/pages/profile/index';
 import Messages from '@/pages/messages';
-import RetireePage from '@/pages/retiree';
-import SuccessStoriesPage from '@/pages/success-stories';
-import NotFound from '@/pages/NotFound';
-import CommunitiesPage from '@/pages/communities';
-import VirtualEventsPage from '@/pages/virtual-events';
-import VirtualEventDetailPage from '@/pages/virtual-events/[id]';
+import Assessments from '@/pages/assessments/index';
+import CollaborativeAssessments from '@/pages/collaborative-assessments/index';
+import CollaborativeAssessmentReports from '@/pages/collaborative-assessments/reports/[id]';
+import Recruiter from '@/pages/recruiter/index';
+import RecruiterMatching from '@/pages/recruiter/matching/[id]';
+import Retiree from '@/pages/retiree/index';
+import Analytics from '@/pages/analytics/index';
+import ApiKeys from '@/pages/api-keys/index';
+import BlockchainCredentials from '@/pages/blockchain-credentials/index';
+import Credentials from '@/pages/credentials/index';
+import Onboarding from '@/pages/onboarding/index';
+import NotFound from '@/pages/not-found';
+import TestForm from '@/pages/test-form';
+import Home from '@/pages/home/index';
+import MobileOffline from '@/pages/mobile-offline/index';
+import NativeFeatures from '@/pages/native-features/index';
+
 import './App.css';
 
 function App() {
   return (
-    <QueryProvider>
-      <ThemeProvider defaultTheme="system">
-        <AuthProvider>
-          <RoleProvider>
-            <CVProvider>
-              <ResumeProvider>
-                <Router>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/portfolio" element={<PortfolioPage />} />
-                    <Route path="/portfolio/:id" element={<PortfolioViewer />} />
-                    <Route path="/resume-builder" element={<ResumeBuilder />} />
-                    <Route path="/career-journey" element={<CareerJourney />} />
-                    <Route path="/summer-camps" element={<SummerCamps />} />
-                    <Route path="/scholarships" element={<Scholarships />} />
-                    <Route path="/internships" element={<Internships />} />
-                    <Route path="/training" element={<TrainingPage />} />
-                    <Route path="/training-materials" element={<TrainingMaterials />} />
-                    <Route path="/lms" element={<LMS />} />
-                    <Route path="/assessments" element={<Assessments />} />
-                    <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
-                    <Route path="/collaborative-assessments/reports/:id" element={<AssessmentReports />} />
-                    <Route path="/career-advisory" element={<CareerAdvisory />} />
-                    <Route path="/career-advisory/advisors/:id" element={<AdvisorProfile />} />
-                    <Route path="/career-advisory/interviews" element={<InterviewsList />} />
-                    <Route path="/career-advisory/interviews/schedule" element={<ScheduleInterview />} />
-                    <Route path="/career-advisory/sessions/:id" element={<SessionDetails />} />
-                    <Route path="/job-matching" element={<JobMatching />} />
-                    <Route path="/job-descriptions" element={<JobDescriptions />} />
-                    <Route path="/job-descriptions/[id]" element={<JobDescriptionDetail />} />
-                    <Route path="/job-descriptions/list" element={<JobDescriptionsList />} />
-                    <Route path="/matching/[id]" element={<MatchingDetail />} />
-                    <Route path="/recruiter" element={<RecruiterDashboard />} />
-                    <Route path="/recruiter/matching/:id" element={<RecruiterMatching />} />
-                    <Route path="/mentorship" element={<MentorshipPage />} />
-                    <Route path="/skills-marketplace" element={<SkillsMarketplace />} />
-                    <Route path="/credentials" element={<Credentials />} />
-                    <Route path="/blockchain-credentials" element={<BlockchainCredentials />} />
-                    <Route path="/analytics" element={<Analytics />} />
-                    <Route path="/success-stories" element={<SuccessStoriesPage />} />
-                    <Route path="/onboarding" element={<OnboardingPage />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/api-keys" element={<ApiKeysPage />} />
-                    <Route path="/test-form" element={<TestFormPage />} />
-                    <Route path="/cv-builder" element={<CVBuilder />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/retiree" element={<RetireePage />} />
-                    <Route path="/communities" element={<CommunitiesPage />} />
-                    <Route path="/virtual-events" element={<VirtualEventsPage />} />
-                    <Route path="/virtual-events/:id" element={<VirtualEventDetailPage />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  <Toaster />
-                </Router>
-              </ResumeProvider>
-            </CVProvider>
-          </RoleProvider>
-        </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <AuthProvider>
+            <RoleProvider>
+              <CVProvider>
+                <ResumeProvider>
+                  <Router>
+                    <div className="min-h-screen bg-background">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/home" element={<Home />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/cv-builder" element={<CVBuilder />} />
+                        <Route path="/resume-builder" element={<ResumeBuilder />} />
+                        <Route path="/job-matching" element={<JobMatching />} />
+                        <Route path="/job-descriptions" element={<JobDescriptions />} />
+                        <Route path="/job-descriptions/list" element={<JobDescriptionsList />} />
+                        <Route path="/job-descriptions/:id" element={<JobDescriptionDetails />} />
+                        <Route path="/matching" element={<Matching />} />
+                        <Route path="/matching/:id" element={<MatchingDetails />} />
+                        <Route path="/training" element={<Training />} />
+                        <Route path="/training-materials" element={<TrainingMaterials />} />
+                        <Route path="/internships" element={<Internships />} />
+                        <Route path="/scholarships" element={<Scholarships />} />
+                        <Route path="/summer-camps" element={<SummerCamps />} />
+                        <Route path="/success-stories" element={<SuccessStories />} />
+                        <Route path="/virtual-events" element={<VirtualEvents />} />
+                        <Route path="/virtual-events/:id" element={<VirtualEventDetails />} />
+                        <Route path="/communities" element={<Communities />} />
+                        <Route path="/skills-marketplace" element={<SkillsMarketplace />} />
+                        <Route path="/lms" element={<LMS />} />
+                        <Route path="/mentorship" element={<Mentorship />} />
+                        <Route path="/career-journey" element={<CareerJourney />} />
+                        <Route path="/career-advisory" element={<CareerAdvisory />} />
+                        <Route path="/career-advisory/schedule" element={<CareerAdvisorySchedule />} />
+                        <Route path="/career-advisory/interviews" element={<CareerAdvisoryInterviews />} />
+                        <Route path="/career-advisory/interviews/schedule" element={<CareerAdvisoryInterviewsSchedule />} />
+                        <Route path="/career-advisory/advisors/:id" element={<AdvisorDetails />} />
+                        <Route path="/career-advisory/sessions/:id" element={<SessionDetails />} />
+                        <Route path="/portfolio" element={<Portfolio />} />
+                        <Route path="/portfolio/:id" element={<PortfolioDetails />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/messages" element={<Messages />} />
+                        <Route path="/assessments" element={<Assessments />} />
+                        <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
+                        <Route path="/collaborative-assessments/reports/:id" element={<CollaborativeAssessmentReports />} />
+                        <Route path="/recruiter" element={<Recruiter />} />
+                        <Route path="/recruiter/matching/:id" element={<RecruiterMatching />} />
+                        <Route path="/retiree" element={<Retiree />} />
+                        <Route path="/analytics" element={<Analytics />} />
+                        <Route path="/api-keys" element={<ApiKeys />} />
+                        <Route path="/blockchain-credentials" element={<BlockchainCredentials />} />
+                        <Route path="/credentials" element={<Credentials />} />
+                        <Route path="/onboarding" element={<Onboarding />} />
+                        <Route path="/test-form" element={<TestForm />} />
+                        <Route path="/mobile-offline" element={<MobileOffline />} />
+                        <Route path="/native-features" element={<NativeFeatures />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </div>
+                    <Toaster />
+                  </Router>
+                </ResumeProvider>
+              </CVProvider>
+            </RoleProvider>
+          </AuthProvider>
+        </TooltipProvider>
       </ThemeProvider>
-    </QueryProvider>
+    </QueryClientProvider>
   );
 }
 

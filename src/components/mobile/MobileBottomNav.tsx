@@ -9,7 +9,8 @@ import {
   FileText, 
   MessageCircle, 
   User,
-  WifiOff
+  WifiOff,
+  Smartphone
 } from 'lucide-react';
 
 const MobileBottomNav: React.FC = () => {

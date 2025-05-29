@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTouchInteractions } from '@/hooks/use-touch-interactions';
 import { useOfflineStorage } from '@/hooks/use-offline-storage';
+import { useDeviceInfo } from '@/hooks/use-device-info';
 import MobilePullToRefresh from './MobilePullToRefresh';
 import MobileSwipeableCard from './MobileSwipeableCard';
 import MobileOfflineIndicator from './MobileOfflineIndicator';
@@ -22,7 +23,11 @@ import {
   BookmarkPlus,
   Share,
   Trash2,
-  WifiOff
+  WifiOff,
+  Smartphone,
+  Camera,
+  Bell,
+  MapPin
 } from 'lucide-react';
 
 interface MobileTouchOptimizedDashboardProps {
@@ -37,6 +42,7 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
   const navigate = useNavigate();
   const { triggerHaptic } = useTouchInteractions();
   const { isOnline } = useOfflineStorage();
+  const { deviceInfo } = useDeviceInfo();
 
   const handleRefresh = async () => {
     // Simulate data refresh
@@ -128,6 +134,12 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
                   {role.replace('_', ' ')}
                 </Badge>
               ))}
+              {deviceInfo && deviceInfo.platform !== 'web' && (
+                <Badge variant="secondary" className="bg-white/20 text-white">
+                  <Smartphone className="h-3 w-3 mr-1" />
+                  Native
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -160,6 +172,49 @@ const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps
             </div>
           </CardContent>
         </Card>
+
+        {/* Native Features Quick Access */}
+        {deviceInfo && deviceInfo.platform !== 'web' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Smartphone className="h-5 w-5" />
+                <span>Device Features</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickAction('/native-features')}
+                  className="flex-col space-y-1 h-16"
+                >
+                  <Camera className="h-4 w-4" />
+                  <span className="text-xs">Camera</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickAction('/native-features')}
+                  className="flex-col space-y-1 h-16"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span className="text-xs">Notify</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickAction('/native-features')}
+                  className="flex-col space-y-1 h-16"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-xs">Location</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Swipeable Stats */}
         <Card>
