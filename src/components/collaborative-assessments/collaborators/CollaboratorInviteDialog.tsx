@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -24,42 +23,192 @@ const rolePermissions: Record<CollaboratorRole, CollaboratorPermissions> = {
     can_evaluate: true,
     can_invite_others: true,
     can_view_reports: true,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: true,
+    can_delete_assessment: true,
+    can_change_due_date: true,
+    can_modify_instructions: true,
+    can_evaluate_all_sections: true,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: true,
+    can_lock_evaluations: true,
+    can_view_other_evaluations: true,
+    can_export_evaluations: true,
+    can_remove_collaborators: true,
+    can_change_collaborator_roles: true,
+    can_moderate_comments: true,
+    can_delete_comments: true,
+    can_pin_comments: true,
+    can_generate_reports: true,
+    can_view_detailed_analytics: true,
+    can_export_reports: true,
+    can_share_reports_externally: true,
+    can_archive_assessment: true,
+    can_duplicate_assessment: true,
+    can_create_templates_from_assessment: true,
+    can_see_live_collaboration: true,
+    can_send_notifications: true,
+    can_broadcast_messages: true
   },
   trainer: {
     can_edit: true,
     can_evaluate: true,
     can_invite_others: false,
     can_view_reports: true,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: true,
+    can_delete_assessment: false,
+    can_change_due_date: true,
+    can_modify_instructions: true,
+    can_evaluate_all_sections: true,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: true,
+    can_lock_evaluations: true,
+    can_view_other_evaluations: true,
+    can_export_evaluations: true,
+    can_remove_collaborators: false,
+    can_change_collaborator_roles: false,
+    can_moderate_comments: true,
+    can_delete_comments: false,
+    can_pin_comments: true,
+    can_generate_reports: true,
+    can_view_detailed_analytics: true,
+    can_export_reports: true,
+    can_share_reports_externally: false,
+    can_archive_assessment: false,
+    can_duplicate_assessment: true,
+    can_create_templates_from_assessment: true,
+    can_see_live_collaboration: true,
+    can_send_notifications: true,
+    can_broadcast_messages: false
   },
   mentor: {
     can_edit: false,
     can_evaluate: true,
     can_invite_others: false,
     can_view_reports: true,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: false,
+    can_delete_assessment: false,
+    can_change_due_date: false,
+    can_modify_instructions: false,
+    can_evaluate_all_sections: true,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: false,
+    can_lock_evaluations: false,
+    can_view_other_evaluations: true,
+    can_export_evaluations: true,
+    can_remove_collaborators: false,
+    can_change_collaborator_roles: false,
+    can_moderate_comments: false,
+    can_delete_comments: false,
+    can_pin_comments: false,
+    can_generate_reports: true,
+    can_view_detailed_analytics: true,
+    can_export_reports: true,
+    can_share_reports_externally: false,
+    can_archive_assessment: false,
+    can_duplicate_assessment: false,
+    can_create_templates_from_assessment: false,
+    can_see_live_collaboration: true,
+    can_send_notifications: false,
+    can_broadcast_messages: false
   },
   employer: {
     can_edit: false,
     can_evaluate: true,
     can_invite_others: false,
     can_view_reports: true,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: false,
+    can_delete_assessment: false,
+    can_change_due_date: false,
+    can_modify_instructions: false,
+    can_evaluate_all_sections: true,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: false,
+    can_lock_evaluations: false,
+    can_view_other_evaluations: true,
+    can_export_evaluations: true,
+    can_remove_collaborators: false,
+    can_change_collaborator_roles: false,
+    can_moderate_comments: false,
+    can_delete_comments: false,
+    can_pin_comments: false,
+    can_generate_reports: true,
+    can_view_detailed_analytics: false,
+    can_export_reports: true,
+    can_share_reports_externally: true,
+    can_archive_assessment: false,
+    can_duplicate_assessment: false,
+    can_create_templates_from_assessment: false,
+    can_see_live_collaboration: true,
+    can_send_notifications: false,
+    can_broadcast_messages: false
   },
   evaluator: {
     can_edit: false,
     can_evaluate: true,
     can_invite_others: false,
     can_view_reports: false,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: false,
+    can_delete_assessment: false,
+    can_change_due_date: false,
+    can_modify_instructions: false,
+    can_evaluate_all_sections: true,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: false,
+    can_lock_evaluations: false,
+    can_view_other_evaluations: false,
+    can_export_evaluations: false,
+    can_remove_collaborators: false,
+    can_change_collaborator_roles: false,
+    can_moderate_comments: false,
+    can_delete_comments: false,
+    can_pin_comments: false,
+    can_generate_reports: false,
+    can_view_detailed_analytics: false,
+    can_export_reports: false,
+    can_share_reports_externally: false,
+    can_archive_assessment: false,
+    can_duplicate_assessment: false,
+    can_create_templates_from_assessment: false,
+    can_see_live_collaboration: true,
+    can_send_notifications: false,
+    can_broadcast_messages: false
   },
   viewer: {
     can_edit: false,
     can_evaluate: false,
     can_invite_others: false,
     can_view_reports: true,
-    can_comment: true
+    can_comment: true,
+    can_edit_assessment_details: false,
+    can_delete_assessment: false,
+    can_change_due_date: false,
+    can_modify_instructions: false,
+    can_evaluate_all_sections: false,
+    can_evaluate_specific_sections: [],
+    can_override_evaluations: false,
+    can_lock_evaluations: false,
+    can_view_other_evaluations: true,
+    can_export_evaluations: false,
+    can_remove_collaborators: false,
+    can_change_collaborator_roles: false,
+    can_moderate_comments: false,
+    can_delete_comments: false,
+    can_pin_comments: false,
+    can_generate_reports: false,
+    can_view_detailed_analytics: false,
+    can_export_reports: false,
+    can_share_reports_externally: false,
+    can_archive_assessment: false,
+    can_duplicate_assessment: false,
+    can_create_templates_from_assessment: false,
+    can_see_live_collaboration: true,
+    can_send_notifications: false,
+    can_broadcast_messages: false
   }
 };
 
@@ -197,13 +346,13 @@ export const CollaboratorInviteDialog: React.FC<CollaboratorInviteDialogProps> =
           </div>
 
           {useCustomPermissions && (
-            <div className="space-y-3 p-4 border rounded-lg">
-              <div className="text-sm font-medium">Permissions</div>
-              {Object.entries(customPermissions).map(([key, value]) => (
+            <div className="space-y-3 p-4 border rounded-lg max-h-48 overflow-y-auto">
+              <div className="text-sm font-medium">Core Permissions</div>
+              {Object.entries(customPermissions).slice(0, 5).map(([key, value]) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={key}
-                    checked={value}
+                    checked={value as boolean}
                     onCheckedChange={(checked) => 
                       handlePermissionChange(key as keyof CollaboratorPermissions, !!checked)
                     }

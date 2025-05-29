@@ -198,7 +198,19 @@ export const checkUserPermission = async (
   }
 
   const permissions = data.permissions as unknown as CollaboratorPermissions;
-  return permissions[permission] || false;
+  const permissionValue = permissions[permission];
+  
+  // Handle the case where the permission might be a boolean or string array
+  if (typeof permissionValue === 'boolean') {
+    return permissionValue;
+  }
+  
+  // For array permissions like can_evaluate_specific_sections, check if array has items
+  if (Array.isArray(permissionValue)) {
+    return permissionValue.length > 0;
+  }
+  
+  return false;
 };
 
 // New function to get user's effective permissions
