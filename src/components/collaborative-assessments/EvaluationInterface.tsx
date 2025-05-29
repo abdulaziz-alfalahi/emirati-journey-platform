@@ -314,6 +314,7 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
             onNextSection={() => setCurrentSectionIndex(Math.min(sections.length - 1, currentSectionIndex + 1))}
             canGoPrevious={currentSectionIndex > 0}
             canGoNext={currentSectionIndex < sections.length - 1}
+            activeCollaborators={activeCollaborators}
           />
 
           <div className="space-y-6">
@@ -333,6 +334,8 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
                   onSave={() => handleSaveEvaluation(criterion.id)}
                   isSubmitting={isSubmitting}
                   hasEvaluation={hasEvaluation}
+                  sectionId={currentSection.id}
+                  recentActivity={recentActivity}
                 />
               );
             })}

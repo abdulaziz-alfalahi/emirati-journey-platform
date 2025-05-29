@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Save } from 'lucide-react';
 import { AssessmentCriterion } from '@/types/collaborativeAssessments';
 import { ScoringInterface } from './ScoringInterface';
+import { CriterionCollaborators } from '../realtime/CriterionCollaborators';
+import { ActivityFeedItem } from '@/services/collaborativeAssessments/realtimeCollaborationService';
 
 interface CriterionCardProps {
   criterion: AssessmentCriterion;
@@ -18,6 +20,8 @@ interface CriterionCardProps {
   onSave: () => void;
   isSubmitting: boolean;
   hasEvaluation: boolean;
+  sectionId: string;
+  recentActivity: ActivityFeedItem[];
 }
 
 export const CriterionCard: React.FC<CriterionCardProps> = ({
@@ -28,7 +32,9 @@ export const CriterionCard: React.FC<CriterionCardProps> = ({
   onCommentsChange,
   onSave,
   isSubmitting,
-  hasEvaluation
+  hasEvaluation,
+  sectionId,
+  recentActivity
 }) => {
   return (
     <Card>
@@ -47,6 +53,14 @@ export const CriterionCard: React.FC<CriterionCardProps> = ({
             {criterion.description && (
               <CardDescription className="mt-2">{criterion.description}</CardDescription>
             )}
+            
+            {/* Show collaborative cursors for this criterion */}
+            <CriterionCollaborators
+              criterionId={criterion.id}
+              sectionId={sectionId}
+              recentActivity={recentActivity}
+              className="mt-2"
+            />
           </div>
           <div className="text-right text-sm text-muted-foreground">
             Max Score: {criterion.max_score}

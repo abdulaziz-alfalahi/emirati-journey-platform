@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { AssessmentSection } from '@/types/collaborativeAssessments';
+import { CollaborativeCursors } from '../realtime/CollaborativeCursors';
+import { CollaborationSession } from '@/services/collaborativeAssessments/realtimeCollaborationService';
 
 interface SectionNavigationProps {
   currentSection: AssessmentSection;
@@ -17,6 +19,7 @@ interface SectionNavigationProps {
   onNextSection: () => void;
   canGoPrevious: boolean;
   canGoNext: boolean;
+  activeCollaborators: CollaborationSession[];
 }
 
 export const SectionNavigation: React.FC<SectionNavigationProps> = ({
@@ -29,51 +32,68 @@ export const SectionNavigation: React.FC<SectionNavigationProps> = ({
   onPreviousSection,
   onNextSection,
   canGoPrevious,
-  canGoNext
+  canGoNext,
+  activeCollaborators
 }) => {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <div className="bg-white border rounded-lg p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPreviousSection}
+            disabled={!canGoPrevious}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Previous
+          </Button>
+          
           <div>
-            <CardTitle>Section {currentSectionIndex + 1} of {totalSections}</CardTitle>
-            <CardDescription>{currentSection.title}</CardDescription>
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onPreviousSection}
-              disabled={!canGoPrevious}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNextSection}
-              disabled={!canGoNext}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <h2 className="text-xl font-semibold">{currentSection.title}</h2>
+            <p className="text-sm text-muted-foreground">
+              Section {currentSectionIndex + 1} of {totalSections}
+            </p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        {currentSection.description && (
-          <p className="text-muted-foreground mb-4">{currentSection.description}</p>
-        )}
-        
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Section Progress</span>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNextSection}
+          disabled={!canGoNext}
+        >
+          Next
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
+
+      {currentSection.description && (
+        <p className="text-muted-foreground mb-4">{currentSection.description}</p>
+      )}
+
+      {/* Show collaborative cursors for current section */}
+      <CollaborativeCursors
+        collaborators={activeCollaborators}
+        currentSectionId={currentSection.id}
+        className="mb-4"
+      />
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium">Progress:</span>
+            <Progress value={sectionProgress} className="w-32" />
             <span className="text-sm text-muted-foreground">
-              {evaluatedCriteria} of {totalCriteria} criteria
+              {Math.round(sectionProgress)}%
             </span>
           </div>
-          <Progress value={sectionProgress} />
+          
+          <Badge variant="outline">
+            {evaluatedCriteria} of {totalCriteria} criteria evaluated
+          </Badge>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
