@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { MapPin } from 'lucide-react';
 import CareerStageCard from './CareerStageCard';
+import { PersonalGoal } from '@/services/personalGoalsService';
 
 interface CareerStage {
   id: string;
@@ -31,12 +32,25 @@ interface CareerPath {
 interface CareerPathCardProps {
   path: CareerPath;
   selectedCategory: string;
+  userGoals?: PersonalGoal[];
+  onGoalAssigned?: (stageId: string, goalId: string) => void;
+  onGoalRemoved?: (stageId: string, goalId: string) => void;
 }
 
-const CareerPathCard: React.FC<CareerPathCardProps> = ({ path, selectedCategory }) => {
+const CareerPathCard: React.FC<CareerPathCardProps> = ({ 
+  path, 
+  selectedCategory, 
+  userGoals = [],
+  onGoalAssigned,
+  onGoalRemoved
+}) => {
   const filteredStages = path.stages.filter(stage => 
     selectedCategory === 'all' || stage.category === selectedCategory
   );
+
+  const getStageGoals = (stageId: string) => {
+    return userGoals.filter(goal => goal.associatedStageId === stageId);
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -65,6 +79,9 @@ const CareerPathCard: React.FC<CareerPathCardProps> = ({ path, selectedCategory 
               key={stage.id} 
               stage={stage} 
               isLast={index === filteredStages.length - 1}
+              assignedGoals={getStageGoals(stage.id)}
+              onGoalAssigned={onGoalAssigned}
+              onGoalRemoved={onGoalRemoved}
             />
           ))}
         </div>

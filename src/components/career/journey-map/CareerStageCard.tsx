@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Circle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Circle, ArrowRight, Target, X } from 'lucide-react';
+import { PersonalGoal, GoalTemplate, assignGoalToStage, createGoalFromTemplate } from '@/services/personalGoalsService';
 
 interface CareerStage {
   id: string;
@@ -22,9 +23,20 @@ interface CareerStage {
 interface CareerStageCardProps {
   stage: CareerStage;
   isLast: boolean;
+  assignedGoals?: PersonalGoal[];
+  onGoalAssigned?: (stageId: string, goalId: string) => void;
+  onGoalRemoved?: (stageId: string, goalId: string) => void;
 }
 
-const CareerStageCard: React.FC<CareerStageCardProps> = ({ stage, isLast }) => {
+const CareerStageCard: React.FC<CareerStageCardProps> = ({ 
+  stage, 
+  isLast, 
+  assignedGoals = [],
+  onGoalAssigned,
+  onGoalRemoved
+}) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+
   const getStageIcon = (stage: CareerStage) => {
     const IconComponent = stage.icon;
     let colorClass = 'text-gray-400';
@@ -52,13 +64,59 @@ const CareerStageCard: React.FC<CareerStageCardProps> = ({ stage, isLast }) => {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      const { goal, isTemplate } = data;
+
+      if (isTemplate) {
+        // Create new goal from template and assign to stage
+        const newGoal = await createGoalFromTemplate(goal as GoalTemplate);
+        await assignGoalToStage(newGoal.id, stage.id);
+        onGoalAssigned?.(stage.id, newGoal.id);
+      } else {
+        // Assign existing goal to stage
+        await assignGoalToStage(goal.id, stage.id);
+        onGoalAssigned?.(stage.id, goal.id);
+      }
+    } catch (error) {
+      console.error('Error handling goal drop:', error);
+    }
+  };
+
+  const handleRemoveGoal = async (goalId: string) => {
+    try {
+      await assignGoalToStage(goalId, ''); // Remove assignment
+      onGoalRemoved?.(stage.id, goalId);
+    } catch (error) {
+      console.error('Error removing goal:', error);
+    }
+  };
+
   return (
     <div className="relative">
       {!isLast && (
         <div className="absolute left-6 top-12 h-16 w-0.5 bg-gray-200" />
       )}
       
-      <div className="flex gap-4">
+      <div 
+        className={`flex gap-4 ${isDragOver ? 'bg-blue-50 rounded-lg p-2' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <div className="flex flex-col items-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-200 bg-white">
             {getStageIcon(stage)}
@@ -90,6 +148,42 @@ const CareerStageCard: React.FC<CareerStageCardProps> = ({ stage, isLast }) => {
               </div>
             </div>
           </div>
+
+          {/* Assigned Goals */}
+          {assignedGoals.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Personal Goals ({assignedGoals.length})
+              </h4>
+              <div className="space-y-2">
+                {assignedGoals.map(goal => (
+                  <div key={goal.id} className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                    <div className="flex-1">
+                      <span className="font-medium">{goal.title}</span>
+                      <p className="text-xs text-muted-foreground">{goal.description}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveGoal(goal.id)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Drop Zone Indicator */}
+          {isDragOver && (
+            <div className="mt-4 p-4 border-2 border-dashed border-blue-400 bg-blue-50 rounded-lg text-center">
+              <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <p className="text-sm text-blue-600 font-medium">Drop goal here to assign to this stage</p>
+            </div>
+          )}
           
           {(stage.requirements || stage.benefits) && (
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
