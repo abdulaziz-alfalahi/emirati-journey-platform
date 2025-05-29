@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ActivityFeedItem } from '@/services/collaborativeAssessments/realtimeCollaborationService';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, CheckCircle, Play, UserJoin, UserX } from 'lucide-react';
+import { MessageSquare, CheckCircle, Play, UserPlus, UserMinus } from 'lucide-react';
 
 interface ActivityFeedProps {
   activities: ActivityFeedItem[];
@@ -15,9 +14,9 @@ interface ActivityFeedProps {
 const getActivityIcon = (activityType: ActivityFeedItem['activity_type']) => {
   switch (activityType) {
     case 'joined':
-      return <UserJoin className="h-4 w-4 text-green-500" />;
+      return <UserPlus className="h-4 w-4 text-green-500" />;
     case 'left':
-      return <UserX className="h-4 w-4 text-gray-500" />;
+      return <UserMinus className="h-4 w-4 text-gray-500" />;
     case 'evaluation_submitted':
       return <CheckCircle className="h-4 w-4 text-blue-500" />;
     case 'comment_added':
