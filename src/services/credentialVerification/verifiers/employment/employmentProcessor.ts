@@ -1,9 +1,8 @@
-
 import { EmploymentVerificationData, VerificationResponse } from "@/types/credentialVerification";
 import { RateLimiter } from "../../utils/rateLimiter";
 import { DatabaseOperations } from "../../utils/database";
 import { ExternalVerifier } from "../../utils/externalVerifier";
-import { integrationLogger } from "../../utils/integrationLogger";
+import { integrationLogger } from "../../utils/logger";
 
 export class EmploymentProcessor {
   private rateLimiter = new RateLimiter();

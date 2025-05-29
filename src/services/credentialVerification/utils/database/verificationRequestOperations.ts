@@ -1,7 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { retryMechanism } from "../retryMechanism";
-import { integrationLogger } from "../integrationLogger";
+import { integrationLogger } from "../logger";
 
 export class VerificationRequestOperations {
   async createVerificationRequest(

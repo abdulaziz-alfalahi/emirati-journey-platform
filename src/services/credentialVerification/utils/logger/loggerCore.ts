@@ -1,45 +1,15 @@
-export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+import { LogLevel, IntegrationLogEntry, LogMetadata, LogSummary } from './types';
 
-export interface IntegrationLogEntry {
-  id: string;
-  timestamp: string;
-  level: LogLevel;
-  service: string;
-  operation: string;
-  userId?: string;
-  requestId?: string;
-  message: string;
-  error?: any;
-  metadata?: Record<string, any>;
-  duration?: number;
-}
-
-export class IntegrationLogger {
-  private static instance: IntegrationLogger;
+export class LoggerCore {
   private logs: IntegrationLogEntry[] = [];
   private maxLogs = 1000; // Keep last 1000 logs in memory
-
-  private constructor() {}
-
-  static getInstance(): IntegrationLogger {
-    if (!IntegrationLogger.instance) {
-      IntegrationLogger.instance = new IntegrationLogger();
-    }
-    return IntegrationLogger.instance;
-  }
 
   private createLogEntry(
     level: LogLevel,
     service: string,
     operation: string,
     message: string,
-    metadata?: {
-      userId?: string;
-      requestId?: string;
-      error?: any;
-      duration?: number;
-      additionalData?: Record<string, any>;
-    }
+    metadata?: LogMetadata
   ): IntegrationLogEntry {
     return {
       id: crypto.randomUUID(),
@@ -65,6 +35,10 @@ export class IntegrationLogger {
     }
 
     // Always log to console for development
+    this.logToConsole(entry);
+  }
+
+  private logToConsole(entry: IntegrationLogEntry): void {
     const consoleMessage = `[${entry.level.toUpperCase()}] ${entry.service}:${entry.operation} - ${entry.message}`;
     
     switch (entry.level) {
@@ -88,12 +62,7 @@ export class IntegrationLogger {
     operation: string,
     message: string,
     error: any,
-    metadata?: {
-      userId?: string;
-      requestId?: string;
-      duration?: number;
-      additionalData?: Record<string, any>;
-    }
+    metadata?: LogMetadata
   ): void {
     this.addLog(this.createLogEntry('error', service, operation, message, {
       ...metadata,
@@ -110,12 +79,7 @@ export class IntegrationLogger {
     service: string,
     operation: string,
     message: string,
-    metadata?: {
-      userId?: string;
-      requestId?: string;
-      duration?: number;
-      additionalData?: Record<string, any>;
-    }
+    metadata?: LogMetadata
   ): void {
     this.addLog(this.createLogEntry('warn', service, operation, message, metadata));
   }
@@ -124,12 +88,7 @@ export class IntegrationLogger {
     service: string,
     operation: string,
     message: string,
-    metadata?: {
-      userId?: string;
-      requestId?: string;
-      duration?: number;
-      additionalData?: Record<string, any>;
-    }
+    metadata?: LogMetadata
   ): void {
     this.addLog(this.createLogEntry('info', service, operation, message, metadata));
   }
@@ -138,12 +97,7 @@ export class IntegrationLogger {
     service: string,
     operation: string,
     message: string,
-    metadata?: {
-      userId?: string;
-      requestId?: string;
-      duration?: number;
-      additionalData?: Record<string, any>;
-    }
+    metadata?: LogMetadata
   ): void {
     this.addLog(this.createLogEntry('debug', service, operation, message, metadata));
   }
@@ -174,12 +128,7 @@ export class IntegrationLogger {
     this.logs = [];
   }
 
-  getLogSummary(): {
-    total: number;
-    byLevel: Record<string, number>;
-    byService: Record<string, number>;
-    recentErrors: IntegrationLogEntry[];
-  } {
+  getLogSummary(): LogSummary {
     const byLevel: Record<string, number> = {};
     const byService: Record<string, number> = {};
 
@@ -200,5 +149,3 @@ export class IntegrationLogger {
     };
   }
 }
-
-export const integrationLogger = IntegrationLogger.getInstance();

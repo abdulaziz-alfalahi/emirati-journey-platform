@@ -1,8 +1,7 @@
-
 import { EmploymentVerificationData, VerificationResponse } from "@/types/credentialVerification";
 import { EmploymentValidation } from "./employmentValidation";
 import { EmploymentProcessor } from "./employmentProcessor";
-import { integrationLogger } from "../../utils/integrationLogger";
+import { integrationLogger } from "../../utils/logger";
 
 export class EmploymentVerifier {
   private processor = new EmploymentProcessor();

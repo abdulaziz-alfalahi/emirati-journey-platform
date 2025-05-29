@@ -1,9 +1,8 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ExternalDatabaseConfig } from "@/types/credentialVerification";
 import { VerificationResult } from "../types";
 import { retryMechanism } from "./retryMechanism";
-import { integrationLogger } from "./integrationLogger";
+import { integrationLogger } from "./logger";
 
 export class ExternalVerifier {
   async getDatabaseConfig(databaseName: string): Promise<ExternalDatabaseConfig | null> {
