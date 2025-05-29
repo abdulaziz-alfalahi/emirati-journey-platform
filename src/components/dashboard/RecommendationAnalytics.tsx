@@ -69,6 +69,12 @@ const RecommendationAnalytics: React.FC = () => {
     }));
   };
 
+  // Custom tooltip formatter that handles type safety
+  const formatTooltipValue = (value: any, name: string) => {
+    const numValue = typeof value === 'number' ? value : parseFloat(value) || 0;
+    return [`${numValue.toFixed(1)}%`, name === 'clickRate' ? 'Click Rate' : name];
+  };
+
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300'];
 
   if (!user) {
@@ -217,7 +223,7 @@ const RecommendationAnalytics: React.FC = () => {
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="variant" />
                           <YAxis />
-                          <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Click Rate']} />
+                          <Tooltip formatter={formatTooltipValue} />
                           <Bar dataKey="clickRate" fill="#8884d8" />
                         </BarChart>
                       </ResponsiveContainer>
