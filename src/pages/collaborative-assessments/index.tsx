@@ -3,19 +3,21 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { AssessmentDashboard } from '@/components/collaborative-assessments/AssessmentDashboard';
 import { TemplateBuilder } from '@/components/collaborative-assessments/TemplateBuilder';
+import { TemplateLibrary } from '@/components/collaborative-assessments/templates/TemplateLibrary';
 import { EvaluationInterface } from '@/components/collaborative-assessments/EvaluationInterface';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
+import { CollaborativeAssessment, AssessmentTemplate } from '@/types/collaborativeAssessments';
 
-type ViewMode = 'dashboard' | 'create-template' | 'create-assessment' | 'view-assessment' | 'evaluate-assessment';
+type ViewMode = 'dashboard' | 'template-library' | 'create-template' | 'create-assessment' | 'view-assessment' | 'evaluate-assessment';
 
 const CollaborativeAssessmentsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [selectedAssessment, setSelectedAssessment] = useState<CollaborativeAssessment | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<AssessmentTemplate | null>(null);
 
   const handleCreateAssessment = () => {
-    setViewMode('create-assessment');
+    setViewMode('template-library');
   };
 
   const handleViewAssessment = (assessment: CollaborativeAssessment) => {
@@ -28,9 +30,19 @@ const CollaborativeAssessmentsPage: React.FC = () => {
     setViewMode('evaluate-assessment');
   };
 
+  const handleCreateTemplate = () => {
+    setViewMode('create-template');
+  };
+
+  const handleTemplateSelected = (template: AssessmentTemplate) => {
+    setSelectedTemplate(template);
+    setViewMode('create-assessment');
+  };
+
   const handleBackToDashboard = () => {
     setViewMode('dashboard');
     setSelectedAssessment(null);
+    setSelectedTemplate(null);
   };
 
   return (
@@ -48,9 +60,20 @@ const CollaborativeAssessmentsPage: React.FC = () => {
         {viewMode === 'dashboard' && (
           <AssessmentDashboard
             onCreateAssessment={handleCreateAssessment}
+            onCreateTemplate={handleCreateTemplate}
             onViewAssessment={handleViewAssessment}
             onEvaluateAssessment={handleEvaluateAssessment}
           />
+        )}
+
+        {viewMode === 'template-library' && (
+          <div>
+            <h1 className="text-2xl font-bold mb-6">Choose Assessment Template</h1>
+            <TemplateLibrary
+              onCreateAssessment={handleTemplateSelected}
+              selectionMode={true}
+            />
+          </div>
         )}
 
         {viewMode === 'create-template' && (
@@ -63,9 +86,12 @@ const CollaborativeAssessmentsPage: React.FC = () => {
           </div>
         )}
 
-        {viewMode === 'create-assessment' && (
+        {viewMode === 'create-assessment' && selectedTemplate && (
           <div>
             <h1 className="text-2xl font-bold mb-6">Create New Assessment</h1>
+            <p className="text-muted-foreground mb-4">
+              Using template: <span className="font-medium">{selectedTemplate.title}</span>
+            </p>
             {/* Assessment creation form would go here */}
             <p>Assessment creation form coming soon...</p>
           </div>
