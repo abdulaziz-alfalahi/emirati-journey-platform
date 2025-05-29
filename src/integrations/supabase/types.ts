@@ -104,6 +104,108 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_activity_feed: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          assessment_id: string
+          created_at: string
+          criterion_id: string | null
+          id: string
+          section_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          assessment_id: string
+          created_at?: string
+          criterion_id?: string | null
+          id?: string
+          section_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          assessment_id?: string
+          created_at?: string
+          criterion_id?: string | null
+          id?: string
+          section_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_activity_feed_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_activity_feed_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_collaboration_sessions: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          current_section_id: string | null
+          id: string
+          last_activity: string
+          session_end: string | null
+          session_start: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          current_section_id?: string | null
+          id?: string
+          last_activity?: string
+          session_end?: string | null
+          session_start?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          current_section_id?: string | null
+          id?: string
+          last_activity?: string
+          session_end?: string | null
+          session_start?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_collaboration_sessions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "collaborative_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_collaboration_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_collaborators: {
         Row: {
           assessment_id: string

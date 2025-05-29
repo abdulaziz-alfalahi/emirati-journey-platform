@@ -11,8 +11,11 @@ import { CriterionCard } from './evaluation/CriterionCard';
 import { NavigationFooter } from './evaluation/NavigationFooter';
 import { ErrorState } from './evaluation/ErrorState';
 import { CollaboratorManagement } from './CollaboratorManagement';
+import { ActivityFeed } from './realtime/ActivityFeed';
+import { ActiveCollaborators } from './realtime/ActiveCollaborators';
 import { Button } from '@/components/ui/button';
-import { Users } from 'lucide-react';
+import { Users, Activity } from 'lucide-react';
+import { useRealtimeCollaboration } from '@/hooks/useRealtimeCollaboration';
 
 interface EvaluationInterfaceProps {
   assessmentId: string;
@@ -28,6 +31,21 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   const [evaluations, setEvaluations] = useState<Record<string, { score?: number; comments?: string }>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCollaborators, setShowCollaborators] = useState(false);
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
+
+  // Real-time collaboration hook
+  const {
+    activeCollaborators,
+    recentActivity,
+    isConnected,
+    updateActivity,
+    logEvaluationSubmitted,
+    logSectionStarted,
+    logCommentAdded
+  } = useRealtimeCollaboration({
+    assessmentId,
+    enabled: !!user
+  });
 
   // Fetch assessment details
   const { data: assessments } = useQuery({
@@ -60,6 +78,14 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   const canEvaluate = currentCollaborator?.permissions?.can_evaluate;
   const canManageCollaborators = currentCollaborator?.permissions?.can_invite_others;
 
+  // Log section changes
+  useEffect(() => {
+    if (assessment?.template?.sections && assessment.template.sections[currentSectionIndex]) {
+      const currentSection = assessment.template.sections[currentSectionIndex];
+      logSectionStarted(currentSection.id, currentSection.title);
+    }
+  }, [currentSectionIndex, assessment, logSectionStarted]);
+
   // Load existing evaluations into local state
   useEffect(() => {
     if (existingEvaluations && user) {
@@ -80,9 +106,13 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
 
   const submitEvaluationMutation = useMutation({
     mutationFn: submitEvaluation,
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['assessment-evaluations', assessmentId] });
       queryClient.invalidateQueries({ queryKey: ['assessment-progress', assessmentId] });
+      
+      // Log the evaluation submission
+      await logEvaluationSubmitted(variables.section_id, variables.criterion_id);
+      
       toast({
         title: "Evaluation saved",
         description: "Your evaluation has been saved successfully."
@@ -155,9 +185,10 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
         score
       }
     }));
+    updateActivity(currentSection.id);
   };
 
-  const handleCommentsChange = (criterionId: string, comments: string) => {
+  const handleCommentsChange = async (criterionId: string, comments: string) => {
     const key = `${currentSection.id}-${criterionId}`;
     setEvaluations(prev => ({
       ...prev,
@@ -166,6 +197,11 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
         comments
       }
     }));
+    
+    if (comments.trim()) {
+      await logCommentAdded(currentSection.id, criterionId);
+    }
+    updateActivity(currentSection.id);
   };
 
   const handleSaveEvaluation = async (criterionId: string) => {
@@ -219,69 +255,98 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <EvaluationHeader
-          title={assessment.title}
-          onBack={onBack}
-          progressPercentage={getProgressPercentage()}
-        />
-        
-        {canManageCollaborators && (
-          <Button
-            variant="outline"
-            onClick={() => setShowCollaborators(true)}
-            className="ml-4"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Manage Collaborators
-          </Button>
-        )}
-      </div>
-
-      <SectionNavigation
-        currentSection={currentSection}
-        currentSectionIndex={currentSectionIndex}
-        totalSections={sections.length}
-        sectionProgress={getSectionProgress()}
-        evaluatedCriteria={getEvaluatedCriteriaCount()}
-        totalCriteria={currentSection.criteria?.length || 0}
-        onPreviousSection={() => setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1))}
-        onNextSection={() => setCurrentSectionIndex(Math.min(sections.length - 1, currentSectionIndex + 1))}
-        canGoPrevious={currentSectionIndex > 0}
-        canGoNext={currentSectionIndex < sections.length - 1}
-      />
-
-      <div className="space-y-6">
-        {currentSection.criteria?.map((criterion) => {
-          const key = `${currentSection.id}-${criterion.id}`;
-          const evaluation = evaluations[key] || {};
-          const hasEvaluation = Boolean(evaluation.score !== undefined || evaluation.comments);
-
-          return (
-            <CriterionCard
-              key={criterion.id}
-              criterion={criterion}
-              score={evaluation.score}
-              comments={evaluation.comments}
-              onScoreChange={(score) => handleScoreChange(criterion.id, score)}
-              onCommentsChange={(comments) => handleCommentsChange(criterion.id, comments)}
-              onSave={() => handleSaveEvaluation(criterion.id)}
-              isSubmitting={isSubmitting}
-              hasEvaluation={hasEvaluation}
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main evaluation content */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex items-center justify-between">
+            <EvaluationHeader
+              title={assessment.title}
+              onBack={onBack}
+              progressPercentage={getProgressPercentage()}
             />
-          );
-        })}
-      </div>
+            
+            <div className="flex items-center space-x-2">
+              {isConnected && (
+                <div className="flex items-center space-x-1 text-sm text-green-600">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Live</span>
+                </div>
+              )}
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowActivityFeed(!showActivityFeed)}
+                className="lg:hidden"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                Activity
+              </Button>
+              
+              {canManageCollaborators && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCollaborators(true)}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Collaborators
+                </Button>
+              )}
+            </div>
+          </div>
 
-      <NavigationFooter
-        currentSectionIndex={currentSectionIndex}
-        totalSections={sections.length}
-        onPreviousSection={() => setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1))}
-        onNextSection={() => setCurrentSectionIndex(Math.min(sections.length - 1, currentSectionIndex + 1))}
-        canGoPrevious={currentSectionIndex > 0}
-        canGoNext={currentSectionIndex < sections.length - 1}
-      />
+          <SectionNavigation
+            currentSection={currentSection}
+            currentSectionIndex={currentSectionIndex}
+            totalSections={sections.length}
+            sectionProgress={getSectionProgress()}
+            evaluatedCriteria={getEvaluatedCriteriaCount()}
+            totalCriteria={currentSection.criteria?.length || 0}
+            onPreviousSection={() => setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1))}
+            onNextSection={() => setCurrentSectionIndex(Math.min(sections.length - 1, currentSectionIndex + 1))}
+            canGoPrevious={currentSectionIndex > 0}
+            canGoNext={currentSectionIndex < sections.length - 1}
+          />
+
+          <div className="space-y-6">
+            {currentSection.criteria?.map((criterion) => {
+              const key = `${currentSection.id}-${criterion.id}`;
+              const evaluation = evaluations[key] || {};
+              const hasEvaluation = Boolean(evaluation.score !== undefined || evaluation.comments);
+
+              return (
+                <CriterionCard
+                  key={criterion.id}
+                  criterion={criterion}
+                  score={evaluation.score}
+                  comments={evaluation.comments}
+                  onScoreChange={(score) => handleScoreChange(criterion.id, score)}
+                  onCommentsChange={(comments) => handleCommentsChange(criterion.id, comments)}
+                  onSave={() => handleSaveEvaluation(criterion.id)}
+                  isSubmitting={isSubmitting}
+                  hasEvaluation={hasEvaluation}
+                />
+              );
+            })}
+          </div>
+
+          <NavigationFooter
+            currentSectionIndex={currentSectionIndex}
+            totalSections={sections.length}
+            onPreviousSection={() => setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1))}
+            onNextSection={() => setCurrentSectionIndex(Math.min(sections.length - 1, currentSectionIndex + 1))}
+            canGoPrevious={currentSectionIndex > 0}
+            canGoNext={currentSectionIndex < sections.length - 1}
+          />
+        </div>
+
+        {/* Real-time collaboration sidebar */}
+        <div className={`lg:col-span-1 space-y-4 ${showActivityFeed ? 'block' : 'hidden lg:block'}`}>
+          <ActiveCollaborators collaborators={activeCollaborators} />
+          <ActivityFeed activities={recentActivity} />
+        </div>
+      </div>
     </div>
   );
 };
