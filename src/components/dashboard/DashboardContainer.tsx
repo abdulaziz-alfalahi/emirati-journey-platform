@@ -5,6 +5,7 @@ import { UserRole } from '@/types/auth';
 import { useRole } from '@/context/RoleContext';
 import NoRoleAlert from './NoRoleAlert';
 import RoleSelector from './RoleSelector';
+import RoleOnboardingTooltip from './RoleOnboardingTooltip';
 import { StudentDashboard } from './role-dashboards';
 import { getDashboardComponentByUserProfile } from '@/utils/dashboard-utils';
 
@@ -37,12 +38,14 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({ user, roles, ac
           <p className="text-muted-foreground">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
         </div>
         
-        {availableRoles.length > 0 && (
-          <RoleSelector
-            availableRoles={availableRoles}
-            currentRole={currentRole!}
-            onRoleChange={setActiveRole}
-          />
+        {availableRoles.length > 0 && currentRole && (
+          <RoleOnboardingTooltip role={currentRole}>
+            <RoleSelector
+              availableRoles={availableRoles}
+              currentRole={currentRole}
+              onRoleChange={setActiveRole}
+            />
+          </RoleOnboardingTooltip>
         )}
       </div>
       

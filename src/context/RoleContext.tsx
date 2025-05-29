@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole } from '@/types/auth';
 import { useAuth } from '@/context/AuthContext';
+import { analyticsService } from '@/services/analyticsService';
 
 interface RoleContextType {
   activeRole: UserRole | null;
@@ -30,8 +31,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [roles, activeRole]);
 
   const setActiveRole = (role: UserRole) => {
+    const previousRole = activeRole;
     setActiveRoleState(role);
     localStorage.setItem('activeRole', role);
+    
+    // Track role switch analytics
+    analyticsService.trackRoleSwitch(previousRole, role);
   };
 
   return (

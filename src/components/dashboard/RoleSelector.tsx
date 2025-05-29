@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserRole } from '@/types/auth';
 import {
   Select,
@@ -74,6 +74,41 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
   currentRole, 
   onRoleChange 
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef<HTMLButtonElement>(null);
+
+  // Keyboard navigation handler
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isOpen) return;
+
+      switch (event.key) {
+        case 'Escape':
+          event.preventDefault();
+          setIsOpen(false);
+          selectRef.current?.focus();
+          break;
+        case 'ArrowDown':
+        case 'ArrowUp':
+          event.preventDefault();
+          // Let the Select component handle arrow navigation
+          break;
+        case 'Enter':
+        case ' ':
+          if (event.target instanceof HTMLElement && event.target.getAttribute('role') === 'option') {
+            event.preventDefault();
+            // The Select component will handle the selection
+          }
+          break;
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen]);
+
   if (availableRoles.length <= 1) {
     return (
       <Badge variant="secondary" className="flex items-center gap-2">
@@ -86,8 +121,16 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">Switch Role:</span>
-      <Select value={currentRole} onValueChange={onRoleChange}>
-        <SelectTrigger className="w-60">
+      <Select 
+        value={currentRole} 
+        onValueChange={onRoleChange}
+        onOpenChange={setIsOpen}
+      >
+        <SelectTrigger 
+          ref={selectRef}
+          className="w-60"
+          aria-label="Select your active role"
+        >
           <SelectValue>
             <div className="flex items-center gap-2">
               {React.createElement(roleIcons[currentRole], { className: "h-4 w-4" })}
@@ -99,7 +142,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
           {availableRoles.map((role) => {
             const Icon = roleIcons[role];
             return (
-              <SelectItem key={role} value={role}>
+              <SelectItem 
+                key={role} 
+                value={role}
+                className="focus:bg-accent focus:text-accent-foreground"
+              >
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4" />
                   {roleLabels[role]}
