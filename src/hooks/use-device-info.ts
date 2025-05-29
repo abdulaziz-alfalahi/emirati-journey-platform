@@ -10,11 +10,7 @@ export interface DeviceInfo {
   manufacturer: string;
   isVirtual: boolean;
   webViewVersion?: string;
-  diskFree?: number;
-  diskTotal?: number;
   memUsed?: number;
-  realDiskFree?: number;
-  realDiskTotal?: number;
   batteryLevel?: number;
   isCharging?: boolean;
 }
@@ -55,11 +51,7 @@ export const useDeviceInfo = () => {
           manufacturer: info.manufacturer,
           isVirtual: info.isVirtual,
           webViewVersion: info.webViewVersion,
-          diskFree: info.diskFree,
-          diskTotal: info.diskTotal,
           memUsed: info.memUsed,
-          realDiskFree: info.realDiskFree,
-          realDiskTotal: info.realDiskTotal,
           batteryLevel: batteryInfo?.batteryLevel,
           isCharging: batteryInfo?.isCharging
         });
