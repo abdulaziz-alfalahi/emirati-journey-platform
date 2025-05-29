@@ -2,9 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { CollaboratorsList } from './collaborators/CollaboratorsList';
 import { CollaboratorInviteDialog } from './collaborators/CollaboratorInviteDialog';
-import { Users, UserPlus, Shield } from 'lucide-react';
+import { Users, UserPlus, Shield, CheckCircle, XCircle } from 'lucide-react';
 
 interface CollaboratorManagementProps {
   assessmentId: string;
@@ -35,6 +36,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
         <TabsList>
           <TabsTrigger value="collaborators">Current Collaborators</TabsTrigger>
           <TabsTrigger value="permissions">Role Permissions</TabsTrigger>
+          <TabsTrigger value="matrix">Permission Matrix</TabsTrigger>
         </TabsList>
         
         <TabsContent value="collaborators">
@@ -60,19 +62,27 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                       'Evaluate candidates',
                       'Invite collaborators',
                       'View reports',
-                      'Add comments'
+                      'Add comments',
+                      'Delete assessment',
+                      'Archive assessment',
+                      'Override evaluations',
+                      'Manage all collaborators'
                     ]}
                     color="bg-purple-50 border-purple-200"
                   />
                   
                   <RolePermissionCard
                     role="Trainer"
-                    description="Can edit and evaluate"
+                    description="Can edit and evaluate with advanced features"
                     permissions={[
-                      'Edit assessment',
+                      'Edit assessment details',
                       'Evaluate candidates',
                       'View reports',
-                      'Add comments'
+                      'Add comments',
+                      'Lock evaluations',
+                      'Override evaluations',
+                      'Generate reports',
+                      'Moderate comments'
                     ]}
                     color="bg-blue-50 border-blue-200"
                   />
@@ -83,7 +93,10 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                     permissions={[
                       'Evaluate candidates',
                       'View reports',
-                      'Add comments'
+                      'Add comments',
+                      'View other evaluations',
+                      'Export evaluations',
+                      'Generate reports'
                     ]}
                     color="bg-green-50 border-green-200"
                   />
@@ -94,7 +107,10 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                     permissions={[
                       'Evaluate candidates',
                       'View reports',
-                      'Add comments'
+                      'Add comments',
+                      'View other evaluations',
+                      'Export reports',
+                      'Share reports externally'
                     ]}
                     color="bg-orange-50 border-orange-200"
                   />
@@ -104,21 +120,37 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                     description="Focused evaluation role"
                     permissions={[
                       'Evaluate candidates',
-                      'Add comments'
+                      'Add comments',
+                      'See live collaboration'
                     ]}
                     color="bg-gray-50 border-gray-200"
                   />
                   
                   <RolePermissionCard
                     role="Viewer"
-                    description="View-only access"
+                    description="View-only access with commenting"
                     permissions={[
                       'View reports',
-                      'Add comments'
+                      'Add comments',
+                      'View other evaluations',
+                      'See live collaboration'
                     ]}
                     color="bg-slate-50 border-slate-200"
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="matrix">
+          <Card>
+            <CardHeader>
+              <CardTitle>Permission Matrix</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <PermissionMatrix />
               </div>
             </CardContent>
           </Card>
@@ -154,5 +186,54 @@ const RolePermissionCard: React.FC<RolePermissionCardProps> = ({
         ))}
       </ul>
     </div>
+  );
+};
+
+const PermissionMatrix: React.FC = () => {
+  const roles = ['Owner', 'Trainer', 'Mentor', 'Employer', 'Evaluator', 'Viewer'];
+  const permissions = [
+    { key: 'edit', label: 'Edit Assessment', matrix: [true, true, false, false, false, false] },
+    { key: 'evaluate', label: 'Evaluate', matrix: [true, true, true, true, true, false] },
+    { key: 'invite', label: 'Invite Others', matrix: [true, false, false, false, false, false] },
+    { key: 'reports', label: 'View Reports', matrix: [true, true, true, true, false, true] },
+    { key: 'delete', label: 'Delete Assessment', matrix: [true, false, false, false, false, false] },
+    { key: 'override', label: 'Override Evaluations', matrix: [true, true, false, false, false, false] },
+    { key: 'lock', label: 'Lock Evaluations', matrix: [true, true, false, false, false, false] },
+    { key: 'moderate', label: 'Moderate Comments', matrix: [true, true, false, false, false, false] },
+    { key: 'analytics', label: 'View Analytics', matrix: [true, true, true, false, false, false] },
+    { key: 'export', label: 'Export Data', matrix: [true, true, true, true, false, false] },
+    { key: 'archive', label: 'Archive Assessment', matrix: [true, false, false, false, false, false] },
+    { key: 'broadcast', label: 'Broadcast Messages', matrix: [true, false, false, false, false, false] }
+  ];
+
+  return (
+    <table className="min-w-full border-collapse">
+      <thead>
+        <tr>
+          <th className="text-left p-3 border-b font-medium">Permission</th>
+          {roles.map(role => (
+            <th key={role} className="text-center p-3 border-b font-medium min-w-[80px]">
+              {role}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {permissions.map(permission => (
+          <tr key={permission.key} className="hover:bg-muted/50">
+            <td className="p-3 border-b font-medium">{permission.label}</td>
+            {permission.matrix.map((hasPermission, index) => (
+              <td key={index} className="text-center p-3 border-b">
+                {hasPermission ? (
+                  <CheckCircle className="h-5 w-5 text-green-600 mx-auto" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-red-400 mx-auto" />
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };

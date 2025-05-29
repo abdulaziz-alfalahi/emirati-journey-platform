@@ -178,3 +178,81 @@ export const updateCollaboratorRole = async (collaboratorId: string, role: Colla
     permissions: data.permissions as unknown as CollaboratorPermissions
   } as AssessmentCollaborator;
 };
+
+// New function to check if user has specific permission
+export const checkUserPermission = async (
+  assessmentId: string, 
+  userId: string, 
+  permission: keyof CollaboratorPermissions
+): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('assessment_collaborators')
+    .select('permissions')
+    .eq('assessment_id', assessmentId)
+    .eq('user_id', userId)
+    .eq('status', 'accepted')
+    .single();
+
+  if (error || !data) {
+    return false;
+  }
+
+  const permissions = data.permissions as unknown as CollaboratorPermissions;
+  return permissions[permission] || false;
+};
+
+// New function to get user's effective permissions
+export const getUserPermissions = async (
+  assessmentId: string, 
+  userId: string
+): Promise<CollaboratorPermissions | null> => {
+  const { data, error } = await supabase
+    .from('assessment_collaborators')
+    .select('permissions, role')
+    .eq('assessment_id', assessmentId)
+    .eq('user_id', userId)
+    .eq('status', 'accepted')
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data.permissions as unknown as CollaboratorPermissions;
+};
+
+// Bulk permission update for multiple collaborators
+export const bulkUpdatePermissions = async (
+  updates: Array<{
+    collaboratorId: string;
+    permissions: CollaboratorPermissions;
+  }>
+): Promise<AssessmentCollaborator[]> => {
+  const results: AssessmentCollaborator[] = [];
+
+  for (const update of updates) {
+    try {
+      const { data, error } = await supabase
+        .from('assessment_collaborators')
+        .update({ permissions: update.permissions as any })
+        .eq('id', update.collaboratorId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error(`Error updating collaborator ${update.collaboratorId}:`, error);
+        continue;
+      }
+
+      results.push({
+        ...data,
+        role: data.role as CollaboratorRole,
+        permissions: data.permissions as unknown as CollaboratorPermissions
+      } as AssessmentCollaborator);
+    } catch (err) {
+      console.error(`Failed to update collaborator ${update.collaboratorId}:`, err);
+    }
+  }
+
+  return results;
+};

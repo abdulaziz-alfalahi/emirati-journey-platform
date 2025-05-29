@@ -76,11 +76,49 @@ export interface AssessmentCollaborator {
 }
 
 export interface CollaboratorPermissions {
+  // Core permissions
   can_edit: boolean;
   can_evaluate: boolean;
   can_invite_others: boolean;
   can_view_reports: boolean;
   can_comment: boolean;
+  
+  // Enhanced granular permissions
+  can_edit_assessment_details: boolean;
+  can_delete_assessment: boolean;
+  can_change_due_date: boolean;
+  can_modify_instructions: boolean;
+  
+  // Evaluation permissions
+  can_evaluate_all_sections: boolean;
+  can_evaluate_specific_sections: string[]; // Section IDs
+  can_override_evaluations: boolean;
+  can_lock_evaluations: boolean;
+  can_view_other_evaluations: boolean;
+  can_export_evaluations: boolean;
+  
+  // Collaboration permissions
+  can_remove_collaborators: boolean;
+  can_change_collaborator_roles: boolean;
+  can_moderate_comments: boolean;
+  can_delete_comments: boolean;
+  can_pin_comments: boolean;
+  
+  // Reporting permissions
+  can_generate_reports: boolean;
+  can_view_detailed_analytics: boolean;
+  can_export_reports: boolean;
+  can_share_reports_externally: boolean;
+  
+  // Administrative permissions
+  can_archive_assessment: boolean;
+  can_duplicate_assessment: boolean;
+  can_create_templates_from_assessment: boolean;
+  
+  // Real-time permissions
+  can_see_live_collaboration: boolean;
+  can_send_notifications: boolean;
+  can_broadcast_messages: boolean;
 }
 
 export interface AssessmentEvaluation {
@@ -95,6 +133,9 @@ export interface AssessmentEvaluation {
   submitted_at?: string;
   created_at: string;
   updated_at: string;
+  is_locked?: boolean;
+  locked_by?: string;
+  locked_at?: string;
 }
 
 export interface AssessmentComment {
@@ -107,6 +148,9 @@ export interface AssessmentComment {
   criterion_id?: string;
   created_at: string;
   updated_at: string;
+  is_pinned?: boolean;
+  pinned_by?: string;
+  pinned_at?: string;
 }
 
 export interface AssessmentProgress {
