@@ -16,6 +16,8 @@ import { ActiveCollaborators } from './realtime/ActiveCollaborators';
 import { Button } from '@/components/ui/button';
 import { Users, Activity } from 'lucide-react';
 import { useRealtimeCollaboration } from '@/hooks/useRealtimeCollaboration';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { CollaborationStatusBar } from './realtime/CollaborationStatusBar';
 
 interface EvaluationInterfaceProps {
   assessmentId: string;
@@ -45,6 +47,12 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
   } = useRealtimeCollaboration({
     assessmentId,
     enabled: !!user
+  });
+
+  // Add real-time notifications hook
+  useRealtimeNotifications({
+    recentActivity,
+    isConnected
   });
 
   // Fetch assessment details
@@ -266,13 +274,12 @@ export const EvaluationInterface: React.FC<EvaluationInterfaceProps> = ({ assess
               progressPercentage={getProgressPercentage()}
             />
             
-            <div className="flex items-center space-x-2">
-              {isConnected && (
-                <div className="flex items-center space-x-1 text-sm text-green-600">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Live</span>
-                </div>
-              )}
+            <div className="flex items-center space-x-4">
+              {/* Add collaboration status bar */}
+              <CollaborationStatusBar
+                collaborators={activeCollaborators}
+                isConnected={isConnected}
+              />
               
               <Button
                 variant="outline"

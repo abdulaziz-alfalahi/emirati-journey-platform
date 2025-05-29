@@ -39,7 +39,10 @@ const getActivityMessage = (activity: ActivityFeedItem) => {
     case 'left':
       return `${userName} left the assessment`;
     case 'evaluation_submitted':
-      return `${userName} submitted an evaluation`;
+      const criterionTitle = activity.activity_data?.criterion_title;
+      return criterionTitle 
+        ? `${userName} submitted evaluation for ${criterionTitle}`
+        : `${userName} submitted an evaluation`;
     case 'comment_added':
       return `${userName} added a comment`;
     case 'section_started':
@@ -75,7 +78,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, classNam
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+          <CardTitle className="text-sm font-medium flex items-center space-x-2">
+            <MessageSquare className="h-4 w-4" />
+            <span>Recent Activity</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center text-sm text-muted-foreground py-4">
@@ -89,13 +95,21 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ activities, classNam
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+        <CardTitle className="text-sm font-medium flex items-center space-x-2">
+          <MessageSquare className="h-4 w-4" />
+          <span>Recent Activity</span>
+          {activities.length > 0 && (
+            <Badge variant="secondary" className="text-xs">
+              {activities.length}
+            </Badge>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 max-h-96 overflow-y-auto">
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className={`flex items-start space-x-3 p-3 rounded-lg border ${getActivityColor(activity.activity_type)}`}
+            className={`flex items-start space-x-3 p-3 rounded-lg border transition-all hover:shadow-sm ${getActivityColor(activity.activity_type)}`}
           >
             <div className="flex-shrink-0 mt-0.5">
               {getActivityIcon(activity.activity_type)}
