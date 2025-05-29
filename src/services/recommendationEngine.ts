@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ResumeData } from "@/components/resume/types";
 import { UserRole } from "@/types/auth";
+import { getRecommendationConfig, trackTestEvent } from './abTestingService';
 
 export interface UserProfile {
   skills: string[];
@@ -38,13 +38,31 @@ export interface RecommendationFilters {
 }
 
 class RecommendationEngine {
-  private weightings = {
+  private defaultWeightings = {
     skillsMatch: 0.4,
     educationMatch: 0.25,
     experienceMatch: 0.2,
     locationMatch: 0.1,
     freshness: 0.05
   };
+
+  private getWeightings(userId: string) {
+    try {
+      const abTestConfig = getRecommendationConfig(userId);
+      if (Object.keys(abTestConfig).length > 0) {
+        return {
+          skillsMatch: abTestConfig.skillsWeight || this.defaultWeightings.skillsMatch,
+          educationMatch: abTestConfig.educationWeight || this.defaultWeightings.educationMatch,
+          experienceMatch: abTestConfig.experienceWeight || this.defaultWeightings.experienceMatch,
+          locationMatch: abTestConfig.locationWeight || this.defaultWeightings.locationMatch,
+          freshness: abTestConfig.freshnessWeight || this.defaultWeightings.freshness
+        };
+      }
+    } catch (error) {
+      console.log('Using default weightings');
+    }
+    return this.defaultWeightings;
+  }
 
   async generateRecommendations(
     userId: string,
@@ -61,37 +79,49 @@ class RecommendationEngine {
         return [];
       }
 
+      // Get user-specific weightings (may be from A/B test)
+      const weightings = this.getWeightings(userId);
+      console.log("Using weightings:", weightings);
+
       const recommendations: Recommendation[] = [];
 
       // Generate job recommendations
       if (filters.includeJobs) {
-        const jobRecs = await this.getJobRecommendations(userProfile, userRoles);
+        const jobRecs = await this.getJobRecommendations(userProfile, userRoles, weightings);
         recommendations.push(...jobRecs);
       }
 
       // Generate training recommendations
       if (filters.includeTraining) {
-        const trainingRecs = await this.getTrainingRecommendations(userProfile, userRoles);
+        const trainingRecs = await this.getTrainingRecommendations(userProfile, userRoles, weightings);
         recommendations.push(...trainingRecs);
       }
 
       // Generate scholarship recommendations
       if (filters.includeScholarships) {
-        const scholarshipRecs = await this.getScholarshipRecommendations(userProfile, userRoles);
+        const scholarshipRecs = await this.getScholarshipRecommendations(userProfile, userRoles, weightings);
         recommendations.push(...scholarshipRecs);
       }
 
       // Generate internship recommendations
       if (filters.includeInternships) {
-        const internshipRecs = await this.getInternshipRecommendations(userProfile, userRoles);
+        const internshipRecs = await this.getInternshipRecommendations(userProfile, userRoles, weightings);
         recommendations.push(...internshipRecs);
       }
 
       // Sort by score and apply filters
-      return recommendations
+      const finalRecommendations = recommendations
         .filter(rec => rec.score >= filters.minScore)
         .sort((a, b) => b.score - a.score)
         .slice(0, filters.maxResults);
+
+      // Track recommendation generation event for A/B testing
+      trackTestEvent(userId, 'rec-algorithm-v1', 'recommendations_generated', {
+        count: finalRecommendations.length,
+        algorithm: 'weighted_scoring'
+      });
+
+      return finalRecommendations;
 
     } catch (error) {
       console.error("Error generating recommendations:", error);
@@ -164,7 +194,7 @@ class RecommendationEngine {
     }
   }
 
-  private async getJobRecommendations(profile: UserProfile, roles: UserRole[]): Promise<Recommendation[]> {
+  private async getJobRecommendations(profile: UserProfile, roles: UserRole[], weightings: any): Promise<Recommendation[]> {
     try {
       const { data: jobs } = await supabase
         .from('job_descriptions')
@@ -175,7 +205,7 @@ class RecommendationEngine {
       if (!jobs) return [];
 
       return jobs.map(job => {
-        const score = this.calculateJobScore(job, profile);
+        const score = this.calculateJobScore(job, profile, weightings);
         const matchedSkills = this.findMatchedSkills(job, profile.skills);
         const reasons = this.generateJobReasons(job, profile, matchedSkills);
 
@@ -197,7 +227,7 @@ class RecommendationEngine {
     }
   }
 
-  private async getTrainingRecommendations(profile: UserProfile, roles: UserRole[]): Promise<Recommendation[]> {
+  private async getTrainingRecommendations(profile: UserProfile, roles: UserRole[], weightings: any): Promise<Recommendation[]> {
     // Mock training recommendations for now
     const mockTrainings = [
       {
@@ -224,7 +254,7 @@ class RecommendationEngine {
     ];
 
     return mockTrainings.map(training => {
-      const score = this.calculateTrainingScore(training, profile);
+      const score = this.calculateTrainingScore(training, profile, weightings);
       const matchedSkills = this.findMatchedSkills({ skills_required: training.skills }, profile.skills);
       const reasons = this.generateTrainingReasons(training, profile, matchedSkills);
 
@@ -241,7 +271,7 @@ class RecommendationEngine {
     }).filter(rec => rec.score > 25);
   }
 
-  private async getScholarshipRecommendations(profile: UserProfile, roles: UserRole[]): Promise<Recommendation[]> {
+  private async getScholarshipRecommendations(profile: UserProfile, roles: UserRole[], weightings: any): Promise<Recommendation[]> {
     try {
       const { data: scholarships } = await supabase
         .from('scholarships')
@@ -252,7 +282,7 @@ class RecommendationEngine {
       if (!scholarships) return [];
 
       return scholarships.map(scholarship => {
-        const score = this.calculateScholarshipScore(scholarship, profile, roles);
+        const score = this.calculateScholarshipScore(scholarship, profile, roles, weightings);
         const reasons = this.generateScholarshipReasons(scholarship, profile, roles);
 
         return {
@@ -273,7 +303,7 @@ class RecommendationEngine {
     }
   }
 
-  private async getInternshipRecommendations(profile: UserProfile, roles: UserRole[]): Promise<Recommendation[]> {
+  private async getInternshipRecommendations(profile: UserProfile, roles: UserRole[], weightings: any): Promise<Recommendation[]> {
     try {
       const { data: internships } = await supabase
         .from('internships')
@@ -284,7 +314,7 @@ class RecommendationEngine {
       if (!internships) return [];
 
       return internships.map(internship => {
-        const score = this.calculateInternshipScore(internship, profile, roles);
+        const score = this.calculateInternshipScore(internship, profile, roles, weightings);
         const matchedSkills = this.findMatchedSkills({ skills_required: internship.skills_required }, profile.skills);
         const reasons = this.generateInternshipReasons(internship, profile, matchedSkills);
 
@@ -307,27 +337,27 @@ class RecommendationEngine {
     }
   }
 
-  private calculateJobScore(job: any, profile: UserProfile): number {
+  private calculateJobScore(job: any, profile: UserProfile, weightings: any): number {
     let score = 0;
 
     // Skills matching
     const skillsMatch = this.calculateSkillsMatch(job.requirements?.skills || [], profile.skills);
-    score += skillsMatch * this.weightings.skillsMatch * 100;
+    score += skillsMatch * weightings.skillsMatch * 100;
 
     // Location matching
     if (job.location && profile.location) {
       const locationMatch = job.location.toLowerCase().includes(profile.location.toLowerCase()) ? 1 : 0;
-      score += locationMatch * this.weightings.locationMatch * 100;
+      score += locationMatch * weightings.locationMatch * 100;
     }
 
     // Experience matching
     const experienceMatch = this.calculateExperienceMatch(job, profile);
-    score += experienceMatch * this.weightings.experienceMatch * 100;
+    score += experienceMatch * weightings.experienceMatch * 100;
 
     return Math.min(score, 100);
   }
 
-  private calculateTrainingScore(training: any, profile: UserProfile): number {
+  private calculateTrainingScore(training: any, profile: UserProfile, weightings: any): number {
     let score = 30; // Base score for training
 
     // Skills gap analysis - recommend training for skills not in user's profile
@@ -337,7 +367,7 @@ class RecommendationEngine {
       )
     );
     
-    score += (skillsGap.length / training.skills.length) * 40;
+    score += (skillsGap.length / training.skills.length) * 40 * weightings.skillsMatch;
 
     // Boost score for career-relevant training
     const careerRelevant = training.skills.some((skill: string) =>
@@ -346,12 +376,12 @@ class RecommendationEngine {
       )
     );
     
-    if (careerRelevant) score += 20;
+    if (careerRelevant) score += 20 * weightings.experienceMatch;
 
     return Math.min(score, 100);
   }
 
-  private calculateScholarshipScore(scholarship: any, profile: UserProfile, roles: UserRole[]): number {
+  private calculateScholarshipScore(scholarship: any, profile: UserProfile, roles: UserRole[], weightings: any): number {
     let score = 20; // Base score
 
     // Student role boost
@@ -362,13 +392,13 @@ class RecommendationEngine {
     // Education level matching
     if (scholarship.eligibility_criteria?.education_level) {
       const levelMatch = this.matchEducationLevel(scholarship.eligibility_criteria.education_level, profile.educationLevel);
-      score += levelMatch * 30;
+      score += levelMatch * 30 * weightings.educationMatch;
     }
 
     return Math.min(score, 100);
   }
 
-  private calculateInternshipScore(internship: any, profile: UserProfile, roles: UserRole[]): number {
+  private calculateInternshipScore(internship: any, profile: UserProfile, roles: UserRole[], weightings: any): number {
     let score = 0;
 
     // Student role boost
@@ -378,12 +408,12 @@ class RecommendationEngine {
 
     // Skills matching
     const skillsMatch = this.calculateSkillsMatch(internship.skills_required || [], profile.skills);
-    score += skillsMatch * 30;
+    score += skillsMatch * 30 * weightings.skillsMatch;
 
     // Education level matching
     if (internship.education_level && profile.educationLevel) {
       const levelMatch = this.matchEducationLevel(internship.education_level, profile.educationLevel);
-      score += levelMatch * 20;
+      score += levelMatch * 20 * weightings.educationMatch;
     }
 
     return Math.min(score, 100);
