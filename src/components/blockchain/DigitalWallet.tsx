@@ -4,253 +4,328 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Wallet, 
+  Award, 
+  Shield, 
+  Calendar,
+  Building2,
+  Download,
+  Share,
+  History,
+  ExternalLink
+} from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
 import { blockchainCredentialService } from '@/services/blockchain/blockchainCredentialService';
+import { auditLogger } from '@/services/blockchain/auditLogger';
 import { BlockchainCredential } from '@/types/blockchainCredentials';
-import CredentialCard from './CredentialCard';
-import CredentialVerification from './CredentialVerification';
-import { Wallet, Shield, Award, Download, Share2 } from 'lucide-react';
+import TransactionHistory from './TransactionHistory';
+import { toast } from 'sonner';
 
 const DigitalWallet: React.FC = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [credentials, setCredentials] = useState<BlockchainCredential[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCredential, setSelectedCredential] = useState<BlockchainCredential | null>(null);
-  const [activeTab, setActiveTab] = useState('wallet');
 
   useEffect(() => {
-    if (user?.id) {
-      fetchCredentials();
+    if (user) {
+      loadCredentials();
     }
-  }, [user?.id]);
+  }, [user]);
 
-  const fetchCredentials = async () => {
-    if (!user?.id) return;
+  const loadCredentials = async () => {
+    if (!user) return;
     
     setIsLoading(true);
     try {
       const userCredentials = await blockchainCredentialService.getUserCredentials(user.id);
       setCredentials(userCredentials);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load your digital credentials',
-        variant: 'destructive'
-      });
+      console.error('Failed to load credentials:', error);
+      toast.error('Failed to load credentials');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const verifiedCount = credentials.filter(c => c.verification_status === 'verified').length;
-  const walletAddress = user?.id ? `0x${user.id.replace(/-/g, '').substring(0, 40)}` : '';
-
-  const exportCredentials = () => {
-    const credentialData = {
-      wallet_address: walletAddress,
-      credentials: credentials,
-      exported_at: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(credentialData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'emirati-digital-credentials.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const shareCredentials = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'My Digital Credentials',
-        text: `I have ${verifiedCount} verified digital credentials on the Emirati Journey Platform`,
-        url: window.location.href
+  const handleDownloadCredential = async (credential: BlockchainCredential) => {
+    try {
+      // Log download action
+      await auditLogger.logOperation({
+        user_id: user!.id,
+        credential_id: credential.id,
+        operation_type: 'download',
+        operation_details: {
+          action: `Downloaded credential: ${credential.title}`,
+          metadata: {
+            credential_type: credential.credential_type,
+            format: 'JSON'
+          },
+          result: 'success'
+        }
       });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: 'Link Copied',
-        description: 'Portfolio link copied to clipboard'
+
+      // Create downloadable credential data
+      const credentialData = {
+        ...credential,
+        downloaded_at: new Date().toISOString(),
+        download_format: 'JSON'
+      };
+
+      const blob = new Blob([JSON.stringify(credentialData, null, 2)], {
+        type: 'application/json'
       });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `credential-${credential.title.replace(/[^a-zA-Z0-9]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success('Credential downloaded successfully');
+    } catch (error) {
+      await auditLogger.logOperation({
+        user_id: user!.id,
+        credential_id: credential.id,
+        operation_type: 'download',
+        operation_details: {
+          action: `Failed to download credential: ${credential.title}`,
+          result: 'failure',
+          error_message: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+
+      console.error('Download failed:', error);
+      toast.error('Failed to download credential');
     }
   };
 
-  if (isLoading) {
+  const handleShareCredential = async (credential: BlockchainCredential) => {
+    try {
+      const shareUrl = `${window.location.origin}/blockchain-credentials/verify?id=${credential.id}`;
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: `Blockchain Credential: ${credential.title}`,
+          text: `Verify my ${credential.credential_type} credential on the blockchain`,
+          url: shareUrl
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Verification link copied to clipboard');
+      }
+
+      // Log share action
+      await auditLogger.logOperation({
+        user_id: user!.id,
+        credential_id: credential.id,
+        operation_type: 'share',
+        operation_details: {
+          action: `Shared credential: ${credential.title}`,
+          metadata: {
+            share_method: navigator.share ? 'native_share' : 'clipboard',
+            verification_url: shareUrl
+          },
+          result: 'success'
+        }
+      });
+    } catch (error) {
+      await auditLogger.logOperation({
+        user_id: user!.id,
+        credential_id: credential.id,
+        operation_type: 'share',
+        operation_details: {
+          action: `Failed to share credential: ${credential.title}`,
+          result: 'failure',
+          error_message: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+
+      console.error('Share failed:', error);
+      toast.error('Failed to share credential');
+    }
+  };
+
+  const getCredentialTypeIcon = (type: string) => {
+    switch (type) {
+      case 'certification':
+        return <Award className="h-5 w-5" />;
+      case 'degree':
+        return <Building2 className="h-5 w-5" />;
+      case 'skill_badge':
+        return <Shield className="h-5 w-5" />;
+      default:
+        return <Award className="h-5 w-5" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return 'bg-green-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'revoked':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-AE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <Card>
+        <CardContent className="text-center py-8">
+          <Wallet className="mx-auto h-12 w-12 mb-4 opacity-50" />
+          <p className="text-muted-foreground">Please log in to access your digital wallet</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center">
-            <Wallet className="mr-3 h-8 w-8" />
-            Digital Credentials Wallet
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Secure, blockchain-verified digital credentials
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={exportCredentials}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline" onClick={shareCredentials}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Wallet className="mr-2 h-5 w-5" />
+            Digital Wallet
+          </CardTitle>
+          <CardDescription>
+            Your secure blockchain credentials wallet
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="credentials" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="credentials">My Credentials</TabsTrigger>
+              <TabsTrigger value="history">Transaction History</TabsTrigger>
+            </TabsList>
 
-      {/* Wallet Overview */}
-      <Card className="bg-gradient-to-r from-emirati-teal to-emirati-navy text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Wallet Address</h3>
-              <p className="font-mono text-sm opacity-90">{walletAddress}</p>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold">{credentials.length}</div>
-              <div className="text-sm opacity-90">Total Credentials</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="text-center p-3 bg-white/10 rounded-lg">
-              <Shield className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-xl font-bold">{verifiedCount}</div>
-              <div className="text-xs">Verified</div>
-            </div>
-            <div className="text-center p-3 bg-white/10 rounded-lg">
-              <Award className="h-6 w-6 mx-auto mb-2" />
-              <div className="text-xl font-bold">
-                {credentials.filter(c => c.credential_type === 'certification').length}
-              </div>
-              <div className="text-xs">Certifications</div>
-            </div>
-          </div>
+            <TabsContent value="credentials">
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+                  <p className="mt-2 text-muted-foreground">Loading your credentials...</p>
+                </div>
+              ) : credentials.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Wallet className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                  <p>No credentials in your wallet yet</p>
+                  <p className="text-sm">Credentials you receive will appear here</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {credentials.map((credential) => (
+                    <Card key={credential.id} className="hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-primary/10 rounded-full text-primary">
+                              {getCredentialTypeIcon(credential.credential_type)}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{credential.title}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {credential.credential_type.replace('_', ' ').toUpperCase()}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-white ${getStatusColor(credential.verification_status)}`}
+                          >
+                            {credential.verification_status}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      
+                      <CardContent className="pt-0">
+                        {credential.description && (
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {credential.description}
+                          </p>
+                        )}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                          <div className="flex items-center text-muted-foreground">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            Issued: {formatDate(credential.issued_date)}
+                          </div>
+                          
+                          {credential.expiry_date && (
+                            <div className="flex items-center text-muted-foreground">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              Expires: {formatDate(credential.expiry_date)}
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center text-muted-foreground">
+                            <Shield className="h-3 w-3 mr-1" />
+                            Block: #{credential.block_number}
+                          </div>
+                          
+                          <div className="flex items-center text-muted-foreground">
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Tx: {credential.transaction_hash.substring(0, 12)}...
+                          </div>
+                        </div>
+
+                        {credential.skills && credential.skills.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm font-medium mb-2">Skills Certified:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {credential.skills.map((skill, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDownloadCredential(credential)}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleShareCredential(credential)}
+                          >
+                            <Share className="h-4 w-4 mr-2" />
+                            Share
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="history">
+              <TransactionHistory />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="wallet">My Credentials</TabsTrigger>
-          <TabsTrigger value="verify">Verify Credential</TabsTrigger>
-          <TabsTrigger value="details">Credential Details</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="wallet" className="space-y-4">
-          {credentials.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Wallet className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No Credentials Yet</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Your digital credentials will appear here once they're issued by verified institutions or training centers.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {credentials.map((credential) => (
-                <CredentialCard
-                  key={credential.id}
-                  credential={credential}
-                  onClick={() => {
-                    setSelectedCredential(credential);
-                    setActiveTab('details');
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="verify">
-          <CredentialVerification />
-        </TabsContent>
-
-        <TabsContent value="details">
-          {selectedCredential ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  {selectedCredential.title}
-                  <Badge 
-                    variant={selectedCredential.verification_status === 'verified' ? 'default' : 'secondary'}
-                  >
-                    {selectedCredential.verification_status}
-                  </Badge>
-                </CardTitle>
-                <CardDescription>{selectedCredential.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Credential Hash</label>
-                    <p className="font-mono text-xs break-all bg-muted p-2 rounded">
-                      {selectedCredential.credential_hash}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Transaction Hash</label>
-                    <p className="font-mono text-xs break-all bg-muted p-2 rounded">
-                      {selectedCredential.transaction_hash}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Block Number</label>
-                    <p className="font-mono text-sm">{selectedCredential.block_number}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Issued Date</label>
-                    <p className="text-sm">
-                      {new Date(selectedCredential.issued_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                
-                {selectedCredential.skills && selectedCredential.skills.length > 0 && (
-                  <div>
-                    <label className="text-sm font-medium">Skills</label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedCredential.skills.map((skill) => (
-                        <Badge key={skill} variant="outline">{skill}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <label className="text-sm font-medium">Merkle Proof</label>
-                  <div className="space-y-1 mt-2">
-                    {selectedCredential.merkle_proof.map((proof, index) => (
-                      <p key={index} className="font-mono text-xs bg-muted p-2 rounded">
-                        {proof}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="flex items-center justify-center py-12">
-                <p className="text-muted-foreground">Select a credential to view details</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
