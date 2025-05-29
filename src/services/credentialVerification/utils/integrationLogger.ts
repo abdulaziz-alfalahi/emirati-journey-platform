@@ -1,14 +1,9 @@
-export interface LogLevel {
-  ERROR: 'error';
-  WARN: 'warn';
-  INFO: 'info';
-  DEBUG: 'debug';
-}
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 export interface IntegrationLogEntry {
   id: string;
   timestamp: string;
-  level: keyof LogLevel;
+  level: LogLevel;
   service: string;
   operation: string;
   userId?: string;
@@ -34,7 +29,7 @@ export class IntegrationLogger {
   }
 
   private createLogEntry(
-    level: keyof LogLevel,
+    level: LogLevel,
     service: string,
     operation: string,
     message: string,
@@ -163,7 +158,7 @@ export class IntegrationLogger {
       .slice(-limit);
   }
 
-  getLogsByLevel(level: keyof LogLevel, limit: number = 100): IntegrationLogEntry[] {
+  getLogsByLevel(level: LogLevel, limit: number = 100): IntegrationLogEntry[] {
     return this.logs
       .filter(log => log.level === level)
       .slice(-limit);
