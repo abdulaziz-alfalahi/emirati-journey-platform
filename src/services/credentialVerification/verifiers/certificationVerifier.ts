@@ -1,7 +1,7 @@
 
 import { CertificationVerificationData, VerificationResponse } from "@/types/credentialVerification";
 import { RateLimiter } from "../utils/rateLimiter";
-import { DatabaseOperations } from "../utils/databaseOperations";
+import { DatabaseOperations } from "../utils/database";
 import { ExternalVerifier } from "../utils/externalVerifier";
 import { integrationLogger } from "../utils/integrationLogger";
 
