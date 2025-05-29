@@ -1,5 +1,4 @@
 
-export { batchDownloadService, BatchDownloadResult } from './batchDownloadService';
-export { batchShareService } from './batchShareService';
-export { batchRevokeService } from './batchRevokeService';
+export { batchDownloadService, batchShareService, batchRevokeService };
+export type { BatchDownloadResult } from './batchDownloadService';
 export type { BatchOperationResult } from './batchShareService';
