@@ -60,8 +60,8 @@ export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
             <AssessmentCard
               key={assessment.id}
               assessment={assessment}
-              onView={() => onViewAssessment(assessment)}
-              onEvaluate={() => onEvaluateAssessment(assessment)}
+              onViewAssessment={() => onViewAssessment(assessment)}
+              onEvaluateAssessment={() => onEvaluateAssessment(assessment)}
             />
           ))}
         </div>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Library, FileTemplate } from 'lucide-react';
+import { Plus, Library, FileText } from 'lucide-react';
 
 interface DashboardHeaderProps {
   onCreateAssessment: () => void;
@@ -24,7 +24,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex gap-2">
         {onCreateTemplate && (
           <Button variant="outline" onClick={onCreateTemplate}>
-            <FileTemplate className="h-4 w-4 mr-2" />
+            <FileText className="h-4 w-4 mr-2" />
             Create Template
           </Button>
         )}
