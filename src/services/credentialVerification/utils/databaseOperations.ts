@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { retryMechanism } from "./retryMechanism";
 import { integrationLogger } from "./integrationLogger";
+import { VerifiedCredential } from "@/types/credentialVerification";
 
 export class DatabaseOperations {
   async createVerificationRequest(
@@ -150,7 +151,7 @@ export class DatabaseOperations {
     issueDate: string,
     verificationSource: string,
     metadata: any
-  ) {
+  ): Promise<VerifiedCredential> {
     const operation = async () => {
       const { data, error } = await supabase
         .from('verified_credentials')
@@ -198,7 +199,16 @@ export class DatabaseOperations {
           }
         }
       );
-      return result.data!;
+      
+      // Cast the database result to match the VerifiedCredential interface
+      const credential: VerifiedCredential = {
+        ...result.data!,
+        credential_type: result.data!.credential_type as 'education' | 'employment' | 'certification',
+        verification_status: result.data!.verification_status as 'active' | 'expired' | 'revoked',
+        metadata: (result.data!.metadata as Record<string, any>) || {}
+      };
+      
+      return credential;
     } else {
       integrationLogger.logError(
         'DatabaseOperations',
