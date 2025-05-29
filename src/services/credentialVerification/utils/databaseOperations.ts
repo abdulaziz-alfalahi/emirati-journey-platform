@@ -1,93 +1,219 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { CredentialVerificationRequest, VerifiedCredential } from "@/types/credentialVerification";
+import { retryMechanism } from "./retryMechanism";
+import { integrationLogger } from "./integrationLogger";
 
 export class DatabaseOperations {
   async createVerificationRequest(
     userId: string,
     databaseSource: string,
-    verificationType: 'education' | 'employment' | 'certification',
-    requestData: Record<string, any>
-  ): Promise<CredentialVerificationRequest> {
-    const { data, error } = await supabase
-      .from('credential_verification_requests')
-      .insert({
-        user_id: userId,
-        database_source: databaseSource,
-        verification_type: verificationType,
-        request_data: requestData,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-      })
-      .select()
-      .single();
+    verificationType: string,
+    requestData: any
+  ) {
+    const operation = async () => {
+      const { data, error } = await supabase
+        .from('credential_verification_requests')
+        .insert({
+          user_id: userId,
+          database_source: databaseSource,
+          verification_type: verificationType,
+          request_data: requestData,
+          status: 'pending',
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
-    
-    return {
-      ...data,
-      verification_type: data.verification_type as 'education' | 'employment' | 'certification',
-      status: data.status as 'pending' | 'verified' | 'failed' | 'expired',
-      request_data: (data.request_data as Record<string, any>) || {},
-      response_data: (data.response_data as Record<string, any>) || undefined
+      if (error) {
+        throw new Error(`Failed to create verification request: ${error.message}`);
+      }
+
+      return data;
     };
+
+    const result = await retryMechanism.executeWithRetry(
+      operation,
+      `createVerificationRequest-${verificationType}`,
+      {
+        maxRetries: 2,
+        baseDelayMs: 500,
+        retryableErrors: ['NETWORK_ERROR', 'TIMEOUT', 'CONNECTION_REFUSED']
+      }
+    );
+
+    if (result.success) {
+      integrationLogger.logDebug(
+        'DatabaseOperations',
+        'createVerificationRequest',
+        'Verification request created successfully',
+        {
+          additionalData: { 
+            requestId: result.data?.id,
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      return result.data!;
+    } else {
+      integrationLogger.logError(
+        'DatabaseOperations',
+        'createVerificationRequest',
+        'Failed to create verification request',
+        result.error,
+        {
+          additionalData: { 
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      throw result.error!;
+    }
   }
 
   async updateVerificationRequestStatus(
     requestId: string,
-    status: 'pending' | 'verified' | 'failed' | 'expired',
+    status: 'verified' | 'failed',
     responseData?: any
-  ): Promise<void> {
-    const updateData: any = {
-      status,
-      updated_at: new Date().toISOString()
+  ) {
+    const operation = async () => {
+      const updateData: any = {
+        status,
+        response_data: responseData,
+        updated_at: new Date().toISOString()
+      };
+
+      if (status === 'verified') {
+        updateData.verified_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('credential_verification_requests')
+        .update(updateData)
+        .eq('id', requestId);
+
+      if (error) {
+        throw new Error(`Failed to update verification request: ${error.message}`);
+      }
+
+      return true;
     };
 
-    if (responseData) {
-      updateData.response_data = responseData;
+    const result = await retryMechanism.executeWithRetry(
+      operation,
+      `updateVerificationRequestStatus-${requestId}`,
+      {
+        maxRetries: 2,
+        baseDelayMs: 500,
+        retryableErrors: ['NETWORK_ERROR', 'TIMEOUT', 'CONNECTION_REFUSED']
+      }
+    );
+
+    if (result.success) {
+      integrationLogger.logDebug(
+        'DatabaseOperations',
+        'updateVerificationRequestStatus',
+        `Verification request updated to ${status}`,
+        {
+          additionalData: { 
+            requestId,
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      return result.data!;
+    } else {
+      integrationLogger.logError(
+        'DatabaseOperations',
+        'updateVerificationRequestStatus',
+        'Failed to update verification request status',
+        result.error,
+        {
+          additionalData: { 
+            requestId,
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      throw result.error!;
     }
-
-    if (status === 'verified') {
-      updateData.verified_at = new Date().toISOString();
-    }
-
-    const { error } = await supabase
-      .from('credential_verification_requests')
-      .update(updateData)
-      .eq('id', requestId);
-
-    if (error) throw error;
   }
 
   async createVerifiedCredential(
     userId: string,
-    credentialType: 'education' | 'employment' | 'certification',
+    credentialType: string,
     institutionName: string,
     credentialTitle: string,
     issueDate: string,
     verificationSource: string,
-    metadata?: Record<string, any>
-  ): Promise<VerifiedCredential> {
-    const { data, error } = await supabase
-      .from('verified_credentials')
-      .insert({
-        user_id: userId,
-        credential_type: credentialType,
-        institution_name: institutionName,
-        credential_title: credentialTitle,
-        issue_date: issueDate,
-        verification_source: verificationSource,
-        metadata
-      })
-      .select()
-      .single();
+    metadata: any
+  ) {
+    const operation = async () => {
+      const { data, error } = await supabase
+        .from('verified_credentials')
+        .insert({
+          user_id: userId,
+          credential_type: credentialType,
+          institution_name: institutionName,
+          credential_title: credentialTitle,
+          issue_date: issueDate,
+          verification_source: verificationSource,
+          verification_status: 'active',
+          metadata: metadata
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
-    
-    return {
-      ...data,
-      credential_type: data.credential_type as 'education' | 'employment' | 'certification',
-      verification_status: data.verification_status as 'active' | 'expired' | 'revoked',
-      metadata: (data.metadata as Record<string, any>) || {}
+      if (error) {
+        throw new Error(`Failed to create verified credential: ${error.message}`);
+      }
+
+      return data;
     };
+
+    const result = await retryMechanism.executeWithRetry(
+      operation,
+      `createVerifiedCredential-${credentialType}`,
+      {
+        maxRetries: 2,
+        baseDelayMs: 500,
+        retryableErrors: ['NETWORK_ERROR', 'TIMEOUT', 'CONNECTION_REFUSED']
+      }
+    );
+
+    if (result.success) {
+      integrationLogger.logDebug(
+        'DatabaseOperations',
+        'createVerifiedCredential',
+        'Verified credential created successfully',
+        {
+          additionalData: { 
+            credentialId: result.data?.id,
+            credentialType,
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      return result.data!;
+    } else {
+      integrationLogger.logError(
+        'DatabaseOperations',
+        'createVerifiedCredential',
+        'Failed to create verified credential',
+        result.error,
+        {
+          additionalData: { 
+            credentialType,
+            attempts: result.attempts,
+            duration: result.totalDuration
+          }
+        }
+      );
+      throw result.error!;
+    }
   }
 }
