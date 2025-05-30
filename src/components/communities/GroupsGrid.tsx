@@ -1,50 +1,54 @@
-
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, BarChart3, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sparkles, BarChart3, Calendar, TrendingUp, Users, Filter } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { CommunitiesService } from '@/services/communitiesService';
-import { ProfessionalGroup, GroupPoll, GroupEvent } from '@/types/communities';
+import { 
+  ProfessionalGroup, 
+  GroupPoll, 
+  GroupEvent, 
+  AdvancedSearchFilters,
+  GroupWithMetrics 
+} from '@/types/communities';
 import GroupCard from './GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
 import CreatePollDialog from './CreatePollDialog';
 import CreateEventDialog from './CreateEventDialog';
 import PollCard from './PollCard';
 import EventCard from './EventCard';
-
-const industries = [
-  'Technology', 'Healthcare', 'Finance', 'Education', 'Government',
-  'Energy', 'Transportation', 'Tourism', 'Real Estate', 'Manufacturing'
-];
-
-const categories = [
-  'Career Development', 'Industry Networking', 'Skills Exchange',
-  'Mentorship', 'Entrepreneurship', 'Leadership', 'Innovation'
-];
+import AdvancedGroupSearch from './AdvancedGroupSearch';
+import GroupRecommendations from './GroupRecommendations';
 
 const GroupsGrid: React.FC = () => {
-  const [groups, setGroups] = useState<ProfessionalGroup[]>([]);
+  const [groups, setGroups] = useState<GroupWithMetrics[]>([]);
+  const [trendingGroups, setTrendingGroups] = useState<GroupWithMetrics[]>([]);
   const [polls, setPolls] = useState<GroupPoll[]>([]);
   const [events, setEvents] = useState<GroupEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [joinedGroups, setJoinedGroups] = useState<Set<string>>(new Set());
   const [joiningGroups, setJoiningGroups] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState('groups');
+  const [activeTab, setActiveTab] = useState('discover');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
-  const [filters, setFilters] = useState({
-    search: '',
-    industry: '',
-    category: '',
-    is_private: ''
-  });
+  const [searchFilters, setSearchFilters] = useState<AdvancedSearchFilters>({});
+  const [viewMode, setViewMode] = useState<'all' | 'recommended' | 'trending'>('all');
 
   useEffect(() => {
-    loadGroups();
-    loadUserGroups();
-  }, [filters]);
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'discover') {
+      if (Object.keys(searchFilters).length > 0) {
+        loadFilteredGroups();
+      } else {
+        loadGroupsByMode();
+      }
+    }
+  }, [searchFilters, viewMode, activeTab]);
 
   useEffect(() => {
     if (selectedGroupId) {
@@ -53,32 +57,61 @@ const GroupsGrid: React.FC = () => {
     }
   }, [selectedGroupId]);
 
-  const loadGroups = async () => {
+  const loadInitialData = async () => {
     try {
-      const filterParams: any = {};
-      if (filters.industry) filterParams.industry = filters.industry;
-      if (filters.category) filterParams.category = filters.category;
-      if (filters.search) filterParams.search = filters.search;
-      if (filters.is_private) filterParams.is_private = filters.is_private === 'true';
-
-      const data = await CommunitiesService.getGroups(filterParams);
-      setGroups(data);
-      
-      // Set the first joined group as selected for polls/events
-      if (data.length > 0 && joinedGroups.size > 0 && !selectedGroupId) {
-        const firstJoinedGroup = data.find(group => joinedGroups.has(group.id));
-        if (firstJoinedGroup) {
-          setSelectedGroupId(firstJoinedGroup.id);
-        }
-      }
+      await Promise.all([
+        loadUserGroups(),
+        loadGroupsByMode(),
+        loadTrendingGroups()
+      ]);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load groups",
+        description: "Failed to load communities",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadGroupsByMode = async () => {
+    try {
+      let data: GroupWithMetrics[] = [];
+      
+      switch (viewMode) {
+        case 'trending':
+          data = await CommunitiesService.getTrendingGroups(20);
+          break;
+        case 'recommended':
+          // For now, load regular groups - recommendations will be handled separately
+          data = await CommunitiesService.getGroups({ is_private: false });
+          break;
+        default:
+          data = await CommunitiesService.getGroups({ is_private: false });
+      }
+      
+      setGroups(data);
+    } catch (error) {
+      console.error('Failed to load groups:', error);
+    }
+  };
+
+  const loadFilteredGroups = async () => {
+    try {
+      const data = await CommunitiesService.getGroupsWithAdvancedFilters(searchFilters);
+      setGroups(data);
+    } catch (error) {
+      console.error('Failed to load filtered groups:', error);
+    }
+  };
+
+  const loadTrendingGroups = async () => {
+    try {
+      const data = await CommunitiesService.getTrendingGroups(6);
+      setTrendingGroups(data);
+    } catch (error) {
+      console.error('Failed to load trending groups:', error);
     }
   };
 
@@ -88,7 +121,6 @@ const GroupsGrid: React.FC = () => {
       const joinedGroupIds = new Set(userGroups.map(g => g.id));
       setJoinedGroups(joinedGroupIds);
       
-      // Auto-select first joined group for polls/events
       if (userGroups.length > 0 && !selectedGroupId) {
         setSelectedGroupId(userGroups[0].id);
       }
@@ -124,21 +156,20 @@ const GroupsGrid: React.FC = () => {
       await CommunitiesService.joinGroup(groupId);
       setJoinedGroups(prev => new Set([...prev, groupId]));
       
-      // If this is the first group joined, select it for polls/events
       if (joinedGroups.size === 0) {
         setSelectedGroupId(groupId);
       }
       
       toast({
         title: "Success",
-        description: "You've joined the group!",
+        description: "You've joined the community!",
       });
       
-      loadGroups();
+      await loadUserGroups();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to join group. Please try again.",
+        description: "Failed to join community. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -150,13 +181,10 @@ const GroupsGrid: React.FC = () => {
     }
   };
 
-  const clearFilters = () => {
-    setFilters({
-      search: '',
-      industry: '',
-      category: '',
-      is_private: ''
-    });
+  const handleGroupClick = async (groupId: string) => {
+    if (searchFilters.search) {
+      await CommunitiesService.logGroupClick(groupId, searchFilters.search);
+    }
   };
 
   const joinedGroupsList = groups.filter(group => joinedGroups.has(group.id));
@@ -176,16 +204,19 @@ const GroupsGrid: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold">Professional Communities</h1>
           <p className="text-muted-foreground">
-            Connect with professionals in your industry and career stage
+            Discover and connect with communities that match your interests
           </p>
         </div>
-        <CreateGroupDialog onGroupCreated={loadGroups} />
+        <CreateGroupDialog onGroupCreated={loadInitialData} />
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="groups">Groups</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="discover">
+            <Users className="h-4 w-4 mr-2" />
+            Discover
+          </TabsTrigger>
           <TabsTrigger value="polls" disabled={joinedGroups.size === 0}>
             <BarChart3 className="h-4 w-4 mr-2" />
             Polls
@@ -194,88 +225,107 @@ const GroupsGrid: React.FC = () => {
             <Calendar className="h-4 w-4 mr-2" />
             Events
           </TabsTrigger>
+          <TabsTrigger value="trending">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Trending
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="groups" className="space-y-6">
-          {/* Filters */}
-          <div className="bg-card p-4 rounded-lg border">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search groups..."
-                  value={filters.search}
-                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                  className="pl-10"
-                />
-              </div>
-              
-              <Select value={filters.industry} onValueChange={(value) => setFilters(prev => ({ ...prev, industry: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Industries" />
+        <TabsContent value="discover" className="space-y-6">
+          {/* Search and Filters */}
+          <AdvancedGroupSearch 
+            onFiltersChange={setSearchFilters}
+            initialFilters={searchFilters}
+          />
+
+          {/* Recommendations */}
+          {Object.keys(searchFilters).length === 0 && (
+            <GroupRecommendations 
+              onJoinGroup={handleJoinGroup}
+              onRecommendationDismissed={loadInitialData}
+            />
+          )}
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={viewMode} onValueChange={(value: any) => setViewMode(value)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Industries</SelectItem>
-                  {industries.map((industry) => (
-                    <SelectItem key={industry} value={industry}>
-                      {industry}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">All Communities</SelectItem>
+                  <SelectItem value="recommended">
+                    <Sparkles className="h-4 w-4 mr-2 inline" />
+                    Recommended
+                  </SelectItem>
+                  <SelectItem value="trending">
+                    <TrendingUp className="h-4 w-4 mr-2 inline" />
+                    Trending
+                  </SelectItem>
                 </SelectContent>
               </Select>
-              
-              <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <div className="flex space-x-2">
-                <Select value={filters.is_private} onValueChange={(value) => setFilters(prev => ({ ...prev, is_private: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Groups" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Groups</SelectItem>
-                    <SelectItem value="false">Public Groups</SelectItem>
-                    <SelectItem value="true">Private Groups</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Button variant="outline" onClick={clearFilters}>
-                  <Filter className="h-4 w-4 mr-2" />
-                  Clear
-                </Button>
-              </div>
             </div>
+            <Badge variant="secondary">
+              {groups.length} communities found
+            </Badge>
           </div>
 
           {/* Groups Grid */}
           {groups.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-lg font-medium mb-2">No groups found</h3>
+              <h3 className="text-lg font-medium mb-2">No communities found</h3>
               <p className="text-muted-foreground mb-4">
-                Try adjusting your filters or create a new group to get started.
+                Try adjusting your filters or create a new community to get started.
               </p>
-              <CreateGroupDialog onGroupCreated={loadGroups} />
+              <CreateGroupDialog onGroupCreated={loadInitialData} />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groups.map((group) => (
+                <div key={group.id} onClick={() => handleGroupClick(group.id)}>
+                  <GroupCard
+                    group={group}
+                    onJoin={handleJoinGroup}
+                    isJoined={joinedGroups.has(group.id)}
+                    isLoading={joiningGroups.has(group.id)}
+                    showMetrics={true}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="trending" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Trending Communities</h2>
+              <p className="text-muted-foreground">
+                Communities with the most activity and engagement
+              </p>
+            </div>
+          </div>
+
+          {trendingGroups.length === 0 ? (
+            <div className="text-center py-12">
+              <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No trending communities yet</h3>
+              <p className="text-muted-foreground">
+                Check back later for trending communities!
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {trendingGroups.map((group) => (
                 <GroupCard
                   key={group.id}
                   group={group}
                   onJoin={handleJoinGroup}
                   isJoined={joinedGroups.has(group.id)}
                   isLoading={joiningGroups.has(group.id)}
+                  showMetrics={true}
                 />
               ))}
             </div>

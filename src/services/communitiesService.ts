@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ProfessionalGroup,
@@ -17,7 +16,12 @@ import type {
   GroupEvent,
   EventRsvp,
   CreatePollData,
-  CreateGroupEventData
+  CreateGroupEventData,
+  UserInterest,
+  GroupRecommendation,
+  GroupWithMetrics,
+  AdvancedSearchFilters,
+  SearchSuggestion
 } from '@/types/communities';
 
 export class CommunitiesService {
@@ -609,5 +613,224 @@ export class CommunitiesService {
       ...rsvp,
       status: rsvp.status as EventRsvp['status']
     }));
+  }
+
+  // Enhanced Discovery Methods
+  static async getRecommendedGroups(): Promise<GroupRecommendation[]> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) return [];
+
+    const { data, error } = await supabase
+      .from('group_recommendations')
+      .select(`
+        *,
+        professional_groups(*)
+      `)
+      .eq('user_id', user.user.id)
+      .eq('is_dismissed', false)
+      .order('recommendation_score', { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+    return (data || []).map(rec => ({
+      ...rec,
+      group: rec.professional_groups
+    }));
+  }
+
+  static async getTrendingGroups(limit: number = 10): Promise<GroupWithMetrics[]> {
+    const { data, error } = await supabase
+      .rpc('get_trending_groups', { limit_count: limit });
+
+    if (error) {
+      // Fallback to regular groups if RPC fails
+      return this.getGroups({ is_private: false });
+    }
+
+    return data || [];
+  }
+
+  static async getGroupsWithAdvancedFilters(filters: AdvancedSearchFilters): Promise<GroupWithMetrics[]> {
+    let query = supabase
+      .from('professional_groups')
+      .select(`
+        *,
+        group_activity_metrics!left(
+          new_members_count,
+          posts_count,
+          events_count,
+          polls_count,
+          engagement_score
+        )
+      `);
+
+    // Apply filters
+    if (filters.search) {
+      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,tags.cs.{${filters.search}}`);
+    }
+    if (filters.industry) {
+      query = query.eq('industry', filters.industry);
+    }
+    if (filters.category) {
+      query = query.eq('category', filters.category);
+    }
+    if (filters.is_private !== undefined) {
+      query = query.eq('is_private', filters.is_private);
+    }
+    if (filters.min_members) {
+      query = query.gte('member_count', filters.min_members);
+    }
+    if (filters.max_members) {
+      query = query.lte('member_count', filters.max_members);
+    }
+    if (filters.created_after) {
+      query = query.gte('created_at', filters.created_after);
+    }
+
+    // Apply sorting
+    switch (filters.sort_by) {
+      case 'newest':
+        query = query.order('created_at', { ascending: false });
+        break;
+      case 'largest':
+        query = query.order('member_count', { ascending: false });
+        break;
+      case 'trending':
+        query = query.order('updated_at', { ascending: false });
+        break;
+      default:
+        query = query.order('member_count', { ascending: false });
+    }
+
+    const { data, error } = await query.limit(50);
+    if (error) throw error;
+
+    // Log search analytics
+    if (filters.search) {
+      await this.logSearchAnalytics(filters.search, data?.length || 0, filters);
+    }
+
+    return data || [];
+  }
+
+  static async getSearchSuggestions(query: string): Promise<SearchSuggestion[]> {
+    const suggestions: SearchSuggestion[] = [];
+
+    // Get industry suggestions
+    const { data: industryData } = await supabase
+      .from('professional_groups')
+      .select('industry')
+      .ilike('industry', `%${query}%`)
+      .not('industry', 'is', null);
+
+    if (industryData) {
+      const industries = [...new Set(industryData.map(g => g.industry))];
+      industries.forEach(industry => {
+        if (industry) {
+          suggestions.push({
+            type: 'industry',
+            value: industry,
+            count: industryData.filter(g => g.industry === industry).length
+          });
+        }
+      });
+    }
+
+    // Get category suggestions
+    const { data: categoryData } = await supabase
+      .from('professional_groups')
+      .select('category')
+      .ilike('category', `%${query}%`)
+      .not('category', 'is', null);
+
+    if (categoryData) {
+      const categories = [...new Set(categoryData.map(g => g.category))];
+      categories.forEach(category => {
+        if (category) {
+          suggestions.push({
+            type: 'category',
+            value: category,
+            count: categoryData.filter(g => g.category === category).length
+          });
+        }
+      });
+    }
+
+    return suggestions.slice(0, 8);
+  }
+
+  static async updateUserInterests(interests: Omit<UserInterest, 'id' | 'user_id' | 'created_at' | 'updated_at'>[]): Promise<void> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    // Delete existing interests
+    await supabase
+      .from('user_interests')
+      .delete()
+      .eq('user_id', user.user.id);
+
+    // Insert new interests
+    if (interests.length > 0) {
+      const { error } = await supabase
+        .from('user_interests')
+        .insert(
+          interests.map(interest => ({
+            ...interest,
+            user_id: user.user.id
+          }))
+        );
+
+      if (error) throw error;
+    }
+  }
+
+  static async getUserInterests(): Promise<UserInterest[]> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) return [];
+
+    const { data, error } = await supabase
+      .from('user_interests')
+      .select('*')
+      .eq('user_id', user.user.id)
+      .order('weight', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  static async dismissRecommendation(recommendationId: string): Promise<void> {
+    const { error } = await supabase
+      .from('group_recommendations')
+      .update({ is_dismissed: true })
+      .eq('id', recommendationId);
+
+    if (error) throw error;
+  }
+
+  static async logGroupClick(groupId: string, searchQuery?: string): Promise<void> {
+    if (searchQuery) {
+      await this.logSearchAnalytics(searchQuery, 1, {}, groupId);
+    }
+  }
+
+  private static async logSearchAnalytics(
+    query: string, 
+    resultsCount: number, 
+    filters: Record<string, any> = {},
+    clickedGroupId?: string
+  ): Promise<void> {
+    const { data: user } = await supabase.auth.getUser();
+    
+    const { error } = await supabase
+      .from('group_search_analytics')
+      .insert({
+        search_query: query,
+        user_id: user?.user?.id,
+        results_count: resultsCount,
+        clicked_group_id: clickedGroupId,
+        search_filters: filters
+      });
+
+    if (error) console.error('Failed to log search analytics:', error);
   }
 }

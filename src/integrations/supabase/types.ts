@@ -1466,6 +1466,56 @@ export type Database = {
         }
         Relationships: []
       }
+      group_activity_metrics: {
+        Row: {
+          activity_date: string
+          comments_count: number | null
+          created_at: string
+          engagement_score: number | null
+          events_count: number | null
+          group_id: string
+          id: string
+          likes_count: number | null
+          new_members_count: number | null
+          polls_count: number | null
+          posts_count: number | null
+        }
+        Insert: {
+          activity_date?: string
+          comments_count?: number | null
+          created_at?: string
+          engagement_score?: number | null
+          events_count?: number | null
+          group_id: string
+          id?: string
+          likes_count?: number | null
+          new_members_count?: number | null
+          polls_count?: number | null
+          posts_count?: number | null
+        }
+        Update: {
+          activity_date?: string
+          comments_count?: number | null
+          created_at?: string
+          engagement_score?: number | null
+          events_count?: number | null
+          group_id?: string
+          id?: string
+          likes_count?: number | null
+          new_members_count?: number | null
+          polls_count?: number | null
+          posts_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_activity_metrics_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_events: {
         Row: {
           cover_image_url: string | null
@@ -1672,6 +1722,47 @@ export type Database = {
           },
         ]
       }
+      group_recommendations: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          is_dismissed: boolean | null
+          recommendation_reasons: string[] | null
+          recommendation_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          is_dismissed?: boolean | null
+          recommendation_reasons?: string[] | null
+          recommendation_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          is_dismissed?: boolean | null
+          recommendation_reasons?: string[] | null
+          recommendation_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_recommendations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_resources: {
         Row: {
           created_at: string | null
@@ -1722,6 +1813,44 @@ export type Database = {
           {
             foreignKeyName: "group_resources_group_id_fkey"
             columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_search_analytics: {
+        Row: {
+          clicked_group_id: string | null
+          created_at: string
+          id: string
+          results_count: number | null
+          search_filters: Json | null
+          search_query: string
+          user_id: string | null
+        }
+        Insert: {
+          clicked_group_id?: string | null
+          created_at?: string
+          id?: string
+          results_count?: number | null
+          search_filters?: Json | null
+          search_query: string
+          user_id?: string | null
+        }
+        Update: {
+          clicked_group_id?: string | null
+          created_at?: string
+          id?: string
+          results_count?: number | null
+          search_filters?: Json | null
+          search_query?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_search_analytics_clicked_group_id_fkey"
+            columns: ["clicked_group_id"]
             isOneToOne: false
             referencedRelation: "professional_groups"
             referencedColumns: ["id"]
@@ -3806,6 +3935,36 @@ export type Database = {
           },
         ]
       }
+      user_interests: {
+        Row: {
+          created_at: string
+          id: string
+          interest_type: string
+          interest_value: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interest_type: string
+          interest_value: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interest_type?: string
+          interest_value?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
       user_messages: {
         Row: {
           created_at: string
@@ -4291,6 +4450,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_group_trending_score: {
+        Args: { group_id_param: string; days_back?: number }
+        Returns: number
+      }
       get_table_columns: {
         Args: { table_name: string }
         Returns: {
@@ -4304,6 +4467,10 @@ export type Database = {
           required_role: Database["public"]["Enums"]["user_role"]
         }
         Returns: boolean
+      }
+      update_daily_group_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

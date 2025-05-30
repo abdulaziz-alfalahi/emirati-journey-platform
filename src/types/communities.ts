@@ -1,4 +1,3 @@
-
 export interface ProfessionalGroup {
   id: string;
   name: string;
@@ -215,4 +214,76 @@ export interface CreateGroupEventData {
   end_date: string;
   max_attendees?: number;
   tags: string[];
+}
+
+export interface UserInterest {
+  id: string;
+  user_id: string;
+  interest_type: 'industry' | 'skill' | 'topic' | 'career_stage';
+  interest_value: string;
+  weight: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupRecommendation {
+  id: string;
+  user_id: string;
+  group_id: string;
+  recommendation_score: number;
+  recommendation_reasons: string[];
+  is_dismissed: boolean;
+  created_at: string;
+  updated_at: string;
+  group?: ProfessionalGroup;
+}
+
+export interface GroupActivityMetrics {
+  id: string;
+  group_id: string;
+  activity_date: string;
+  new_members_count: number;
+  posts_count: number;
+  comments_count: number;
+  likes_count: number;
+  events_count: number;
+  polls_count: number;
+  engagement_score: number;
+  created_at: string;
+}
+
+export interface GroupSearchAnalytics {
+  id: string;
+  search_query: string;
+  user_id?: string;
+  results_count: number;
+  clicked_group_id?: string;
+  search_filters: Record<string, any>;
+  created_at: string;
+}
+
+export interface GroupWithMetrics extends ProfessionalGroup {
+  trending_score?: number;
+  recent_activity?: GroupActivityMetrics;
+  recommendation_score?: number;
+  recommendation_reasons?: string[];
+}
+
+export interface AdvancedSearchFilters {
+  search?: string;
+  industry?: string;
+  category?: string;
+  is_private?: boolean;
+  min_members?: number;
+  max_members?: number;
+  activity_level?: 'low' | 'medium' | 'high';
+  created_after?: string;
+  has_recent_activity?: boolean;
+  sort_by?: 'relevance' | 'trending' | 'newest' | 'largest' | 'recommended';
+}
+
+export interface SearchSuggestion {
+  type: 'industry' | 'category' | 'skill' | 'topic';
+  value: string;
+  count: number;
 }
