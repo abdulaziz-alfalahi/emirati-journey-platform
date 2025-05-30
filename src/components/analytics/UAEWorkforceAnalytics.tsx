@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -17,22 +17,24 @@ import {
   AreaChart
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, TrendingUp, GraduationCap, Building, Download } from 'lucide-react';
 import { ExportManager } from './ExportManager';
+import { AdvancedFilters } from './AdvancedFilters';
+import { CrossFilterableChart } from './CrossFilterableChart';
+import { FilterSummary } from './FilterSummary';
 
 // Mock data for UAE workforce analytics
 const skillsData = [
-  { skill: 'Digital Marketing', count: 15420, demand: 'High', growth: 25 },
-  { skill: 'Data Analysis', count: 12680, demand: 'Very High', growth: 40 },
-  { skill: 'Project Management', count: 18950, demand: 'High', growth: 18 },
-  { skill: 'Software Development', count: 9850, demand: 'Very High', growth: 55 },
-  { skill: 'Financial Analysis', count: 11200, demand: 'Medium', growth: 12 },
-  { skill: 'AI/Machine Learning', count: 4850, demand: 'Very High', growth: 85 },
-  { skill: 'Cybersecurity', count: 6420, demand: 'High', growth: 45 },
-  { skill: 'Cloud Computing', count: 5680, demand: 'High', growth: 60 }
+  { skill: 'Digital Marketing', count: 15420, demand: 'High', growth: 25, category: 'Marketing' },
+  { skill: 'Data Analysis', count: 12680, demand: 'Very High', growth: 40, category: 'Analytical' },
+  { skill: 'Project Management', count: 18950, demand: 'High', growth: 18, category: 'Management' },
+  { skill: 'Software Development', count: 9850, demand: 'Very High', growth: 55, category: 'Technical' },
+  { skill: 'Financial Analysis', count: 11200, demand: 'Medium', growth: 12, category: 'Analytical' },
+  { skill: 'AI/Machine Learning', count: 4850, demand: 'Very High', growth: 85, category: 'Technical' },
+  { skill: 'Cybersecurity', count: 6420, demand: 'High', growth: 45, category: 'Technical' },
+  { skill: 'Cloud Computing', count: 5680, demand: 'High', growth: 60, category: 'Technical' }
 ];
 
 const educationData = [
@@ -70,9 +72,12 @@ const demographics = [
 const COLORS = ['#3BACB6', '#601E88', '#E74C3C', '#F39C12', '#27AE60', '#8E44AD', '#E67E22', '#2ECC71'];
 
 const UAEWorkforceAnalytics = () => {
-  const [selectedEmirate, setSelectedEmirate] = useState('all');
-  const [selectedSector, setSelectedSector] = useState('all');
-  const [selectedTimeframe, setSelectedTimeframe] = useState('2024');
+  const [filters, setFilters] = useState({
+    emirate: 'all',
+    sector: 'all',
+    timeframe: '2024'
+  });
+  const [crossFilters, setCrossFilters] = useState<Record<string, any>>({});
   const [showExports, setShowExports] = useState(false);
 
   // Chart refs for export functionality
@@ -98,26 +103,108 @@ const UAEWorkforceAnalytics = () => {
     emiratizationSectorsChartRef
   ];
 
-  const emirates = ['all', 'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];
-  const sectors = ['all', 'Technology', 'Finance & Banking', 'Healthcare', 'Education', 'Tourism & Hospitality', 'Manufacturing', 'Government'];
+  const availableOptions = {
+    emirates: ['all', 'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'],
+    sectors: ['all', 'Technology', 'Finance & Banking', 'Healthcare', 'Education', 'Tourism & Hospitality', 'Manufacturing', 'Government'],
+    skillCategories: ['Technical', 'Management', 'Creative', 'Analytical', 'Communication'],
+    experienceLevel: ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'],
+    educationLevels: ['High School', "Bachelor's Degree", "Master's Degree", 'PhD']
+  };
 
-  const selectedFilters = {
-    emirate: selectedEmirate,
-    sector: selectedSector,
-    timeframe: selectedTimeframe
+  // Filter data based on current filters and cross-filters
+  const filteredData = useMemo(() => {
+    const applyFilters = (data: any[], filterKey?: string) => {
+      return data.filter(item => {
+        // Apply main filters
+        if (filters.emirate !== 'all' && item.emirates && item.emirates !== filters.emirate) {
+          return false;
+        }
+        if (filters.sector !== 'all' && item.sector && item.sector !== filters.sector) {
+          return false;
+        }
+        if (filters.skillCategory && item.category !== filters.skillCategory) {
+          return false;
+        }
+        if (filters.searchTerm && !JSON.stringify(item).toLowerCase().includes(filters.searchTerm.toLowerCase())) {
+          return false;
+        }
+        if (filters.emiratizationRange && item.emiratization) {
+          const [min, max] = filters.emiratizationRange;
+          if (item.emiratization < min || item.emiratization > max) {
+            return false;
+          }
+        }
+
+        // Apply cross-filters
+        for (const [crossFilterKey, crossFilterValue] of Object.entries(crossFilters)) {
+          if (crossFilterKey !== filterKey && item[crossFilterKey] && item[crossFilterKey] !== crossFilterValue) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    };
+
+    return {
+      skillsData: applyFilters(skillsData, 'skill'),
+      educationData: applyFilters(educationData, 'level'),
+      sectorsData: applyFilters(sectorsData, 'sector'),
+      emiratizationTrends: applyFilters(emiratizationTrends, 'year'),
+      demographics: applyFilters(demographics, 'group')
+    };
+  }, [filters, crossFilters]);
+
+  const handleCrossFilter = (data: any, filterType: string) => {
+    const newCrossFilters = { ...crossFilters };
+    
+    switch (filterType) {
+      case 'skills':
+        if (newCrossFilters.skill === data.skill) {
+          delete newCrossFilters.skill;
+        } else {
+          newCrossFilters.skill = data.skill;
+        }
+        break;
+      case 'sectors':
+        if (newCrossFilters.sector === data.sector) {
+          delete newCrossFilters.sector;
+        } else {
+          newCrossFilters.sector = data.sector;
+        }
+        break;
+      case 'education':
+        if (newCrossFilters.level === data.level) {
+          delete newCrossFilters.level;
+        } else {
+          newCrossFilters.level = data.level;
+        }
+        break;
+      default:
+        break;
+    }
+    
+    setCrossFilters(newCrossFilters);
+  };
+
+  const clearCrossFilters = () => {
+    setCrossFilters({});
   };
 
   const analyticsData = {
-    skillsData,
-    educationData,
-    sectorsData,
-    emiratizationTrends,
-    demographics
+    skillsData: filteredData.skillsData,
+    educationData: filteredData.educationData,
+    sectorsData: filteredData.sectorsData,
+    emiratizationTrends: filteredData.emiratizationTrends,
+    demographics: filteredData.demographics
   };
+
+  const totalRecords = skillsData.length + educationData.length + sectorsData.length;
+  const filteredRecords = filteredData.skillsData.length + filteredData.educationData.length + filteredData.sectorsData.length;
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
+      {/* Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -136,71 +223,96 @@ const UAEWorkforceAnalytics = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium">Emirates</label>
-              <Select value={selectedEmirate} onValueChange={setSelectedEmirate}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select Emirates" />
-                </SelectTrigger>
-                <SelectContent>
-                  {emirates.map((emirate) => (
-                    <SelectItem key={emirate} value={emirate}>
-                      {emirate === 'all' ? 'All Emirates' : emirate}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium">Sector</label>
-              <Select value={selectedSector} onValueChange={setSelectedSector}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select Sector" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sectors.map((sector) => (
-                    <SelectItem key={sector} value={sector}>
-                      {sector === 'all' ? 'All Sectors' : sector}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium">Timeframe</label>
-              <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2022">2022</SelectItem>
-                  <SelectItem value="2021">2021</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {showExports && (
-            <div className="mt-6">
-              <ExportManager 
-                data={analyticsData}
-                chartRefs={chartRefs}
-                selectedFilters={selectedFilters}
-              />
-            </div>
-          )}
-        </CardContent>
+        {showExports && (
+          <CardContent>
+            <ExportManager 
+              data={analyticsData}
+              chartRefs={chartRefs}
+              selectedFilters={filters}
+            />
+          </CardContent>
+        )}
       </Card>
+
+      {/* Advanced Filters */}
+      <AdvancedFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+        availableOptions={availableOptions}
+        onCrossFilter={handleCrossFilter}
+      />
+
+      {/* Filter Summary */}
+      <FilterSummary
+        totalRecords={totalRecords}
+        filteredRecords={filteredRecords}
+        activeFilters={filters}
+        crossFilters={crossFilters}
+      />
+
+      {Object.keys(crossFilters).length > 0 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                Cross-filters are active. Click on chart elements to filter other visualizations.
+              </span>
+              <button
+                onClick={clearCrossFilters}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Clear cross-filters
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* ... keep existing code (key metrics cards) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Workforce</CardTitle>
+            <CardDescription>Overall number of professionals in the UAE</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">850,000+</div>
+            <div className="text-sm text-muted-foreground">As of Q1 2024</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Emiratization Rate</CardTitle>
+            <CardDescription>Percentage of UAE Nationals in the workforce</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">48%</div>
+            <div className="text-sm text-muted-foreground">+3% YoY</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Growing Sectors</CardTitle>
+            <CardDescription>Sectors with the highest employment growth</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Technology, Tourism</div>
+            <div className="text-sm text-muted-foreground">Avg. growth: 18%</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Skills in Demand</CardTitle>
+            <CardDescription>Most sought-after skills by employers</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Data Analysis, AI</div>
+            <div className="text-sm text-muted-foreground">+45% job postings</div>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs defaultValue="skills" className="space-y-6">
@@ -216,18 +328,24 @@ const UAEWorkforceAnalytics = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Top Skills by Count</CardTitle>
-                <CardDescription>Most prevalent skills in the UAE workforce</CardDescription>
+                <CardDescription>Most prevalent skills in the UAE workforce (click to cross-filter)</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={skillsChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="skill" angle={-45} textAnchor="end" height={100} />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `${value.toLocaleString()} professionals`} />
-                    <Bar dataKey="count" fill="#3BACB6" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart
+                  onDataClick={handleCrossFilter}
+                  filterType="skills"
+                  isFiltered={!!crossFilters.skill}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="skill" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => `${value.toLocaleString()} professionals`} />
+                      <Bar dataKey="count" fill="#3BACB6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
 
@@ -236,16 +354,22 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Skills Growth Rate</CardTitle>
                 <CardDescription>Year-over-year growth in demand</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={skillsGrowthChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="skill" angle={-45} textAnchor="end" height={100} />
-                    <YAxis unit="%" />
-                    <Tooltip formatter={(value) => `${value}% growth`} />
-                    <Bar dataKey="growth" fill="#E74C3C" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart
+                  onDataClick={handleCrossFilter}
+                  filterType="skills"
+                  isFiltered={!!crossFilters.skill}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="skill" angle={-45} textAnchor="end" height={100} />
+                      <YAxis unit="%" />
+                      <Tooltip formatter={(value) => `${value}% growth`} />
+                      <Bar dataKey="growth" fill="#E74C3C" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
           </div>
@@ -257,7 +381,7 @@ const UAEWorkforceAnalytics = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {skillsData.map((skill, index) => (
+                {filteredData.skillsData.map((skill, index) => (
                   <div key={skill.skill} className="p-4 border rounded-lg">
                     <h4 className="font-medium">{skill.skill}</h4>
                     <p className="text-sm text-muted-foreground">{skill.count.toLocaleString()} professionals</p>
@@ -282,28 +406,34 @@ const UAEWorkforceAnalytics = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Educational Attainment Distribution</CardTitle>
-                <CardDescription>Breakdown of education levels across the workforce</CardDescription>
+                <CardDescription>Breakdown of education levels across the workforce (click to cross-filter)</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={educationPieChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={educationData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ level, percentage }) => `${level}: ${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="count"
-                    >
-                      {educationData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart
+                  onDataClick={handleCrossFilter}
+                  filterType="education"
+                  isFiltered={!!crossFilters.level}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={filteredData.educationData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ level, percentage }) => `${level}: ${percentage}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="count"
+                      >
+                        {filteredData.educationData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
 
@@ -312,16 +442,18 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Education by Count</CardTitle>
                 <CardDescription>Absolute numbers for each education level</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={educationBarChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={educationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="level" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
-                    <Bar dataKey="count" fill="#601E88" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.educationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="level" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
+                      <Bar dataKey="count" fill="#601E88" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
           </div>
@@ -332,18 +464,24 @@ const UAEWorkforceAnalytics = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Employment by Sector</CardTitle>
-                <CardDescription>Total workforce distribution across sectors</CardDescription>
+                <CardDescription>Total workforce distribution across sectors (click to cross-filter)</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={sectorsEmploymentChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `${value.toLocaleString()} employees`} />
-                    <Bar dataKey="employees" fill="#3BACB6" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart
+                  onDataClick={handleCrossFilter}
+                  filterType="sectors"
+                  isFiltered={!!crossFilters.sector}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => `${value.toLocaleString()} employees`} />
+                      <Bar dataKey="employees" fill="#3BACB6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
 
@@ -352,16 +490,18 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Sector Growth Rates</CardTitle>
                 <CardDescription>Year-over-year employment growth by sector</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={sectorsGrowthChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
-                    <YAxis unit="%" />
-                    <Tooltip formatter={(value) => `${value}% growth`} />
-                    <Bar dataKey="growth" fill="#F39C12" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
+                      <YAxis unit="%" />
+                      <Tooltip formatter={(value) => `${value}% growth`} />
+                      <Bar dataKey="growth" fill="#F39C12" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
           </div>
@@ -371,26 +511,28 @@ const UAEWorkforceAnalytics = () => {
               <CardTitle>Sector Demographics</CardTitle>
               <CardDescription>Workforce composition by nationality</CardDescription>
             </CardHeader>
-            <CardContent className="h-80" ref={sectorsDemographicsChartRef}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={demographics}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ group, percentage }) => `${group}: ${percentage}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="count"
-                  >
-                    {demographics.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
-                </PieChart>
-              </ResponsiveContainer>
+            <CardContent>
+              <CrossFilterableChart>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={filteredData.demographics}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ group, percentage }) => `${group}: ${percentage}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="count"
+                    >
+                      {filteredData.demographics.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `${value.toLocaleString()} people`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CrossFilterableChart>
             </CardContent>
           </Card>
         </TabsContent>
@@ -402,19 +544,21 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Emiratization Trends</CardTitle>
                 <CardDescription>Progress over time in both public and private sectors</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={emiratizationTrendsChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={emiratizationTrends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis unit="%" />
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                    <Line type="monotone" dataKey="overall" stroke="#3BACB6" strokeWidth={2} name="Overall" />
-                    <Line type="monotone" dataKey="private" stroke="#E74C3C" strokeWidth={2} name="Private Sector" />
-                    <Line type="monotone" dataKey="government" stroke="#27AE60" strokeWidth={2} name="Government" />
-                  </LineChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={filteredData.emiratizationTrends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="year" />
+                      <YAxis unit="%" />
+                      <Tooltip formatter={(value) => `${value}%`} />
+                      <Legend />
+                      <Line type="monotone" dataKey="overall" stroke="#3BACB6" strokeWidth={2} name="Overall" />
+                      <Line type="monotone" dataKey="private" stroke="#E74C3C" strokeWidth={2} name="Private Sector" />
+                      <Line type="monotone" dataKey="government" stroke="#27AE60" strokeWidth={2} name="Government" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
 
@@ -423,16 +567,18 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Emiratization by Sector</CardTitle>
                 <CardDescription>Current Emirati representation across different sectors</CardDescription>
               </CardHeader>
-              <CardContent className="h-80" ref={emiratizationSectorsChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
-                    <YAxis unit="%" />
-                    <Tooltip formatter={(value) => `${value}% Emiratization`} />
-                    <Bar dataKey="emiratization" fill="#601E88" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent>
+                <CrossFilterableChart>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={filteredData.sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="sector" angle={-45} textAnchor="end" height={100} />
+                      <YAxis unit="%" />
+                      <Tooltip formatter={(value) => `${value}% Emiratization`} />
+                      <Bar dataKey="emiratization" fill="#601E88" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CrossFilterableChart>
               </CardContent>
             </Card>
           </div>
@@ -444,7 +590,7 @@ const UAEWorkforceAnalytics = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {sectorsData.map((sector) => (
+                {filteredData.sectorsData.map((sector) => (
                   <div key={sector.sector} className="p-4 border rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-medium">{sector.sector}</h4>
