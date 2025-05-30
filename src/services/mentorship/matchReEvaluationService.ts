@@ -84,7 +84,7 @@ export class MatchReEvaluationService {
       .from('match_evaluations')
       .insert({
         user_id: userId,
-        match_suggestions: suggestions,
+        match_suggestions: JSON.parse(JSON.stringify(suggestions)) as any, // Properly serialize for JSON
         evaluated_at: new Date().toISOString(),
         suggestion_count: suggestions.length
       });
@@ -148,24 +148,10 @@ export class MatchReEvaluationService {
 
     for (const evaluation of pendingEvaluations) {
       try {
-        // Get user profile data separately
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('resume_data')
-          .eq('id', evaluation.user_id)
-          .maybeSingle();
-
-        if (!profile?.resume_data) {
-          console.log(`No profile data found for user ${evaluation.user_id}`);
-          continue;
-        }
-
-        // Extract mentee preferences from user profile
-        const resumeData = profile.resume_data as any;
+        // For now, use default preferences since we don't have resume_data in profiles
+        // This could be enhanced later to store actual user preferences
         const preferences: MenteePreferences = {
-          desired_expertise: resumeData.skills?.map((skill: any) => 
-            typeof skill === 'string' ? skill : skill.name
-          ) || [],
+          desired_expertise: ['Software Development', 'Data Science'], // Default fallback
           career_goals: ['Skill Development'], // Default fallback
           preferred_communication: ['video_call'],
           availability: {
