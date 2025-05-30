@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { mentorshipService } from '@/services/mentorshipService';
 import { MatchVisualization, MatchInsights } from '@/components/mentorship/matching';
 import type { MatchSuggestion, MenteePreferences, Mentor } from '@/types/mentorship';
+import { useMatchReEvaluation } from '@/hooks/useMatchReEvaluation';
+import { MatchReEvaluationNotification } from '@/components/mentorship/matching/MatchReEvaluationNotification';
 
 const EXPERTISE_OPTIONS = [
   'Software Development', 'Data Science', 'Product Management', 'Digital Marketing',
@@ -57,6 +59,27 @@ export const MentorshipMatching: React.FC = () => {
     experience_level: ''
   });
 
+  // Get current user ID for re-evaluation
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Initialize re-evaluation hook
+  const {
+    isReEvaluating,
+    needsReEvaluation,
+    lastEvaluationTime,
+    triggerReEvaluation,
+    scheduleReEvaluation
+  } = useMatchReEvaluation(currentUserId, preferences);
+
+  useEffect(() => {
+    // Get current user ID
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
+
   useEffect(() => {
     if (preferences.desired_expertise.length > 0) {
       findMatches();
@@ -76,6 +99,14 @@ export const MentorshipMatching: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle re-evaluation trigger
+  const handleReEvaluation = async () => {
+    const newSuggestions = await triggerReEvaluation();
+    if (newSuggestions) {
+      setMatchSuggestions(newSuggestions);
     }
   };
 
@@ -153,6 +184,16 @@ export const MentorshipMatching: React.FC = () => {
         <p className="text-muted-foreground mt-2">
           Get matched with experienced mentors based on your career goals and learning preferences
         </p>
+      </div>
+
+      {/* Re-evaluation Notification */}
+      <div className="mb-6">
+        <MatchReEvaluationNotification
+          needsReEvaluation={needsReEvaluation}
+          isReEvaluating={isReEvaluating}
+          lastEvaluationTime={lastEvaluationTime}
+          onTriggerReEvaluation={handleReEvaluation}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -315,12 +356,14 @@ export const MentorshipMatching: React.FC = () => {
 
         {/* Results Panel */}
         <div className="lg:col-span-2">
-          {loading ? (
+          {loading || isReEvaluating ? (
             <Card>
               <CardContent className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p>Finding your perfect mentors...</p>
+                  <p>
+                    {isReEvaluating ? 'Updating your matches...' : 'Finding your perfect mentors...'}
+                  </p>
                 </div>
               </CardContent>
             </Card>
