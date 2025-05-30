@@ -7,6 +7,7 @@ import { BookOpen, Users, Award, Plus, TrendingUp } from 'lucide-react';
 import { CoursesList } from '@/components/lms/CoursesList';
 import { CourseCreator } from '@/components/lms/CourseCreator';
 import { ProgressTracker } from '@/components/lms/ProgressTracker';
+import { LearningAnalyticsDashboard } from '@/components/lms/LearningAnalyticsDashboard';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lmsService';
 import { useToast } from '@/hooks/use-toast';
@@ -123,6 +124,7 @@ const LMSPage: React.FC = () => {
               <>
                 <TabsTrigger value="my-courses">My Courses</TabsTrigger>
                 <TabsTrigger value="progress">Progress</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
               </>
             )}
             {isInstructor && (
@@ -207,6 +209,12 @@ const LMSPage: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+          )}
+
+          {user && (
+            <TabsContent value="analytics">
+              <LearningAnalyticsDashboard />
             </TabsContent>
           )}
 
