@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -21,7 +20,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, TrendingUp, GraduationCap, Building } from 'lucide-react';
+import { Users, TrendingUp, GraduationCap, Building, Download } from 'lucide-react';
+import { ExportManager } from './ExportManager';
 
 // Mock data for UAE workforce analytics
 const skillsData = [
@@ -73,17 +73,68 @@ const UAEWorkforceAnalytics = () => {
   const [selectedEmirate, setSelectedEmirate] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
   const [selectedTimeframe, setSelectedTimeframe] = useState('2024');
+  const [showExports, setShowExports] = useState(false);
+
+  // Chart refs for export functionality
+  const skillsChartRef = useRef<HTMLDivElement>(null);
+  const skillsGrowthChartRef = useRef<HTMLDivElement>(null);
+  const educationPieChartRef = useRef<HTMLDivElement>(null);
+  const educationBarChartRef = useRef<HTMLDivElement>(null);
+  const sectorsEmploymentChartRef = useRef<HTMLDivElement>(null);
+  const sectorsGrowthChartRef = useRef<HTMLDivElement>(null);
+  const sectorsDemographicsChartRef = useRef<HTMLDivElement>(null);
+  const emiratizationTrendsChartRef = useRef<HTMLDivElement>(null);
+  const emiratizationSectorsChartRef = useRef<HTMLDivElement>(null);
+
+  const chartRefs = [
+    skillsChartRef,
+    skillsGrowthChartRef,
+    educationPieChartRef,
+    educationBarChartRef,
+    sectorsEmploymentChartRef,
+    sectorsGrowthChartRef,
+    sectorsDemographicsChartRef,
+    emiratizationTrendsChartRef,
+    emiratizationSectorsChartRef
+  ];
 
   const emirates = ['all', 'Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];
   const sectors = ['all', 'Technology', 'Finance & Banking', 'Healthcare', 'Education', 'Tourism & Hospitality', 'Manufacturing', 'Government'];
+
+  const selectedFilters = {
+    emirate: selectedEmirate,
+    sector: selectedSector,
+    timeframe: selectedTimeframe
+  };
+
+  const analyticsData = {
+    skillsData,
+    educationData,
+    sectorsData,
+    emiratizationTrends,
+    demographics
+  };
 
   return (
     <div className="space-y-6">
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>UAE Workforce Analytics Dashboard</CardTitle>
-          <CardDescription>Comprehensive insights into workforce trends across the United Arab Emirates</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>UAE Workforce Analytics Dashboard</CardTitle>
+              <CardDescription>Comprehensive insights into workforce trends across the United Arab Emirates</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowExports(!showExports)}
+                className="flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
@@ -134,62 +185,22 @@ const UAEWorkforceAnalytics = () => {
               </Select>
             </div>
           </div>
+
+          {showExports && (
+            <div className="mt-6">
+              <ExportManager 
+                data={analyticsData}
+                chartRefs={chartRefs}
+                selectedFilters={selectedFilters}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Workforce</p>
-                <p className="text-2xl font-bold">1.29M</p>
-                <p className="text-xs text-green-600">+5.2% from last year</p>
-              </div>
-              <Users className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Emiratization Rate</p>
-                <p className="text-2xl font-bold">48%</p>
-                <p className="text-xs text-green-600">+3% from last year</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Higher Education</p>
-                <p className="text-2xl font-bold">65%</p>
-                <p className="text-xs text-green-600">+2.5% from last year</p>
-              </div>
-              <GraduationCap className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Private Sector Growth</p>
-                <p className="text-2xl font-bold">12%</p>
-                <p className="text-xs text-green-600">+1.8% from last year</p>
-              </div>
-              <Building className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
+        {/* ... keep existing code (key metrics cards) */}
       </div>
 
       <Tabs defaultValue="skills" className="space-y-6">
@@ -207,7 +218,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Top Skills by Count</CardTitle>
                 <CardDescription>Most prevalent skills in the UAE workforce</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={skillsChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -225,7 +236,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Skills Growth Rate</CardTitle>
                 <CardDescription>Year-over-year growth in demand</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={skillsGrowthChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={skillsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -273,7 +284,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Educational Attainment Distribution</CardTitle>
                 <CardDescription>Breakdown of education levels across the workforce</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={educationPieChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -301,7 +312,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Education by Count</CardTitle>
                 <CardDescription>Absolute numbers for each education level</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={educationBarChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={educationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -323,7 +334,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Employment by Sector</CardTitle>
                 <CardDescription>Total workforce distribution across sectors</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={sectorsEmploymentChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -341,7 +352,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Sector Growth Rates</CardTitle>
                 <CardDescription>Year-over-year employment growth by sector</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={sectorsGrowthChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -360,7 +371,7 @@ const UAEWorkforceAnalytics = () => {
               <CardTitle>Sector Demographics</CardTitle>
               <CardDescription>Workforce composition by nationality</CardDescription>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-80" ref={sectorsDemographicsChartRef}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -391,7 +402,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Emiratization Trends</CardTitle>
                 <CardDescription>Progress over time in both public and private sectors</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={emiratizationTrendsChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={emiratizationTrends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -412,7 +423,7 @@ const UAEWorkforceAnalytics = () => {
                 <CardTitle>Emiratization by Sector</CardTitle>
                 <CardDescription>Current Emirati representation across different sectors</CardDescription>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent className="h-80" ref={emiratizationSectorsChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
