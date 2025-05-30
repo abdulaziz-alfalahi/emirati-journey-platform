@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   LineChart, 
@@ -14,7 +13,8 @@ import {
   BarChart,
   Bar,
   ScatterChart,
-  Scatter
+  Scatter,
+  Cell
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -297,11 +297,11 @@ export const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
                   <XAxis dataKey="year" />
                   <YAxis unit="%" />
                   <Tooltip formatter={(value) => [`${value}%`, 'Confidence Level']} />
-                  <Bar 
-                    dataKey="confidence" 
-                    fill={(entry) => getConfidenceColor(entry.confidence)}
-                    name="Confidence %"
-                  />
+                  <Bar dataKey="confidence" name="Confidence %">
+                    {predictedWorkforceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getConfidenceColor(entry.confidence)} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
