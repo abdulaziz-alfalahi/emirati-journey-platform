@@ -1,26 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Search, 
-  Filter, 
-  Star, 
-  TrendingUp, 
-  Users, 
-  BookOpen,
-  Lightbulb,
-  Award,
-  Building
-} from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Star, Search } from 'lucide-react';
 import { SuccessStory } from '@/types/successStories';
 import { SuccessStoriesService } from '@/services/successStoriesService';
 import StoryCard from './StoryCard';
 import SocialShareButtons from './SocialShareButtons';
 import MediaPlayer from './MediaPlayer';
+import SearchAndFilters from './SearchAndFilters';
 
 interface SuccessStoriesShowcaseProps {
   variant?: 'full' | 'featured' | 'compact';
@@ -35,20 +23,16 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
 }) => {
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [featuredStories, setFeaturedStories] = useState<SuccessStory[]>([]);
-  const [filteredStories, setFilteredStories] = useState<SuccessStory[]>([]);
   const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     loadStories();
   }, []);
-
-  useEffect(() => {
-    filterStories();
-  }, [stories, searchTerm, selectedCategory, sortBy]);
 
   const loadStories = async () => {
     setIsLoading(true);
@@ -68,7 +52,28 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
     }
   };
 
-  const filterStories = () => {
+  // Calculate story counts by category and popular tags
+  const { storyCounts, popularTags } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const tagFrequency: Record<string, number> = {};
+
+    stories.forEach(story => {
+      counts[story.category] = (counts[story.category] || 0) + 1;
+      story.tags.forEach(tag => {
+        tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+      });
+    });
+
+    const topTags = Object.entries(tagFrequency)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([tag]) => tag);
+
+    return { storyCounts: counts, popularTags: topTags };
+  }, [stories]);
+
+  // Filter and sort stories
+  const filteredStories = useMemo(() => {
     let filtered = [...stories];
 
     // Filter by search term
@@ -76,7 +81,9 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
       filtered = filtered.filter(story => 
         story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         story.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        story.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        story.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        story.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        story.author.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -85,38 +92,45 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
       filtered = filtered.filter(story => story.category === selectedCategory);
     }
 
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(story => 
+        selectedTags.some(tag => story.tags.includes(tag))
+      );
+    }
+
     // Sort stories
     switch (sortBy) {
       case 'newest':
         filtered.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
         break;
       case 'popular':
-        filtered.sort((a, b) => (b.view_count + b.likes_count) - (a.view_count + a.likes_count));
+        filtered.sort((a, b) => b.view_count - a.view_count);
+        break;
+      case 'most_liked':
+        filtered.sort((a, b) => b.likes_count - a.likes_count);
         break;
       case 'alphabetical':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
     }
 
-    setFilteredStories(filtered);
+    return filtered;
+  }, [stories, searchTerm, selectedCategory, selectedTags, sortBy]);
+
+  const handleTagToggle = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
   };
 
-  const categoryIcons = {
-    career_progression: <TrendingUp className="h-4 w-4" />,
-    entrepreneurship: <Building className="h-4 w-4" />,
-    education: <BookOpen className="h-4 w-4" />,
-    innovation: <Lightbulb className="h-4 w-4" />,
-    leadership: <Users className="h-4 w-4" />,
-    skills_development: <Award className="h-4 w-4" />
-  };
-
-  const categoryLabels = {
-    career_progression: 'Career Growth',
-    entrepreneurship: 'Entrepreneurship',
-    education: 'Education',
-    innovation: 'Innovation',
-    leadership: 'Leadership',
-    skills_development: 'Skills Development'
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setSelectedTags([]);
+    setSortBy('newest');
   };
 
   if (variant === 'featured') {
@@ -224,67 +238,30 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
         </section>
       )}
 
-      {/* Filters */}
+      {/* Enhanced Filters */}
       {showFilters && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Filter className="h-5 w-5" />
-              <span>Find Stories</span>
+              <Search className="h-5 w-5" />
+              <span>Discover Stories</span>
             </CardTitle>
-            <CardDescription>Filter and search through our collection of success stories</CardDescription>
+            <CardDescription>Find the perfect success story that inspires you</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search stories..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {Object.entries(categoryLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      <div className="flex items-center space-x-2">
-                        {categoryIcons[value as keyof typeof categoryIcons]}
-                        <span>{label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="popular">Most Popular</SelectItem>
-                  <SelectItem value="alphabetical">Alphabetical</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('all');
-                  setSortBy('newest');
-                }}
-              >
-                Clear Filters
-              </Button>
-            </div>
+            <SearchAndFilters
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              onClearFilters={handleClearFilters}
+              storyCounts={storyCounts}
+              popularTags={popularTags}
+              selectedTags={selectedTags}
+              onTagToggle={handleTagToggle}
+            />
           </CardContent>
         </Card>
       )}
@@ -313,21 +290,31 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Search className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">No stories found</h3>
-            <p className="text-muted-foreground text-center">
+            <p className="text-muted-foreground text-center mb-4">
               Try adjusting your search terms or filters to find more stories.
             </p>
+            <Badge variant="outline" className="text-sm">
+              {stories.length} total stories available
+            </Badge>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStories.map((story) => (
-            <StoryCard 
-              key={story.id} 
-              story={story} 
-              onReadMore={setSelectedStory}
-            />
-          ))}
-        </div>
+        <>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredStories.length} of {stories.length} stories
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredStories.map((story) => (
+              <StoryCard 
+                key={story.id} 
+                story={story} 
+                onReadMore={setSelectedStory}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       <StoryViewDialog story={selectedStory} onClose={() => setSelectedStory(null)} />
