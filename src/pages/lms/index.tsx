@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { CoursesList } from '@/components/lms/CoursesList';
 import { CourseCreator } from '@/components/lms/CourseCreator';
 import { ProgressTracker } from '@/components/lms/ProgressTracker';
 import { LearningAnalyticsDashboard } from '@/components/lms/analytics/LearningAnalyticsDashboard';
+import { GamificationDashboard } from '@/components/lms/gamification/GamificationDashboard';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lmsService';
 import { useToast } from '@/hooks/use-toast';
@@ -126,6 +126,7 @@ const LMSPage: React.FC = () => {
                 <TabsTrigger value="my-courses">My Courses</TabsTrigger>
                 <TabsTrigger value="progress">Progress</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="gamification">Gamification</TabsTrigger>
               </>
             )}
             {isInstructor && (
@@ -216,6 +217,12 @@ const LMSPage: React.FC = () => {
           {user && (
             <TabsContent value="analytics">
               <LearningAnalyticsDashboard />
+            </TabsContent>
+          )}
+
+          {user && (
+            <TabsContent value="gamification">
+              <GamificationDashboard />
             </TabsContent>
           )}
 
