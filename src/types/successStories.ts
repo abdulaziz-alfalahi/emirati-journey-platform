@@ -18,6 +18,16 @@ export interface SuccessStory {
     featured_image?: string;
     gallery?: string[];
     video_url?: string;
+    audio_clips?: {
+      title: string;
+      url: string;
+      duration?: string;
+    }[];
+    video_testimonial?: {
+      url: string;
+      thumbnail?: string;
+      duration?: string;
+    };
   };
   metrics?: {
     career_growth?: string;

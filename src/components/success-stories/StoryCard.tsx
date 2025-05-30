@@ -1,11 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, Heart, Calendar, MapPin } from 'lucide-react';
+import { Eye, Heart, Calendar, MapPin, Video, Volume2 } from 'lucide-react';
 import { SuccessStory } from '@/types/successStories';
 import SocialShareButtons from './SocialShareButtons';
+import MediaPlayer from './MediaPlayer';
 
 interface StoryCardProps {
   story: SuccessStory;
@@ -28,6 +28,9 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
       onReadMore(story);
     }
   };
+
+  const hasVideo = story.media.video_testimonial || story.media.video_url;
+  const hasAudio = story.media.audio_clips && story.media.audio_clips.length > 0;
 
   if (variant === 'compact') {
     return (
@@ -67,7 +70,26 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
   if (variant === 'featured') {
     return (
       <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden" onClick={handleClick}>
-        {story.media.featured_image && (
+        {story.media.video_testimonial ? (
+          <div className="relative h-64" onClick={(e) => e.stopPropagation()}>
+            <MediaPlayer
+              type="video"
+              src={story.media.video_testimonial.url}
+              title={story.title}
+              thumbnail={story.media.video_testimonial.thumbnail || story.media.featured_image}
+              duration={story.media.video_testimonial.duration}
+              className="h-full"
+            />
+            <div className="absolute top-4 left-4">
+              <Badge variant="secondary" className="bg-white/90 text-gray-900">
+                Featured Story
+              </Badge>
+            </div>
+            <div className="absolute top-4 right-4" onClick={(e) => e.stopPropagation()}>
+              <SocialShareButtons story={story} variant="minimal" />
+            </div>
+          </div>
+        ) : story.media.featured_image ? (
           <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url(${story.media.featured_image})` }}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute top-4 left-4">
@@ -83,11 +105,24 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
               <p className="text-white/90 text-sm line-clamp-2">{story.summary}</p>
             </div>
           </div>
-        )}
+        ) : null}
+        
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <Badge variant="outline">{categoryLabels[story.category]}</Badge>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+              {hasVideo && (
+                <span className="flex items-center space-x-1">
+                  <Video className="h-4 w-4" />
+                  <span>Video</span>
+                </span>
+              )}
+              {hasAudio && (
+                <span className="flex items-center space-x-1">
+                  <Volume2 className="h-4 w-4" />
+                  <span>Audio</span>
+                </span>
+              )}
               <span className="flex items-center space-x-1">
                 <Eye className="h-4 w-4" />
                 <span>{story.view_count}</span>
@@ -126,6 +161,18 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
             {story.is_featured && (
               <Badge variant="secondary">Featured</Badge>
             )}
+            {hasVideo && (
+              <Badge variant="outline" className="text-xs">
+                <Video className="h-3 w-3 mr-1" />
+                Video
+              </Badge>
+            )}
+            {hasAudio && (
+              <Badge variant="outline" className="text-xs">
+                <Volume2 className="h-3 w-3 mr-1" />
+                Audio
+              </Badge>
+            )}
             <div onClick={(e) => e.stopPropagation()}>
               <SocialShareButtons story={story} variant="minimal" />
             </div>
@@ -135,7 +182,17 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
         <p className="text-sm text-muted-foreground line-clamp-3">{story.summary}</p>
       </CardHeader>
       
-      {story.media.featured_image && (
+      {story.media.video_testimonial ? (
+        <div className="px-6" onClick={(e) => e.stopPropagation()}>
+          <MediaPlayer
+            type="video"
+            src={story.media.video_testimonial.url}
+            title="Video Testimonial"
+            thumbnail={story.media.video_testimonial.thumbnail || story.media.featured_image}
+            duration={story.media.video_testimonial.duration}
+          />
+        </div>
+      ) : story.media.featured_image ? (
         <div className="px-6">
           <img 
             src={story.media.featured_image} 
@@ -143,7 +200,7 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
             className="w-full h-40 object-cover rounded-lg"
           />
         </div>
-      )}
+      ) : null}
       
       <CardContent className="pt-4">
         <div className="flex items-center justify-between mb-3">

@@ -20,6 +20,7 @@ import { SuccessStory } from '@/types/successStories';
 import { SuccessStoriesService } from '@/services/successStoriesService';
 import StoryCard from './StoryCard';
 import SocialShareButtons from './SocialShareButtons';
+import MediaPlayer from './MediaPlayer';
 
 interface SuccessStoriesShowcaseProps {
   variant?: 'full' | 'featured' | 'compact';
@@ -352,7 +353,16 @@ const StoryViewDialog: React.FC<{ story: SuccessStory | null; onClose: () => voi
             </Badge>
           </div>
           
-          {story.media.featured_image && (
+          {story.media.video_testimonial ? (
+            <MediaPlayer
+              type="video"
+              src={story.media.video_testimonial.url}
+              title="Video Testimonial"
+              thumbnail={story.media.video_testimonial.thumbnail || story.media.featured_image}
+              duration={story.media.video_testimonial.duration}
+              className="w-full"
+            />
+          ) : story.media.featured_image && (
             <img 
               src={story.media.featured_image} 
               alt={story.title}
@@ -365,6 +375,41 @@ const StoryViewDialog: React.FC<{ story: SuccessStory | null; onClose: () => voi
           <div className="prose max-w-none">
             <p className="whitespace-pre-wrap text-base leading-relaxed">{story.content}</p>
           </div>
+          
+          {/* Audio Clips Section */}
+          {story.media.audio_clips && story.media.audio_clips.length > 0 && (
+            <div>
+              <h4 className="text-lg font-semibold mb-3">Audio Highlights</h4>
+              <div className="space-y-3">
+                {story.media.audio_clips.map((clip, index) => (
+                  <MediaPlayer
+                    key={index}
+                    type="audio"
+                    src={clip.url}
+                    title={clip.title}
+                    duration={clip.duration}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Image Gallery */}
+          {story.media.gallery && story.media.gallery.length > 0 && (
+            <div>
+              <h4 className="text-lg font-semibold mb-3">Gallery</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {story.media.gallery.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Gallery image ${index + 1}`}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           
           {story.metrics && (
             <Card>

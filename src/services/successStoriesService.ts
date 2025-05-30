@@ -33,6 +33,23 @@ The key to my success has been three things: continuous learning, understanding 
       gallery: [
         '/placeholder.svg?height=300&width=400',
         '/placeholder.svg?height=300&width=400'
+      ],
+      video_testimonial: {
+        url: '/placeholder-video.mp4',
+        thumbnail: '/placeholder.svg?height=400&width=600',
+        duration: '3:45'
+      },
+      audio_clips: [
+        {
+          title: 'My biggest challenge as a leader',
+          url: '/placeholder-audio-1.mp3',
+          duration: '2:15'
+        },
+        {
+          title: 'Advice for aspiring tech professionals',
+          url: '/placeholder-audio-2.mp3',
+          duration: '1:30'
+        }
       ]
     },
     metrics: {
@@ -76,7 +93,14 @@ The UAE's commitment to becoming carbon neutral by 2050 has created an incredibl
     tags: ['sustainability', 'renewable energy', 'entrepreneurship', 'innovation', 'climate'],
     media: {
       featured_image: '/placeholder.svg?height=400&width=600',
-      video_url: 'https://example.com/fatima-story-video'
+      video_url: 'https://example.com/fatima-story-video',
+      audio_clips: [
+        {
+          title: 'Why I chose renewable energy',
+          url: '/placeholder-audio-3.mp3',
+          duration: '2:45'
+        }
+      ]
     },
     metrics: {
       impact: '10,000+ solar installations, 50,000 tons CO2 prevented',
