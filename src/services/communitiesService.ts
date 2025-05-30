@@ -639,15 +639,45 @@ export class CommunitiesService {
   }
 
   static async getTrendingGroups(limit: number = 10): Promise<GroupWithMetrics[]> {
+    // Get groups with recent activity data
     const { data, error } = await supabase
-      .rpc('get_trending_groups', { limit_count: limit });
+      .from('professional_groups')
+      .select(`
+        *,
+        group_activity_metrics!left(
+          new_members_count,
+          posts_count,
+          events_count,
+          polls_count,
+          engagement_score,
+          activity_date
+        )
+      `)
+      .eq('is_private', false)
+      .order('updated_at', { ascending: false })
+      .limit(limit);
 
     if (error) {
-      // Fallback to regular groups if RPC fails
+      // Fallback to regular groups if query fails
       return this.getGroups({ is_private: false });
     }
 
-    return data || [];
+    // Calculate trending scores client-side and add metrics
+    return (data || []).map(group => {
+      const recentMetrics = group.group_activity_metrics?.filter(
+        metric => new Date(metric.activity_date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      ) || [];
+      
+      const trendingScore = recentMetrics.reduce((score, metric) => {
+        return score + (metric.engagement_score || 0);
+      }, 0);
+
+      return {
+        ...group,
+        trending_score: trendingScore,
+        recent_activity: recentMetrics[0] || undefined
+      };
+    }).sort((a, b) => (b.trending_score || 0) - (a.trending_score || 0));
   }
 
   static async getGroupsWithAdvancedFilters(filters: AdvancedSearchFilters): Promise<GroupWithMetrics[]> {
@@ -795,7 +825,10 @@ export class CommunitiesService {
       .order('weight', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(interest => ({
+      ...interest,
+      interest_type: interest.interest_type as 'industry' | 'skill' | 'topic' | 'career_stage'
+    }));
   }
 
   static async dismissRecommendation(recommendationId: string): Promise<void> {
