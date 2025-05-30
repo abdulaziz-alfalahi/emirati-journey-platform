@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { BookOpen, Users, Award, Plus, TrendingUp } from 'lucide-react';
 import { CoursesList } from '@/components/lms/CoursesList';
 import { CourseCreator } from '@/components/lms/CourseCreator';
 import { ProgressTracker } from '@/components/lms/ProgressTracker';
-import { LearningAnalyticsDashboard } from '@/components/lms/LearningAnalyticsDashboard';
+import { LearningAnalyticsDashboard } from '@/components/lms/analytics/LearningAnalyticsDashboard';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lmsService';
 import { useToast } from '@/hooks/use-toast';
