@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +10,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { Search, Star, Calendar, MessageCircle, Target, Clock, User, Heart } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Star, Calendar, MessageCircle, Target, Clock, User, Heart, BarChart3, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { mentorshipService } from '@/services/mentorshipService';
+import { MatchVisualization, MatchInsights } from '@/components/mentorship/matching';
 import type { MatchSuggestion, MenteePreferences, Mentor } from '@/types/mentorship';
 
 const EXPERTISE_OPTIONS = [
@@ -34,6 +35,8 @@ export const MentorshipMatching: React.FC = () => {
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
   const [requestGoals, setRequestGoals] = useState('');
   const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<MatchSuggestion | null>(null);
+  const [showMatchDetails, setShowMatchDetails] = useState(false);
   
   const [preferences, setPreferences] = useState<MenteePreferences>({
     desired_expertise: [],
@@ -240,6 +243,21 @@ export const MentorshipMatching: React.FC = () => {
             </CardContent>
           </Card>
 
+          {/* New Insights Panel */}
+          {matchSuggestions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Match Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MatchInsights suggestions={filteredSuggestions} />
+              </CardContent>
+            </Card>
+          )}
+
           {/* Filters */}
           <Card>
             <CardHeader>
@@ -410,7 +428,7 @@ export const MentorshipMatching: React.FC = () => {
                           </ul>
                         </div>
 
-                        {/* Match Scores */}
+                        {/* Enhanced Match Scores with Progress Bars */}
                         <div className="grid grid-cols-3 gap-4 py-3 border-t">
                           <div className="text-center">
                             <div className="text-sm font-medium mb-1">Expertise</div>
@@ -435,12 +453,22 @@ export const MentorshipMatching: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Actions */}
+                        {/* Enhanced Actions */}
                         <div className="flex gap-2 pt-2">
+                          <Button 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedMatch(suggestion);
+                              setShowMatchDetails(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Match Details
+                          </Button>
+                          
                           <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
                             <DialogTrigger asChild>
                               <Button 
-                                className="flex-1"
                                 onClick={() => setSelectedMentor(suggestion.mentor)}
                               >
                                 <MessageCircle className="h-4 w-4 mr-2" />
@@ -495,6 +523,41 @@ export const MentorshipMatching: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Match Details Dialog */}
+      <Dialog open={showMatchDetails} onOpenChange={setShowMatchDetails}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detailed Match Analysis</DialogTitle>
+            <DialogDescription>
+              Comprehensive breakdown of why this mentor matches your preferences
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedMatch && (
+            <Tabs defaultValue="visualization" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="visualization">Match Visualization</TabsTrigger>
+                <TabsTrigger value="detailed">Detailed Analysis</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="visualization" className="mt-6">
+                <MatchVisualization 
+                  suggestion={selectedMatch} 
+                  showDetailed={false}
+                />
+              </TabsContent>
+              
+              <TabsContent value="detailed" className="mt-6">
+                <MatchVisualization 
+                  suggestion={selectedMatch} 
+                  showDetailed={true}
+                />
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
