@@ -30,7 +30,7 @@ export interface GroupPost {
   group_id: string;
   user_id: string;
   content: string;
-  post_type: 'discussion' | 'announcement' | 'resource' | 'event';
+  post_type: 'discussion' | 'announcement' | 'resource' | 'event' | 'poll';
   attachment_url?: string;
   is_pinned: boolean;
   like_count: number;
@@ -79,6 +79,63 @@ export interface NetworkingEvent {
   max_participants?: number;
   is_featured: boolean;
   cover_image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupPoll {
+  id: string;
+  group_id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  options: PollOption[];
+  multiple_choice: boolean;
+  expires_at?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PollOption {
+  id: number;
+  text: string;
+  votes: number;
+}
+
+export interface PollVote {
+  id: string;
+  poll_id: string;
+  user_id: string;
+  selected_options: number[];
+  created_at: string;
+}
+
+export interface GroupEvent {
+  id: string;
+  group_id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  event_type: string;
+  location?: string;
+  is_virtual: boolean;
+  virtual_meeting_url?: string;
+  start_date: string;
+  end_date: string;
+  max_attendees?: number;
+  cover_image_url?: string;
+  tags: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventRsvp {
+  id: string;
+  event_id: string;
+  user_id: string;
+  status: 'attending' | 'maybe' | 'not_attending';
   created_at: string;
   updated_at: string;
 }
@@ -136,5 +193,26 @@ export interface CreateEventData {
   virtual_meeting_url?: string;
   start_date: string;
   end_date: string;
-  max_participants?: number;
+  max_attendees?: number;
+}
+
+export interface CreatePollData {
+  title: string;
+  description?: string;
+  options: string[];
+  multiple_choice: boolean;
+  expires_at?: string;
+}
+
+export interface CreateGroupEventData {
+  title: string;
+  description?: string;
+  event_type: string;
+  location?: string;
+  is_virtual: boolean;
+  virtual_meeting_url?: string;
+  start_date: string;
+  end_date: string;
+  max_attendees?: number;
+  tags: string[];
 }

@@ -1189,6 +1189,41 @@ export type Database = {
           },
         ]
       }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "group_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_sessions: {
         Row: {
           created_at: string | null
@@ -1431,6 +1466,74 @@ export type Database = {
         }
         Relationships: []
       }
+      group_events: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          end_date: string
+          event_type: string
+          group_id: string
+          id: string
+          is_active: boolean
+          is_virtual: boolean
+          location: string | null
+          max_attendees: number | null
+          start_date: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          virtual_meeting_url: string | null
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          end_date: string
+          event_type?: string
+          group_id: string
+          id?: string
+          is_active?: boolean
+          is_virtual?: boolean
+          location?: string | null
+          max_attendees?: number | null
+          start_date: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          virtual_meeting_url?: string | null
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          event_type?: string
+          group_id?: string
+          id?: string
+          is_active?: boolean
+          is_virtual?: boolean
+          location?: string | null
+          max_attendees?: number | null
+          start_date?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          virtual_meeting_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string
@@ -1462,6 +1565,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "professional_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_polls: {
+        Row: {
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          group_id: string
+          id: string
+          is_active: boolean
+          multiple_choice: boolean
+          options: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          group_id: string
+          id?: string
+          is_active?: boolean
+          multiple_choice?: boolean
+          options?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          group_id?: string
+          id?: string
+          is_active?: boolean
+          multiple_choice?: boolean
+          options?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_polls_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "professional_groups"
@@ -2511,6 +2664,38 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "virtual_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          poll_id: string
+          selected_options: number[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          poll_id: string
+          selected_options: number[]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          poll_id?: string
+          selected_options?: number[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "group_polls"
             referencedColumns: ["id"]
           },
         ]

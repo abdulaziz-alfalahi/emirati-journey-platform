@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ProfessionalGroup,
@@ -11,7 +10,13 @@ import type {
   CreateGroupData,
   CreatePostData,
   CreateResourceData,
-  CreateEventData
+  CreateEventData,
+  GroupPoll,
+  PollVote,
+  GroupEvent,
+  EventRsvp,
+  CreatePollData,
+  CreateGroupEventData
 } from '@/types/communities';
 
 export class CommunitiesService {
@@ -107,7 +112,6 @@ export class CommunitiesService {
 
     if (error) throw error;
     
-    // Cast the role to the proper type
     return (data || []).map(member => ({
       ...member,
       role: member.role as 'admin' | 'moderator' | 'member'
@@ -172,10 +176,9 @@ export class CommunitiesService {
 
     if (error) throw error;
     
-    // Cast post_type to the proper type
     return (data || []).map(post => ({
       ...post,
-      post_type: post.post_type as 'discussion' | 'announcement' | 'resource' | 'event'
+      post_type: post.post_type as 'discussion' | 'announcement' | 'resource' | 'event' | 'poll'
     }));
   }
 
@@ -196,7 +199,7 @@ export class CommunitiesService {
     if (error) throw error;
     return {
       ...data,
-      post_type: data.post_type as 'discussion' | 'announcement' | 'resource' | 'event'
+      post_type: data.post_type as 'discussion' | 'announcement' | 'resource' | 'event' | 'poll'
     };
   }
 
@@ -409,5 +412,192 @@ export class CommunitiesService {
       ...data,
       role: data.role as 'admin' | 'moderator' | 'member'
     };
+  }
+
+  // Polls
+  static async getGroupPolls(groupId: string): Promise<GroupPoll[]> {
+    const { data, error } = await supabase
+      .from('group_polls')
+      .select(`
+        *,
+        profiles(id, full_name)
+      `)
+      .eq('group_id', groupId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  static async createPoll(groupId: string, pollData: CreatePollData): Promise<GroupPoll> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    const options = pollData.options.map((text, index) => ({
+      id: index,
+      text,
+      votes: 0
+    }));
+
+    const { data, error } = await supabase
+      .from('group_polls')
+      .insert({
+        group_id: groupId,
+        user_id: user.user.id,
+        title: pollData.title,
+        description: pollData.description,
+        options: JSON.stringify(options),
+        multiple_choice: pollData.multiple_choice,
+        expires_at: pollData.expires_at
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return {
+      ...data,
+      options: JSON.parse(data.options as string)
+    };
+  }
+
+  static async votePoll(pollId: string, selectedOptions: number[]): Promise<PollVote> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    // Check if user already voted
+    const { data: existingVote } = await supabase
+      .from('poll_votes')
+      .select('id')
+      .eq('poll_id', pollId)
+      .eq('user_id', user.user.id)
+      .single();
+
+    if (existingVote) {
+      // Update existing vote
+      const { data, error } = await supabase
+        .from('poll_votes')
+        .update({ selected_options: selectedOptions })
+        .eq('poll_id', pollId)
+        .eq('user_id', user.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } else {
+      // Create new vote
+      const { data, error } = await supabase
+        .from('poll_votes')
+        .insert({
+          poll_id: pollId,
+          user_id: user.user.id,
+          selected_options: selectedOptions
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  }
+
+  static async getPollVotes(pollId: string): Promise<PollVote[]> {
+    const { data, error } = await supabase
+      .from('poll_votes')
+      .select('*')
+      .eq('poll_id', pollId);
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  // Group Events
+  static async getGroupEvents(groupId: string): Promise<GroupEvent[]> {
+    const { data, error } = await supabase
+      .from('group_events')
+      .select(`
+        *,
+        profiles(id, full_name)
+      `)
+      .eq('group_id', groupId)
+      .eq('is_active', true)
+      .gte('end_date', new Date().toISOString())
+      .order('start_date', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  static async createGroupEvent(groupId: string, eventData: CreateGroupEventData): Promise<GroupEvent> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('group_events')
+      .insert({
+        group_id: groupId,
+        user_id: user.user.id,
+        ...eventData
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async rsvpEvent(eventId: string, status: EventRsvp['status']): Promise<EventRsvp> {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('User not authenticated');
+
+    // Check if user already has an RSVP
+    const { data: existingRsvp } = await supabase
+      .from('event_rsvps')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('user_id', user.user.id)
+      .single();
+
+    if (existingRsvp) {
+      // Update existing RSVP
+      const { data, error } = await supabase
+        .from('event_rsvps')
+        .update({ status })
+        .eq('event_id', eventId)
+        .eq('user_id', user.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } else {
+      // Create new RSVP
+      const { data, error } = await supabase
+        .from('event_rsvps')
+        .insert({
+          event_id: eventId,
+          user_id: user.user.id,
+          status
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  }
+
+  static async getEventRsvps(eventId: string): Promise<EventRsvp[]> {
+    const { data, error } = await supabase
+      .from('event_rsvps')
+      .select(`
+        *,
+        profiles(id, full_name, avatar_url)
+      `)
+      .eq('event_id', eventId);
+
+    if (error) throw error;
+    return data || [];
   }
 }
