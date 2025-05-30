@@ -7,7 +7,7 @@ export class MatchReEvaluationService {
   // Track when profiles were last updated to trigger re-evaluation
   async scheduleReEvaluation(userId: string, triggerType: 'mentor_profile_update' | 'mentee_preferences_update'): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue' as any)
+      .from('match_re_evaluation_queue')
       .insert({
         user_id: userId,
         trigger_type: triggerType,
@@ -46,13 +46,13 @@ export class MatchReEvaluationService {
   // Check if user needs re-evaluation based on profile changes
   async checkIfReEvaluationNeeded(userId: string): Promise<boolean> {
     const { data, error } = await supabase
-      .from('match_re_evaluation_queue' as any)
+      .from('match_re_evaluation_queue')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'pending')
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    if (error) {
       console.error('Error checking re-evaluation queue:', error);
       return false;
     }
@@ -63,25 +63,25 @@ export class MatchReEvaluationService {
   // Get the last time matches were evaluated for a user
   async getLastEvaluationTime(userId: string): Promise<Date | null> {
     const { data, error } = await supabase
-      .from('match_evaluations' as any)
+      .from('match_evaluations')
       .select('evaluated_at')
       .eq('user_id', userId)
       .order('evaluated_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error('Error getting last evaluation time:', error);
       return null;
     }
 
-    return data ? new Date(data.evaluated_at) : null;
+    return data?.evaluated_at ? new Date(data.evaluated_at) : null;
   }
 
   // Store updated matches in the database
   private async storeUpdatedMatches(userId: string, suggestions: MatchSuggestion[]): Promise<void> {
     const { error } = await supabase
-      .from('match_evaluations' as any)
+      .from('match_evaluations')
       .insert({
         user_id: userId,
         match_suggestions: suggestions,
@@ -98,7 +98,7 @@ export class MatchReEvaluationService {
   // Mark re-evaluation as completed
   private async markReEvaluationComplete(userId: string): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue' as any)
+      .from('match_re_evaluation_queue')
       .update({
         status: 'completed',
         completed_at: new Date().toISOString()
@@ -114,7 +114,7 @@ export class MatchReEvaluationService {
   // Mark re-evaluation as failed
   private async markReEvaluationFailed(userId: string, errorMessage: string): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue' as any)
+      .from('match_re_evaluation_queue')
       .update({
         status: 'failed',
         error_message: errorMessage,
@@ -131,11 +131,8 @@ export class MatchReEvaluationService {
   // Process pending re-evaluations (this could be called by a background job)
   async processPendingReEvaluations(): Promise<void> {
     const { data: pendingEvaluations, error } = await supabase
-      .from('match_re_evaluation_queue' as any)
-      .select(`
-        *,
-        profiles!inner(id, resume_data)
-      `)
+      .from('match_re_evaluation_queue')
+      .select('*')
       .eq('status', 'pending')
       .lte('scheduled_for', new Date().toISOString())
       .limit(10); // Process in batches
@@ -145,12 +142,26 @@ export class MatchReEvaluationService {
       return;
     }
 
-    for (const evaluation of pendingEvaluations || []) {
-      try {
-        // Extract mentee preferences from user profile
-        const resumeData = evaluation.profiles?.resume_data;
-        if (!resumeData) continue;
+    if (!pendingEvaluations || pendingEvaluations.length === 0) {
+      return;
+    }
 
+    for (const evaluation of pendingEvaluations) {
+      try {
+        // Get user profile data separately
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('resume_data')
+          .eq('id', evaluation.user_id)
+          .maybeSingle();
+
+        if (!profile?.resume_data) {
+          console.log(`No profile data found for user ${evaluation.user_id}`);
+          continue;
+        }
+
+        // Extract mentee preferences from user profile
+        const resumeData = profile.resume_data as any;
         const preferences: MenteePreferences = {
           desired_expertise: resumeData.skills?.map((skill: any) => 
             typeof skill === 'string' ? skill : skill.name
