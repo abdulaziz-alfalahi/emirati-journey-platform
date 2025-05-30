@@ -24,6 +24,7 @@ import { ExportManager } from './ExportManager';
 import { AdvancedFilters } from './AdvancedFilters';
 import { CrossFilterableChart } from './CrossFilterableChart';
 import { FilterSummary } from './FilterSummary';
+import { PredictiveAnalytics } from './PredictiveAnalytics';
 
 // Mock data for UAE workforce analytics
 const skillsData = [
@@ -331,11 +332,12 @@ const UAEWorkforceAnalytics = () => {
       </div>
 
       <Tabs defaultValue="skills" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="skills">Skills Distribution</TabsTrigger>
           <TabsTrigger value="education">Education Levels</TabsTrigger>
           <TabsTrigger value="sectors">Employment Sectors</TabsTrigger>
           <TabsTrigger value="emiratization">Emiratization Progress</TabsTrigger>
+          <TabsTrigger value="predictive">Predictive Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="skills" className="space-y-6">
@@ -638,6 +640,10 @@ const UAEWorkforceAnalytics = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="predictive" className="space-y-6">
+          <PredictiveAnalytics selectedFilters={filters} />
         </TabsContent>
       </Tabs>
     </div>
