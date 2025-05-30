@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,7 @@ import {
 import { SuccessStory } from '@/types/successStories';
 import { SuccessStoriesService } from '@/services/successStoriesService';
 import StoryCard from './StoryCard';
+import SocialShareButtons from './SocialShareButtons';
 
 interface SuccessStoriesShowcaseProps {
   variant?: 'full' | 'featured' | 'compact';
@@ -400,6 +400,10 @@ const StoryViewDialog: React.FC<{ story: SuccessStory | null; onClose: () => voi
             {story.tags.map((tag) => (
               <Badge key={tag} variant="secondary">{tag}</Badge>
             ))}
+          </div>
+          
+          <div className="border-t pt-6">
+            <SocialShareButtons story={story} />
           </div>
         </div>
       </DialogContent>

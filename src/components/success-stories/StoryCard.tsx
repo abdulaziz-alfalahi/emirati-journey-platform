@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye, Heart, Calendar, MapPin } from 'lucide-react';
 import { SuccessStory } from '@/types/successStories';
+import SocialShareButtons from './SocialShareButtons';
 
 interface StoryCardProps {
   story: SuccessStory;
@@ -51,6 +52,9 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
                     <Heart className="h-3 w-3" />
                     <span>{story.likes_count}</span>
                   </span>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <SocialShareButtons story={story} variant="minimal" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -70,6 +74,9 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
               <Badge variant="secondary" className="bg-white/90 text-gray-900">
                 Featured Story
               </Badge>
+            </div>
+            <div className="absolute top-4 right-4" onClick={(e) => e.stopPropagation()}>
+              <SocialShareButtons story={story} variant="minimal" />
             </div>
             <div className="absolute bottom-4 left-4 right-4">
               <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">{story.title}</h2>
@@ -115,9 +122,14 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onReadMore, variant = 'def
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between mb-2">
           <Badge variant="outline">{categoryLabels[story.category]}</Badge>
-          {story.is_featured && (
-            <Badge variant="secondary">Featured</Badge>
-          )}
+          <div className="flex items-center space-x-2">
+            {story.is_featured && (
+              <Badge variant="secondary">Featured</Badge>
+            )}
+            <div onClick={(e) => e.stopPropagation()}>
+              <SocialShareButtons story={story} variant="minimal" />
+            </div>
+          </div>
         </div>
         <h3 className="font-semibold line-clamp-2 mb-2">{story.title}</h3>
         <p className="text-sm text-muted-foreground line-clamp-3">{story.summary}</p>
