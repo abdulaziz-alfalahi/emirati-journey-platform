@@ -71,8 +71,23 @@ const demographics = [
 
 const COLORS = ['#3BACB6', '#601E88', '#E74C3C', '#F39C12', '#27AE60', '#8E44AD', '#E67E22', '#2ECC71'];
 
+interface FilterState {
+  emirate: string;
+  sector: string;
+  timeframe: string;
+  skillCategory?: string;
+  experienceLevel?: string;
+  educationLevel?: string;
+  emiratizationRange?: [number, number];
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
+  searchTerm?: string;
+}
+
 const UAEWorkforceAnalytics = () => {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterState>({
     emirate: 'all',
     sector: 'all',
     timeframe: '2024'
@@ -443,7 +458,9 @@ const UAEWorkforceAnalytics = () => {
                 <CardDescription>Absolute numbers for each education level</CardDescription>
               </CardHeader>
               <CardContent>
-                <CrossFilterableChart>
+                <CrossFilterableChart
+                  filterType="education"
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={filteredData.educationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -491,7 +508,9 @@ const UAEWorkforceAnalytics = () => {
                 <CardDescription>Year-over-year employment growth by sector</CardDescription>
               </CardHeader>
               <CardContent>
-                <CrossFilterableChart>
+                <CrossFilterableChart
+                  filterType="sectors"
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={filteredData.sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -512,7 +531,9 @@ const UAEWorkforceAnalytics = () => {
               <CardDescription>Workforce composition by nationality</CardDescription>
             </CardHeader>
             <CardContent>
-              <CrossFilterableChart>
+              <CrossFilterableChart
+                filterType="demographics"
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -545,7 +566,9 @@ const UAEWorkforceAnalytics = () => {
                 <CardDescription>Progress over time in both public and private sectors</CardDescription>
               </CardHeader>
               <CardContent>
-                <CrossFilterableChart>
+                <CrossFilterableChart
+                  filterType="emiratization"
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={filteredData.emiratizationTrends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -568,7 +591,9 @@ const UAEWorkforceAnalytics = () => {
                 <CardDescription>Current Emirati representation across different sectors</CardDescription>
               </CardHeader>
               <CardContent>
-                <CrossFilterableChart>
+                <CrossFilterableChart
+                  filterType="sectors"
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={filteredData.sectorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" />
