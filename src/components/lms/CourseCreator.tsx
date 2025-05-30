@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,6 +78,13 @@ export const CourseCreator: React.FC = () => {
         learning_objectives: [],
         tags: []
       });
+      setCourseStructure({
+        modules: [],
+        hasInteractiveContent: false,
+        hasQuizzes: false,
+        hasExercises: false
+      });
+      setCurrentTab('basic');
     } catch (error) {
       toast({
         title: "Error",
@@ -180,48 +186,6 @@ export const CourseCreator: React.FC = () => {
       ),
       hasInteractiveContent: lessonType === 'interactive' || prev.hasInteractiveContent
     }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsCreating(true);
-
-    try {
-      await lmsService.createCourse(formData);
-      toast({
-        title: "Course Created",
-        description: "Your course has been created successfully!"
-      });
-      
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        category: '',
-        difficulty_level: 'beginner',
-        duration_hours: 0,
-        price: 0,
-        currency: 'AED',
-        prerequisites: [],
-        learning_objectives: [],
-        tags: []
-      });
-      setCourseStructure({
-        modules: [],
-        hasInteractiveContent: false,
-        hasQuizzes: false,
-        hasExercises: false
-      });
-      setCurrentTab('basic');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create course. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCreating(false);
-    }
   };
 
   if (showLessonBuilder) {

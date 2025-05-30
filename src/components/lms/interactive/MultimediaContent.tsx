@@ -58,8 +58,8 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
 
   const handleTimeUpdate = () => {
     const media = currentItem.type === 'video' ? videoRef.current : audioRef.current;
-    if (media && currentItem.duration) {
-      const currentProgress = (media.currentTime / currentItem.duration) * 100;
+    if (media && media.duration) {
+      const currentProgress = (media.currentTime / media.duration) * 100;
       setProgress(currentProgress);
       onProgress?.(currentItem.id, currentProgress);
 
@@ -75,6 +75,15 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
       if (currentProgress >= 90) {
         onComplete?.(currentItem.id);
       }
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    const media = currentItem.type === 'video' ? videoRef.current : audioRef.current;
+    if (media) {
+      // Don't try to set duration as it's read-only
+      // The browser will set it automatically when metadata loads
+      console.log('Media duration loaded:', media.duration);
     }
   };
 
@@ -102,11 +111,7 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
               src={currentItem.url}
               className="w-full h-auto"
               onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={() => {
-                if (videoRef.current && currentItem.duration) {
-                  videoRef.current.duration = currentItem.duration;
-                }
-              }}
+              onLoadedMetadata={handleLoadedMetadata}
             />
             
             {/* Video Controls Overlay */}
@@ -145,9 +150,9 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
                 </div>
               </div>
               
-              {currentItem.duration && (
+              {videoRef.current?.duration && (
                 <div className="text-white text-sm mt-2">
-                  {formatTime((progress / 100) * currentItem.duration)} / {formatTime(currentItem.duration)}
+                  {formatTime((progress / 100) * videoRef.current.duration)} / {formatTime(videoRef.current.duration)}
                 </div>
               )}
             </div>
@@ -172,11 +177,7 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
               ref={audioRef}
               src={currentItem.url}
               onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={() => {
-                if (audioRef.current && currentItem.duration) {
-                  audioRef.current.duration = currentItem.duration;
-                }
-              }}
+              onLoadedMetadata={handleLoadedMetadata}
             />
             
             <div className="flex items-center gap-4 mb-4">
@@ -197,9 +198,9 @@ export const MultimediaContent: React.FC<MultimediaContentProps> = ({
               </Button>
             </div>
             
-            {currentItem.duration && (
+            {audioRef.current?.duration && (
               <div className="text-sm text-muted-foreground text-center">
-                {formatTime((progress / 100) * currentItem.duration)} / {formatTime(currentItem.duration)}
+                {formatTime((progress / 100) * audioRef.current.duration)} / {formatTime(audioRef.current.duration)}
               </div>
             )}
           </div>
