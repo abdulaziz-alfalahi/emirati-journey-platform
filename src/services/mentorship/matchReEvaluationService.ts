@@ -7,7 +7,7 @@ export class MatchReEvaluationService {
   // Track when profiles were last updated to trigger re-evaluation
   async scheduleReEvaluation(userId: string, triggerType: 'mentor_profile_update' | 'mentee_preferences_update'): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue')
+      .from('match_re_evaluation_queue' as any)
       .insert({
         user_id: userId,
         trigger_type: triggerType,
@@ -36,7 +36,7 @@ export class MatchReEvaluationService {
       await this.markReEvaluationComplete(userId);
       
       return newSuggestions;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error during match re-evaluation:', error);
       await this.markReEvaluationFailed(userId, error.message);
       throw error;
@@ -46,7 +46,7 @@ export class MatchReEvaluationService {
   // Check if user needs re-evaluation based on profile changes
   async checkIfReEvaluationNeeded(userId: string): Promise<boolean> {
     const { data, error } = await supabase
-      .from('match_re_evaluation_queue')
+      .from('match_re_evaluation_queue' as any)
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'pending')
@@ -63,7 +63,7 @@ export class MatchReEvaluationService {
   // Get the last time matches were evaluated for a user
   async getLastEvaluationTime(userId: string): Promise<Date | null> {
     const { data, error } = await supabase
-      .from('match_evaluations')
+      .from('match_evaluations' as any)
       .select('evaluated_at')
       .eq('user_id', userId)
       .order('evaluated_at', { ascending: false })
@@ -81,7 +81,7 @@ export class MatchReEvaluationService {
   // Store updated matches in the database
   private async storeUpdatedMatches(userId: string, suggestions: MatchSuggestion[]): Promise<void> {
     const { error } = await supabase
-      .from('match_evaluations')
+      .from('match_evaluations' as any)
       .insert({
         user_id: userId,
         match_suggestions: suggestions,
@@ -98,7 +98,7 @@ export class MatchReEvaluationService {
   // Mark re-evaluation as completed
   private async markReEvaluationComplete(userId: string): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue')
+      .from('match_re_evaluation_queue' as any)
       .update({
         status: 'completed',
         completed_at: new Date().toISOString()
@@ -114,7 +114,7 @@ export class MatchReEvaluationService {
   // Mark re-evaluation as failed
   private async markReEvaluationFailed(userId: string, errorMessage: string): Promise<void> {
     const { error } = await supabase
-      .from('match_re_evaluation_queue')
+      .from('match_re_evaluation_queue' as any)
       .update({
         status: 'failed',
         error_message: errorMessage,
@@ -131,7 +131,7 @@ export class MatchReEvaluationService {
   // Process pending re-evaluations (this could be called by a background job)
   async processPendingReEvaluations(): Promise<void> {
     const { data: pendingEvaluations, error } = await supabase
-      .from('match_re_evaluation_queue')
+      .from('match_re_evaluation_queue' as any)
       .select(`
         *,
         profiles!inner(id, resume_data)

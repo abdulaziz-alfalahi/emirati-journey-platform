@@ -1924,6 +1924,66 @@ export type Database = {
           },
         ]
       }
+      match_evaluations: {
+        Row: {
+          created_at: string
+          evaluated_at: string
+          id: string
+          match_suggestions: Json
+          suggestion_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          evaluated_at?: string
+          id?: string
+          match_suggestions?: Json
+          suggestion_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          evaluated_at?: string
+          id?: string
+          match_suggestions?: Json
+          suggestion_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      match_re_evaluation_queue: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          scheduled_for: string
+          status: string
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          scheduled_for?: string
+          status?: string
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          scheduled_for?: string
+          status?: string
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       matches: {
         Row: {
           created_at: string | null
