@@ -2078,6 +2078,121 @@ export type Database = {
         }
         Relationships: []
       }
+      mentorship_goals: {
+        Row: {
+          completed_at: string | null
+          completion_percentage: number | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          priority: string
+          relationship_id: string
+          status: string
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          priority?: string
+          relationship_id: string
+          status?: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_percentage?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          relationship_id?: string
+          status?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_goals_relationship_id_fkey"
+            columns: ["relationship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_relationships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_progress_assessments: {
+        Row: {
+          areas_of_improvement: string[] | null
+          assessed_by: string
+          assessment_date: string
+          assessment_notes: string | null
+          assessment_period: string
+          communication_effectiveness: number | null
+          created_at: string
+          goal_progress_rating: number | null
+          highlights: string[] | null
+          id: string
+          mentee_satisfaction: number | null
+          mentor_satisfaction: number | null
+          next_period_focus: string[] | null
+          relationship_id: string
+          skill_development_rating: number | null
+        }
+        Insert: {
+          areas_of_improvement?: string[] | null
+          assessed_by: string
+          assessment_date?: string
+          assessment_notes?: string | null
+          assessment_period: string
+          communication_effectiveness?: number | null
+          created_at?: string
+          goal_progress_rating?: number | null
+          highlights?: string[] | null
+          id?: string
+          mentee_satisfaction?: number | null
+          mentor_satisfaction?: number | null
+          next_period_focus?: string[] | null
+          relationship_id: string
+          skill_development_rating?: number | null
+        }
+        Update: {
+          areas_of_improvement?: string[] | null
+          assessed_by?: string
+          assessment_date?: string
+          assessment_notes?: string | null
+          assessment_period?: string
+          communication_effectiveness?: number | null
+          created_at?: string
+          goal_progress_rating?: number | null
+          highlights?: string[] | null
+          id?: string
+          mentee_satisfaction?: number | null
+          mentor_satisfaction?: number | null
+          next_period_focus?: string[] | null
+          relationship_id?: string
+          skill_development_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_progress_assessments_relationship_id_fkey"
+            columns: ["relationship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_relationships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mentorship_relationships: {
         Row: {
           created_at: string
@@ -2168,6 +2283,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "mentorship_sessions_relationship_id_fkey"
+            columns: ["relationship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_relationships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_success_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metric_details: Json | null
+          metric_type: string
+          metric_value: number
+          recorded_at: string
+          recorded_by: string
+          relationship_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_details?: Json | null
+          metric_type: string
+          metric_value: number
+          recorded_at?: string
+          recorded_by: string
+          relationship_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_details?: Json | null
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string
+          recorded_by?: string
+          relationship_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_success_metrics_relationship_id_fkey"
             columns: ["relationship_id"]
             isOneToOne: false
             referencedRelation: "mentorship_relationships"

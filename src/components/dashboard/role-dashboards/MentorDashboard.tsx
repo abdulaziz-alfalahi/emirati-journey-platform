@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Users, BookOpen, BarChart4 } from 'lucide-react';
+import { Briefcase, Users, BookOpen, BarChart4, Award } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardActions from '@/components/dashboard/DashboardActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RecommendedJobs } from '@/components/job-matching/RecommendedJobs';
 import { CoachDashboard } from '@/components/assessments/CoachDashboard';
+import { SuccessMetricsDashboard } from '@/components/mentorship/matching';
 
 interface MentorDashboardProps {
   activeTab: string;
@@ -17,6 +19,7 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ activeTab }) => (
       <TabsTrigger value="overview"><Briefcase className="h-4 w-4 mr-2" /> Overview</TabsTrigger>
       <TabsTrigger value="students"><Users className="h-4 w-4 mr-2" /> Students</TabsTrigger>
       <TabsTrigger value="coaching"><Users className="h-4 w-4 mr-2" /> Coaching</TabsTrigger>
+      <TabsTrigger value="metrics"><Award className="h-4 w-4 mr-2" /> Success Metrics</TabsTrigger>
       <TabsTrigger value="resources"><BookOpen className="h-4 w-4 mr-2" /> Resources</TabsTrigger>
     </TabsList>
     
@@ -25,7 +28,8 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ activeTab }) => (
         metrics={[
           { title: "Active Mentees", value: "14", change: "+2", description: "2 new this month" },
           { title: "Completed Sessions", value: "28", change: "+8", description: "This month" },
-          { title: "Avg. Session Rating", value: "4.8", change: "+0.3", description: "Out of 5" }
+          { title: "Avg. Session Rating", value: "4.8", change: "+0.3", description: "Out of 5" },
+          { title: "Goals Achieved", value: "12", change: "+4", description: "This quarter" }
         ]}
       />
       
@@ -85,6 +89,32 @@ const MentorDashboard: React.FC<MentorDashboardProps> = ({ activeTab }) => (
     
     <TabsContent value="coaching" className="space-y-8">
       <CoachDashboard />
+    </TabsContent>
+    
+    <TabsContent value="metrics" className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5" />
+            Mentorship Success Metrics
+          </CardTitle>
+          <CardDescription>
+            Track the success and impact of your mentorship relationships
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Select a Mentorship Relationship</h3>
+            <p className="text-muted-foreground mb-4">
+              Choose one of your active mentorship relationships to view detailed success metrics
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Success metrics include goal completion rates, satisfaction scores, skill development progress, and more.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </TabsContent>
     
     <TabsContent value="resources" className="space-y-8">
