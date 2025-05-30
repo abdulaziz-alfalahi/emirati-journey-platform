@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ProfessionalGroup,
@@ -314,7 +315,7 @@ export class CommunitiesService {
   }
 
   // Events
-  static async getGroupEvents(groupId: string): Promise<NetworkingEvent[]> {
+  static async getEvents(groupId: string): Promise<NetworkingEvent[]> {
     const { data, error } = await supabase
       .from('networking_events')
       .select(`
@@ -427,7 +428,10 @@ export class CommunitiesService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(poll => ({
+      ...poll,
+      options: JSON.parse(poll.options as string)
+    }));
   }
 
   static async createPoll(groupId: string, pollData: CreatePollData): Promise<GroupPoll> {
@@ -570,7 +574,10 @@ export class CommunitiesService {
         .single();
 
       if (error) throw error;
-      return data;
+      return {
+        ...data,
+        status: data.status as EventRsvp['status']
+      };
     } else {
       // Create new RSVP
       const { data, error } = await supabase
@@ -584,20 +591,23 @@ export class CommunitiesService {
         .single();
 
       if (error) throw error;
-      return data;
+      return {
+        ...data,
+        status: data.status as EventRsvp['status']
+      };
     }
   }
 
   static async getEventRsvps(eventId: string): Promise<EventRsvp[]> {
     const { data, error } = await supabase
       .from('event_rsvps')
-      .select(`
-        *,
-        profiles(id, full_name, avatar_url)
-      `)
+      .select('*')
       .eq('event_id', eventId);
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map(rsvp => ({
+      ...rsvp,
+      status: rsvp.status as EventRsvp['status']
+    }));
   }
 }

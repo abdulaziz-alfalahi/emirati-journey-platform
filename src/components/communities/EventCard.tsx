@@ -12,7 +12,7 @@ import {
   Video,
   UserCheck,
   UserX,
-  UserQuestion
+  HelpCircle
 } from 'lucide-react';
 import { GroupEvent, EventRsvp } from '@/types/communities';
 import { CommunitiesService } from '@/services/communitiesService';
@@ -151,7 +151,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRsvp }) => {
                 <span>{getAttendingCount()}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <UserQuestion className="h-4 w-4 text-yellow-600" />
+                <HelpCircle className="h-4 w-4 text-yellow-600" />
                 <span>{getMaybeCount()}</span>
               </div>
             </div>
@@ -205,7 +205,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRsvp }) => {
               disabled={isLoading}
               className="flex items-center space-x-1"
             >
-              <UserQuestion className="h-4 w-4" />
+              <HelpCircle className="h-4 w-4" />
               <span>Maybe</span>
             </Button>
 
