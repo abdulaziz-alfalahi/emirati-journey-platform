@@ -54,18 +54,39 @@ export class PostEventFollowUpService {
   // Feedback Collection
   static async submitEventFeedback(
     eventId: string,
-    feedbackData: Partial<EventFeedback>
+    feedbackData: {
+      overall_rating: number;
+      content_rating: number;
+      speakers_rating: number;
+      networking_rating: number;
+      platform_rating: number;
+      recommendations?: string;
+      improvements?: string;
+      would_recommend?: boolean;
+      future_interests?: string[];
+    }
   ): Promise<EventFeedback> {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('User not authenticated');
 
+    // Create clean insert data without any extra properties
+    const insertData = {
+      event_id: eventId,
+      user_id: user.user.id,
+      overall_rating: feedbackData.overall_rating,
+      content_rating: feedbackData.content_rating,
+      speakers_rating: feedbackData.speakers_rating,
+      networking_rating: feedbackData.networking_rating,
+      platform_rating: feedbackData.platform_rating,
+      recommendations: feedbackData.recommendations || '',
+      improvements: feedbackData.improvements || '',
+      would_recommend: feedbackData.would_recommend || false,
+      future_interests: feedbackData.future_interests || []
+    };
+
     const { data, error } = await supabase
       .from('event_feedback')
-      .insert({
-        event_id: eventId,
-        user_id: user.user.id,
-        ...feedbackData
-      })
+      .insert(insertData)
       .select()
       .single();
 
