@@ -12,12 +12,34 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <div className="bg-white border-b border-dubai-gray-200">
-        <div className="dubai-container py-3">
-          <GovLogos size="small" />
+      {/* Top Header with Government Logos */}
+      <div className="bg-white border-b border-dubai-gray-200 shadow-sm">
+        <div className="dubai-container py-4">
+          <div className="flex justify-between items-center">
+            {/* Dubai Government Logo - Left */}
+            <a href="https://tec.gov.ae/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+              <img 
+                src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
+                alt="Government of Dubai"
+                className="h-12 md:h-16"
+              />
+            </a>
+
+            {/* EHRDC Logo - Right */}
+            <a href="/" className="flex items-center">
+              <img 
+                src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
+                alt="Emirati Human Resources Development Council"
+                className="h-12 md:h-16"
+              />
+            </a>
+          </div>
         </div>
       </div>
+      
+      {/* Navigation Bar */}
       <Navbar />
+      
       <main className="flex-1">{children}</main>
       <footer className="py-8 px-6 bg-dubai-blue text-white">
         <div className="dubai-container">

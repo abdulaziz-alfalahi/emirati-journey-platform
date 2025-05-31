@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { Activity, ChevronDown } from 'lucide-react';
+import { Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, Briefcase, Calendar, FileText, User } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
 import {
@@ -21,9 +21,35 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Add role-specific navigation items if needed
+  // Default navigation groups for Student Services and Professional Development
+  const defaultNavGroups: NavGroup[] = [
+    {
+      id: 'student-services',
+      name: 'Student Services',
+      items: [
+        { name: 'Scholarships', href: '/scholarships', icon: Award },
+        { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
+        { name: 'Career Journey', href: '/career-journey', icon: FileText },
+        { name: 'Assessments', href: '/assessments', icon: FileText },
+        { name: 'Communities', href: '/communities', icon: Users },
+      ]
+    },
+    {
+      id: 'professional-development',
+      name: 'Professional Development',
+      items: [
+        { name: 'Training', href: '/training', icon: BookOpen },
+        { name: 'LMS', href: '/lms', icon: GraduationCap },
+        { name: 'Internships', href: '/internships', icon: Briefcase },
+        { name: 'Mentorship', href: '/mentorship', icon: Users },
+        { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
+      ]
+    }
+  ];
+
+  // Combine default groups with any additional groups passed as props
   const getNavGroups = () => {
-    const groups = [...navGroups];
+    const groups = [...defaultNavGroups, ...navGroups];
     
     if (roles.includes('administrator') || roles.includes('super_user')) {
       // Add admin navigation group or items if needed

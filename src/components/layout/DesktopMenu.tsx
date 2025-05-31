@@ -26,8 +26,9 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems, navGroups = 
 
   return (
     <>
+      {/* Brand name/logo */}
       <Link to="/" className="flex items-center space-x-2 mr-6">
-        <span className="font-semibold text-lg">Emirati Gateway</span>
+        <span className="font-semibold text-lg text-ehrdc-teal">Emirati Gateway</span>
       </Link>
 
       <MainNav navGroups={navGroups} />
