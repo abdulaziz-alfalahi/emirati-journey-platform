@@ -3,16 +3,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, Plus, Sparkles, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, Filter, Plus, Sparkles, TrendingUp, Users, BarChart3, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CommunitiesService } from '@/services/communitiesService';
-import { ProfessionalGroup, GroupWithMetrics, AdvancedSearchFilters } from '@/types/communities';
+import { ProfessionalGroup, GroupWithMetrics, AdvancedSearchFilters, GroupPoll, GroupEvent } from '@/types/communities';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import GroupCard from './GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
 import GroupRecommendations from './GroupRecommendations';
 import AdvancedGroupSearch from './AdvancedGroupSearch';
+import CreatePollDialog from './CreatePollDialog';
+import PollCard from './PollCard';
+import CreateEventDialog from './CreateEventDialog';
+import EventCard from './EventCard';
 
 const GroupsGrid: React.FC = () => {
   const navigate = useNavigate();
