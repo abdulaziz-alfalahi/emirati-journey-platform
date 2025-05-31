@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ProfessionalGroup,
@@ -645,12 +646,17 @@ export class CommunitiesService {
       .select(`
         *,
         group_activity_metrics!left(
+          id,
+          group_id,
+          activity_date,
           new_members_count,
           posts_count,
+          comments_count,
+          likes_count,
           events_count,
           polls_count,
           engagement_score,
-          activity_date
+          created_at
         )
       `)
       .eq('is_private', false)
@@ -672,10 +678,13 @@ export class CommunitiesService {
         return score + (metric.engagement_score || 0);
       }, 0);
 
+      // Remove the group_activity_metrics from the response and add computed fields
+      const { group_activity_metrics, ...groupData } = group;
+      
       return {
-        ...group,
+        ...groupData,
         trending_score: trendingScore,
-        recent_activity: recentMetrics[0] || undefined
+        recent_activity: recentMetrics.length > 0 ? recentMetrics[0] : undefined
       };
     }).sort((a, b) => (b.trending_score || 0) - (a.trending_score || 0));
   }
