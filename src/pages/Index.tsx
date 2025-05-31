@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -88,7 +89,7 @@ export default function Index() {
         {/* Hero section with get started button */}
         <Hero />
         <div className="flex justify-center mt-8 mb-16">
-          <button onClick={handleGetStartedClick} className="dubai-button-primary px-8 py-4 text-base">
+          <button onClick={handleGetStartedClick} className="ehrdc-button-primary px-8 py-4 text-base">
             Get Started Today
           </button>
         </div>
