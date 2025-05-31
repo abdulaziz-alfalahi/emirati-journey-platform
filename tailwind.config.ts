@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -62,6 +61,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Add EHRDC specific colors
+				ehrdc: {
+					teal: '#006E6D',
+					darkTeal: '#00504F',
+					lightTeal: '#B3DEDD',
+					gold: '#C3992A',
+					neutralDark: '#333333',
+					neutralLight: '#F5F5F5',
 				},
 				// Dubai Design System Colors
 				dubai: {
