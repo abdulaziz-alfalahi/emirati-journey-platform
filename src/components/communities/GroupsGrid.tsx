@@ -1,29 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, BarChart3, Calendar, TrendingUp, Users, Filter } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Filter, Plus, Sparkles, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { CommunitiesService } from '@/services/communitiesService';
-import { 
-  ProfessionalGroup, 
-  GroupPoll, 
-  GroupEvent, 
-  AdvancedSearchFilters,
-  GroupWithMetrics 
-} from '@/types/communities';
+import { ProfessionalGroup, GroupWithMetrics, AdvancedSearchFilters } from '@/types/communities';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from '@/components/ui/use-toast';
 import GroupCard from './GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
-import CreatePollDialog from './CreatePollDialog';
-import CreateEventDialog from './CreateEventDialog';
-import PollCard from './PollCard';
-import EventCard from './EventCard';
-import AdvancedGroupSearch from './AdvancedGroupSearch';
 import GroupRecommendations from './GroupRecommendations';
+import AdvancedGroupSearch from './AdvancedGroupSearch';
 
 const GroupsGrid: React.FC = () => {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState<GroupWithMetrics[]>([]);
   const [trendingGroups, setTrendingGroups] = useState<GroupWithMetrics[]>([]);
   const [polls, setPolls] = useState<GroupPoll[]>([]);
@@ -181,6 +173,10 @@ const GroupsGrid: React.FC = () => {
     }
   };
 
+  const handleGroupCreated = async () => {
+    loadInitialData();
+  };
+
   const handleGroupClick = async (groupId: string) => {
     if (searchFilters.search) {
       await CommunitiesService.logGroupClick(groupId, searchFilters.search);
@@ -198,16 +194,25 @@ const GroupsGrid: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Professional Communities</h1>
-          <p className="text-muted-foreground">
-            Discover and connect with communities that match your interests
+          <p className="text-muted-foreground mt-2">
+            Connect with professionals in your field and expand your network
           </p>
         </div>
-        <CreateGroupDialog onGroupCreated={loadInitialData} />
+        <div className="flex gap-2">
+          <Button
+            onClick={() => navigate('/communities/analytics')}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </Button>
+          <CreateGroupDialog onGroupCreated={handleGroupCreated} />
+        </div>
       </div>
 
       {/* Tabs */}
@@ -279,7 +284,7 @@ const GroupsGrid: React.FC = () => {
               <p className="text-muted-foreground mb-4">
                 Try adjusting your filters or create a new community to get started.
               </p>
-              <CreateGroupDialog onGroupCreated={loadInitialData} />
+              <CreateGroupDialog onGroupCreated={handleGroupCreated} />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

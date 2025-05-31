@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -30,7 +29,7 @@ import SummerCamps from '@/pages/summer-camps/index';
 import SuccessStories from '@/pages/success-stories/index';
 import VirtualEvents from '@/pages/virtual-events/index';
 import VirtualEventDetails from '@/pages/virtual-events/[id]';
-import Communities from '@/pages/communities/index';
+import CommunitiesPage from '@/pages/communities';
 import SkillsMarketplace from '@/pages/skills-marketplace/index';
 import LMS from '@/pages/lms/index';
 import Mentorship from '@/pages/mentorship/index';
@@ -61,6 +60,7 @@ import TestForm from '@/pages/test-form';
 import Home from '@/pages/home/index';
 import MobileOffline from '@/pages/mobile-offline/index';
 import NativeFeatures from '@/pages/native-features/index';
+import CommunityAnalyticsPage from '@/pages/communities/analytics';
 
 import './App.css';
 
@@ -96,7 +96,8 @@ function App() {
                         <Route path="/success-stories" element={<SuccessStories />} />
                         <Route path="/virtual-events" element={<VirtualEvents />} />
                         <Route path="/virtual-events/:id" element={<VirtualEventDetails />} />
-                        <Route path="/communities" element={<Communities />} />
+                        <Route path="/communities" element={<CommunitiesPage />} />
+                        <Route path="/communities/analytics" element={<CommunityAnalyticsPage />} />
                         <Route path="/skills-marketplace" element={<SkillsMarketplace />} />
                         <Route path="/lms" element={<LMS />} />
                         <Route path="/mentorship" element={<Mentorship />} />
