@@ -17,6 +17,10 @@ export interface EventFeedback {
   would_recommend: boolean;
   future_interests: string[];
   created_at: string;
+  profiles?: {
+    full_name: string;
+    email: string;
+  };
 }
 
 export interface AttendanceCertificate {
@@ -28,6 +32,11 @@ export interface AttendanceCertificate {
   completion_percentage: number;
   certificate_url?: string;
   is_valid: boolean;
+  created_at: string;
+  profiles?: {
+    full_name: string;
+    email: string;
+  };
 }
 
 export interface FollowUpEmail {
@@ -38,6 +47,7 @@ export interface FollowUpEmail {
   sent_at: string;
   template_data: Record<string, any>;
   status: 'draft' | 'sending' | 'sent' | 'failed';
+  created_at: string;
 }
 
 export class PostEventFollowUpService {
@@ -60,7 +70,7 @@ export class PostEventFollowUpService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as EventFeedback;
   }
 
   static async getEventFeedback(eventId: string): Promise<EventFeedback[]> {
@@ -74,7 +84,7 @@ export class PostEventFollowUpService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as any[]) || [];
   }
 
   static async getFeedbackSummary(eventId: string): Promise<Record<string, any>> {
@@ -147,7 +157,7 @@ export class PostEventFollowUpService {
     // Generate certificate PDF (placeholder for actual implementation)
     await this.generateCertificatePDF(data, eventData, engagementData);
 
-    return data;
+    return data as AttendanceCertificate;
   }
 
   static async getCertificatesByEvent(eventId: string): Promise<AttendanceCertificate[]> {
@@ -161,7 +171,7 @@ export class PostEventFollowUpService {
       .order('issued_date', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as any[]) || [];
   }
 
   // Networking Export
@@ -169,10 +179,10 @@ export class PostEventFollowUpService {
     const connections = await VirtualEventsService.getNetworkingConnections(eventId);
     
     const exportData = connections.map(connection => ({
-      initiator_name: connection.initiator?.full_name || 'Unknown',
-      initiator_email: connection.initiator?.email || '',
-      recipient_name: connection.recipient?.full_name || 'Unknown',
-      recipient_email: connection.recipient?.email || '',
+      initiator_name: 'Unknown', // Will be populated when we have proper relationships
+      initiator_email: '',
+      recipient_name: 'Unknown',
+      recipient_email: '',
       connection_type: connection.connection_type,
       message: connection.message,
       status: connection.status,
@@ -209,7 +219,7 @@ export class PostEventFollowUpService {
     // Send emails to attendees (placeholder for actual email service)
     console.log(`Sending feedback requests to ${attendees.length} attendees`);
 
-    return data;
+    return data as FollowUpEmail;
   }
 
   static async sendCertificateNotification(eventId: string): Promise<FollowUpEmail> {
@@ -232,7 +242,7 @@ export class PostEventFollowUpService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as FollowUpEmail;
   }
 
   static async sendNetworkingExport(eventId: string): Promise<FollowUpEmail> {
@@ -255,7 +265,7 @@ export class PostEventFollowUpService {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as FollowUpEmail;
   }
 
   // Automated Follow-up Process

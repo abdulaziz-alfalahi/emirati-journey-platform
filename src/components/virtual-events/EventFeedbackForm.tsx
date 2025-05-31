@@ -64,6 +64,10 @@ const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
     );
   };
 
+  const handleWouldRecommendChange = (checked: boolean | 'indeterminate') => {
+    setWouldRecommend(checked === true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -210,7 +214,7 @@ const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
             <Checkbox
               id="recommend"
               checked={wouldRecommend}
-              onCheckedChange={setWouldRecommend}
+              onCheckedChange={handleWouldRecommendChange}
             />
             <Label htmlFor="recommend">
               I would recommend this event to colleagues

@@ -506,6 +506,42 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance_certificates: {
+        Row: {
+          certificate_number: string
+          certificate_url: string | null
+          completion_percentage: number
+          created_at: string
+          event_id: string
+          id: string
+          is_valid: boolean
+          issued_date: string
+          user_id: string
+        }
+        Insert: {
+          certificate_number: string
+          certificate_url?: string | null
+          completion_percentage: number
+          created_at?: string
+          event_id: string
+          id?: string
+          is_valid?: boolean
+          issued_date?: string
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string
+          certificate_url?: string | null
+          completion_percentage?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_valid?: boolean
+          issued_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blockchain_credentials: {
         Row: {
           block_number: number
@@ -1262,6 +1298,54 @@ export type Database = {
         }
         Relationships: []
       }
+      event_feedback: {
+        Row: {
+          content_rating: number
+          created_at: string
+          event_id: string
+          future_interests: string[] | null
+          id: string
+          improvements: string | null
+          networking_rating: number
+          overall_rating: number
+          platform_rating: number
+          recommendations: string | null
+          speakers_rating: number
+          user_id: string
+          would_recommend: boolean
+        }
+        Insert: {
+          content_rating: number
+          created_at?: string
+          event_id: string
+          future_interests?: string[] | null
+          id?: string
+          improvements?: string | null
+          networking_rating: number
+          overall_rating: number
+          platform_rating: number
+          recommendations?: string | null
+          speakers_rating: number
+          user_id: string
+          would_recommend?: boolean
+        }
+        Update: {
+          content_rating?: number
+          created_at?: string
+          event_id?: string
+          future_interests?: string[] | null
+          id?: string
+          improvements?: string | null
+          networking_rating?: number
+          overall_rating?: number
+          platform_rating?: number
+          recommendations?: string | null
+          speakers_rating?: number
+          user_id?: string
+          would_recommend?: boolean
+        }
+        Relationships: []
+      }
       event_registrations: {
         Row: {
           event_id: string
@@ -1574,6 +1658,39 @@ export type Database = {
           priority?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      follow_up_emails: {
+        Row: {
+          created_at: string
+          email_type: string
+          event_id: string
+          id: string
+          recipient_count: number
+          sent_at: string
+          status: string
+          template_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          email_type: string
+          event_id: string
+          id?: string
+          recipient_count?: number
+          sent_at?: string
+          status?: string
+          template_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          email_type?: string
+          event_id?: string
+          id?: string
+          recipient_count?: number
+          sent_at?: string
+          status?: string
+          template_data?: Json | null
         }
         Relationships: []
       }

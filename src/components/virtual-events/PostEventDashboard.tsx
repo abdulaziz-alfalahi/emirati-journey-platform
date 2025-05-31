@@ -106,7 +106,7 @@ const PostEventDashboard: React.FC<PostEventDashboardProps> = ({ eventId }) => {
       const connections = await PostEventFollowUpService.exportNetworkingConnections(eventId);
       
       // Create CSV download
-      const csvContent = this.createCSVContent(connections);
+      const csvContent = createCSVContent(connections);
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -273,7 +273,7 @@ const PostEventDashboard: React.FC<PostEventDashboardProps> = ({ eventId }) => {
                     </div>
                     
                     <div className="space-y-3">
-                      {Object.entries(feedbackSummary.averageRatings).map(([key, value]) => (
+                      {Object.entries(feedbackSummary.averageRatings || {}).map(([key, value]) => (
                         <div key={key} className="space-y-1">
                           <div className="flex justify-between text-sm">
                             <span className="capitalize">{key}</span>
@@ -287,7 +287,7 @@ const PostEventDashboard: React.FC<PostEventDashboardProps> = ({ eventId }) => {
                     <div className="pt-4 border-t">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">
-                          {feedbackSummary.recommendationRate.toFixed(1)}%
+                          {feedbackSummary.recommendationRate?.toFixed(1) || '0'}%
                         </div>
                         <p className="text-sm text-muted-foreground">Would Recommend</p>
                       </div>
