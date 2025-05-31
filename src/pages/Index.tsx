@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -60,28 +59,28 @@ export default function Index() {
 
   // Style for decorative elements using Dubai Design System colors
   const decorationStyle: React.CSSProperties = {
-    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(0,121,193,0.1) 100%)",
+    backgroundImage: "radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 40%, rgba(0,110,109,0.1) 100%)",
     pointerEvents: "none" as const,
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-dubai-blue dubai-text-body">Loading...</div>
+        <div className="animate-pulse text-ehrdc-teal dubai-text-body">Loading...</div>
       </div>
     );
   }
 
   const content = (
     <div className="relative">
-      {/* Decorative element using Dubai Design System colors */}
+      {/* Decorative element using EHRDC colors */}
       <div 
         className="absolute top-0 right-0 w-64 h-64 -z-10 opacity-30 pointer-events-none"
         style={decorationStyle}
       ></div>
       
       <ErrorBoundary fallback={
-        <div className="p-4 border border-dubai-red bg-red-50 rounded-lg text-dubai-red">
+        <div className="p-4 border border-red-500 bg-red-50 rounded-lg text-red-600">
           <h3 className="dubai-text-heading-3 mb-2">Something went wrong</h3>
           <p className="dubai-text-body">We're sorry, but there was an error loading this section. Please try refreshing the page.</p>
         </div>
@@ -114,7 +113,7 @@ export default function Index() {
             <div className="text-center mt-8">
               <Link 
                 to="/success-stories"
-                className="dubai-button-secondary px-6 py-3"
+                className="ehrdc-button-secondary px-6 py-3"
               >
                 Read More Stories
               </Link>
@@ -122,10 +121,10 @@ export default function Index() {
           </div>
         </section>
         
-        {/* Call to Action Section using Dubai Design System styling */}
-        <section className="section bg-dubai-blue text-white py-16 rounded-lg my-16 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-dubai-teal/20 rounded-full filter blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-dubai-gray-300/20 rounded-full filter blur-3xl"></div>
+        {/* Call to Action Section using EHRDC styling */}
+        <section className="section bg-ehrdc-teal text-white py-16 rounded-lg my-16 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-ehrdc-lightTeal/20 rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full filter blur-3xl"></div>
           
           <div className="dubai-container text-center relative z-10 px-6">
             <h2 className="dubai-text-heading-2 mb-6">
@@ -138,13 +137,13 @@ export default function Index() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={handleGetStartedClick}
-                className="bg-white text-dubai-blue font-medium py-4 px-8 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300"
+                className="bg-white text-ehrdc-teal font-medium py-4 px-8 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 Start Your Journey
               </button>
               <Link 
                 to="/cv-builder"
-                className="bg-dubai-teal/20 hover:bg-dubai-teal/30 text-white font-medium py-4 px-8 rounded-lg border border-dubai-teal/30 transition-all duration-300"
+                className="bg-ehrdc-lightTeal/20 hover:bg-ehrdc-lightTeal/30 text-white font-medium py-4 px-8 rounded-lg border border-ehrdc-lightTeal/30 transition-all duration-300"
               >
                 Create Your CV
               </Link>
@@ -153,7 +152,7 @@ export default function Index() {
         </section>
       </ErrorBoundary>
       
-      {/* Decorative element using Dubai Design System colors */}
+      {/* Decorative element using EHRDC colors */}
       <div 
         className="absolute bottom-0 left-0 w-64 h-64 -z-10 opacity-30 pointer-events-none"
         style={decorationStyle}
