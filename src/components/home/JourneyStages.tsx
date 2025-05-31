@@ -97,7 +97,7 @@ const JourneyStages: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white shadow-subtle border border-gray-100">
-            <p className="text-emirati-navy font-medium">Lifelong Development</p>
+            <p className="text-ehrdc-teal font-medium">Lifelong Development</p>
           </div>
           <h2 className="text-3xl md:text-5xl font-display font-semibold mb-6">Your Complete Journey</h2>
           <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
@@ -140,7 +140,7 @@ const JourneyStages: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center mb-6">
               <div className="text-4xl mb-4 md:mb-0 md:mr-6">{journeyStages[activeStage].icon}</div>
               <div>
-                <h3 className="text-2xl font-display font-medium text-emirati-navy">
+                <h3 className="text-2xl font-display font-medium text-ehrdc-teal">
                   {journeyStages[activeStage].title}
                 </h3>
                 <div className="text-sm text-foreground/60">
@@ -161,7 +161,7 @@ const JourneyStages: React.FC = () => {
                 className={cn(
                   "flex-shrink-0 px-4 py-2 rounded-full border transition-all duration-300 cursor-pointer",
                   activeStage === index 
-                    ? "bg-emirati-teal text-white border-emirati-teal" 
+                    ? "bg-ehrdc-teal text-white border-ehrdc-teal" 
                     : "bg-white text-foreground/70 border-gray-200"
                 )}
                 onClick={() => setActiveStage(index)}
