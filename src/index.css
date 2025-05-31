@@ -18,8 +18,18 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Dubai Design System Primary Colors */
-    --primary: 206 100% 38%; /* Dubai Blue #0079C1 */
+    /* EHRDC Primary Colors */
+    --ehrdc-teal: #006E6D;
+    --ehrdc-dark-teal: #00504F;
+    --ehrdc-light-teal: #B3DEDD;
+    
+    /* Supporting Colors */
+    --ehrdc-neutral-dark: #333333;
+    --ehrdc-neutral-light: #F5F5F5;
+    --ehrdc-gold: #C3992A;
+    
+    /* Update primary color to use EHRDC teal */
+    --primary: 180 100% 22%; /* EHRDC Teal in HSL */
     --primary-foreground: 0 0% 100%;
 
     /* Dubai Design System Secondary Colors */
@@ -30,8 +40,9 @@
     --muted: 173 33% 95%;
     --muted-foreground: 0 0% 46%;
 
-    --accent: 173 100% 35%; /* Dubai Teal #00ABB3 */
-    --accent-foreground: 0 0% 9%;
+    /* Update accent color */
+    --accent: 180 100% 70%; /* Light teal */
+    --accent-foreground: 180 100% 15%;
 
     /* Alert red */
     --destructive: 0 87% 36%;
