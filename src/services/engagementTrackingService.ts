@@ -53,6 +53,8 @@ export interface EventAnalytics {
 }
 
 export class EngagementTrackingService {
+  static supabase = supabase;
+
   // Session Attendance Tracking
   static async startSessionAttendance(sessionId: string, eventId: string): Promise<SessionAttendance> {
     const { data: user } = await supabase.auth.getUser();
@@ -79,7 +81,7 @@ export class EngagementTrackingService {
     // First get the current attendance record to calculate duration
     const { data: attendance } = await supabase
       .from('session_attendance')
-      .select('joined_at')
+      .select('joined_at, user_id, event_id')
       .eq('id', attendanceId)
       .single();
 
@@ -152,7 +154,11 @@ export class EngagementTrackingService {
       booths_visited: interactionType === 'view' ? 1 : 0
     });
 
-    return data;
+    return {
+      ...data,
+      interaction_data: data.interaction_data as Record<string, any>,
+      interaction_type: data.interaction_type as BoothInteraction['interaction_type']
+    };
   }
 
   static async getBoothInteractionHeatmap(eventId: string): Promise<Record<string, any>> {
@@ -210,7 +216,8 @@ export class EngagementTrackingService {
         questions_asked: (existing.questions_asked || 0) + (updates.questions_asked || 0),
         polls_participated: (existing.polls_participated || 0) + (updates.polls_participated || 0),
         networking_connections: (existing.networking_connections || 0) + (updates.networking_connections || 0),
-        last_activity: new Date().toISOString()
+        last_activity: new Date().toISOString(),
+        overall_engagement_score: 0 // Will be calculated below
       };
 
       // Calculate overall engagement score
@@ -233,7 +240,8 @@ export class EngagementTrackingService {
         questions_asked: updates.questions_asked || 0,
         polls_participated: updates.polls_participated || 0,
         networking_connections: updates.networking_connections || 0,
-        last_activity: new Date().toISOString()
+        last_activity: new Date().toISOString(),
+        overall_engagement_score: 0 // Will be calculated below
       };
 
       newData.overall_engagement_score = this.calculateEngagementScore(newData);
@@ -314,7 +322,11 @@ export class EngagementTrackingService {
       .order('recorded_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    return (data || []).map(item => ({
+      ...item,
+      dimensions: item.dimensions as Record<string, any>
+    }));
   }
 
   static async getEngagementLeaderboard(eventId: string, limit: number = 10): Promise<any[]> {

@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { EngagementTrackingService } from '@/services/engagementTrackingService';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 
 interface UseEngagementTrackingProps {
@@ -108,7 +109,7 @@ export const useEngagementTracking = ({
   // Record Q&A participation
   const recordQuestionAsked = async () => {
     try {
-      const { data: user } = await EngagementTrackingService.supabase.auth.getUser();
+      const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
       await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
@@ -124,7 +125,7 @@ export const useEngagementTracking = ({
   // Record poll participation
   const recordPollParticipation = async () => {
     try {
-      const { data: user } = await EngagementTrackingService.supabase.auth.getUser();
+      const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
       await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
@@ -140,7 +141,7 @@ export const useEngagementTracking = ({
   // Record networking connection
   const recordNetworkingConnection = async () => {
     try {
-      const { data: user } = await EngagementTrackingService.supabase.auth.getUser();
+      const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
       await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
