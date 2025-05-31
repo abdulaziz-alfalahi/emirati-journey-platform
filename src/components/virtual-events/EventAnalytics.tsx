@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, Activity, Users, TrendingUp } from 'lucide-react';
+import { BarChart3, Activity, Users, TrendingUp, FileText } from 'lucide-react';
 import EngagementDashboard from './EngagementDashboard';
 import BoothHeatmap from './BoothHeatmap';
 import RealTimeAnalytics from './RealTimeAnalytics';
+import PostEventDashboard from './PostEventDashboard';
 
 interface EventAnalyticsProps {
   eventId: string;
@@ -24,7 +25,7 @@ const EventAnalytics: React.FC<EventAnalyticsProps> = ({ eventId }) => {
       </div>
 
       <Tabs defaultValue="realtime" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="realtime" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Real-Time
@@ -36,6 +37,10 @@ const EventAnalytics: React.FC<EventAnalyticsProps> = ({ eventId }) => {
           <TabsTrigger value="heatmap" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Booth Heatmap
+          </TabsTrigger>
+          <TabsTrigger value="followup" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Post-Event
           </TabsTrigger>
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
@@ -53,6 +58,10 @@ const EventAnalytics: React.FC<EventAnalyticsProps> = ({ eventId }) => {
 
         <TabsContent value="heatmap">
           <BoothHeatmap eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="followup">
+          <PostEventDashboard eventId={eventId} />
         </TabsContent>
 
         <TabsContent value="overview">
