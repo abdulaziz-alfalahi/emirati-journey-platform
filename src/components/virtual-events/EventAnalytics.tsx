@@ -1,191 +1,118 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Users, Eye, MessageCircle, TrendingUp } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
-import { VirtualEventsService } from '@/services/virtualEventsService';
+import { BarChart3, Activity, Users, TrendingUp } from 'lucide-react';
+import EngagementDashboard from './EngagementDashboard';
+import BoothHeatmap from './BoothHeatmap';
+import RealTimeAnalytics from './RealTimeAnalytics';
 
 interface EventAnalyticsProps {
   eventId: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
-
 const EventAnalytics: React.FC<EventAnalyticsProps> = ({ eventId }) => {
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadAnalytics();
-  }, [eventId]);
-
-  const loadAnalytics = async () => {
-    try {
-      setIsLoading(true);
-      const data = await VirtualEventsService.getAnalyticsSummary(eventId);
-      setAnalyticsData(data);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load event analytics",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!analyticsData) {
-    return (
-      <div className="text-center py-12">
-        <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No analytics data available</h3>
-        <p className="text-muted-foreground">
-          Analytics data will appear here as users interact with the event.
-        </p>
-      </div>
-    );
-  }
-
-  const attendanceData = [
-    { name: 'Registered', value: analyticsData.totalRegistrations },
-    { name: 'Attended', value: analyticsData.attendedCount },
-    { name: 'No Show', value: analyticsData.totalRegistrations - analyticsData.attendedCount }
-  ];
-
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Event Analytics</h2>
-
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analyticsData.totalRegistrations}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Attended</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analyticsData.attendedCount}</div>
-            <p className="text-xs text-muted-foreground">
-              {analyticsData.totalRegistrations > 0 
-                ? `${Math.round((analyticsData.attendedCount / analyticsData.totalRegistrations) * 100)}% attendance rate`
-                : 'No registrations yet'
-              }
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Session Duration</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(analyticsData.averageSessionDuration || 0)}m
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Networking Connections</CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analyticsData.totalNetworkingConnections}</div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Event Analytics</h2>
+          <p className="text-muted-foreground">
+            Comprehensive insights into attendee engagement and event performance
+          </p>
+        </div>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Attendance Overview</CardTitle>
-            <CardDescription>Registration vs actual attendance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={attendanceData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {attendanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="realtime" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="realtime" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Real-Time
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Engagement
+          </TabsTrigger>
+          <TabsTrigger value="heatmap" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Booth Heatmap
+          </TabsTrigger>
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Engagement Metrics</CardTitle>
-            <CardDescription>User interaction throughout the event</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Registration Rate</span>
-                <Badge variant="secondary">
-                  {analyticsData.totalRegistrations > 0 ? '100%' : '0%'}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Attendance Rate</span>
-                <Badge variant="secondary">
-                  {analyticsData.totalRegistrations > 0 
-                    ? `${Math.round((analyticsData.attendedCount / analyticsData.totalRegistrations) * 100)}%`
-                    : '0%'
-                  }
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Avg. Session Duration</span>
-                <Badge variant="secondary">
-                  {Math.round(analyticsData.averageSessionDuration || 0)} minutes
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Networking Activity</span>
-                <Badge variant="secondary">
-                  {analyticsData.totalNetworkingConnections} connections
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="realtime">
+          <RealTimeAnalytics eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="engagement">
+          <EngagementDashboard eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="heatmap">
+          <BoothHeatmap eventId={eventId} />
+        </TabsContent>
+
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Event Summary</CardTitle>
+                <CardDescription>Overall event performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Total Registrations</span>
+                    <span className="text-lg font-bold">--</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Active Attendees</span>
+                    <span className="text-lg font-bold">--</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Average Session Duration</span>
+                    <span className="text-lg font-bold">--</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Total Interactions</span>
+                    <span className="text-lg font-bold">--</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Popular Features</CardTitle>
+                <CardDescription>Most used event features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Virtual Booths</span>
+                    <span className="text-sm font-medium">85%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Networking</span>
+                    <span className="text-sm font-medium">72%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Q&A Sessions</span>
+                    <span className="text-sm font-medium">68%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Breakout Rooms</span>
+                    <span className="text-sm font-medium">45%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

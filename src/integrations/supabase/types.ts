@@ -572,6 +572,39 @@ export type Database = {
         }
         Relationships: []
       }
+      booth_interaction_tracking: {
+        Row: {
+          booth_id: string
+          created_at: string
+          duration_seconds: number | null
+          event_id: string
+          id: string
+          interaction_data: Json | null
+          interaction_type: string
+          user_id: string
+        }
+        Insert: {
+          booth_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          event_id: string
+          id?: string
+          interaction_data?: Json | null
+          interaction_type: string
+          user_id: string
+        }
+        Update: {
+          booth_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          event_id?: string
+          id?: string
+          interaction_data?: Json | null
+          interaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       booth_visits: {
         Row: {
           booth_id: string
@@ -1148,6 +1181,84 @@ export type Database = {
           user_id?: string
           verification_type?: string
           verified_at?: string | null
+        }
+        Relationships: []
+      }
+      engagement_analytics: {
+        Row: {
+          booths_visited: number | null
+          created_at: string
+          event_id: string
+          id: string
+          last_activity: string | null
+          networking_connections: number | null
+          overall_engagement_score: number | null
+          polls_participated: number | null
+          questions_asked: number | null
+          sessions_attended: number | null
+          total_session_time: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booths_visited?: number | null
+          created_at?: string
+          event_id: string
+          id?: string
+          last_activity?: string | null
+          networking_connections?: number | null
+          overall_engagement_score?: number | null
+          polls_participated?: number | null
+          questions_asked?: number | null
+          sessions_attended?: number | null
+          total_session_time?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booths_visited?: number | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          last_activity?: string | null
+          networking_connections?: number | null
+          overall_engagement_score?: number | null
+          polls_participated?: number | null
+          questions_asked?: number | null
+          sessions_attended?: number | null
+          total_session_time?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      event_analytics: {
+        Row: {
+          dimensions: Json | null
+          event_id: string
+          id: string
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at: string
+        }
+        Insert: {
+          dimensions?: Json | null
+          event_id: string
+          id?: string
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at?: string
+        }
+        Update: {
+          dimensions?: Json | null
+          event_id?: string
+          id?: string
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string
         }
         Relationships: []
       }
@@ -3368,6 +3479,48 @@ export type Database = {
           title?: string
           updated_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      session_attendance: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          engagement_score: number | null
+          event_id: string
+          id: string
+          interactions_count: number | null
+          joined_at: string
+          left_at: string | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          engagement_score?: number | null
+          event_id: string
+          id?: string
+          interactions_count?: number | null
+          joined_at?: string
+          left_at?: string | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          engagement_score?: number | null
+          event_id?: string
+          id?: string
+          interactions_count?: number | null
+          joined_at?: string
+          left_at?: string | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
