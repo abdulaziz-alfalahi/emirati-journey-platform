@@ -61,6 +61,7 @@ import Home from '@/pages/home/index';
 import MobileOffline from '@/pages/mobile-offline/index';
 import NativeFeatures from '@/pages/native-features/index';
 import CommunityAnalyticsPage from '@/pages/communities/analytics';
+import DesignSystem from "@/pages/DesignSystem";
 
 import './App.css';
 
@@ -126,6 +127,7 @@ function App() {
                         <Route path="/test-form" element={<TestForm />} />
                         <Route path="/mobile-offline" element={<MobileOffline />} />
                         <Route path="/native-features" element={<NativeFeatures />} />
+                        <Route path="/design-system" element={<DesignSystem />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </div>
