@@ -238,7 +238,7 @@ const LMSPage: React.FC = () => {
                   <CardDescription>
                     Build and publish your own courses
                   </CardDescription>
-                </Header>
+                </CardHeader>
                 <CardContent>
                   <div className="text-center py-12">
                     <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
