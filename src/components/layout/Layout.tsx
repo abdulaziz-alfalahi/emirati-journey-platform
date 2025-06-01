@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from './Navbar';
 import GovLogos from '../logos/GovLogos';
-import { MessageSquare, Zap, ThumbsUp } from 'lucide-react';
+import { MessageSquare, Zap, ThumbsUp, Phone, Mail, MapPin } from 'lucide-react';
 import DubaiGovFooterIcons from './DubaiGovFooterIcons';
 
 interface LayoutProps {
@@ -12,21 +12,49 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Top Header with Government Logos */}
-      <div className="bg-white border-b border-dubai-gray-200 shadow-sm">
+      {/* Top Header with Enhanced Government Logos */}
+      <div className="bg-white border-b border-ehrdc-neutral-light shadow-sm">
         <div className="dubai-container py-4">
           <div className="flex justify-between items-center">
             {/* Dubai Government Logo - Left */}
-            <a href="https://tec.gov.ae/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+            <a 
+              href="https://tec.gov.ae/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="Visit Dubai Government TEC Portal"
+            >
               <img 
                 src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
-                alt="Government of Dubai"
+                alt="Government of Dubai - The Executive Council"
                 className="h-12 md:h-16"
               />
             </a>
 
+            {/* Center - Government Services Quick Links */}
+            <div className="hidden lg:flex items-center space-x-6 text-sm">
+              <a 
+                href="tel:600545555" 
+                className="flex items-center space-x-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal transition-colors"
+              >
+                <Phone className="h-4 w-4" />
+                <span>600 54 5555</span>
+              </a>
+              <a 
+                href="mailto:info@ehrdc.gov.ae" 
+                className="flex items-center space-x-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                <span>Contact EHRDC</span>
+              </a>
+            </div>
+
             {/* EHRDC Logo - Right */}
-            <a href="/" className="flex items-center">
+            <a 
+              href="/" 
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="Emirati Human Resources Development Council"
+            >
               <img 
                 src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
                 alt="Emirati Human Resources Development Council"
@@ -37,67 +65,94 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Navigation Bar */}
-      <Navbar />
+      {/* Enhanced Navigation Bar */}
+      <div className="bg-white border-b border-ehrdc-neutral-light">
+        <Navbar />
+      </div>
       
       <main className="flex-1">{children}</main>
-      <footer className="py-8 px-6 bg-dubai-blue text-white">
+      
+      {/* Enhanced Footer with EHRDC Branding */}
+      <footer className="py-12 px-6 bg-ehrdc-teal text-white">
         <div className="dubai-container">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <p className="text-white/70 mt-1 dubai-text-body">Supporting UAE citizens from education to retirement</p>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+            {/* EHRDC Information */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-4">
+                  <span className="text-ehrdc-teal font-bold text-lg">EG</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-xl">Emirati Gateway</h3>
+                  <p className="text-ehrdc-light-teal text-sm">EHRDC Digital Platform</p>
+                </div>
+              </div>
+              <p className="text-ehrdc-light-teal mb-4 leading-relaxed">
+                Supporting UAE citizens throughout their journey from education to retirement, 
+                fostering career development, skills enhancement, and professional growth.
+              </p>
+              <div className="flex items-center space-x-2 text-sm">
+                <MapPin className="h-4 w-4" />
+                <span>Dubai, United Arab Emirates</span>
+              </div>
             </div>
-            <div className="flex space-x-8">
-              <div>
-                <h4 className="font-medium mb-2 dubai-text-body">Platform</h4>
-                <ul className="space-y-1">
-                  <li><a href="#" className="text-white/70 hover:text-white transition-colors dubai-text-body-small">About</a></li>
-                  <li><a href="#" className="text-white/70 hover:text-white transition-colors dubai-text-body-small">Services</a></li>
-                  <li><a href="#" className="text-white/70 hover:text-white transition-colors dubai-text-body-small">Contact</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-2 dubai-text-body">Legal</h4>
-                <ul className="space-y-1">
-                  <li><a href="#" className="text-white/70 hover:text-white transition-colors dubai-text-body-small">Privacy</a></li>
-                  <li><a href="#" className="text-white/70 hover:text-white transition-colors dubai-text-body-small">Terms</a></li>
-                </ul>
-              </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="font-semibold mb-4 text-lg">Quick Links</h4>
+              <ul className="space-y-2">
+                <li><a href="/about" className="text-ehrdc-light-teal hover:text-white transition-colors">About EHRDC</a></li>
+                <li><a href="/career-journey" className="text-ehrdc-light-teal hover:text-white transition-colors">Career Journey</a></li>
+                <li><a href="/training" className="text-ehrdc-light-teal hover:text-white transition-colors">Training Programs</a></li>
+                <li><a href="/scholarships" className="text-ehrdc-light-teal hover:text-white transition-colors">Scholarships</a></li>
+                <li><a href="/success-stories" className="text-ehrdc-light-teal hover:text-white transition-colors">Success Stories</a></li>
+              </ul>
+            </div>
+
+            {/* Support & Legal */}
+            <div>
+              <h4 className="font-semibold mb-4 text-lg">Support & Legal</h4>
+              <ul className="space-y-2">
+                <li><a href="/help" className="text-ehrdc-light-teal hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="/privacy" className="text-ehrdc-light-teal hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="text-ehrdc-light-teal hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="/accessibility" className="text-ehrdc-light-teal hover:text-white transition-colors">Accessibility</a></li>
+              </ul>
             </div>
           </div>
           
-          {/* Dubai Government Standard Footer Icons */}
-          <div className="mt-8 pt-6 border-t border-white/10">
+          {/* Dubai Government Standard Footer */}
+          <div className="border-t border-ehrdc-light-teal pt-8">
             <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
               <div className="flex flex-col md:flex-row gap-6">
-                {/* DubaiAI Icon */}
-                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
-                  <Zap className="h-6 w-6" />
-                  <span className="font-medium dubai-text-body-small">DubaiAI</span>
+                {/* DubaiAI */}
+                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
+                  <Zap className="h-5 w-5" />
+                  <span className="font-medium">DubaiAI</span>
                 </a>
                 
-                {/* 04 Suggestions/Complaints */}
-                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
-                  <MessageSquare className="h-6 w-6" />
-                  <span className="font-medium dubai-text-body-small">Suggestions & Complaints</span>
+                {/* Suggestions & Complaints */}
+                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
+                  <MessageSquare className="h-5 w-5" />
+                  <span className="font-medium">Suggestions & Complaints</span>
                 </a>
                 
                 {/* Happiness Meter */}
-                <a href="#" className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors">
-                  <ThumbsUp className="h-6 w-6" />
-                  <span className="font-medium dubai-text-body-small">Happiness Meter</span>
+                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
+                  <ThumbsUp className="h-5 w-5" />
+                  <span className="font-medium">Happiness Meter</span>
                 </a>
               </div>
               
-              <div className="text-center text-white/50 dubai-text-body-small">
-                © {new Date().getFullYear()} Emirati Gateway. All rights reserved.
+              <div className="text-center text-ehrdc-light-teal text-sm">
+                © {new Date().getFullYear()} Emirati Human Resources Development Council. All rights reserved.
               </div>
             </div>
           </div>
         </div>
       </footer>
       
-      {/* Add the floating Dubai Government footer icons */}
+      {/* Dubai Government footer icons */}
       <DubaiGovFooterIcons />
     </div>
   );
