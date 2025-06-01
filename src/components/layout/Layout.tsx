@@ -22,87 +22,132 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
       
-      {/* Enhanced Footer with EHRDC Branding */}
-      <footer className="py-12 px-6 bg-ehrdc-teal text-white" role="contentinfo">
-        <div className="dubai-container">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
-            {/* EHRDC Information */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-4">
-                  <span className="text-ehrdc-teal font-bold text-lg">EG</span>
+      {/* Dubai Government Standard Footer */}
+      <footer className="bg-ehrdc-teal text-white" role="contentinfo">
+        {/* Main Footer Section */}
+        <div className="py-12 px-6">
+          <div className="dubai-container">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
+              {/* EHRDC Information */}
+              <div className="lg:col-span-2">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-4">
+                    <span className="text-ehrdc-teal font-bold text-lg">EG</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xl text-white">Emirati Gateway</h3>
+                    <p className="text-ehrdc-light-teal text-sm">EHRDC Digital Platform</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-xl">Emirati Gateway</h3>
-                  <p className="text-ehrdc-light-teal text-sm">EHRDC Digital Platform</p>
+                <p className="text-white/90 mb-6 leading-relaxed max-w-md">
+                  Supporting UAE citizens throughout their journey from education to retirement, 
+                  fostering career development, skills enhancement, and professional growth.
+                </p>
+                <div className="flex items-center space-x-3 text-sm text-white/80">
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
+                  <span>Dubai, United Arab Emirates</span>
                 </div>
               </div>
-              <p className="text-ehrdc-light-teal mb-4 leading-relaxed">
-                Supporting UAE citizens throughout their journey from education to retirement, 
-                fostering career development, skills enhancement, and professional growth.
-              </p>
-              <div className="flex items-center space-x-2 text-sm">
-                <MapPin className="h-4 w-4" />
-                <span>Dubai, United Arab Emirates</span>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="font-semibold mb-6 text-lg text-white">Quick Links</h4>
+                <ul className="space-y-3">
+                  <li><a href="/about" className="text-white/80 hover:text-white transition-colors text-sm">About EHRDC</a></li>
+                  <li><a href="/career-journey" className="text-white/80 hover:text-white transition-colors text-sm">Career Journey</a></li>
+                  <li><a href="/training" className="text-white/80 hover:text-white transition-colors text-sm">Training Programs</a></li>
+                  <li><a href="/scholarships" className="text-white/80 hover:text-white transition-colors text-sm">Scholarships</a></li>
+                  <li><a href="/success-stories" className="text-white/80 hover:text-white transition-colors text-sm">Success Stories</a></li>
+                </ul>
               </div>
-            </div>
 
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">Quick Links</h4>
-              <ul className="space-y-2">
-                <li><a href="/about" className="text-ehrdc-light-teal hover:text-white transition-colors">About EHRDC</a></li>
-                <li><a href="/career-journey" className="text-ehrdc-light-teal hover:text-white transition-colors">Career Journey</a></li>
-                <li><a href="/training" className="text-ehrdc-light-teal hover:text-white transition-colors">Training Programs</a></li>
-                <li><a href="/scholarships" className="text-ehrdc-light-teal hover:text-white transition-colors">Scholarships</a></li>
-                <li><a href="/success-stories" className="text-ehrdc-light-teal hover:text-white transition-colors">Success Stories</a></li>
-              </ul>
-            </div>
-
-            {/* Support & Legal */}
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">Support & Legal</h4>
-              <ul className="space-y-2">
-                <li><a href="/help" className="text-ehrdc-light-teal hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="/privacy" className="text-ehrdc-light-teal hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="text-ehrdc-light-teal hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="/accessibility" className="text-ehrdc-light-teal hover:text-white transition-colors">Accessibility</a></li>
-              </ul>
+              {/* Services */}
+              <div>
+                <h4 className="font-semibold mb-6 text-lg text-white">Services</h4>
+                <ul className="space-y-3">
+                  <li><a href="/job-matching" className="text-white/80 hover:text-white transition-colors text-sm">Job Matching</a></li>
+                  <li><a href="/cv-builder" className="text-white/80 hover:text-white transition-colors text-sm">CV Builder</a></li>
+                  <li><a href="/communities" className="text-white/80 hover:text-white transition-colors text-sm">Communities</a></li>
+                  <li><a href="/mentorship" className="text-white/80 hover:text-white transition-colors text-sm">Mentorship</a></li>
+                  <li><a href="/internships" className="text-white/80 hover:text-white transition-colors text-sm">Internships</a></li>
+                </ul>
+              </div>
             </div>
           </div>
-          
-          {/* Dubai Government Standard Footer */}
-          <div className="border-t border-ehrdc-light-teal pt-8">
-            <div className="flex flex-wrap justify-center md:justify-between items-center gap-6">
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* DubaiAI */}
-                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
-                  <Zap className="h-5 w-5" />
-                  <span className="font-medium">DubaiAI</span>
+        </div>
+        
+        {/* Government Standard Footer Section */}
+        <div className="border-t border-white/20 py-6 px-6">
+          <div className="dubai-container">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+              {/* Government Services Links */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+                {/* Dubai AI */}
+                <a 
+                  href="https://www.dubaidigital.ae/en/dubaiAI.html" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <Zap className="h-4 w-4" />
+                  <span>Dubai AI</span>
+                </a>
+                
+                {/* 04 Suggestions */}
+                <a 
+                  href="tel:04" 
+                  className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>04 Suggestions</span>
                 </a>
                 
                 {/* Suggestions & Complaints */}
-                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
-                  <MessageSquare className="h-5 w-5" />
-                  <span className="font-medium">Suggestions & Complaints</span>
+                <a 
+                  href="#complaints" 
+                  className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Open complaints modal or redirect
+                    console.log('Open complaints form');
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Suggestions & Complaints</span>
                 </a>
                 
                 {/* Happiness Meter */}
-                <a href="#" className="flex items-center space-x-2 text-ehrdc-light-teal hover:text-white transition-colors">
-                  <ThumbsUp className="h-5 w-5" />
-                  <span className="font-medium">Happiness Meter</span>
+                <a 
+                  href="#happiness-meter" 
+                  className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Open happiness meter
+                    console.log('Open happiness meter');
+                  }}
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                  <span>Happiness Meter</span>
                 </a>
               </div>
               
-              <div className="text-center text-ehrdc-light-teal text-sm">
-                © {new Date().getFullYear()} Emirati Human Resources Development Council. All rights reserved.
+              {/* Copyright */}
+              <div className="text-center lg:text-right">
+                <div className="text-white/70 text-sm mb-2">
+                  © {new Date().getFullYear()} Emirati Human Resources Development Council
+                </div>
+                <div className="flex flex-wrap justify-center lg:justify-end gap-4 text-xs text-white/60">
+                  <a href="/privacy" className="hover:text-white/80 transition-colors">Privacy Policy</a>
+                  <a href="/terms" className="hover:text-white/80 transition-colors">Terms of Service</a>
+                  <a href="/accessibility" className="hover:text-white/80 transition-colors">Accessibility</a>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </footer>
       
-      {/* Dubai Government footer icons */}
+      {/* Dubai Government floating footer icons */}
       <DubaiGovFooterIcons />
     </div>
   );
