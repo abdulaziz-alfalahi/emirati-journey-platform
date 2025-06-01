@@ -100,9 +100,8 @@ const DubaiGovHeader: React.FC = () => {
         <div className="bg-white">
           <div className="dubai-container">
             <div className="flex items-center justify-between py-4">
-              {/* Left side - Government logos */}
-              <div className="flex items-center space-x-6">
-                {/* Dubai Government Logo */}
+              {/* Left side - Dubai Government Logo only */}
+              <div className="flex items-center">
                 <a 
                   href="https://tec.gov.ae/" 
                   target="_blank" 
@@ -116,29 +115,10 @@ const DubaiGovHeader: React.FC = () => {
                     className="h-12 md:h-16"
                   />
                 </a>
-
-                {/* Divider */}
-                <div className="hidden md:block w-px h-12 bg-ehrdc-neutral-light"></div>
-
-                {/* EHRDC Logo and Platform Name */}
-                <Link to="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                  <img 
-                    src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
-                    alt="Emirati Human Resources Development Council"
-                    className="h-10 md:h-12"
-                  />
-                  <div className="hidden lg:block">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-lg text-ehrdc-teal leading-none">Emirati Gateway</span>
-                      <span className="text-xs text-ehrdc-neutral-dark opacity-75 leading-none">EHRDC Digital Platform</span>
-                    </div>
-                  </div>
-                </Link>
               </div>
 
-              {/* Right side - Search and actions */}
-              <div className="flex items-center space-x-4">
-                {/* Search functionality */}
+              {/* Center - Search functionality */}
+              <div className="flex items-center">
                 <div className="relative">
                   {isSearchOpen ? (
                     <form onSubmit={handleSearch} className="flex items-center">
@@ -178,6 +158,24 @@ const DubaiGovHeader: React.FC = () => {
                     </Button>
                   )}
                 </div>
+              </div>
+
+              {/* Right side - EHRDC Logo and actions */}
+              <div className="flex items-center space-x-4">
+                {/* EHRDC Logo and Platform Name */}
+                <Link to="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                  <img 
+                    src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
+                    alt="Emirati Human Resources Development Council"
+                    className="h-10 md:h-12"
+                  />
+                  <div className="hidden lg:block">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-lg text-ehrdc-teal leading-none">Emirati Gateway</span>
+                      <span className="text-xs text-ehrdc-neutral-dark opacity-75 leading-none">EHRDC Digital Platform</span>
+                    </div>
+                  </div>
+                </Link>
 
                 {/* Authentication Actions */}
                 {user ? (
