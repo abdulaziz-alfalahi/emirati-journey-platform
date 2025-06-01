@@ -41,16 +41,9 @@ const DubaiGovHeader: React.FC = () => {
         <div className="bg-ehrdc-teal text-white">
           <div className="dubai-container">
             <div className="flex justify-between items-center py-2 text-sm">
-              {/* Left side - Government links */}
+              {/* Left side - Empty space or can be removed entirely */}
               <div className="hidden md:flex items-center space-x-6">
-                <a 
-                  href="https://dubai.ae/en" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-ehrdc-light-teal transition-colors"
-                >
-                  Dubai.ae
-                </a>
+                {/* Dubai.ae link removed */}
               </div>
 
               {/* Right side - Contact, services, authentication, and accessibility */}
