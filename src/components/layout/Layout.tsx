@@ -16,14 +16,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <DubaiGovHeader />
       
       {/* Enhanced Navigation Bar */}
-      <div className="bg-white border-b border-ehrdc-neutral-light">
+      <nav id="navigation" className="bg-white border-b border-ehrdc-neutral-light">
         <Navbar />
-      </div>
+      </nav>
       
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
       
       {/* Enhanced Footer with EHRDC Branding */}
-      <footer className="py-12 px-6 bg-ehrdc-teal text-white">
+      <footer className="py-12 px-6 bg-ehrdc-teal text-white" role="contentinfo">
         <div className="dubai-container">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
             {/* EHRDC Information */}

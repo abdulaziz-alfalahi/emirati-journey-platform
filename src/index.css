@@ -1,124 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-/* Import the Dubai font for Government theme */
-@import url('https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap');
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("./components/accessibility/accessibility.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-
-    /* EHRDC Primary Colors - Enhanced */
+    /* Dubai Government Colors - EHRDC Palette */
     --ehrdc-teal: #006E6D;
-    --ehrdc-dark-teal: #00504F;
-    --ehrdc-light-teal: #B3DEDD;
-    
-    /* Supporting Colors - Enhanced */
-    --ehrdc-neutral-dark: #333333;
+    --ehrdc-dark-teal: #005A59;
+    --ehrdc-light-teal: #4A9B9A;
+    --ehrdc-neutral-dark: #1A1A1A;
     --ehrdc-neutral-light: #F5F5F5;
-    --ehrdc-gold: #C3992A;
     --ehrdc-white: #FFFFFF;
-    
-    /* Update primary color to use EHRDC teal */
-    --primary: 180 100% 22%; /* EHRDC Teal in HSL */
-    --primary-foreground: 0 0% 100%;
 
-    /* Dubai Design System Secondary Colors */
-    --secondary: 214 9% 87%;
-    --secondary-foreground: 0 0% 9%;
-
-    /* Dubai Design System Accent Colors */
-    --muted: 173 33% 95%;
-    --muted-foreground: 0 0% 46%;
-
-    /* Update accent color */
-    --accent: 180 100% 70%; /* Light teal */
-    --accent-foreground: 180 100% 15%;
-
-    /* Alert red */
-    --destructive: 0 87% 36%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 214 9% 87%;
-    --input: 214 9% 87%;
-    --ring: 206 100% 38%;
-
-    --radius: 0.5rem; /* Updated to match Dubai Design System */
-
-    /* Dubai Design System specific variables */
-    --dubai-blue: #0079C1;
-    --dubai-teal: #00ABB3;
-    --dubai-green: #00A651;
-    --dubai-orange: #F57C00;
-    --dubai-red: #D32F2F;
-    --dubai-purple: #7B1FA2;
-    --dubai-gray-50: #FAFAFA;
-    --dubai-gray-100: #F5F5F5;
-    --dubai-gray-200: #EEEEEE;
-    --dubai-gray-300: #E0E0E0;
-    --dubai-gray-400: #BDBDBD;
-    --dubai-gray-500: #9E9E9E;
-    --dubai-gray-600: #757575;
-    --dubai-gray-700: #616161;
-    --dubai-gray-800: #424242;
-    --dubai-gray-900: #212121;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 206 100% 38%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 206 100% 38%;
-  }
-
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 13%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 13%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 206 100% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 27%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 173 15% 20%;
-    --muted-foreground: 0 0% 64%;
-
-    --accent: 173 70% 45%;
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 75% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 27%;
-    --input: 0 0% 27%;
-    --ring: 206 100% 50%;
-    
-    --sidebar-background: 0 0% 13%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 206 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 20%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 206 100% 50%;
+    /* Semantic color mappings */
+    --background: var(--ehrdc-white);
+    --foreground: var(--ehrdc-neutral-dark);
+    --card: var(--ehrdc-white);
+    --card-foreground: var(--ehrdc-neutral-dark);
+    --popover: var(--ehrdc-white);
+    --popover-foreground: var(--ehrdc-neutral-dark);
+    --primary: var(--ehrdc-teal);
+    --primary-foreground: var(--ehrdc-white);
+    --secondary: var(--ehrdc-neutral-light);
+    --secondary-foreground: var(--ehrdc-neutral-dark);
+    --muted: var(--ehrdc-neutral-light);
+    --muted-foreground: var(--ehrdc-neutral-dark);
+    --accent: var(--ehrdc-light-teal);
+    --accent-foreground: var(--ehrdc-neutral-dark);
+    --destructive: #EF4444;
+    --destructive-foreground: var(--ehrdc-white);
+    --border: var(--ehrdc-neutral-light);
+    --input: var(--ehrdc-neutral-light);
+    --ring: var(--ehrdc-teal);
+    --chart-1: var(--ehrdc-teal);
+    --chart-2: var(--ehrdc-light-teal);
+    --chart-3: var(--ehrdc-dark-teal);
+    --chart-4: #10B981;
+    --chart-5: #F59E0B;
+    --radius: 0.5rem;
   }
 }
 
@@ -126,249 +48,49 @@
   * {
     @apply border-border;
   }
-  
-  html {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    scroll-behavior: smooth;
-  }
-
   body {
-    @apply bg-background text-foreground font-gov;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-gov font-medium tracking-tight;
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
-  }
-  
-  /* Enhanced EHRDC Button Styles */
-  .ehrdc-button-primary {
-    @apply relative overflow-hidden bg-ehrdc-teal text-white font-medium py-3 px-6 rounded-lg
-    shadow-lg hover:bg-ehrdc-dark-teal hover:shadow-xl transition-all duration-300 ease-out
-    focus:outline-none focus:ring-2 focus:ring-ehrdc-light-teal focus:ring-offset-2;
-  }
-
-  .ehrdc-button-secondary {
-    @apply bg-white text-ehrdc-teal border-2 border-ehrdc-teal font-medium py-3 px-6 rounded-lg
-    shadow-sm hover:bg-ehrdc-light-teal/20 hover:shadow-md transition-all duration-300 ease-out
-    focus:outline-none focus:ring-2 focus:ring-ehrdc-light-teal focus:ring-offset-2;
-  }
-
-  .ehrdc-button-accent {
-    @apply bg-ehrdc-gold text-white font-medium py-3 px-6 rounded-lg
-    shadow-md hover:brightness-110 hover:shadow-lg transition-all duration-300 ease-out
-    focus:outline-none focus:ring-2 focus:ring-ehrdc-gold/50 focus:ring-offset-2;
-  }
-
-  .ehrdc-button-outline {
-    @apply bg-transparent border-2 border-ehrdc-teal text-ehrdc-teal 
-    font-medium py-3 px-6 rounded-lg hover:bg-ehrdc-teal hover:text-white 
-    transition-all duration-300 ease-out
-    focus:outline-none focus:ring-2 focus:ring-ehrdc-light-teal focus:ring-offset-2;
-  }
-  
-  /* Dubai Design System Button Styles */
-  .dubai-button-primary {
-    @apply relative overflow-hidden bg-[var(--dubai-blue)] text-white font-medium py-3 px-6 rounded-lg
-    shadow-lg hover:shadow-xl transition-all duration-300 ease-out hover:brightness-110;
-  }
-  
-  .dubai-button-secondary {
-    @apply bg-[var(--dubai-teal)] text-white font-medium py-3 px-6 rounded-lg
-    shadow-md hover:shadow-lg transition-all duration-300 ease-out hover:brightness-110;
-  }
-  
-  .dubai-button-outline {
-    @apply bg-transparent border-2 border-[var(--dubai-blue)] text-[var(--dubai-blue)] 
-    font-medium py-3 px-6 rounded-lg hover:bg-[var(--dubai-blue)] hover:text-white 
-    transition-all duration-300 ease-out;
-  }
-  
-  /* Updated premium button to match EHRDC Design System */
-  .premium-button {
-    @apply ehrdc-button-primary;
-  }
-  
-  .premium-button::before {
-    @apply content-[''] absolute top-0 left-[-100%] w-full h-full bg-white/10 
-    transform skew-x-[45deg] transition-all duration-700 ease-out;
-  }
-  
-  .premium-button:hover::before {
-    @apply left-[100%];
-  }
-  
-  /* Enhanced Card Styles */
-  .ehrdc-card {
-    @apply bg-white border border-ehrdc-neutral-light rounded-lg shadow-sm p-6 
-    hover:shadow-md hover:border-ehrdc-light-teal transition-all duration-200;
-  }
-  
-  /* Dubai Design System Card Styles */
-  .dubai-card {
-    @apply bg-white border border-[var(--dubai-gray-200)] rounded-lg shadow-sm p-6 
-    hover:shadow-md transition-shadow duration-200;
-  }
-  
-  /* Enhanced Form Styles */
-  .ehrdc-input {
-    @apply w-full px-4 py-3 border border-ehrdc-neutral-light rounded-lg 
-    focus:outline-none focus:ring-2 focus:ring-ehrdc-teal focus:border-ehrdc-teal
-    transition-all duration-200 placeholder:text-ehrdc-neutral-dark/50;
-  }
-  
-  .ehrdc-input:focus {
-    @apply shadow-lg border-ehrdc-teal;
-  }
-  
-  /* Dubai Design System Form Styles */
-  .dubai-input {
-    @apply w-full px-4 py-3 border border-[var(--dubai-gray-300)] rounded-lg 
-    focus:outline-none focus:ring-2 focus:ring-[var(--dubai-blue)] focus:border-transparent
-    transition-all duration-200;
-  }
-  
-  .dubai-input:focus {
-    @apply shadow-lg;
-  }
-  
-  /* Government stage indicators updated for EHRDC Design System */
-  .stage-indicator {
-    @apply w-4 h-4 rounded-full bg-ehrdc-neutral-light relative z-10 transition-all duration-300;
-  }
-  
-  .stage-indicator.active {
-    @apply bg-ehrdc-teal scale-125 shadow-lg;
-  }
-  
-  .stage-connector {
-    @apply absolute top-2 left-4 h-0.5 bg-ehrdc-neutral-light w-full -z-10 transition-all duration-700;
-  }
-  
-  .stage-connector.active {
-    @apply bg-ehrdc-teal;
-  }
-  
-  .section {
-    @apply py-16 px-6 md:px-8 w-full max-w-7xl mx-auto;
-  }
-  
-  /* Dubai Design System specific components */
+@layer utilities {
   .dubai-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   
-  .dubai-header {
-    @apply bg-[var(--dubai-blue)] text-white py-4;
+  .ehrdc-button-primary {
+    @apply bg-ehrdc-teal text-white hover:bg-ehrdc-dark-teal focus:ring-2 focus:ring-ehrdc-teal/20 focus:ring-offset-2 transition-all duration-200 font-medium;
   }
   
-  .dubai-footer {
-    @apply bg-[var(--dubai-gray-800)] text-white py-8;
-  }
-
-  /* EHRDC specific components */
-  .ehrdc-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  
-  .ehrdc-header {
-    @apply bg-ehrdc-teal text-white py-4;
-  }
-  
-  .ehrdc-footer {
-    @apply bg-ehrdc-teal text-white py-8;
+  .ehrdc-button-secondary {
+    @apply bg-ehrdc-neutral-light text-ehrdc-neutral-dark hover:bg-ehrdc-neutral-light/80 focus:ring-2 focus:ring-ehrdc-teal/20 focus:ring-offset-2 transition-all duration-200 font-medium;
   }
 }
 
-/* Enhanced Typography for EHRDC branding */
-.ehrdc-text-heading-1 {
-  @apply text-4xl md:text-5xl font-bold leading-tight text-ehrdc-neutral-dark;
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-.ehrdc-text-heading-2 {
-  @apply text-3xl md:text-4xl font-semibold leading-tight text-ehrdc-neutral-dark;
+/* Focus Management */
+*:focus-visible {
+  outline: 2px solid var(--ehrdc-teal);
+  outline-offset: 2px;
 }
 
-.ehrdc-text-heading-3 {
-  @apply text-2xl md:text-3xl font-medium leading-tight text-ehrdc-neutral-dark;
-}
-
-.ehrdc-text-body-large {
-  @apply text-lg leading-relaxed text-ehrdc-neutral-dark;
-}
-
-.ehrdc-text-body {
-  @apply text-base leading-relaxed text-ehrdc-neutral-dark;
-}
-
-.ehrdc-text-body-small {
-  @apply text-sm leading-relaxed text-ehrdc-neutral-dark;
-}
-
-/* Dubai Design System Typography */
-.dubai-text-heading-1 {
-  @apply text-4xl md:text-5xl font-bold leading-tight;
-}
-
-.dubai-text-heading-2 {
-  @apply text-3xl md:text-4xl font-semibold leading-tight;
-}
-
-.dubai-text-heading-3 {
-  @apply text-2xl md:text-3xl font-medium leading-tight;
-}
-
-.dubai-text-body-large {
-  @apply text-lg leading-relaxed;
-}
-
-.dubai-text-body {
-  @apply text-base leading-relaxed;
-}
-
-.dubai-text-body-small {
-  @apply text-sm leading-relaxed;
-}
-
-/* Animations and transitions */
-.animate-delay-100 {
-  animation-delay: 100ms;
-}
-
-.animate-delay-200 {
-  animation-delay: 200ms;
-}
-
-.animate-delay-300 {
-  animation-delay: 300ms;
-}
-
-.animate-delay-400 {
-  animation-delay: 400ms;
-}
-
-.animate-delay-500 {
-  animation-delay: 500ms;
-}
-
-/* Glass effect utilities */
-.backdrop-blur-2xl {
-  backdrop-filter: blur(24px);
-}
-
-.backdrop-blur-xl {
-  backdrop-filter: blur(16px);
-}
-
-/* Dot pattern background */
-.bg-dot-pattern {
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --background: #FFFFFF;
+    --foreground: #000000;
+    --primary: #000000;
+    --secondary: #FFFFFF;
+    --border: #000000;
+  }
 }
