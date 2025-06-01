@@ -1,7 +1,6 @@
 
 import React from 'react';
-import MobileBottomNav from './MobileBottomNav';
-import MobileMenu from '../layout/MobileMenu';
+import DubaiGovStickyBar from '../layout/DubaiGovStickyBar';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 
@@ -15,12 +14,9 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       {/* Skip Navigation Links */}
       <SkipNavigation />
       
-      {/* Mobile Header */}
+      {/* Simplified Mobile Header */}
       <header className="bg-white border-b border-ehrdc-neutral-light shadow-sm sticky top-0 z-40">
         <div className="flex items-center justify-between px-4 py-3 min-h-[56px]">
-          {/* Left: Mobile Menu */}
-          <MobileMenu />
-
           {/* Center: Government and EHRDC Logos */}
           <div className="flex items-center space-x-3 flex-1 justify-center">
             <a 
@@ -57,13 +53,13 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Main content with bottom padding for navigation */}
-      <main id="main-content" className="flex-1 pb-16" tabIndex={-1}>
+      {/* Main content */}
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         {children}
       </main>
       
-      {/* Mobile bottom navigation */}
-      <MobileBottomNav />
+      {/* Dubai Government Sticky Bar replaces mobile bottom nav */}
+      <DubaiGovStickyBar />
     </div>
   );
 };

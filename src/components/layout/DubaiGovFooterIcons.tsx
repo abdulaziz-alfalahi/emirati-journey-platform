@@ -20,7 +20,7 @@ export function DubaiGovFooterIcons() {
           alt="Dubai AI" 
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc5QzEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMmE0IDQgMCAwIDAgLTQgNHY0YTQgNCAwIDAgMCA4IDBWNmE0IDQgMCAwIDAgLTQgLTR6Ij48L3BhdGg+PHBhdGggZD0iTTQgMTJhOCA4IDAgMCAxIDggLThhOCA4IDAgMCAxIDggOCI+PC9wYXRoPjxwYXRoIGQ9Ik0xNS42IDE0LjFhMyAzIDAgMCAxIC00LjYgMi4xYTMgMyAwIDAgMSAtLjYgLTRMMTIgMTBsMS42IDIuMWEzIDMgMCAwIDEgMiAyeiI+PC9wYXRoPjwvc3ZnPg==";
+            e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDc5QzEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMmE0IDQgMCAwIDAgLTQgNHY0YTQgNCAwIDAgMCA4IDBWNmE0IDQgMCAwIDAgLTQgLTR6Ij48L3BhdGg+PHBhdGggZD0iTTQgMTJhOCA4IDAgMCAxIDggLThhOCA4IDAgMCAxIDggOCI+PC9wYXRoPjxwYXRoIGQ9Ik0xNS42IDE0LjFhMyAzIDAgMCAxIC00LjYgMi4xYTMgMyAwIDAgMSAtLjYgLTRMMTIgMTBsMS6IDIuMWEzIDMgMCAwIDEgMiAyeiI+PC9wYXRoPjwvc3ZnPg==";
           }}
         />
         {showTooltips && <span className="tooltip">Dubai AI</span>}
@@ -45,7 +45,6 @@ export function DubaiGovFooterIcons() {
         aria-label="Submit Complaints"
         onClick={(e) => {
           e.preventDefault();
-          // You can add a modal or redirect logic here
           alert('Complaints form will open here');
         }}
       >
@@ -72,7 +71,6 @@ export function DubaiGovFooterIcons() {
         aria-label="Chat with us"
         onClick={(e) => {
           e.preventDefault();
-          // You can add chatbot open logic here
           alert('Chatbot will open here');
         }}
       >
@@ -99,7 +97,6 @@ export function DubaiGovFooterIcons() {
         aria-label="Happiness Meter"
         onClick={(e) => {
           e.preventDefault();
-          // You can add happiness meter open logic here
           alert('Happiness meter will open here');
         }}
       >
