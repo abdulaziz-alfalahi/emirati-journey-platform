@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, ChevronDown, Menu, Phone, Mail, X } from 'lucide-react';
@@ -128,7 +129,7 @@ const DubaiGovHeader: React.FC = () => {
                 <div className="hidden md:block w-px h-12 bg-ehrdc-neutral-light"></div>
 
                 {/* EHRDC Logo and Platform Name */}
-                <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <Link to="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                   <img 
                     src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
                     alt="Emirati Human Resources Development Council"

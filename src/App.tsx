@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { Toaster } from "@/components/ui/sonner";
@@ -10,7 +11,6 @@ import { RoleProvider } from '@/context/RoleContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 
 // Pages
-import Index from '@/pages/Index';
 import Dashboard from '@/pages/dashboard/index';
 import Auth from '@/pages/auth/index';
 import CVBuilder from '@/pages/cv-builder/index';
@@ -77,7 +77,7 @@ function App() {
                   <Router>
                     <div className="min-h-screen bg-background">
                       <Routes>
-                        <Route path="/" element={<Index />} />
+                        <Route path="/" element={<Navigate to="/home" replace />} />
                         <Route path="/home" element={<Home />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/auth" element={<Auth />} />

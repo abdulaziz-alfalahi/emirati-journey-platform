@@ -39,7 +39,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
             <div className="w-px h-8 bg-ehrdc-neutral-light"></div>
             
             <a 
-              href="/" 
+              href="/home" 
               className="flex items-center hover:opacity-80 transition-opacity"
             >
               <img 
