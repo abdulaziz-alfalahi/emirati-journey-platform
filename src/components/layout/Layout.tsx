@@ -2,6 +2,7 @@
 import React from 'react';
 import DubaiGovHeader from './DubaiGovHeader';
 import Navbar from './Navbar';
+import DubaiGovStickyBar from './DubaiGovStickyBar';
 import { MessageSquare, Zap, ThumbsUp, Phone, Mail, MapPin } from 'lucide-react';
 
 interface LayoutProps {
@@ -145,6 +146,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
+      
+      {/* Dubai Government Sticky Bar */}
+      <DubaiGovStickyBar />
     </div>
   );
 };
