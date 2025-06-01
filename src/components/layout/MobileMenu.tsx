@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
+import { cn } from '@/lib/utils';
 
 interface MobileMenuProps {
   className?: string;
