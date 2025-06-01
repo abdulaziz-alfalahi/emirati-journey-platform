@@ -87,7 +87,7 @@ const LMSPage: React.FC = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Completed</p>
                     <p className="text-2xl font-bold">
-                      {enrollments.filter(e => e.completion_percentage === 100).length}
+                      {enrollments.filter(e => e.progress_percentage === 100).length}
                     </p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-500" />
@@ -100,7 +100,7 @@ const LMSPage: React.FC = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">In Progress</p>
                     <p className="text-2xl font-bold">
-                      {enrollments.filter(e => e.completion_percentage > 0 && e.completion_percentage < 100).length}
+                      {enrollments.filter(e => e.progress_percentage > 0 && e.progress_percentage < 100).length}
                     </p>
                   </div>
                   <GraduationCap className="h-8 w-8 text-orange-500" />
@@ -188,15 +188,15 @@ const LMSPage: React.FC = () => {
                       <Card key={enrollment.id}>
                         <CardContent className="p-6">
                           <h3 className="font-semibold mb-2">
-                            {enrollment.courses?.title || 'Course Title'}
+                            {(enrollment as any).courses?.title || 'Course Title'}
                           </h3>
                           <p className="text-sm text-muted-foreground mb-4">
-                            Progress: {enrollment.completion_percentage || 0}%
+                            Progress: {enrollment.progress_percentage || 0}%
                           </p>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div 
                               className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${enrollment.completion_percentage || 0}%` }}
+                              style={{ width: `${enrollment.progress_percentage || 0}%` }}
                             ></div>
                           </div>
                         </CardContent>
@@ -238,7 +238,7 @@ const LMSPage: React.FC = () => {
                   <CardDescription>
                     Build and publish your own courses
                   </CardDescription>
-                </CardHeader>
+                </Header>
                 <CardContent>
                   <div className="text-center py-12">
                     <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
