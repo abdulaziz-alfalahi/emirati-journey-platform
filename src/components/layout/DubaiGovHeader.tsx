@@ -41,19 +41,12 @@ const DubaiGovHeader: React.FC = () => {
         <div className="bg-ehrdc-teal text-white">
           <div className="dubai-container">
             <div className="flex justify-between items-center py-2 text-sm">
-              {/* Left side - Government links */}
+              {/* Left side - Empty space or can be removed entirely */}
               <div className="hidden md:flex items-center space-x-6">
-                <a 
-                  href="https://dubai.ae/en" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-ehrdc-light-teal transition-colors"
-                >
-                  Dubai.ae
-                </a>
+                {/* Dubai.ae link removed */}
               </div>
 
-              {/* Right side - Contact, services, and accessibility */}
+              {/* Right side - Contact, services, authentication, and accessibility */}
               <div className="flex items-center space-x-4">
                 <div className="hidden lg:flex items-center space-x-4">
                   <a 
@@ -71,6 +64,35 @@ const DubaiGovHeader: React.FC = () => {
                     <span>Contact</span>
                   </a>
                 </div>
+
+                {/* Authentication Links */}
+                {!user && (
+                  <div className="hidden md:flex items-center space-x-3">
+                    <Link
+                      to="/auth?tab=sign-in"
+                      className="text-sm font-medium text-white hover:text-ehrdc-light-teal transition-colors px-3 py-1 rounded-md hover:bg-white/10"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/auth?tab=sign-up"
+                      className="text-sm font-medium bg-white text-ehrdc-teal hover:bg-ehrdc-light-teal hover:text-white transition-colors px-3 py-1 rounded-md"
+                    >
+                      Join Now
+                    </Link>
+                  </div>
+                )}
+
+                {user && (
+                  <div className="hidden md:flex items-center space-x-3">
+                    <Link
+                      to="/dashboard"
+                      className="text-sm font-medium bg-white text-ehrdc-teal hover:bg-ehrdc-light-teal hover:text-white transition-colors px-3 py-1 rounded-md"
+                    >
+                      Dashboard
+                    </Link>
+                  </div>
+                )}
 
                 {/* Accessibility Toolbar */}
                 <AccessibilityToolbar />
@@ -160,7 +182,7 @@ const DubaiGovHeader: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right side - EHRDC Logo and actions */}
+              {/* Right side - EHRDC Logo and mobile menu */}
               <div className="flex items-center space-x-4">
                 {/* EHRDC Logo and Platform Name */}
                 <Link to="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
@@ -176,33 +198,6 @@ const DubaiGovHeader: React.FC = () => {
                     </div>
                   </div>
                 </Link>
-
-                {/* Authentication Actions */}
-                {user ? (
-                  <div className="flex items-center space-x-3">
-                    <Link
-                      to="/dashboard"
-                      className="ehrdc-button-primary text-sm px-4 py-2 rounded-md"
-                    >
-                      Dashboard
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="hidden md:flex items-center space-x-3">
-                    <Link
-                      to="/auth?tab=sign-in"
-                      className="text-sm font-medium text-ehrdc-neutral-dark hover:text-ehrdc-teal transition-colors px-3 py-2 rounded-md hover:bg-ehrdc-light-teal/10"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/auth?tab=sign-up"
-                      className="ehrdc-button-primary text-sm px-4 py-2 rounded-md"
-                    >
-                      Join Now
-                    </Link>
-                  </div>
-                )}
 
                 {/* Mobile menu trigger */}
                 <Button
