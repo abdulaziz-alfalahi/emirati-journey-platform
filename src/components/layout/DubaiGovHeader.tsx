@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, ChevronDown, Menu, Phone, Mail, X } from 'lucide-react';
@@ -23,6 +22,7 @@ const DubaiGovHeader: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      // Implement search functionality
       console.log('Searching for:', searchQuery);
     }
   };
@@ -36,7 +36,7 @@ const DubaiGovHeader: React.FC = () => {
       <ColorBlindFilters />
       
       <header className="bg-white border-b border-ehrdc-neutral-light shadow-sm">
-        {/* Simplified Top utility bar */}
+        {/* Top utility bar - Government standard */}
         <div className="bg-ehrdc-teal text-white">
           <div className="dubai-container">
             <div className="flex justify-between items-center py-2 text-sm">
@@ -103,11 +103,11 @@ const DubaiGovHeader: React.FC = () => {
           </div>
         </div>
 
-        {/* Simplified Main header section - Focus on branding and search */}
+        {/* Main header section */}
         <div className="bg-white">
           <div className="dubai-container">
             <div className="flex items-center justify-between py-4">
-              {/* Left side - Government and EHRDC logos */}
+              {/* Left side - Government logos */}
               <div className="flex items-center space-x-6">
                 {/* Dubai Government Logo */}
                 <a 
@@ -143,80 +143,57 @@ const DubaiGovHeader: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Center: Enhanced Search functionality */}
-              <div className="flex-1 max-w-md mx-8 hidden md:block">
-                <form onSubmit={handleSearch} className="relative">
-                  <Input
-                    type="text"
-                    placeholder="Search services, programs, and opportunities..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-ehrdc-neutral-light rounded-lg focus:ring-2 focus:ring-ehrdc-teal focus:border-ehrdc-teal"
-                    aria-label="Search services"
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ehrdc-neutral-dark" />
-                </form>
-              </div>
-
-              {/* Right side - User account and mobile search */}
+              {/* Right side - Search and actions */}
               <div className="flex items-center space-x-4">
-                {/* Mobile Search Toggle */}
-                <div className="md:hidden">
+                {/* Search functionality */}
+                <div className="relative">
                   {isSearchOpen ? (
-                    <div className="absolute top-full left-0 right-0 bg-white border-t border-ehrdc-neutral-light p-4 z-50">
-                      <form onSubmit={handleSearch} className="flex items-center space-x-2">
-                        <div className="relative flex-1">
-                          <Input
-                            type="text"
-                            placeholder="Search services..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-ehrdc-neutral-light rounded-lg focus:ring-2 focus:ring-ehrdc-teal focus:border-ehrdc-teal"
-                            autoFocus
-                            aria-label="Search services"
-                          />
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ehrdc-neutral-dark" />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsSearchOpen(false)}
-                          className="border-ehrdc-neutral-light text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:border-ehrdc-teal"
-                        >
-                          Cancel
-                        </Button>
-                      </form>
-                    </div>
+                    <form onSubmit={handleSearch} className="flex items-center">
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="Search services..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-64 pl-10 pr-4 py-2 border border-ehrdc-neutral-light rounded-lg focus:ring-2 focus:ring-ehrdc-teal focus:border-ehrdc-teal"
+                          autoFocus
+                          aria-label="Search services"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ehrdc-neutral-dark" />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsSearchOpen(false)}
+                        className="ml-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal"
+                        aria-label="Close search"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </form>
                   ) : (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsSearchOpen(true)}
-                      className="text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:bg-ehrdc-light-teal/10 transition-colors"
+                      className="flex items-center space-x-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:bg-ehrdc-light-teal/10 transition-colors"
                       aria-label="Open search"
                     >
                       <Search className="h-4 w-4" />
+                      <span className="hidden md:inline">Search</span>
                     </Button>
                   )}
                 </div>
 
-                {/* User Account Section - Simplified */}
+                {/* Authentication Actions */}
                 {user ? (
                   <div className="flex items-center space-x-3">
-                    <div className="hidden md:flex items-center space-x-2 text-sm text-ehrdc-neutral-dark">
-                      <span>Welcome back</span>
-                    </div>
                     <Link
                       to="/dashboard"
-                      className="flex items-center space-x-2 px-3 py-2 bg-ehrdc-teal text-white rounded-lg hover:bg-ehrdc-dark-teal transition-colors text-sm font-medium"
+                      className="ehrdc-button-primary text-sm px-4 py-2 rounded-md"
                     >
-                      <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                        <span className="text-xs font-medium">
-                          {user.email?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <span className="hidden md:inline">Dashboard</span>
+                      Dashboard
                     </Link>
                   </div>
                 ) : (
@@ -235,10 +212,49 @@ const DubaiGovHeader: React.FC = () => {
                     </Link>
                   </div>
                 )}
+
+                {/* Mobile menu trigger */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden text-ehrdc-neutral-dark hover:text-ehrdc-teal"
+                  aria-label="Open mobile menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile search overlay */}
+        {isSearchOpen && (
+          <div className="md:hidden bg-white border-t border-ehrdc-neutral-light p-4">
+            <form onSubmit={handleSearch} className="flex items-center space-x-2">
+              <div className="relative flex-1">
+                <Input
+                  type="text"
+                  placeholder="Search services..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-ehrdc-neutral-light rounded-lg focus:ring-2 focus:ring-ehrdc-teal focus:border-ehrdc-teal"
+                  autoFocus
+                  aria-label="Search services"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-ehrdc-neutral-dark" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSearchOpen(false)}
+                className="border-ehrdc-neutral-light text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:border-ehrdc-teal"
+              >
+                Cancel
+              </Button>
+            </form>
+          </div>
+        )}
       </header>
     </>
   );
