@@ -10,36 +10,51 @@ import { useToast } from '@/hooks/use-toast';
 import type { CourseEnrollment } from '@/types/lms';
 
 const LMSPage: React.FC = () => {
+  console.log('LMSPage: Component rendering started');
+  
   const { user, roles } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('browse');
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log('LMSPage: User:', user);
+  console.log('LMSPage: Roles:', roles);
+
   const isInstructor = roles.includes('training_center');
 
   useEffect(() => {
+    console.log('LMSPage: useEffect triggered, user:', user);
     if (user) {
       loadEnrollments();
+    } else {
+      console.log('LMSPage: No user, setting loading to false');
+      setLoading(false);
     }
   }, [user]);
 
   const loadEnrollments = async () => {
+    console.log('LMSPage: Loading enrollments...');
     try {
       const data = await lmsService.getUserEnrollments();
+      console.log('LMSPage: Enrollments loaded:', data);
       setEnrollments(data);
     } catch (error) {
+      console.error('LMSPage: Error loading enrollments:', error);
       toast({
         title: "Error",
         description: "Failed to load enrollments",
         variant: "destructive"
       });
     } finally {
+      console.log('LMSPage: Setting loading to false');
       setLoading(false);
     }
   };
 
   const enrolledCourseIds = enrollments.map(enrollment => enrollment.course_id);
+
+  console.log('LMSPage: About to render, loading:', loading);
 
   return (
     <Layout>
