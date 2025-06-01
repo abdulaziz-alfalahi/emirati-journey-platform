@@ -62,7 +62,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Add EHRDC specific colors
+				// Add EHRDC specific colors as utility classes
+				'ehrdc-teal': '#006E6D',
+				'ehrdc-dark-teal': '#00504F',
+				'ehrdc-light-teal': '#B3DEDD',
+				'ehrdc-gold': '#C3992A',
+				'ehrdc-neutral-dark': '#333333',
+				'ehrdc-neutral-light': '#F5F5F5',
+				'ehrdc-white': '#FFFFFF',
+				// Keep the old structure for backwards compatibility
 				ehrdc: {
 					teal: '#006E6D',
 					darkTeal: '#00504F',
