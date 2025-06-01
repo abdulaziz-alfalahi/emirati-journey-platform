@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, ChevronDown, Menu, Phone, Mail, X } from 'lucide-react';
@@ -43,14 +42,6 @@ const DubaiGovHeader: React.FC = () => {
             <div className="flex justify-between items-center py-2 text-sm">
               {/* Left side - Government links */}
               <div className="hidden md:flex items-center space-x-6">
-                <a 
-                  href="https://u.ae/en" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-ehrdc-light-teal transition-colors"
-                >
-                  Government of UAE
-                </a>
                 <a 
                   href="https://dubai.ae/en" 
                   target="_blank" 
