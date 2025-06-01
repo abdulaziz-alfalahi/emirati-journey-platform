@@ -51,14 +51,6 @@ const DubaiGovHeader: React.FC = () => {
                 >
                   Dubai.ae
                 </a>
-                <a 
-                  href="https://tec.gov.ae/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-ehrdc-light-teal transition-colors"
-                >
-                  The Executive Council
-                </a>
               </div>
 
               {/* Right side - Contact, services, and accessibility */}
