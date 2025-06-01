@@ -3,7 +3,12 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, BarChart3, Shield } from 'lucide-react';
+import { 
+  Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, 
+  Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
+  BarChart3, Shield, School, Lightbulb, Building, Heart, 
+  Landmark, Rocket, Compass, Laptop, Handshake, Sparkles
+} from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
 import {
@@ -21,48 +26,90 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Navigation groups organized by life stage and purpose
+  // Navigation groups reorganized by Emirati journey stages
   const defaultNavGroups: NavGroup[] = [
     {
-      id: 'student-services',
-      name: 'Student Services',
+      id: 'education-pathway',
+      name: 'Education Pathway',
       items: [
-        { name: 'Scholarships', href: '/scholarships', icon: Award },
+        // Early Education
         { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
-        { name: 'Assessments', href: '/assessments', icon: FileText },
-        { name: 'Training', href: '/training', icon: BookOpen },
-        { name: 'LMS', href: '/lms', icon: GraduationCap },
+        { name: 'School Programs', href: '/school-programs', icon: School },
+        { name: 'Youth Development', href: '/youth-development', icon: Sparkles },
+        
+        // Higher Education
+        { name: 'Scholarships', href: '/scholarships', icon: Award },
+        { name: 'University Programs', href: '/university-programs', icon: Building },
+        { name: 'Academic Assessments', href: '/assessments', icon: FileText },
+        { name: 'Learning Management', href: '/lms', icon: GraduationCap },
+        
+        // Specialized Training
+        { name: 'Vocational Training', href: '/training', icon: BookOpen },
+        { name: 'Certifications', href: '/certifications', icon: Shield },
+        { name: 'Skills Development', href: '/skills-development', icon: Laptop },
       ]
     },
     {
-      id: 'professional-development',
-      name: 'Professional Development',
+      id: 'career-entry',
+      name: 'Career Entry',
       items: [
-        { name: 'Internships', href: '/internships', icon: Briefcase },
-        { name: 'Mentorship', href: '/mentorship', icon: Users },
-        { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
-        { name: 'Communities', href: '/communities', icon: Users },
-        { name: 'Credentials', href: '/credentials', icon: Award },
-      ]
-    },
-    {
-      id: 'career-management',
-      name: 'Career Management',
-      items: [
-        { name: 'Career Journey', href: '/career-journey', icon: MapPin },
+        // Career Exploration
+        { name: 'Career Journey Map', href: '/career-journey', icon: MapPin },
         { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
-        { name: 'Job Matching', href: '/job-matching', icon: Search },
+        { name: 'Industry Exploration', href: '/industries', icon: Compass },
+        
+        // Work Experience
+        { name: 'Internships', href: '/internships', icon: Briefcase },
+        { name: 'National Service', href: '/national-service', icon: Shield },
+        { name: 'Entry-Level Jobs', href: '/entry-jobs', icon: Building },
+        
+        // Job Readiness
         { name: 'Resume Builder', href: '/resume-builder', icon: FileText },
         { name: 'Portfolio', href: '/portfolio', icon: User },
+        { name: 'Interview Prep', href: '/interview-preparation', icon: Users },
+        { name: 'Job Matching', href: '/job-matching', icon: Search },
       ]
     },
     {
-      id: 'retirement-services',
-      name: 'Retirement Services',
+      id: 'professional-growth',
+      name: 'Professional Growth',
       items: [
-        { name: 'Success Stories', href: '/success-stories', icon: Award },
+        // Skills Enhancement
+        { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Handshake },
+        { name: 'Professional Certs', href: '/professional-certifications', icon: Award },
+        { name: 'Leadership Dev', href: '/leadership', icon: Users },
         { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
-        { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+        
+        // Career Advancement
+        { name: 'Mentorship', href: '/mentorship', icon: Users },
+        { name: 'Communities', href: '/communities', icon: Users },
+        { name: 'Networking', href: '/networking', icon: Activity },
+        { name: 'Career Transition', href: '/career-transition', icon: Compass },
+        
+        // Entrepreneurship
+        { name: 'Business Development', href: '/business-development', icon: Rocket },
+        { name: 'Startup Resources', href: '/startup', icon: Lightbulb },
+        { name: 'Innovation Support', href: '/innovation', icon: Sparkles },
+      ]
+    },
+    {
+      id: 'lifelong-engagement',
+      name: 'Lifelong Engagement',
+      items: [
+        // Knowledge Transfer
+        { name: 'Mentoring Opportunities', href: '/become-mentor', icon: Users },
+        { name: 'Success Stories', href: '/success-stories', icon: Award },
+        { name: 'Advisory Roles', href: '/advisory-roles', icon: Landmark },
+        
+        // Retirement Planning
+        { name: 'Financial Planning', href: '/financial-planning', icon: BarChart3 },
+        { name: 'Post-Career Options', href: '/post-career', icon: Compass },
+        { name: 'Retirement Benefits', href: '/retirement-benefits', icon: Shield },
+        
+        // Community Contribution
+        { name: 'Volunteer Programs', href: '/volunteer', icon: Heart },
+        { name: 'Legacy Projects', href: '/legacy-projects', icon: Landmark },
+        { name: 'Community Leadership', href: '/community-leadership', icon: Users },
       ]
     }
   ];
