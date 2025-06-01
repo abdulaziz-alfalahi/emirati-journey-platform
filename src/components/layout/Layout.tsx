@@ -3,7 +3,6 @@ import React from 'react';
 import DubaiGovHeader from './DubaiGovHeader';
 import Navbar from './Navbar';
 import { MessageSquare, Zap, ThumbsUp, Phone, Mail, MapPin } from 'lucide-react';
-import DubaiGovFooterIcons from './DubaiGovFooterIcons';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -146,9 +145,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </footer>
-      
-      {/* Dubai Government floating footer icons */}
-      <DubaiGovFooterIcons />
     </div>
   );
 };
