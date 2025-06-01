@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, Briefcase, Calendar, FileText, User } from 'lucide-react';
+import { Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, BarChart3, Shield } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
 import {
@@ -21,7 +21,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Default navigation groups for Student Services and Professional Development
+  // Navigation groups organized by life stage and purpose
   const defaultNavGroups: NavGroup[] = [
     {
       id: 'student-services',
@@ -29,20 +29,40 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
       items: [
         { name: 'Scholarships', href: '/scholarships', icon: Award },
         { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
-        { name: 'Career Journey', href: '/career-journey', icon: FileText },
         { name: 'Assessments', href: '/assessments', icon: FileText },
-        { name: 'Communities', href: '/communities', icon: Users },
+        { name: 'Training', href: '/training', icon: BookOpen },
+        { name: 'LMS', href: '/lms', icon: GraduationCap },
       ]
     },
     {
       id: 'professional-development',
       name: 'Professional Development',
       items: [
-        { name: 'Training', href: '/training', icon: BookOpen },
-        { name: 'LMS', href: '/lms', icon: GraduationCap },
         { name: 'Internships', href: '/internships', icon: Briefcase },
         { name: 'Mentorship', href: '/mentorship', icon: Users },
         { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
+        { name: 'Communities', href: '/communities', icon: Users },
+        { name: 'Credentials', href: '/credentials', icon: Award },
+      ]
+    },
+    {
+      id: 'career-management',
+      name: 'Career Management',
+      items: [
+        { name: 'Career Journey', href: '/career-journey', icon: MapPin },
+        { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
+        { name: 'Job Matching', href: '/job-matching', icon: Search },
+        { name: 'Resume Builder', href: '/resume-builder', icon: FileText },
+        { name: 'Portfolio', href: '/portfolio', icon: User },
+      ]
+    },
+    {
+      id: 'retirement-services',
+      name: 'Retirement Services',
+      items: [
+        { name: 'Success Stories', href: '/success-stories', icon: Award },
+        { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
+        { name: 'Analytics', href: '/analytics', icon: BarChart3 },
       ]
     }
   ];
@@ -103,16 +123,6 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         )}
       >
         Dashboard
-      </Link>
-      <Link
-        to="/analytics"
-        className={cn(
-          "flex items-center gap-1 text-sm font-medium transition-colors hover:text-foreground/80",
-          pathname === "/analytics" ? "text-foreground" : "text-foreground/60"
-        )}
-      >
-        <Activity className="h-3 w-3" />
-        Analytics
       </Link>
     </nav>
   );
