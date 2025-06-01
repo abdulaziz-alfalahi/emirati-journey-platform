@@ -1,20 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
-import { LMSHeader } from '@/components/lms/LMSHeader';
-import { LMSStatsOverview } from '@/components/lms/LMSStatsOverview';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lmsService';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { CoursesList } from '@/components/lms/CoursesList';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, TrendingUp } from 'lucide-react';
+import { BookOpen, Plus, TrendingUp, GraduationCap } from 'lucide-react';
 import type { CourseEnrollment } from '@/types/lms';
 
 const LMSPage: React.FC = () => {
-  console.log('LMSPage: Component rendering started');
+  console.log('LMSPage: Component rendering');
   
   const { user, roles } = useAuth();
   const { toast } = useToast();
@@ -22,27 +19,26 @@ const LMSPage: React.FC = () => {
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log('LMSPage: User:', user);
+  console.log('LMSPage: User exists:', !!user);
   console.log('LMSPage: Roles:', roles);
 
-  const isInstructor = roles.includes('training_center');
+  const isInstructor = roles?.includes('training_center') || false;
 
   useEffect(() => {
-    console.log('LMSPage: useEffect triggered, user:', user);
+    console.log('LMSPage: useEffect triggered');
     if (user) {
       loadEnrollments();
     } else {
-      console.log('LMSPage: No user, setting loading to false');
       setLoading(false);
     }
   }, [user]);
 
   const loadEnrollments = async () => {
-    console.log('LMSPage: Loading enrollments...');
+    console.log('LMSPage: Loading enrollments');
     try {
       const data = await lmsService.getUserEnrollments();
-      console.log('LMSPage: Enrollments loaded:', data);
-      setEnrollments(data);
+      console.log('LMSPage: Enrollments loaded:', data?.length || 0);
+      setEnrollments(data || []);
     } catch (error) {
       console.error('LMSPage: Error loading enrollments:', error);
       toast({
@@ -51,30 +47,70 @@ const LMSPage: React.FC = () => {
         variant: "destructive"
       });
     } finally {
-      console.log('LMSPage: Setting loading to false');
       setLoading(false);
     }
   };
 
-  const enrolledCourseIds = enrollments.map(enrollment => enrollment.course_id);
-
-  console.log('LMSPage: About to render, loading:', loading);
+  console.log('LMSPage: Rendering with loading:', loading);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <LMSHeader 
-          title="Learning Management System"
-          description="Discover courses, track your progress, and earn certificates"
-        />
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <GraduationCap className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Learning Management System</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Discover courses, track your progress, and earn certificates
+          </p>
+        </div>
 
-        {user && (
-          <LMSStatsOverview 
-            enrollments={enrollments}
-            loading={loading}
-          />
+        {/* Stats Overview */}
+        {user && !loading && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Enrolled Courses</p>
+                    <p className="text-2xl font-bold">{enrollments.length}</p>
+                  </div>
+                  <BookOpen className="h-8 w-8 text-blue-500" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                    <p className="text-2xl font-bold">
+                      {enrollments.filter(e => e.completion_percentage === 100).length}
+                    </p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">In Progress</p>
+                    <p className="text-2xl font-bold">
+                      {enrollments.filter(e => e.completion_percentage > 0 && e.completion_percentage < 100).length}
+                    </p>
+                  </div>
+                  <GraduationCap className="h-8 w-8 text-orange-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
+        {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
             <TabsTrigger value="browse">Browse Courses</TabsTrigger>
@@ -82,8 +118,6 @@ const LMSPage: React.FC = () => {
               <>
                 <TabsTrigger value="my-courses">My Courses</TabsTrigger>
                 <TabsTrigger value="progress">Progress</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="gamification">Gamification</TabsTrigger>
               </>
             )}
             {isInstructor && (
@@ -92,10 +126,23 @@ const LMSPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="browse">
-            <CoursesList 
-              showEnrollButton={!!user}
-              userEnrollments={enrolledCourseIds}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Available Courses</CardTitle>
+                <CardDescription>
+                  Browse and enroll in available courses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Course Catalog</h3>
+                  <p className="text-muted-foreground">
+                    Course browsing interface will be displayed here
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {user && (
@@ -136,8 +183,25 @@ const LMSPage: React.FC = () => {
                     </CardContent>
                   </Card>
                 ) : (
-                  <div className="text-center py-12">
-                    <p>Enrolled courses will be displayed here</p>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {enrollments.map(enrollment => (
+                      <Card key={enrollment.id}>
+                        <CardContent className="p-6">
+                          <h3 className="font-semibold mb-2">
+                            {enrollment.courses?.title || 'Course Title'}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Progress: {enrollment.completion_percentage || 0}%
+                          </p>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-600 h-2 rounded-full" 
+                              style={{ width: `${enrollment.completion_percentage || 0}%` }}
+                            ></div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
               </div>
@@ -166,46 +230,6 @@ const LMSPage: React.FC = () => {
             </TabsContent>
           )}
 
-          {user && (
-            <TabsContent value="analytics">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Learning Analytics</CardTitle>
-                  <CardDescription>
-                    Insights into your learning patterns and performance
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">
-                      Analytics dashboard coming soon
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-
-          {user && (
-            <TabsContent value="gamification">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gamification</CardTitle>
-                  <CardDescription>
-                    Badges, achievements, and learning streaks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">
-                      Gamification features coming soon
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-
           {isInstructor && (
             <TabsContent value="create">
               <Card>
@@ -217,8 +241,10 @@ const LMSPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-12">
+                    <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Course Creation Tools</h3>
                     <p className="text-muted-foreground">
-                      Course creation tools coming soon
+                      Course creation interface coming soon
                     </p>
                   </div>
                 </CardContent>
