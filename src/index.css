@@ -1,5 +1,7 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("./components/accessibility/accessibility.css");
+@import url("./components/ui/animations.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -179,6 +181,57 @@
 
   .shadow-dubai-lg {
     box-shadow: 0 8px 40px rgba(0, 110, 109, 0.15);
+  }
+
+  /* Enhanced interactive elements with animations */
+  .dubai-interactive-enhanced {
+    @apply dubai-interactive dubai-focus-ring;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dubai-interactive-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(0, 110, 109, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+
+  .dubai-interactive-enhanced:active::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* Performance optimizations */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  /* Form animations */
+  .form-field-animated {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .form-field-animated:focus {
+    @apply transform scale-[1.02] shadow-lg shadow-ehrdc-teal/10;
+  }
+
+  .form-field-error {
+    @apply border-red-300 bg-red-50 form-error-shake;
+  }
+
+  .form-field-success {
+    @apply border-green-300 bg-green-50 form-success-bounce;
   }
 }
 
