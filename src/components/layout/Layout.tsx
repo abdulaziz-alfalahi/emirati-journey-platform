@@ -1,7 +1,7 @@
 
 import React from 'react';
+import DubaiGovHeader from './DubaiGovHeader';
 import Navbar from './Navbar';
-import GovLogos from '../logos/GovLogos';
 import { MessageSquare, Zap, ThumbsUp, Phone, Mail, MapPin } from 'lucide-react';
 import DubaiGovFooterIcons from './DubaiGovFooterIcons';
 
@@ -12,58 +12,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Top Header with Enhanced Government Logos */}
-      <div className="bg-white border-b border-ehrdc-neutral-light shadow-sm">
-        <div className="dubai-container py-4">
-          <div className="flex justify-between items-center">
-            {/* Dubai Government Logo - Left */}
-            <a 
-              href="https://tec.gov.ae/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center hover:opacity-80 transition-opacity"
-              aria-label="Visit Dubai Government TEC Portal"
-            >
-              <img 
-                src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
-                alt="Government of Dubai - The Executive Council"
-                className="h-12 md:h-16"
-              />
-            </a>
-
-            {/* Center - Government Services Quick Links */}
-            <div className="hidden lg:flex items-center space-x-6 text-sm">
-              <a 
-                href="tel:600545555" 
-                className="flex items-center space-x-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal transition-colors"
-              >
-                <Phone className="h-4 w-4" />
-                <span>600 54 5555</span>
-              </a>
-              <a 
-                href="mailto:info@ehrdc.gov.ae" 
-                className="flex items-center space-x-2 text-ehrdc-neutral-dark hover:text-ehrdc-teal transition-colors"
-              >
-                <Mail className="h-4 w-4" />
-                <span>Contact EHRDC</span>
-              </a>
-            </div>
-
-            {/* EHRDC Logo - Right */}
-            <a 
-              href="/" 
-              className="flex items-center hover:opacity-80 transition-opacity"
-              aria-label="Emirati Human Resources Development Council"
-            >
-              <img 
-                src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
-                alt="Emirati Human Resources Development Council"
-                className="h-12 md:h-16"
-              />
-            </a>
-          </div>
-        </div>
-      </div>
+      {/* Dubai Government Standard Header */}
+      <DubaiGovHeader />
       
       {/* Enhanced Navigation Bar */}
       <div className="bg-white border-b border-ehrdc-neutral-light">
