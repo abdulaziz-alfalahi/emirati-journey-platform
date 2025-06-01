@@ -2,71 +2,60 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useOfflineStorage } from '@/hooks/use-offline-storage';
+import { useAuth } from '@/context/AuthContext';
 import { 
   Home, 
   Briefcase, 
   FileText, 
   MessageCircle, 
   User,
-  WifiOff,
-  Smartphone
+  Menu,
+  Bell
 } from 'lucide-react';
 
 const MobileBottomNav: React.FC = () => {
   const location = useLocation();
-  const { isOnline, hasUnsyncedData } = useOfflineStorage();
+  const { user } = useAuth();
   
   const navItems = [
     {
       icon: Home,
       label: 'Home',
       path: '/',
-      color: 'text-emirati-teal'
+      color: 'text-ehrdc-teal'
     },
     {
       icon: Briefcase,
       label: 'Jobs',
       path: '/job-matching',
-      color: 'text-emirati-navy'
+      color: 'text-ehrdc-teal'
     },
     {
       icon: FileText,
       label: 'CV',
       path: '/cv-builder',
-      color: 'text-emirati-gold'
+      color: 'text-ehrdc-teal'
     },
     {
       icon: MessageCircle,
       label: 'Messages',
       path: '/messages',
-      color: 'text-emirati-green'
+      color: 'text-ehrdc-teal'
     },
     {
       icon: User,
       label: 'Profile',
-      path: '/profile',
-      color: 'text-emirati-red'
+      path: user ? '/dashboard' : '/auth',
+      color: 'text-ehrdc-teal'
     }
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb z-50">
-      {/* Offline indicator bar */}
-      {(!isOnline || hasUnsyncedData) && (
-        <div className="bg-orange-100 border-b border-orange-200 px-4 py-1">
-          <div className="flex items-center justify-center space-x-2">
-            <WifiOff className="h-3 w-3 text-orange-600" />
-            <span className="text-xs text-orange-700">
-              {!isOnline ? 'Working offline' : `${hasUnsyncedData ? 'Syncing data...' : ''}`}
-            </span>
-          </div>
-        </div>
-      )}
-      
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-ehrdc-neutral-light shadow-lg z-50 safe-area-pb">
       <nav className="grid grid-cols-5 h-16">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || 
+                          (item.path === '/dashboard' && location.pathname.startsWith('/dashboard'));
           const Icon = item.icon;
           
           return (
@@ -74,15 +63,25 @@ const MobileBottomNav: React.FC = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center space-y-1 text-xs font-medium transition-colors",
-                "touch-manipulation min-h-[48px]", // Ensure touch target is at least 48px
+                "flex flex-col items-center justify-center space-y-1 text-xs font-medium transition-all duration-200",
+                "min-h-[44px] min-w-[44px] px-2 py-2", // Ensure 44px touch targets
+                "active:scale-95 touch-manipulation", // Better touch feedback
                 isActive
-                  ? `${item.color} bg-gray-50`
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-ehrdc-teal bg-ehrdc-teal/10 border-t-2 border-ehrdc-teal"
+                  : "text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:bg-ehrdc-teal/5"
               )}
+              aria-label={item.label}
             >
-              <Icon className={cn("h-5 w-5", isActive ? item.color : "")} />
-              <span className="leading-none">{item.label}</span>
+              <Icon className={cn(
+                "h-5 w-5 transition-all duration-200", 
+                isActive ? "text-ehrdc-teal scale-110" : ""
+              )} />
+              <span className={cn(
+                "leading-none text-[10px] font-medium",
+                isActive ? "text-ehrdc-teal" : ""
+              )}>
+                {item.label}
+              </span>
             </Link>
           );
         })}

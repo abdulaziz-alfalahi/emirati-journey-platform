@@ -1,6 +1,9 @@
 
 import React from 'react';
 import MobileBottomNav from './MobileBottomNav';
+import MobileMenu from '../layout/MobileMenu';
+import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
+import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -9,33 +12,53 @@ interface MobileLayoutProps {
 const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Top Header with Government Logos */}
-      <div className="bg-white border-b border-dubai-gray-200 shadow-sm">
-        <div className="dubai-container py-3">
-          <div className="flex justify-between items-center">
-            {/* Dubai Government Logo - Left */}
-            <a href="https://tec.gov.ae/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+      {/* Skip Navigation Links */}
+      <SkipNavigation />
+      
+      {/* Mobile Header */}
+      <header className="bg-white border-b border-ehrdc-neutral-light shadow-sm sticky top-0 z-40">
+        <div className="flex items-center justify-between px-4 py-3 min-h-[56px]">
+          {/* Left: Mobile Menu */}
+          <MobileMenu />
+
+          {/* Center: Government and EHRDC Logos */}
+          <div className="flex items-center space-x-3 flex-1 justify-center">
+            <a 
+              href="https://tec.gov.ae/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
               <img 
                 src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
                 alt="Government of Dubai"
-                className="h-10 md:h-12"
+                className="h-8"
               />
             </a>
-
-            {/* EHRDC Logo - Right */}
-            <a href="/" className="flex items-center">
+            
+            <div className="w-px h-8 bg-ehrdc-neutral-light"></div>
+            
+            <a 
+              href="/" 
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
               <img 
                 src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
                 alt="Emirati Human Resources Development Council"
-                className="h-10 md:h-12"
+                className="h-8"
               />
             </a>
           </div>
-        </div>
-      </div>
 
-      {/* Main content */}
-      <main className="flex-1 pb-16">
+          {/* Right: Accessibility */}
+          <div className="flex items-center">
+            <AccessibilityToolbar />
+          </div>
+        </div>
+      </header>
+
+      {/* Main content with bottom padding for navigation */}
+      <main id="main-content" className="flex-1 pb-16" tabIndex={-1}>
         {children}
       </main>
       

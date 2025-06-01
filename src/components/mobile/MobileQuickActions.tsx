@@ -12,7 +12,8 @@ import {
   MessageSquare,
   Award,
   TrendingUp,
-  Clock
+  Clock,
+  ChevronRight
 } from 'lucide-react';
 
 const MobileQuickActions: React.FC = () => {
@@ -33,7 +34,7 @@ const MobileQuickActions: React.FC = () => {
         label: 'Find Jobs',
         path: '/job-matching',
         description: 'Discover opportunities',
-        color: 'bg-green-500'
+        color: 'bg-ehrdc-teal'
       },
     ];
 
@@ -81,29 +82,38 @@ const MobileQuickActions: React.FC = () => {
   const quickActions = getQuickActions();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center">
-          <Clock className="h-5 w-5 mr-2" />
+    <Card className="border border-ehrdc-neutral-light shadow-md">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center text-ehrdc-neutral-dark">
+          <Clock className="h-5 w-5 mr-2 text-ehrdc-teal" />
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-3">
+      <CardContent className="pt-0">
+        <div className="space-y-2">
           {quickActions.map((action) => (
             <Button
               key={action.path}
-              variant="outline"
-              className="h-24 flex-col space-y-2 text-left p-3"
+              variant="ghost"
+              className={`
+                w-full h-16 justify-between p-4 
+                hover:bg-ehrdc-teal/10 hover:border-ehrdc-teal/20 
+                border border-ehrdc-neutral-light
+                min-h-[44px] touch-manipulation
+                active:scale-98 transition-all duration-200
+              `}
               onClick={() => navigate(action.path)}
             >
-              <div className={`p-2 rounded-full ${action.color} self-center`}>
-                <action.icon className="h-4 w-4 text-white" />
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${action.color} flex-shrink-0`}>
+                  <action.icon className="h-4 w-4 text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-medium text-ehrdc-neutral-dark">{action.label}</div>
+                  <div className="text-xs text-ehrdc-neutral-dark/70">{action.description}</div>
+                </div>
               </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium">{action.label}</div>
-                <div className="text-xs text-muted-foreground">{action.description}</div>
-              </div>
+              <ChevronRight className="h-4 w-4 text-ehrdc-neutral-dark/40 flex-shrink-0" />
             </Button>
           ))}
         </div>
