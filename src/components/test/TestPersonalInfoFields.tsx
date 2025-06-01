@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,17 +20,14 @@ const TestPersonalInfoFields = () => {
   
   const [submittedData, setSubmittedData] = React.useState<PersonalInfo | null>(null);
 
-  const handleInputChange = (field: keyof PersonalInfo) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleInputChange = (field: keyof PersonalInfo) => (value: string) => {
     console.log(`Updating ${field} to:`, value);
     
-    // Use a functional update to ensure we're working with the latest state
     setData(prevData => ({
       ...prevData,
       [field]: value
     }));
     
-    // Log the state after update (this will show the previous state due to React's batching)
     console.log("Current state after update request:", data);
   };
   
@@ -40,7 +37,6 @@ const TestPersonalInfoFields = () => {
     setSubmittedData(data);
   };
 
-  // For debugging - log whenever the component renders
   console.log("Component rendering with data:", data);
 
   return (
@@ -49,37 +45,43 @@ const TestPersonalInfoFields = () => {
         <CardTitle>Personal Info Test Fields</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="fullName">Full Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FormField
+            label="Full Name"
+            description="Enter your complete name"
+            required
+          >
             <Input
-              id="fullName"
               value={data.fullName}
-              onChange={handleInputChange('fullName')}
+              onChange={(e) => handleInputChange('fullName')(e.target.value)}
               placeholder="John Doe"
             />
-          </div>
+          </FormField>
 
-          <div>
-            <Label htmlFor="email">Email</Label>
+          <FormField
+            label="Email"
+            description="Your email address"
+            required
+          >
             <Input
-              id="email"
               type="email"
               value={data.email}
-              onChange={handleInputChange('email')}
+              onChange={(e) => handleInputChange('email')(e.target.value)}
               placeholder="john.doe@example.com"
             />
-          </div>
+          </FormField>
 
-          <div>
-            <Label htmlFor="phone">Phone</Label>
+          <FormField
+            label="Phone"
+            description="Your contact number"
+            required
+          >
             <Input
-              id="phone"
               value={data.phone}
-              onChange={handleInputChange('phone')}
+              onChange={(e) => handleInputChange('phone')(e.target.value)}
               placeholder="+1 (555) 123-4567"
             />
-          </div>
+          </FormField>
           
           <Button type="submit">Submit</Button>
         </form>

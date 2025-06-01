@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -15,13 +15,12 @@ const SimpleTestForm = () => {
   
   const [submittedData, setSubmittedData] = useState<null | typeof formData>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    console.log(`Input changed: ${name} = ${value}`);
+  const handleInputChange = (field: string, value: string) => {
+    console.log(`Input changed: ${field} = ${value}`);
     
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [field]: value
     }));
   };
 
@@ -37,41 +36,43 @@ const SimpleTestForm = () => {
         <CardTitle>Simple Test Form</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <FormField
+            label="Name"
+            description="Enter your full name"
+            required
+          >
             <Input
-              id="name"
-              name="name"
               value={formData.name}
-              onChange={handleInputChange}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter your name"
             />
-          </div>
+          </FormField>
           
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+          <FormField
+            label="Email"
+            description="We'll never share your email"
+            required
+          >
             <Input
-              id="email"
-              name="email"
               type="email"
               value={formData.email}
-              onChange={handleInputChange}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="Enter your email"
             />
-          </div>
+          </FormField>
           
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          <FormField
+            label="Description"
+            description="Tell us about yourself"
+          >
             <Textarea
-              id="description"
-              name="description"
               value={formData.description}
-              onChange={handleInputChange}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Write something about yourself"
               className="min-h-[100px]"
             />
-          </div>
+          </FormField>
           
           <Button type="submit" className="w-full">Submit Form</Button>
         </form>
