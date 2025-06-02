@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -138,13 +137,15 @@ const ScholarshipsPage = () => {
           </div>
         </div>
 
-        {/* Create Dialog */}
+        {/* Create Dialog - Fixed structure */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Create New Scholarship</DialogTitle>
             </DialogHeader>
-            <ScholarshipsCreate onSuccess={() => setIsCreateDialogOpen(false)} />
+            <div>
+              <ScholarshipsCreate onSuccess={() => setIsCreateDialogOpen(false)} />
+            </div>
           </DialogContent>
         </Dialog>
       </div>
