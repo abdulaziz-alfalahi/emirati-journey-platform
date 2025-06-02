@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Layout } from '@/components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 import { YouthDashboard } from '@/components/youth-development/YouthDashboard';
 import { ProgramCategories } from '@/components/youth-development/ProgramCategories';
 import { EventsCalendar } from '@/components/youth-development/EventsCalendar';
