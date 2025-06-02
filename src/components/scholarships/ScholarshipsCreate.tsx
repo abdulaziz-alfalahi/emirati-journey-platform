@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -199,17 +200,21 @@ export const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSucces
               <FormLabel>Application Deadline</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full pl-3 text-left font-normal"
-                  >
-                    {field.value ? (
-                      format(field.value, "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className="w-full pl-3 text-left font-normal"
+                    >
+                      <span className="flex items-center justify-between w-full">
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          "Pick a date"
+                        )}
+                        <CalendarIcon className="h-4 w-4 opacity-50" />
+                      </span>
+                    </Button>
+                  </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
