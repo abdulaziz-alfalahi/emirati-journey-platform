@@ -26,6 +26,7 @@ import TrainingMaterials from '@/pages/training-materials/index';
 import Internships from '@/pages/internships/index';
 import Scholarships from '@/pages/scholarships/index';
 import SummerCamps from '@/pages/summer-camps/index';
+import SchoolPrograms from '@/pages/school-programs/index';
 import SuccessStories from '@/pages/success-stories/index';
 import VirtualEvents from '@/pages/virtual-events/index';
 import VirtualEventDetails from '@/pages/virtual-events/[id]';
