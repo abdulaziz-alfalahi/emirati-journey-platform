@@ -30,7 +30,7 @@ import CredentialsPage from '@/pages/credentials';
 import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
 import SuccessStoriesPage from '@/pages/success-stories';
 import AnalyticsPage from '@/pages/analytics';
-import DesignSystemPage from '@/pages/design-system';
+import DesignSystemPage from '@/pages/DesignSystem';
 import SchoolProgramsPage from '@/pages/school-programs';
 
 import './App.css';

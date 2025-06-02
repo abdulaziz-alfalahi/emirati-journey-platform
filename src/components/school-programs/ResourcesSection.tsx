@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -176,7 +175,7 @@ const ResourcesSection: React.FC = () => {
                           {resource.description}
                         </p>
                         <div className="flex items-center gap-3 mt-1">
-                          <Badge className={getCategoryColor(resource.category)} variant="secondary" size="sm">
+                          <Badge className={getCategoryColor(resource.category)} variant="secondary">
                             {resource.category}
                           </Badge>
                           <span className="text-xs text-muted-foreground">

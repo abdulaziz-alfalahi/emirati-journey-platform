@@ -78,8 +78,12 @@ const InstitutionDirectory: React.FC = () => {
                       alt={institution.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling!.style.display = 'flex';
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        const nextElement = target.nextElementSibling as HTMLElement;
+                        if (nextElement) {
+                          nextElement.style.display = 'flex';
+                        }
                       }}
                     />
                     <School className="h-6 w-6 text-ehrdc-teal" style={{ display: 'none' }} />

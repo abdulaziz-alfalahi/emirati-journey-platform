@@ -1,11 +1,10 @@
 
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, MapPin, Users, Clock, DollarSign, School, BookOpen } from 'lucide-react';
-import { SchoolProgram, ProgramFilters } from '@/types/schoolPrograms';
-import ProgramDetailsModal from './ProgramDetailsModal';
+import { School, Calendar, Clock, MapPin, Users } from 'lucide-react';
+import { ProgramFilters } from '@/types/schoolPrograms';
 
 interface ProgramsListProps {
   type: 'available' | 'enrolled' | 'managed';
@@ -14,275 +13,197 @@ interface ProgramsListProps {
 }
 
 const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery }) => {
-  const [selectedProgram, setSelectedProgram] = useState<SchoolProgram | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Mock data - In a real app, this would come from an API
-  const mockPrograms: SchoolProgram[] = [
+  // Mock data for programs
+  const programs = [
     {
       id: '1',
-      title: 'Advanced STEM Academy',
+      title: 'Young Innovators STEM Workshop',
+      description: 'Hands-on science, technology, engineering, and mathematics workshops designed for elementary students.',
       institution: 'Dubai International School',
-      description: 'Comprehensive STEM program focusing on robotics, coding, and scientific research for high school students.',
-      subject_area: 'STEM',
-      grade_level: 'High School',
-      program_type: 'After School',
-      age_range: '15-18',
-      duration: '10 months',
-      schedule: 'Mon, Wed, Fri 3:30-5:30 PM',
-      location: 'Dubai International School, Al Barsha',
-      capacity: 30,
-      enrolled: 24,
-      price: 5000,
-      currency: 'AED',
-      image_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400',
-      learning_outcomes: [
-        'Master fundamental programming concepts',
-        'Design and build robotic systems',
-        'Conduct scientific research projects',
-        'Develop critical thinking skills'
-      ],
-      requirements: [
-        'Grade 9-12 students',
-        'Basic math proficiency',
-        'Interest in technology and science',
-        'Commitment to full program duration'
-      ],
-      tags: ['Robotics', 'Programming', 'Science', 'Research'],
-      status: 'active',
-      registration_deadline: '2024-09-15',
-      start_date: '2024-10-01',
-      end_date: '2025-06-30',
-      created_at: '2024-01-15',
-      updated_at: null,
-      contact_email: 'stem@dubaiintl.ae',
-      contact_phone: '+971-4-123-4567'
+      gradeLevel: ['Elementary'],
+      subjectArea: ['STEM'],
+      programType: ['After School'],
+      ageRange: '6-11 years',
+      duration: '8 weeks',
+      schedule: 'Tuesdays & Thursdays, 3:30pm - 5:00pm',
+      location: 'Al Barsha Campus',
+      startDate: '2024-09-15',
+      enrollmentStatus: 'Open',
+      spotsAvailable: 15,
+      image: 'https://images.unsplash.com/photo-1580894912989-0bc892f4efd0?w=500&h=350&fit=crop&crop=focalpoint'
     },
     {
       id: '2',
-      title: 'Arabic Literary Excellence',
+      title: 'Arabic Literary Excellence Program',
+      description: 'Developing advanced Arabic language skills through literature, poetry, and creative writing.',
       institution: 'Emirates Heritage Academy',
-      description: 'Intensive Arabic language and literature program celebrating Emirati cultural heritage.',
-      subject_area: 'Languages',
-      grade_level: 'Middle School',
-      program_type: 'Weekend',
-      age_range: '11-14',
-      duration: '6 months',
-      schedule: 'Saturdays 9:00 AM - 12:00 PM',
-      location: 'Emirates Heritage Academy, Jumeirah',
-      capacity: 25,
-      enrolled: 18,
-      price: 3000,
-      currency: 'AED',
-      image_url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400',
-      learning_outcomes: [
-        'Advanced Arabic writing skills',
-        'Appreciation of Emirati literature',
-        'Cultural knowledge and heritage',
-        'Public speaking in Arabic'
-      ],
-      requirements: [
-        'Grade 6-8 students',
-        'Basic Arabic proficiency',
-        'Interest in literature and culture',
-        'Regular attendance required'
-      ],
-      tags: ['Arabic', 'Literature', 'Culture', 'Heritage'],
-      status: 'active',
-      registration_deadline: '2024-08-30',
-      start_date: '2024-09-15',
-      end_date: '2025-03-15',
-      created_at: '2024-01-10',
-      updated_at: null,
-      contact_email: 'arabic@heritage.ae',
-      contact_phone: '+971-4-234-5678'
+      gradeLevel: ['Middle School', 'High School'],
+      subjectArea: ['Languages'],
+      programType: ['Weekend'],
+      ageRange: '12-17 years',
+      duration: '12 weeks',
+      schedule: 'Saturdays, 10:00am - 1:00pm',
+      location: 'Jumeirah Campus',
+      startDate: '2024-09-10',
+      enrollmentStatus: 'Open',
+      spotsAvailable: 8,
+      image: 'https://images.unsplash.com/photo-1588580000645-4562a6d2c839?w=500&h=350&fit=crop&crop=focalpoint'
     },
     {
       id: '3',
-      title: 'Young Entrepreneurs Program',
+      title: 'Young Entrepreneurs Initiative',
+      description: 'Business fundamentals, innovation, and entrepreneurial thinking for high school students.',
       institution: 'Business Leaders Academy',
-      description: 'Entrepreneurship and business skills program for elementary students.',
-      subject_area: 'Business',
-      grade_level: 'Elementary',
-      program_type: 'After School',
-      age_range: '8-11',
-      duration: '4 months',
-      schedule: 'Tuesdays & Thursdays 3:00-4:30 PM',
-      location: 'Business Leaders Academy, Downtown',
-      capacity: 20,
-      enrolled: 15,
-      price: 2500,
-      currency: 'AED',
-      image_url: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400',
-      learning_outcomes: [
-        'Basic business concepts',
-        'Creative problem solving',
-        'Teamwork and collaboration',
-        'Presentation skills'
-      ],
-      requirements: [
-        'Grade 3-5 students',
-        'Curiosity about business',
-        'Good communication skills',
-        'Parent support for projects'
-      ],
-      tags: ['Entrepreneurship', 'Business', 'Leadership', 'Innovation'],
-      status: 'active',
-      registration_deadline: '2024-09-01',
-      start_date: '2024-09-15',
-      end_date: '2025-01-15',
-      created_at: '2024-01-20',
-      updated_at: null,
-      contact_email: 'young@businessleaders.ae',
-      contact_phone: '+971-4-345-6789'
+      gradeLevel: ['High School'],
+      subjectArea: ['Business'],
+      programType: ['Summer', 'Intensive'],
+      ageRange: '14-18 years',
+      duration: '4 weeks',
+      schedule: 'Monday-Thursday, 9:00am - 2:00pm',
+      location: 'Downtown Dubai Campus',
+      startDate: '2024-07-05',
+      enrollmentStatus: 'Coming Soon',
+      spotsAvailable: 20,
+      image: 'https://images.unsplash.com/photo-1593642532400-2682810df593?w=500&h=350&fit=crop&crop=focalpoint'
     }
   ];
 
-  const filteredPrograms = mockPrograms.filter(program => {
-    // Apply search filter
-    if (searchQuery && !program.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !program.institution.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !program.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
+  // Filter programs based on filters and search
+  const filteredPrograms = programs.filter(program => {
+    // Filter by grade level
+    if (filters.gradeLevel && filters.gradeLevel.length > 0) {
+      if (!filters.gradeLevel.some(level => program.gradeLevel.includes(level))) {
+        return false;
+      }
     }
-
-    // Apply grade level filter
-    if (filters.gradeLevel && filters.gradeLevel.length > 0 &&
-        !filters.gradeLevel.includes(program.grade_level)) {
-      return false;
+    
+    // Filter by subject area
+    if (filters.subjectArea && filters.subjectArea.length > 0) {
+      if (!filters.subjectArea.some(area => program.subjectArea.includes(area))) {
+        return false;
+      }
     }
-
-    // Apply subject area filter
-    if (filters.subjectArea && filters.subjectArea.length > 0 &&
-        !filters.subjectArea.includes(program.subject_area)) {
-      return false;
+    
+    // Filter by program type
+    if (filters.programType && filters.programType.length > 0) {
+      if (!filters.programType.some(type => program.programType.includes(type))) {
+        return false;
+      }
     }
-
-    // Apply program type filter
-    if (filters.programType && filters.programType.length > 0 &&
-        !filters.programType.includes(program.program_type)) {
-      return false;
+    
+    // Search by title or institution
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        program.title.toLowerCase().includes(query) || 
+        program.institution.toLowerCase().includes(query) ||
+        program.description.toLowerCase().includes(query)
+      );
     }
-
+    
     return true;
   });
 
-  const handleProgramClick = (program: SchoolProgram) => {
-    setSelectedProgram(program);
-    setIsModalOpen(true);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'upcoming': return 'bg-blue-100 text-blue-800';
-      case 'full': return 'bg-yellow-100 text-yellow-800';
-      case 'closed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   if (filteredPrograms.length === 0) {
     return (
-      <div className="text-center py-12">
-        <School className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium text-muted-foreground mb-2">No programs found</h3>
-        <p className="text-muted-foreground">
-          Try adjusting your filters or search terms to find more programs.
-        </p>
-      </div>
+      <Card className="bg-muted/20">
+        <CardContent className="py-12 text-center">
+          <School className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-medium mb-2">No Programs Found</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            No programs match your current filters. Try adjusting your filters or search terms to find more opportunities.
+          </p>
+          {type === 'available' && (
+            <Button variant="outline" className="mt-4">
+              Clear Filters
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredPrograms.map((program) => (
-          <Card key={program.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-            <div onClick={() => handleProgramClick(program)}>
-              <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                <img 
-                  src={program.image_url} 
+    <div className="grid gap-4">
+      {filteredPrograms.map((program) => (
+        <Card key={program.id} className="hover:shadow-md transition-shadow overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex flex-col md:flex-row">
+              <div className="md:w-1/3 h-48 md:h-auto bg-muted relative overflow-hidden">
+                <img
+                  src={program.image}
                   alt={program.title}
-                  className="object-cover w-full h-full"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute top-2 right-2">
-                  <Badge className={getStatusColor(program.status)}>
-                    {program.status}
-                  </Badge>
+                <div className="absolute top-3 left-3 space-x-2">
+                  {program.programType.map((type) => (
+                    <Badge key={type} className="bg-white/90 text-ehrdc-teal text-xs">
+                      {type}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-              
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg line-clamp-2">{program.title}</CardTitle>
+              <div className="p-6 md:w-2/3">
+                <div className="mb-2 flex justify-between items-start">
+                  <h3 className="font-semibold text-xl">{program.title}</h3>
+                  <Badge className={
+                    program.enrollmentStatus === 'Open' ? 'bg-green-100 text-green-800' : 
+                    program.enrollmentStatus === 'Coming Soon' ? 'bg-blue-100 text-blue-800' :
+                    'bg-amber-100 text-amber-800'
+                  } variant="secondary">
+                    {program.enrollmentStatus}
+                  </Badge>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <School className="h-4 w-4 mr-1" />
-                  {program.institution}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                   {program.description}
                 </p>
                 
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center">
-                    <BookOpen className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.grade_level}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <School className="h-4 w-4 text-ehrdc-teal" />
+                    <span>{program.institution}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.duration}
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-ehrdc-teal" />
+                    <span>{program.ageRange}</span>
                   </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.location.split(',')[0]}
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-ehrdc-teal" />
+                    <span>{program.duration}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.enrolled}/{program.capacity}
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-ehrdc-teal" />
+                    <span>{program.location}</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center">
-                    <DollarSign className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    <span className="font-semibold">{program.price.toLocaleString()} {program.currency}</span>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {program.subject_area}
-                  </Badge>
+                <div className="flex items-center gap-2 mb-4">
+                  <Calendar className="h-4 w-4 text-ehrdc-teal" />
+                  <span className="text-sm">Starts {new Date(program.startDate).toLocaleDateString()}</span>
                 </div>
                 
-                <div className="flex flex-wrap gap-1 pt-2">
-                  {program.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {program.tags.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{program.tags.length - 3}
-                    </Badge>
-                  )}
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-auto">
+                  <div className="flex flex-wrap gap-2">
+                    {program.gradeLevel.map((level) => (
+                      <Badge key={level} variant="outline" className="text-xs">{level}</Badge>
+                    ))}
+                    {program.subjectArea.map((area) => (
+                      <Badge key={area} variant="outline" className="text-xs">{area}</Badge>
+                    ))}
+                  </div>
+                  
+                  <Button className="ehrdc-button-primary">
+                    {type === 'enrolled' ? 'View Details' : 
+                     type === 'managed' ? 'Manage Program' : 'Apply Now'}
+                  </Button>
                 </div>
-              </CardContent>
+              </div>
             </div>
-          </Card>
-        ))}
-      </div>
-      
-      {selectedProgram && (
-        <ProgramDetailsModal
-          program={selectedProgram}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-    </>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 
