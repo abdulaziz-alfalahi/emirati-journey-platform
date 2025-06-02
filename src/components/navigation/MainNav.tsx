@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useNavItems } from '@/hooks/use-nav-items';
+import useNavItems from '@/hooks/use-nav-items';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import {
@@ -16,11 +16,78 @@ import { cn } from '@/lib/utils';
 
 const MainNav = () => {
   const { user, roles } = useAuth();
-  const { navGroups } = useNavItems();
+  const navItems = useNavItems();
   const location = useLocation();
 
-  if (!user || navGroups.length === 0) {
+  if (!user || navItems.length === 0) {
     return null;
+  }
+
+  // Group nav items by category for the dropdown structure
+  const navGroups = [
+    {
+      title: 'Education Pathway',
+      items: navItems.filter(item => 
+        ['Summer Camps', 'Scholarships', 'Training', 'LMS'].includes(item.name)
+      ).map(item => ({
+        title: item.name,
+        href: item.href,
+        description: getItemDescription(item.name)
+      }))
+    },
+    {
+      title: 'Career Development',
+      items: navItems.filter(item => 
+        ['Career Journey', 'Internships', 'Career Advisory', 'Job Matching'].includes(item.name)
+      ).map(item => ({
+        title: item.name,
+        href: item.href,
+        description: getItemDescription(item.name)
+      }))
+    },
+    {
+      title: 'Skills & Assessment',
+      items: navItems.filter(item => 
+        ['Assessments', 'Collaborative Assessments', 'Skills Marketplace', 'Portfolio'].includes(item.name)
+      ).map(item => ({
+        title: item.name,
+        href: item.href,
+        description: getItemDescription(item.name)
+      }))
+    },
+    {
+      title: 'Community & Recognition',
+      items: navItems.filter(item => 
+        ['Communities', 'Mentorship', 'Success Stories', 'Credentials', 'Blockchain Credentials'].includes(item.name)
+      ).map(item => ({
+        title: item.name,
+        href: item.href,
+        description: getItemDescription(item.name)
+      }))
+    }
+  ].filter(group => group.items.length > 0);
+
+  function getItemDescription(name: string): string {
+    const descriptions: Record<string, string> = {
+      'Summer Camps': 'Explore exciting summer programs and activities',
+      'Scholarships': 'Find funding opportunities for your education',
+      'Training': 'Enhance your skills with professional training',
+      'LMS': 'Access our learning management system',
+      'Career Journey': 'Plan and track your career progression',
+      'Internships': 'Discover internship opportunities',
+      'Career Advisory': 'Get expert career guidance',
+      'Job Matching': 'Find jobs that match your skills',
+      'Assessments': 'Take skill and aptitude assessments',
+      'Collaborative Assessments': 'Participate in team evaluations',
+      'Skills Marketplace': 'Exchange skills with peers',
+      'Portfolio': 'Build and showcase your achievements',
+      'Communities': 'Connect with like-minded individuals',
+      'Mentorship': 'Find mentors and mentorship opportunities',
+      'Success Stories': 'Read inspiring career stories',
+      'Credentials': 'Manage your professional credentials',
+      'Blockchain Credentials': 'Secure digital credentials'
+    };
+    return descriptions[name] || `Access ${name.toLowerCase()} features`;
   }
 
   return (

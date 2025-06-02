@@ -18,7 +18,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({ navItems, navGroups = 
   return (
     <>
       {/* Main Navigation */}
-      <MainNav navGroups={navGroups} />
+      <MainNav />
 
       {/* Right side actions - Only user menu for authenticated users */}
       <div className="ml-auto flex items-center">
