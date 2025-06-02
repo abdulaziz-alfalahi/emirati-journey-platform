@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,6 +37,7 @@ import UniversityProgramsPage from '@/pages/university-programs';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 import DigitalSkillsPage from '@/pages/digital-skills';
 import IndustryExplorationPage from '@/pages/industry-exploration';
+import NationalServicePage from '@/pages/national-service';
 
 import './App.css';
 
@@ -70,6 +72,7 @@ function App() {
                   <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                   <Route path="/digital-skills" element={<DigitalSkillsPage />} />
                   <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
+                  <Route path="/national-service" element={<NationalServicePage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />
