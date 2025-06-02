@@ -198,79 +198,81 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredPrograms.map((program) => (
-          <Card key={program.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-            <div onClick={() => handleProgramClick(program)}>
-              <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                <img 
-                  src={program.image_url} 
-                  alt={program.title}
-                  className="object-cover w-full h-full"
-                />
-                <div className="absolute top-2 right-2">
-                  <Badge className={getStatusColor(program.status)}>
-                    {program.status}
-                  </Badge>
+          <Card 
+            key={program.id} 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => handleProgramClick(program)}
+          >
+            <div className="aspect-video relative overflow-hidden rounded-t-lg">
+              <img 
+                src={program.image_url} 
+                alt={program.title}
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute top-2 right-2">
+                <Badge className={getStatusColor(program.status)}>
+                  {program.status}
+                </Badge>
+              </div>
+            </div>
+            
+            <CardHeader className="pb-2">
+              <div className="flex items-start justify-between">
+                <CardTitle className="text-lg line-clamp-2">{program.title}</CardTitle>
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <School className="h-4 w-4 mr-1" />
+                {program.institution}
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {program.description}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center">
+                  <BookOpen className="h-4 w-4 mr-1 text-ehrdc-teal" />
+                  {program.grade_level}
+                </div>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-1 text-ehrdc-teal" />
+                  {program.duration}
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-1 text-ehrdc-teal" />
+                  {program.location.split(',')[0]}
+                </div>
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-1 text-ehrdc-teal" />
+                  {program.enrolled}/{program.capacity}
                 </div>
               </div>
               
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg line-clamp-2">{program.title}</CardTitle>
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center">
+                  <DollarSign className="h-4 w-4 mr-1 text-ehrdc-teal" />
+                  <span className="font-semibold">{program.price.toLocaleString()} {program.currency}</span>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <School className="h-4 w-4 mr-1" />
-                  {program.institution}
-                </div>
-              </CardHeader>
+                <Badge variant="outline" className="text-xs">
+                  {program.subject_area}
+                </Badge>
+              </div>
               
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {program.description}
-                </p>
-                
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center">
-                    <BookOpen className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.grade_level}
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.duration}
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.location.split(',')[0]}
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    {program.enrolled}/{program.capacity}
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center">
-                    <DollarSign className="h-4 w-4 mr-1 text-ehrdc-teal" />
-                    <span className="font-semibold">{program.price.toLocaleString()} {program.currency}</span>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {program.subject_area}
+              <div className="flex flex-wrap gap-1 pt-2">
+                {program.tags.slice(0, 3).map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-xs">
+                    {tag}
                   </Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-1 pt-2">
-                  {program.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {program.tags.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{program.tags.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-            </div>
+                ))}
+                {program.tags.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{program.tags.length - 3}
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
           </Card>
         ))}
       </div>
