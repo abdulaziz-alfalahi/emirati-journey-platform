@@ -35,6 +35,7 @@ import YouthDevelopmentPage from '@/pages/youth-development';
 import UniversityProgramsPage from '@/pages/university-programs';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 import DigitalSkillsPage from '@/pages/digital-skills';
+import IndustryExplorationPage from '@/pages/industry-exploration';
 
 import './App.css';
 
@@ -68,6 +69,7 @@ function App() {
                   <Route path="/university-programs" element={<UniversityProgramsPage />} />
                   <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                   <Route path="/digital-skills" element={<DigitalSkillsPage />} />
+                  <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />
