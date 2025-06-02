@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import useNavItems from '@/hooks/use-nav-items';
@@ -102,8 +101,8 @@ const MainNav = () => {
             </NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {group.items.map((item) => {
-                  const linkElement = (
+                {group.items.map((item) => (
+                  <NavigationMenuLink key={item.href} asChild>
                     <Link
                       to={item.href}
                       className={cn(
@@ -116,14 +115,8 @@ const MainNav = () => {
                         {item.description}
                       </p>
                     </Link>
-                  );
-
-                  return (
-                    <NavigationMenuLink key={item.href} asChild>
-                      {linkElement}
-                    </NavigationMenuLink>
-                  );
-                })}
+                  </NavigationMenuLink>
+                ))}
               </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
