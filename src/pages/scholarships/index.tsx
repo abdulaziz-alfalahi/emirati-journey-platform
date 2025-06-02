@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ScholarshipsCreate } from '@/components/scholarships/ScholarshipsCreate';
 import { ScholarshipsApplied } from '@/components/scholarships/ScholarshipsApplied';
 import { ScholarshipsManage } from '@/components/scholarships/ScholarshipsManage';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const ScholarshipsPage = () => {
   const { user, roles } = useAuth();
@@ -140,7 +140,10 @@ const ScholarshipsPage = () => {
 
         {/* Create Dialog */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Create New Scholarship</DialogTitle>
+            </DialogHeader>
             <ScholarshipsCreate onSuccess={() => setIsCreateDialogOpen(false)} />
           </DialogContent>
         </Dialog>
