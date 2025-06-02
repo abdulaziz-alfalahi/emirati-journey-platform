@@ -1,128 +1,222 @@
+
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
-import useNavItems from '@/hooks/use-nav-items';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, 
+  Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
+  BarChart3, Shield, School, Lightbulb, Building, Heart, 
+  Landmark, Rocket, Compass, Laptop, Handshake, Sparkles, Globe
+} from 'lucide-react';
+import { NavGroup } from '@/components/layout/types';
 
-const MainNav = () => {
-  const { user } = useAuth();
-  const navItems = useNavItems();
-  const location = useLocation();
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu"
 
-  if (!user || navItems.length === 0) {
-    return null;
-  }
+interface MainNavProps {
+  navGroups?: NavGroup[];
+}
 
-  // Group nav items by category for the dropdown structure
-  const navGroups = [
+const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
+  const { pathname } = useLocation();
+  const { roles } = useAuth();
+
+  // Enhanced navigation groups aligned with Emirati journey stages
+  const defaultNavGroups: NavGroup[] = [
     {
-      title: 'Education Pathway',
-      items: navItems.filter(item => 
-        ['Summer Camps', 'School Programs', 'Scholarships', 'Training', 'LMS'].includes(item.name)
-      ).map(item => ({
-        title: item.name,
-        href: item.href,
-        description: getItemDescription(item.name)
-      }))
+      id: 'education-pathway',
+      name: 'Education Pathway',
+      items: [
+        // Early Education & Youth Development
+        { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
+        { name: 'School Programs', href: '/school-programs', icon: School },
+        { name: 'Youth Development', href: '/youth-development', icon: Sparkles },
+        
+        // Higher Education & Academic Excellence
+        { name: 'Scholarships', href: '/scholarships', icon: Award },
+        { name: 'University Programs', href: '/university-programs', icon: Building },
+        { name: 'Academic Assessments', href: '/assessments', icon: FileText },
+        { name: 'Learning Management', href: '/lms', icon: GraduationCap },
+        
+        // Specialized Training & Skills
+        { name: 'Vocational Training', href: '/training', icon: BookOpen },
+        { name: 'Professional Certifications', href: '/certifications', icon: Shield },
+        { name: 'Digital Skills', href: '/skills-development', icon: Laptop },
+      ]
     },
     {
-      title: 'Career Development',
-      items: navItems.filter(item => 
-        ['Career Journey', 'Internships', 'Career Advisory', 'Job Matching'].includes(item.name)
-      ).map(item => ({
-        title: item.name,
-        href: item.href,
-        description: getItemDescription(item.name)
-      }))
+      id: 'career-entry',
+      name: 'Career Entry',
+      items: [
+        // Career Exploration & Planning
+        { name: 'Career Journey Map', href: '/career-journey', icon: MapPin },
+        { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
+        { name: 'Industry Exploration', href: '/industries', icon: Compass },
+        { name: 'Skills Assessment', href: '/assessments', icon: BarChart3 },
+        
+        // Work Experience & National Service
+        { name: 'Internships', href: '/internships', icon: Briefcase },
+        { name: 'National Service', href: '/national-service', icon: Shield },
+        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
+        
+        // Job Readiness & Application
+        { name: 'CV Builder', href: '/cv-builder', icon: FileText },
+        { name: 'Portfolio', href: '/portfolio', icon: User },
+        { name: 'Interview Preparation', href: '/interview-preparation', icon: Users },
+        { name: 'Job Matching', href: '/job-matching', icon: Search },
+      ]
     },
     {
-      title: 'Skills & Assessment',
-      items: navItems.filter(item => 
-        ['Assessments', 'Collaborative Assessments', 'Skills Marketplace', 'Portfolio'].includes(item.name)
-      ).map(item => ({
-        title: item.name,
-        href: item.href,
-        description: getItemDescription(item.name)
-      }))
+      id: 'professional-growth',
+      name: 'Professional Growth',
+      items: [
+        // Skills Enhancement & Development
+        { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Handshake },
+        { name: 'Advanced Certifications', href: '/professional-certifications', icon: Award },
+        { name: 'Leadership Development', href: '/leadership', icon: Users },
+        { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
+        
+        // Career Advancement & Networking
+        { name: 'Mentorship', href: '/mentorship', icon: Users },
+        { name: 'Professional Communities', href: '/communities', icon: Users },
+        { name: 'Industry Networks', href: '/networking', icon: Activity },
+        { name: 'Career Transition', href: '/career-transition', icon: Compass },
+        
+        // Innovation & Entrepreneurship
+        { name: 'Business Development', href: '/business-development', icon: Rocket },
+        { name: 'Startup Ecosystem', href: '/startup', icon: Lightbulb },
+        { name: 'Innovation Hub', href: '/innovation', icon: Sparkles },
+      ]
     },
     {
-      title: 'Community & Recognition',
-      items: navItems.filter(item => 
-        ['Communities', 'Mentorship', 'Success Stories', 'Credentials', 'Blockchain Credentials'].includes(item.name)
-      ).map(item => ({
-        title: item.name,
-        href: item.href,
-        description: getItemDescription(item.name)
-      }))
+      id: 'lifelong-engagement',
+      name: 'Lifelong Engagement',
+      items: [
+        // Knowledge Transfer & Mentoring
+        { name: 'Become a Mentor', href: '/become-mentor', icon: Users },
+        { name: 'Share Success Stories', href: '/success-stories', icon: Award },
+        { name: 'Advisory Positions', href: '/advisory-roles', icon: Landmark },
+        { name: 'Thought Leadership', href: '/thought-leadership', icon: Lightbulb },
+        
+        // Retirement Planning & Transition
+        { name: 'Financial Planning', href: '/financial-planning', icon: BarChart3 },
+        { name: 'Post-Career Options', href: '/post-career', icon: Compass },
+        { name: 'Retirement Benefits', href: '/retirement-benefits', icon: Shield },
+        
+        // Community Contribution & Legacy
+        { name: 'Volunteer Programs', href: '/volunteer', icon: Heart },
+        { name: 'Legacy Projects', href: '/legacy-projects', icon: Landmark },
+        { name: 'Community Leadership', href: '/community-leadership', icon: Users },
+      ]
     }
-  ].filter(group => group.items.length > 0);
+  ];
 
-  function getItemDescription(name: string): string {
-    const descriptions: Record<string, string> = {
-      'Summer Camps': 'Explore exciting summer programs and activities',
-      'School Programs': 'Discover K-12 educational programs',
-      'Scholarships': 'Find funding opportunities for your education',
-      'Training': 'Enhance your skills with professional training',
-      'LMS': 'Access our learning management system',
-      'Career Journey': 'Plan and track your career progression',
-      'Internships': 'Discover internship opportunities',
-      'Career Advisory': 'Get expert career guidance',
-      'Job Matching': 'Find jobs that match your skills',
-      'Assessments': 'Take skill and aptitude assessments',
-      'Collaborative Assessments': 'Participate in team evaluations',
-      'Skills Marketplace': 'Exchange skills with peers',
-      'Portfolio': 'Build and showcase your achievements',
-      'Communities': 'Connect with like-minded individuals',
-      'Mentorship': 'Find mentors and mentorship opportunities',
-      'Success Stories': 'Read inspiring career stories',
-      'Credentials': 'Manage your professional credentials',
-      'Blockchain Credentials': 'Secure digital credentials'
-    };
-    return descriptions[name] || `Access ${name.toLowerCase()} features`;
-  }
+  // Combine default groups with any additional groups passed as props
+  const getNavGroups = () => {
+    const groups = [...defaultNavGroups, ...navGroups];
+    
+    if (roles.includes('administrator') || roles.includes('super_user')) {
+      groups.push({
+        id: 'administration',
+        name: 'Administration',
+        items: [
+          { name: 'System Analytics', href: '/analytics', icon: BarChart3 },
+          { name: 'User Management', href: '/admin/users', icon: Users },
+          { name: 'Platform Settings', href: '/admin/settings', icon: Shield },
+        ]
+      });
+    }
+
+    return groups;
+  };
+
+  const displayNavGroups = getNavGroups();
 
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        {navGroups.map((group) => (
-          <NavigationMenuItem key={group.title}>
-            <NavigationMenuTrigger className="h-9">
-              {group.title}
-              <ChevronDown className="ml-1 h-3 w-3" />
-            </NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                {group.items.map((item) => (
-                  <NavigationMenuLink key={item.href} asChild>
+    <nav className="hidden md:flex items-center gap-6">
+      {displayNavGroups.map((group) => (
+        <DropdownMenu key={group.id}>
+          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-ehrdc-teal focus:text-ehrdc-teal outline-none group">
+            <span className="text-ehrdc-neutral-dark group-hover:text-ehrdc-teal group-focus:text-ehrdc-teal transition-colors">
+              {group.name}
+            </span>
+            <ChevronDown className="h-4 w-4 text-ehrdc-neutral-dark group-hover:text-ehrdc-teal group-focus:text-ehrdc-teal transition-colors" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-64 bg-white border border-ehrdc-neutral-light shadow-lg">
+            <DropdownMenuLabel className="text-ehrdc-teal font-semibold border-b border-ehrdc-neutral-light">
+              {group.name}
+            </DropdownMenuLabel>
+            {group.items.map((item, index) => {
+              const IconComponent = item.icon;
+              const isActive = pathname === item.href;
+              
+              // Add separators for visual grouping
+              const showSeparator = 
+                (group.id === 'education-pathway' && (index === 3 || index === 7)) ||
+                (group.id === 'career-entry' && (index === 4 || index === 7)) ||
+                (group.id === 'professional-growth' && (index === 4 || index === 8)) ||
+                (group.id === 'lifelong-engagement' && (index === 4 || index === 7));
+
+              return (
+                <React.Fragment key={item.href}>
+                  {showSeparator && <DropdownMenuSeparator />}
+                  <DropdownMenuItem asChild>
                     <Link
                       to={item.href}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                        location.pathname === item.href && "bg-accent text-accent-foreground"
+                        "flex w-full items-center gap-3 px-3 py-2 text-sm transition-all hover:bg-ehrdc-light-teal/20 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/20 focus:text-ehrdc-teal rounded-sm",
+                        isActive ? "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium" : "text-ehrdc-neutral-dark"
                       )}
+                      onClick={(e) => {
+                        if (item.onClick) {
+                          e.preventDefault();
+                          item.onClick();
+                        }
+                      }}
                     >
-                      <div className="text-sm font-medium leading-none">{item.title}</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        {item.description}
-                      </p>
+                      <IconComponent className="h-4 w-4 flex-shrink-0" />
+                      <span className="flex-1">{item.name}</span>
                     </Link>
-                  </NavigationMenuLink>
-                ))}
-              </div>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        ))}
-      </NavigationMenuList>
-    </NavigationMenu>
+                  </DropdownMenuItem>
+                </React.Fragment>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ))}
+      
+      {/* Dashboard Link */}
+      <Link
+        to="/dashboard"
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-ehrdc-teal focus:text-ehrdc-teal",
+          pathname === "/dashboard" ? "text-ehrdc-teal font-semibold" : "text-ehrdc-neutral-dark"
+        )}
+      >
+        Dashboard
+      </Link>
+
+      {/* Analytics Link (for authorized users) */}
+      {(roles.includes('administrator') || roles.includes('super_user') || roles.includes('training_center')) && (
+        <Link
+          to="/analytics"
+          className={cn(
+            "flex items-center gap-1 text-sm font-medium transition-colors hover:text-ehrdc-teal focus:text-ehrdc-teal",
+            pathname === "/analytics" ? "text-ehrdc-teal font-semibold" : "text-ehrdc-neutral-dark"
+          )}
+        >
+          <Activity className="h-4 w-4" />
+          Analytics
+        </Link>
+      )}
+    </nav>
   );
 };
 

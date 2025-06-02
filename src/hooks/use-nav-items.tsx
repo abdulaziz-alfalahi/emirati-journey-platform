@@ -16,8 +16,7 @@ import {
   Search,
   Award,
   Shield,
-  BarChart3,
-  School
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -31,7 +30,6 @@ const useNavItems = () => {
     { name: 'Resume Builder', href: '/resume-builder', icon: FileText },
     { name: 'Career Journey', href: '/career-journey', icon: MapPin },
     { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
-    { name: 'School Programs', href: '/school-programs', icon: School },
     { name: 'Scholarships', href: '/scholarships', icon: GraduationCap },
     { name: 'Internships', href: '/internships', icon: Briefcase },
     { name: 'Training', href: '/training', icon: BookOpen },
@@ -58,45 +56,6 @@ const useNavItems = () => {
   }, [user]);
 
   return authenticatedNavItems;
-};
-
-export const useNavGroups = () => {
-  const navItems = useNavItems();
-  
-  return useMemo(() => {
-    const groups = [
-      {
-        id: 'education',
-        title: 'Education Pathway',
-        items: navItems.filter(item => 
-          ['Summer Camps', 'School Programs', 'Scholarships', 'Training', 'LMS'].includes(item.name)
-        )
-      },
-      {
-        id: 'career',
-        title: 'Career Development', 
-        items: navItems.filter(item => 
-          ['Career Journey', 'Internships', 'Career Advisory', 'Job Matching'].includes(item.name)
-        )
-      },
-      {
-        id: 'skills',
-        title: 'Skills & Assessment',
-        items: navItems.filter(item => 
-          ['Assessments', 'Collaborative Assessments', 'Skills Marketplace', 'Portfolio'].includes(item.name)
-        )
-      },
-      {
-        id: 'community',
-        title: 'Community & Recognition',
-        items: navItems.filter(item => 
-          ['Communities', 'Mentorship', 'Success Stories', 'Credentials', 'Blockchain Credentials'].includes(item.name)
-        )
-      }
-    ].filter(group => group.items.length > 0);
-    
-    return groups;
-  }, [navItems]);
 };
 
 export default useNavItems;

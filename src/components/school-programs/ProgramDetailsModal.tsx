@@ -1,28 +1,13 @@
 
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Clock, 
-  DollarSign, 
-  School, 
-  BookOpen,
-  Mail,
-  Phone,
-  Target,
-  CheckCircle
+  Calendar, MapPin, Users, Clock, DollarSign, School, 
+  BookOpen, Target, CheckCircle, Mail, Phone, ExternalLink
 } from 'lucide-react';
 import { SchoolProgram } from '@/types/schoolPrograms';
 
@@ -37,6 +22,13 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const handleApply = () => {
+    // In a real app, this would open an application form or redirect to enrollment
+    console.log('Applying for program:', program.id);
+    // Could open another modal with application form
+    alert('Application functionality would be implemented here');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800';
@@ -47,235 +39,202 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
     }
   };
 
-  if (!program) {
-    return null;
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="space-y-6">
-          <DialogHeader>
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <DialogTitle className="text-2xl font-bold">{program.title}</DialogTitle>
-                <DialogDescription className="flex items-center gap-2">
-                  <School className="h-4 w-4" />
-                  {program.institution}
-                </DialogDescription>
+        <DialogHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <DialogTitle className="text-2xl font-bold mb-2">{program.title}</DialogTitle>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <School className="h-4 w-4" />
+                <span>{program.institution}</span>
+                <Badge className={getStatusColor(program.status)}>
+                  {program.status}
+                </Badge>
               </div>
-              <Badge className={getStatusColor(program.status)}>
-                {program.status}
-              </Badge>
             </div>
-          </DialogHeader>
+          </div>
+        </DialogHeader>
 
-          {program.image_url && (
-            <div className="aspect-video relative overflow-hidden rounded-lg">
+        <div className="grid md:grid-cols-3 gap-6 mt-6">
+          {/* Main Content */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Program Image */}
+            <div className="aspect-video rounded-lg overflow-hidden">
               <img 
                 src={program.image_url} 
                 alt={program.title}
-                className="object-cover w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
-          )}
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <h3 className="font-semibold text-lg mb-4">Program Details</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <BookOpen className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Grade Level:</span>
-                      <span className="ml-2">{program.grade_level}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Age Range:</span>
-                      <span className="ml-2">{program.age_range}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Duration:</span>
-                      <span className="ml-2">{program.duration}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Schedule:</span>
-                      <span className="ml-2">{program.schedule}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Location:</span>
-                      <span className="ml-2">{program.location}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <DollarSign className="h-5 w-5 text-ehrdc-teal" />
-                    <div>
-                      <span className="font-medium">Price:</span>
-                      <span className="ml-2">{program.price.toLocaleString()} {program.currency}</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4">Enrollment Status</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Enrolled Students</span>
-                    <span className="font-medium">{program.enrolled}/{program.capacity}</span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-ehrdc-teal h-2 rounded-full" 
-                      style={{ width: `${(program.enrolled / program.capacity) * 100}%` }}
-                    ></div>
-                  </div>
-                  
-                  <div className="text-sm text-muted-foreground">
-                    {program.capacity - program.enrolled} spots remaining
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Registration Deadline:</span>
-                      <span className="text-sm font-medium">
-                        {new Date(program.registration_deadline).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Start Date:</span>
-                      <span className="text-sm font-medium">
-                        {new Date(program.start_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">End Date:</span>
-                      <span className="text-sm font-medium">
-                        {new Date(program.end_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-4">Program Description</h3>
+            {/* Description */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Program Description</h3>
               <p className="text-muted-foreground leading-relaxed">
                 {program.description}
               </p>
-            </CardContent>
-          </Card>
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-ehrdc-teal" />
-                  Learning Outcomes
-                </h3>
-                <ul className="space-y-2">
-                  {program.learning_outcomes?.map((outcome, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{outcome}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {/* Learning Outcomes */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Target className="h-5 w-5 text-ehrdc-teal" />
+                Learning Outcomes
+              </h3>
+              <div className="grid gap-2">
+                {program.learning_outcomes.map((outcome, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{outcome}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4">Requirements</h3>
-                <ul className="space-y-2">
-                  {program.requirements?.map((requirement, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-ehrdc-teal rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-sm">{requirement}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {/* Requirements */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Requirements</h3>
+              <div className="grid gap-2">
+                {program.requirements.map((requirement, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <BookOpen className="h-4 w-4 text-ehrdc-teal mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{requirement}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Program Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {program.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {(program.contact_email || program.contact_phone) && (
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Quick Info Card */}
             <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-4">Contact Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {program.contact_email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-ehrdc-teal" />
-                      <a 
-                        href={`mailto:${program.contact_email}`}
-                        className="text-ehrdc-teal hover:underline"
-                      >
-                        {program.contact_email}
-                      </a>
-                    </div>
-                  )}
-                  {program.contact_phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-ehrdc-teal" />
-                      <a 
-                        href={`tel:${program.contact_phone}`}
-                        className="text-ehrdc-teal hover:underline"
-                      >
-                        {program.contact_phone}
-                      </a>
-                    </div>
-                  )}
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-lg">
+                    {program.price.toLocaleString()} {program.currency}
+                  </span>
+                  <Badge variant="outline">{program.subject_area}</Badge>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-ehrdc-teal" />
+                    <span className="font-medium">Grade Level:</span>
+                    <span>{program.grade_level}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-ehrdc-teal" />
+                    <span className="font-medium">Duration:</span>
+                    <span>{program.duration}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-ehrdc-teal" />
+                    <span className="font-medium">Schedule:</span>
+                    <span className="text-xs">{program.schedule}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-ehrdc-teal" />
+                    <span className="font-medium">Location:</span>
+                    <span className="text-xs">{program.location}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-ehrdc-teal" />
+                    <span className="font-medium">Capacity:</span>
+                    <span>{program.enrolled}/{program.capacity} enrolled</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="text-sm">
+                    <span className="font-medium">Registration Deadline:</span>
+                    <br />
+                    <span className="text-muted-foreground">
+                      {new Date(program.registration_deadline).toLocaleDateString()}
+                    </span>
+                  </div>
+                  
+                  <div className="text-sm">
+                    <span className="font-medium">Program Duration:</span>
+                    <br />
+                    <span className="text-muted-foreground">
+                      {new Date(program.start_date).toLocaleDateString()} - {new Date(program.end_date).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
 
-          {program.tags && program.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-4">
-              {program.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-ehrdc-teal border-ehrdc-teal">
-                  {tag}
-                </Badge>
-              ))}
+            {/* Contact Info */}
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <h4 className="font-semibold">Contact Information</h4>
+                
+                {program.contact_email && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-4 w-4 text-ehrdc-teal" />
+                    <a 
+                      href={`mailto:${program.contact_email}`}
+                      className="text-ehrdc-teal hover:underline"
+                    >
+                      {program.contact_email}
+                    </a>
+                  </div>
+                )}
+                
+                {program.contact_phone && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-4 w-4 text-ehrdc-teal" />
+                    <a 
+                      href={`tel:${program.contact_phone}`}
+                      className="text-ehrdc-teal hover:underline"
+                    >
+                      {program.contact_phone}
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="space-y-2">
+              <Button 
+                className="w-full ehrdc-button-primary"
+                onClick={handleApply}
+                disabled={program.status === 'full' || program.status === 'closed'}
+              >
+                {program.status === 'full' ? 'Program Full' : 
+                 program.status === 'closed' ? 'Registration Closed' : 
+                 'Apply Now'}
+              </Button>
+              
+              <Button variant="outline" className="w-full">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Visit Institution Website
+              </Button>
             </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <Button className="ehrdc-button-primary flex-1">
-              Apply for Program
-            </Button>
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
           </div>
         </div>
       </DialogContent>
