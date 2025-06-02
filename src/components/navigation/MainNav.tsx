@@ -47,7 +47,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Specialized Training & Skills
         { name: 'Vocational Training', href: '/training', icon: BookOpen },
         { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield },
-        { name: 'Digital Skills', href: '/skills-development', icon: Laptop },
+        { name: 'Digital Skills', href: '/digital-skills', icon: Laptop },
       ]
     },
     {
