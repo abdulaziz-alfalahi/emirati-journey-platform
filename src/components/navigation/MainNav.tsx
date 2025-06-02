@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -47,7 +46,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         
         // Specialized Training & Skills
         { name: 'Vocational Training', href: '/training', icon: BookOpen },
-        { name: 'Professional Certifications', href: '/certifications', icon: Shield },
+        { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield },
         { name: 'Digital Skills', href: '/skills-development', icon: Laptop },
       ]
     },
