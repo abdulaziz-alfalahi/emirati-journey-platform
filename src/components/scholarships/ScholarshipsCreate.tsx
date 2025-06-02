@@ -133,10 +133,7 @@ export const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSucces
           render={({ field }) => (
             <FormItem>
               <FormLabel>Provider Type</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-              >
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select provider type" />
@@ -177,10 +174,7 @@ export const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSucces
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Currency</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
