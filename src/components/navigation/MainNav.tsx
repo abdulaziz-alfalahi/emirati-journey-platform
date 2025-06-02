@@ -14,7 +14,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
@@ -41,6 +40,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Higher Education & Academic Excellence
         { name: 'Scholarships', href: '/scholarships', icon: Award },
         { name: 'University Programs', href: '/university-programs', icon: Building },
+        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
         { name: 'Academic Assessments', href: '/assessments', icon: FileText },
         { name: 'Learning Management', href: '/lms', icon: GraduationCap },
         

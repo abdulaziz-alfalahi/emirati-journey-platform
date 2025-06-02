@@ -34,6 +34,7 @@ import DesignSystemPage from '@/pages/DesignSystem';
 import SchoolProgramsPage from '@/pages/school-programs';
 import YouthDevelopmentPage from '@/pages/youth-development';
 import UniversityProgramsPage from '@/pages/university-programs';
+import GraduateProgramsPage from '@/pages/graduate-programs';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 import DigitalSkillsPage from '@/pages/digital-skills';
 import IndustryExplorationPage from '@/pages/industry-exploration';
@@ -69,6 +70,7 @@ function App() {
                   <Route path="/school-programs" element={<SchoolProgramsPage />} />
                   <Route path="/youth-development" element={<YouthDevelopmentPage />} />
                   <Route path="/university-programs" element={<UniversityProgramsPage />} />
+                  <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
                   <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                   <Route path="/digital-skills" element={<DigitalSkillsPage />} />
                   <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
