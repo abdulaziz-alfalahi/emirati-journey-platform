@@ -98,9 +98,14 @@ const DubaiGovStickyBar = () => {
             className="sticky-icon suggestions-04"
             aria-label="04 Platform - Submit suggestions, comments and complaints"
           >
-            <div className="icon-04">
-              <span>04</span>
-            </div>
+            <img 
+              src="/images/04-icon.svg" 
+              alt="04 Platform" 
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiMwMDZFNkQiPjA0PC90ZXh0Pjwvc3ZnPg==";
+              }}
+            />
             <span className="tooltip">04 Platform</span>
           </a>
 
