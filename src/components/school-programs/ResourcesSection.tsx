@@ -3,187 +3,150 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, FileText, Video, BookOpen, Users, HelpCircle } from 'lucide-react';
-
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  type: 'pdf' | 'video' | 'guide' | 'checklist' | 'webinar';
-  category: 'parents' | 'students' | 'institutions' | 'general';
-  file_url?: string;
-  download_count: number;
-  is_featured: boolean;
-}
+import { Download, FileText, Users, Star, Calendar, BookOpen } from 'lucide-react';
 
 const ResourcesSection: React.FC = () => {
-  // Mock data - In a real app, this would come from an API
-  const resources: Resource[] = [
+  const resources = [
     {
       id: '1',
-      title: 'Parent\'s Guide to Choosing School Programs',
-      description: 'Comprehensive guide helping parents select the most suitable educational programs for their children based on interests, aptitude, and career goals.',
-      type: 'pdf',
-      category: 'parents',
-      file_url: '/resources/parents-guide.pdf',
-      download_count: 1247,
-      is_featured: true
+      title: 'Parent\'s Guide to School Program Selection',
+      description: 'Comprehensive guide helping parents choose the right educational programs for their children.',
+      type: 'PDF Guide',
+      category: 'Parents',
+      downloadCount: 1240,
+      rating: 4.9,
+      fileSize: '2.3 MB',
+      pages: 24,
+      lastUpdated: '2024-01-15',
+      icon: FileText,
+      featured: true
     },
     {
       id: '2',
-      title: 'Student Program Selection Checklist',
-      description: 'Interactive checklist to help students evaluate their interests, skills, and goals when choosing educational programs.',
-      type: 'checklist',
-      category: 'students',
-      file_url: '/resources/student-checklist.pdf',
-      download_count: 892,
-      is_featured: true
+      title: 'Student Application Checklist',
+      description: 'Step-by-step checklist to help students prepare successful program applications.',
+      type: 'Interactive Checklist',
+      category: 'Students',
+      downloadCount: 890,
+      rating: 4.8,
+      fileSize: '1.1 MB',
+      pages: 8,
+      lastUpdated: '2024-01-10',
+      icon: BookOpen,
+      featured: false
     },
     {
       id: '3',
-      title: 'How to Apply for School Programs - Video Tutorial',
-      description: 'Step-by-step video guide walking through the application process for various school programs.',
-      type: 'video',
-      category: 'general',
-      file_url: '/resources/application-tutorial.mp4',
-      download_count: 2156,
-      is_featured: true
+      title: 'Financial Aid and Scholarship Guide',
+      description: 'Information about available financial assistance and scholarship opportunities.',
+      type: 'Resource Bundle',
+      category: 'Financial',
+      downloadCount: 2100,
+      rating: 4.9,
+      fileSize: '4.7 MB',
+      pages: 32,
+      lastUpdated: '2024-01-20',
+      icon: Users,
+      featured: true
     },
     {
       id: '4',
-      title: 'Program Quality Standards for Institutions',
-      description: 'Guidelines and standards for educational institutions offering student programs through the EHRDC platform.',
-      type: 'guide',
-      category: 'institutions',
-      file_url: '/resources/quality-standards.pdf',
-      download_count: 543,
-      is_featured: false
-    },
-    {
-      id: '5',
-      title: 'Understanding Program Certificates and Credits',
-      description: 'Information about how program certificates work, their recognition, and how they contribute to academic progression.',
-      type: 'pdf',
-      category: 'students',
-      file_url: '/resources/certificates-guide.pdf',
-      download_count: 756,
-      is_featured: false
-    },
-    {
-      id: '6',
-      title: 'Financial Aid and Scholarship Opportunities',
-      description: 'Guide to available financial assistance for students participating in educational programs.',
-      type: 'guide',
-      category: 'parents',
-      file_url: '/resources/financial-aid.pdf',
-      download_count: 1089,
-      is_featured: true
-    },
-    {
-      id: '7',
-      title: 'Monthly Webinar: Program Success Stories',
-      description: 'Join our monthly webinar featuring successful program graduates sharing their experiences and tips.',
-      type: 'webinar',
-      category: 'general',
-      file_url: '/webinars/success-stories',
-      download_count: 324,
-      is_featured: false
+      title: 'Program Calendar and Important Dates',
+      description: 'Annual calendar with application deadlines, program start dates, and key events.',
+      type: 'Calendar',
+      category: 'Planning',
+      downloadCount: 1560,
+      rating: 4.7,
+      fileSize: '0.8 MB',
+      pages: 4,
+      lastUpdated: '2024-02-01',
+      icon: Calendar,
+      featured: false
     }
   ];
 
-  const getResourceIcon = (type: string) => {
-    switch (type) {
-      case 'pdf': return FileText;
-      case 'video': return Video;
-      case 'guide': return BookOpen;
-      case 'checklist': return HelpCircle;
-      case 'webinar': return Users;
-      default: return FileText;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'pdf': return 'bg-red-100 text-red-800';
-      case 'video': return 'bg-purple-100 text-purple-800';
-      case 'guide': return 'bg-blue-100 text-blue-800';
-      case 'checklist': return 'bg-green-100 text-green-800';
-      case 'webinar': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const categories = ['All', 'Parents', 'Students', 'Financial', 'Planning'];
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'parents': return 'bg-pink-100 text-pink-800';
-      case 'students': return 'bg-blue-100 text-blue-800';
-      case 'institutions': return 'bg-purple-100 text-purple-800';
-      case 'general': return 'bg-gray-100 text-gray-800';
+      case 'Parents': return 'bg-blue-100 text-blue-800';
+      case 'Students': return 'bg-green-100 text-green-800';
+      case 'Financial': return 'bg-purple-100 text-purple-800';
+      case 'Planning': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const featuredResources = resources.filter(r => r.is_featured);
-  const allResources = resources.filter(r => !r.is_featured);
-
-  const handleDownload = (resource: Resource) => {
-    // In a real app, this would handle file downloads or navigation
-    console.log('Downloading resource:', resource.id);
-    // Could track download analytics here
-  };
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Category Filter */}
+      <div className="flex flex-wrap gap-2">
+        {categories.map((category) => (
+          <Button
+            key={category}
+            variant={category === 'All' ? 'default' : 'outline'}
+            size="sm"
+            className={category === 'All' ? 'ehrdc-button-primary' : 'border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white'}
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
+
       {/* Featured Resources */}
       <div>
-        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-ehrdc-teal" />
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Star className="h-5 w-5 text-ehrdc-teal" />
           Featured Resources
         </h3>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {featuredResources.map((resource) => {
-            const IconComponent = getResourceIcon(resource.type);
+        <div className="grid gap-4 md:grid-cols-2">
+          {resources.filter(resource => resource.featured).map((resource) => {
+            const IconComponent = resource.icon;
             return (
-              <Card key={resource.id} className="hover:shadow-md transition-shadow">
+              <Card key={resource.id} className="border-ehrdc-teal/20 bg-gradient-to-br from-white to-ehrdc-teal/5">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-ehrdc-teal/10 rounded-lg">
-                        <IconComponent className="h-5 w-5 text-ehrdc-teal" />
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-ehrdc-teal/10 flex items-center justify-center">
+                        <IconComponent className="h-6 w-6 text-ehrdc-teal" />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <Badge className={getTypeColor(resource.type)}>
-                          {resource.type.toUpperCase()}
-                        </Badge>
-                        <Badge variant="outline" className={getCategoryColor(resource.category)}>
-                          {resource.category.charAt(0).toUpperCase() + resource.category.slice(1)}
-                        </Badge>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg leading-tight">{resource.title}</CardTitle>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge className={getCategoryColor(resource.category)} variant="secondary">
+                            {resource.category}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {resource.type}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <CardTitle className="text-base">{resource.title}</CardTitle>
                 </CardHeader>
                 
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground line-clamp-3">
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
                     {resource.description}
                   </p>
                   
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{resource.download_count.toLocaleString()} downloads</span>
-                    {resource.is_featured && (
-                      <Badge variant="secondary" className="text-xs">Featured</Badge>
-                    )}
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <Download className="h-3 w-3" />
+                        <span>{resource.downloadCount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                        <span>{resource.rating}</span>
+                      </div>
+                      <span>{resource.fileSize}</span>
+                    </div>
                   </div>
                   
-                  <Button 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => handleDownload(resource)}
-                  >
+                  <Button className="w-full ehrdc-button-primary">
                     <Download className="h-4 w-4 mr-2" />
-                    {resource.type === 'webinar' ? 'Join Webinar' : 'Download'}
+                    Download Resource
                   </Button>
                 </CardContent>
               </Card>
@@ -194,47 +157,49 @@ const ResourcesSection: React.FC = () => {
 
       {/* All Resources */}
       <div>
-        <h3 className="text-xl font-semibold mb-4">All Resources</h3>
-        
-        <div className="space-y-3">
-          {allResources.map((resource) => {
-            const IconComponent = getResourceIcon(resource.type);
+        <h3 className="text-lg font-semibold mb-4">All Resources</h3>
+        <div className="grid gap-4">
+          {resources.map((resource) => {
+            const IconComponent = resource.icon;
             return (
-              <Card key={resource.id} className="hover:shadow-sm transition-shadow">
+              <Card key={resource.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="p-2 bg-ehrdc-teal/10 rounded-lg">
+                      <div className="w-10 h-10 rounded-lg bg-ehrdc-teal/10 flex items-center justify-center">
                         <IconComponent className="h-5 w-5 text-ehrdc-teal" />
                       </div>
                       
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate">{resource.title}</h4>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{resource.title}</h4>
                         <p className="text-sm text-muted-foreground line-clamp-1">
                           {resource.description}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className={getTypeColor(resource.type)}>
-                            {resource.type.toUpperCase()}
-                          </Badge>
-                          <Badge variant="outline" className={getCategoryColor(resource.category)}>
-                            {resource.category.charAt(0).toUpperCase() + resource.category.slice(1)}
+                        <div className="flex items-center gap-3 mt-1">
+                          <Badge className={getCategoryColor(resource.category)} variant="secondary" size="sm">
+                            {resource.category}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {resource.download_count.toLocaleString()} downloads
+                            {resource.pages} pages • {resource.fileSize}
                           </span>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                            <span className="text-xs text-muted-foreground">{resource.rating}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                     
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDownload(resource)}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      {resource.type === 'webinar' ? 'Join' : 'Download'}
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right text-xs text-muted-foreground">
+                        <div>{resource.downloadCount.toLocaleString()} downloads</div>
+                        <div>Updated {new Date(resource.lastUpdated).toLocaleDateString()}</div>
+                      </div>
+                      <Button size="sm" className="ehrdc-button-primary">
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -244,17 +209,21 @@ const ResourcesSection: React.FC = () => {
       </div>
 
       {/* Help Section */}
-      <Card className="bg-ehrdc-teal/5 border-ehrdc-teal/20">
+      <Card className="bg-gradient-to-r from-ehrdc-teal/5 to-ehrdc-light-teal/5 border-ehrdc-teal/20">
         <CardContent className="p-6 text-center">
-          <HelpCircle className="mx-auto h-12 w-12 text-ehrdc-teal mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Need Additional Help?</h3>
+          <FileText className="h-12 w-12 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-ehrdc-teal mb-2">Need Additional Resources?</h3>
           <p className="text-muted-foreground mb-4">
-            Can't find the resource you're looking for? Our support team is here to help you 
-            find the right information for your educational journey.
+            Can't find what you're looking for? Contact our support team for personalized guidance.
           </p>
-          <Button variant="outline" className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
-            Contact Support
-          </Button>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
+              Contact Support
+            </Button>
+            <Button className="ehrdc-button-primary">
+              Request Resource
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
