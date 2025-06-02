@@ -47,6 +47,10 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
     }
   };
 
+  if (!program) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -66,13 +70,15 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
             </div>
           </DialogHeader>
 
-          <div className="aspect-video relative overflow-hidden rounded-lg">
-            <img 
-              src={program.image_url} 
-              alt={program.title}
-              className="object-cover w-full h-full"
-            />
-          </div>
+          {program.image_url && (
+            <div className="aspect-video relative overflow-hidden rounded-lg">
+              <img 
+                src={program.image_url} 
+                alt={program.title}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
@@ -196,7 +202,7 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
                   Learning Outcomes
                 </h3>
                 <ul className="space-y-2">
-                  {program.learning_outcomes.map((outcome, index) => (
+                  {program.learning_outcomes?.map((outcome, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{outcome}</span>
@@ -210,7 +216,7 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
               <CardContent className="p-6">
                 <h3 className="font-semibold text-lg mb-4">Requirements</h3>
                 <ul className="space-y-2">
-                  {program.requirements.map((requirement, index) => (
+                  {program.requirements?.map((requirement, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <div className="w-1.5 h-1.5 bg-ehrdc-teal rounded-full mt-2 flex-shrink-0"></div>
                       <span className="text-sm">{requirement}</span>
@@ -221,43 +227,47 @@ const ProgramDetailsModal: React.FC<ProgramDetailsModalProps> = ({
             </Card>
           </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-4">Contact Information</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {program.contact_email && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-ehrdc-teal" />
-                    <a 
-                      href={`mailto:${program.contact_email}`}
-                      className="text-ehrdc-teal hover:underline"
-                    >
-                      {program.contact_email}
-                    </a>
-                  </div>
-                )}
-                {program.contact_phone && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-ehrdc-teal" />
-                    <a 
-                      href={`tel:${program.contact_phone}`}
-                      className="text-ehrdc-teal hover:underline"
-                    >
-                      {program.contact_phone}
-                    </a>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {(program.contact_email || program.contact_phone) && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-lg mb-4">Contact Information</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {program.contact_email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-ehrdc-teal" />
+                      <a 
+                        href={`mailto:${program.contact_email}`}
+                        className="text-ehrdc-teal hover:underline"
+                      >
+                        {program.contact_email}
+                      </a>
+                    </div>
+                  )}
+                  {program.contact_phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-ehrdc-teal" />
+                      <a 
+                        href={`tel:${program.contact_phone}`}
+                        className="text-ehrdc-teal hover:underline"
+                      >
+                        {program.contact_phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          <div className="flex flex-wrap gap-2 pt-4">
-            {program.tags.map((tag) => (
-              <Badge key={tag} variant="outline" className="text-ehrdc-teal border-ehrdc-teal">
-                {tag}
-              </Badge>
-            ))}
-          </div>
+          {program.tags && program.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-4">
+              {program.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-ehrdc-teal border-ehrdc-teal">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button className="ehrdc-button-primary flex-1">
