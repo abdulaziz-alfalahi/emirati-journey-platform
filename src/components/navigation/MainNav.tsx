@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const MainNav = () => {
-  const { user, roles } = useAuth();
+  const { user } = useAuth();
   const navItems = useNavItems();
   const location = useLocation();
 
@@ -28,7 +28,7 @@ const MainNav = () => {
     {
       title: 'Education Pathway',
       items: navItems.filter(item => 
-        ['Summer Camps', 'Scholarships', 'Training', 'LMS'].includes(item.name)
+        ['Summer Camps', 'School Programs', 'Scholarships', 'Training', 'LMS'].includes(item.name)
       ).map(item => ({
         title: item.name,
         href: item.href,
@@ -70,6 +70,7 @@ const MainNav = () => {
   function getItemDescription(name: string): string {
     const descriptions: Record<string, string> = {
       'Summer Camps': 'Explore exciting summer programs and activities',
+      'School Programs': 'Discover K-12 educational programs',
       'Scholarships': 'Find funding opportunities for your education',
       'Training': 'Enhance your skills with professional training',
       'LMS': 'Access our learning management system',
@@ -102,22 +103,20 @@ const MainNav = () => {
             <NavigationMenuContent>
               <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {group.items.map((item) => (
-                  <div key={item.href}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                          location.pathname === item.href && "bg-accent text-accent-foreground"
-                        )}
-                      >
-                        <div className="text-sm font-medium leading-none">{item.title}</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          {item.description}
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  </div>
+                  <NavigationMenuLink key={item.href} asChild>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        location.pathname === item.href && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      <div className="text-sm font-medium leading-none">{item.title}</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
                 ))}
               </div>
             </NavigationMenuContent>
