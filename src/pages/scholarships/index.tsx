@@ -5,13 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScholarshipsList } from '@/components/scholarships/ScholarshipsList';
 import { ScholarshipsFilter } from '@/components/scholarships/ScholarshipsFilter';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { PlusCircle, School, GraduationCap, Award } from 'lucide-react';
+import { PlusCircle, School, GraduationCap, Award, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ScholarshipsCreate } from '@/components/scholarships/ScholarshipsCreate';
 import { ScholarshipsApplied } from '@/components/scholarships/ScholarshipsApplied';
 import { ScholarshipsManage } from '@/components/scholarships/ScholarshipsManage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { EducationHero } from '@/components/common/EducationHero';
+import { StatCards } from '@/components/common/StatCards';
 
 const ScholarshipsPage = () => {
   const { user, roles } = useAuth();
@@ -26,64 +27,86 @@ const ScholarshipsPage = () => {
     amount: [null, null],
   });
 
-  // Check if the user can create scholarships (educational institutions, government, private sector)
   const canCreateScholarship = roles.some(role => 
     ['educational_institution', 'government_representative', 'private_sector_recruiter', 'administrator'].includes(role)
   );
 
-  // Check if the user can apply for scholarships (students mainly)
   const canApplyForScholarship = roles.some(role => 
     ['school_student', 'university_student', 'national_service_participant'].includes(role)
   );
 
+  const heroStats = [
+    {
+      icon: School,
+      title: '150+ Scholarships',
+      description: 'Available nationwide',
+      bgColor: '',
+      iconColor: ''
+    },
+    {
+      icon: GraduationCap,
+      title: 'AED 50M',
+      description: 'Total funding available',
+      bgColor: '',
+      iconColor: ''
+    },
+    {
+      icon: Award,
+      title: '85% Success',
+      description: 'Application success rate',
+      bgColor: '',
+      iconColor: ''
+    },
+    {
+      icon: Users,
+      title: '1000+ Students',
+      description: 'Funded annually',
+      bgColor: '',
+      iconColor: ''
+    }
+  ];
+
+  const statCards = [
+    {
+      icon: School,
+      title: 'University Scholarships',
+      description: 'For higher education in the UAE',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600'
+    },
+    {
+      icon: GraduationCap,
+      title: 'Merit-Based Funding',
+      description: 'Opportunities for academic excellence',
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-600'
+    },
+    {
+      icon: Award,
+      title: 'Special Programs',
+      description: 'From government and private sector',
+      bgColor: 'bg-amber-50',
+      iconColor: 'text-amber-600'
+    },
+    {
+      icon: Users,
+      title: 'Need-Based Aid',
+      description: 'Financial assistance programs',
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600'
+    }
+  ];
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Scholarships</h1>
-            <p className="text-muted-foreground">
-              Discover and apply for educational scholarships across the UAE
-            </p>
-          </div>
-          
-          {canCreateScholarship && (
-            <Button 
-              onClick={() => setIsCreateDialogOpen(true)}
-              className="mt-4 md:mt-0"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" /> Create Scholarship
-            </Button>
-          )}
-        </div>
+        <EducationHero
+          title="Educational Scholarships"
+          description="Discover and apply for educational scholarships across the UAE designed to support academic excellence and career development for Emirati students."
+          stats={heroStats}
+        />
 
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                <School className="h-10 w-10 text-blue-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">University Scholarships</h3>
-                  <p className="text-sm text-muted-foreground">For higher education in the UAE</p>
-                </div>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                <GraduationCap className="h-10 w-10 text-green-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">Merit-Based Funding</h3>
-                  <p className="text-sm text-muted-foreground">Opportunities for academic excellence</p>
-                </div>
-              </div>
-              <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-                <Award className="h-10 w-10 text-amber-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">Special Programs</h3>
-                  <p className="text-sm text-muted-foreground">From government and private sector</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCards cards={statCards} />
 
         <div className="grid md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
@@ -108,6 +131,17 @@ const ScholarshipsPage = () => {
               </TabsList>
               
               <TabsContent value="available" className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">Available Scholarships</h2>
+                  {canCreateScholarship && (
+                    <Button 
+                      onClick={() => setIsCreateDialogOpen(true)}
+                      className="ehrdc-button-primary"
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2" /> Create Scholarship
+                    </Button>
+                  )}
+                </div>
                 <ScholarshipsList 
                   type="available" 
                   filters={selectedFilters}
@@ -118,6 +152,7 @@ const ScholarshipsPage = () => {
               
               {canApplyForScholarship && (
                 <TabsContent value="applied" className="space-y-4">
+                  <h2 className="text-xl font-semibold mb-4">My Applications</h2>
                   <ScholarshipsApplied 
                     filters={selectedFilters}
                     searchQuery={searchQuery}
@@ -127,6 +162,15 @@ const ScholarshipsPage = () => {
               
               {canCreateScholarship && (
                 <TabsContent value="managed" className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">Managed Scholarships</h2>
+                    <Button 
+                      onClick={() => setIsCreateDialogOpen(true)}
+                      className="ehrdc-button-primary"
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2" /> Create Scholarship
+                    </Button>
+                  </div>
                   <ScholarshipsManage
                     onOpenCreateDialog={() => setIsCreateDialogOpen(true)}
                     filters={selectedFilters}
