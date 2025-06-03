@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { BookOpen, PlusCircle, Certificate, Users, Video, BarChart } from 'lucide-react';
+import { BookOpen, PlusCircle, Award, Users, Video, BarChart } from 'lucide-react';
 import { CoursesList } from '@/components/lms/CoursesList';
 import { CourseCreator } from '@/components/lms/CourseCreator';
 import { LMSStatsOverview } from '@/components/lms/LMSStatsOverview';
@@ -80,7 +80,7 @@ const LMSPage: React.FC = () => {
               </div>
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
                 <div className="h-8 w-8 mb-2">
-                  <Certificate className="h-full w-full" />
+                  <Award className="h-full w-full" />
                 </div>
                 <h3 className="font-semibold mb-1">Recognized Certifications</h3>
                 <p className="text-sm opacity-90">Industry-approved credentials</p>
@@ -129,7 +129,7 @@ const LMSPage: React.FC = () => {
               </div>
               <div className="bg-amber-50 p-4 rounded-lg flex items-center">
                 <div className="h-10 w-10 text-amber-600 mr-4">
-                  <Certificate className="h-full w-full" />
+                  <Award className="h-full w-full" />
                 </div>
                 <div>
                   <h3 className="font-semibold">Certifications</h3>
@@ -254,7 +254,7 @@ const LMSPage: React.FC = () => {
                 <h2 className="text-xl font-semibold mb-4">My Certificates</h2>
                 <Card>
                   <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Certificate className="h-12 w-12 text-muted-foreground mb-4" />
+                    <Award className="h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Certificates</h3>
                     <p className="text-muted-foreground">
                       Certificate management coming soon
