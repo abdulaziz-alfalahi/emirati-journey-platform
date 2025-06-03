@@ -4,7 +4,6 @@ import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScholarshipsList } from '@/components/scholarships/ScholarshipsList';
 import { ScholarshipsFilter } from '@/components/scholarships/ScholarshipsFilter';
-import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, School, GraduationCap, Award, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -12,6 +11,7 @@ import { ScholarshipsCreate } from '@/components/scholarships/ScholarshipsCreate
 import { ScholarshipsApplied } from '@/components/scholarships/ScholarshipsApplied';
 import { ScholarshipsManage } from '@/components/scholarships/ScholarshipsManage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { IconButton } from '@/components/ui/icon-button';
 
 const ScholarshipsPage = () => {
   const { user, roles } = useAuth();
@@ -48,23 +48,17 @@ const ScholarshipsPage = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <div className="h-8 w-8 mb-2">
-                  <School className="h-full w-full" />
-                </div>
+                <School className="h-8 w-8 mb-2" />
                 <h3 className="font-semibold mb-1">University Scholarships</h3>
                 <p className="text-sm opacity-90">For higher education in the UAE</p>
               </div>
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <div className="h-8 w-8 mb-2">
-                  <GraduationCap className="h-full w-full" />
-                </div>
+                <GraduationCap className="h-8 w-8 mb-2" />
                 <h3 className="font-semibold mb-1">Merit-Based Funding</h3>
                 <p className="text-sm opacity-90">Opportunities for academic excellence</p>
               </div>
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <div className="h-8 w-8 mb-2">
-                  <Award className="h-full w-full" />
-                </div>
+                <Award className="h-8 w-8 mb-2" />
                 <h3 className="font-semibold mb-1">Special Programs</h3>
                 <p className="text-sm opacity-90">From government and private sector</p>
               </div>
@@ -77,36 +71,28 @@ const ScholarshipsPage = () => {
           <CardContent className="pt-6">
             <div className="grid gap-4 md:grid-cols-4">
               <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                <div className="h-10 w-10 text-blue-600 mr-4">
-                  <School className="h-full w-full" />
-                </div>
+                <School className="h-10 w-10 text-blue-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">University Scholarships</h3>
                   <p className="text-sm text-muted-foreground">For higher education in the UAE</p>
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                <div className="h-10 w-10 text-green-600 mr-4">
-                  <GraduationCap className="h-full w-full" />
-                </div>
+                <GraduationCap className="h-10 w-10 text-green-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">Merit-Based Funding</h3>
                   <p className="text-sm text-muted-foreground">For academic excellence</p>
                 </div>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-                <div className="h-10 w-10 text-purple-600 mr-4">
-                  <Globe className="h-full w-full" />
-                </div>
+                <Globe className="h-10 w-10 text-purple-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">International Study</h3>
                   <p className="text-sm text-muted-foreground">Global opportunities</p>
                 </div>
               </div>
               <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-                <div className="h-10 w-10 text-amber-600 mr-4">
-                  <Award className="h-full w-full" />
-                </div>
+                <Award className="h-10 w-10 text-amber-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">Special Programs</h3>
                   <p className="text-sm text-muted-foreground">Government and private sector</p>
@@ -148,13 +134,13 @@ const ScholarshipsPage = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Available Scholarships</h2>
                   {canCreateScholarship && (
-                    <Button 
+                    <IconButton 
                       onClick={() => setIsCreateDialogOpen(true)}
                       className="ehrdc-button-primary"
+                      icon={<PlusCircle className="h-4 w-4" />}
                     >
-                      <PlusCircle className="h-4 w-4 mr-2" />
                       Create Scholarship
-                    </Button>
+                    </IconButton>
                   )}
                 </div>
                 <ScholarshipsList 
@@ -179,13 +165,13 @@ const ScholarshipsPage = () => {
                 <TabsContent value="managed" className="space-y-4">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Managed Scholarships</h2>
-                    <Button 
+                    <IconButton 
                       onClick={() => setIsCreateDialogOpen(true)}
                       className="ehrdc-button-primary"
+                      icon={<PlusCircle className="h-4 w-4" />}
                     >
-                      <PlusCircle className="h-4 w-4 mr-2" />
                       Create Scholarship
-                    </Button>
+                    </IconButton>
                   </div>
                   <ScholarshipsManage
                     onOpenCreateDialog={() => setIsCreateDialogOpen(true)}

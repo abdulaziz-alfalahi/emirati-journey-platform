@@ -4,11 +4,11 @@ import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Calendar, Book, Award, Users, School } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import CampsList from '@/components/summer-camps/CampsList';
 import CampsFilter from '@/components/summer-camps/CampsFilter';
 import { useAuth } from '@/context/AuthContext';
 import { CampFilters } from '@/types/summerCamps';
+import { IconButton } from '@/components/ui/icon-button';
 
 const SummerCampsPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -109,9 +109,12 @@ const SummerCampsPage: React.FC = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Available Summer Camps</h2>
                   {roles.includes('educational_institution') && (
-                    <Button className="ehrdc-button-primary">
-                      <Calendar className="h-4 w-4 mr-2" /> Create New Camp
-                    </Button>
+                    <IconButton 
+                      className="ehrdc-button-primary"
+                      icon={<Calendar className="h-4 w-4" />}
+                    >
+                      Create New Camp
+                    </IconButton>
                   )}
                 </div>
                 <CampsList 
@@ -134,9 +137,12 @@ const SummerCampsPage: React.FC = () => {
                 <TabsContent value="managed" className="space-y-4">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Managed Camps</h2>
-                    <Button className="ehrdc-button-primary">
-                      <Calendar className="h-4 w-4 mr-2" /> Create New Camp
-                    </Button>
+                    <IconButton 
+                      className="ehrdc-button-primary"
+                      icon={<Calendar className="h-4 w-4" />}
+                    >
+                      Create New Camp
+                    </IconButton>
                   </div>
                   <CampsList 
                     type="managed" 
