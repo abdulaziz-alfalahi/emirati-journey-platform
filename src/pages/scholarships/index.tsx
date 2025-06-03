@@ -26,12 +26,12 @@ const ScholarshipsPage = () => {
     amount: [null, null],
   });
 
-  // Check if the user can create scholarships (educational institutions, government, private sector)
+  // Check if the user can create scholarships
   const canCreateScholarship = roles.some(role => 
     ['educational_institution', 'government_representative', 'private_sector_recruiter', 'administrator'].includes(role)
   );
 
-  // Check if the user can apply for scholarships (students mainly)
+  // Check if the user can apply for scholarships
   const canApplyForScholarship = roles.some(role => 
     ['school_student', 'university_student', 'national_service_participant'].includes(role)
   );
@@ -48,17 +48,23 @@ const ScholarshipsPage = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <School className="h-8 w-8 mb-2" />
+                <div className="h-8 w-8 mb-2">
+                  <School className="h-full w-full" />
+                </div>
                 <h3 className="font-semibold mb-1">University Scholarships</h3>
                 <p className="text-sm opacity-90">For higher education in the UAE</p>
               </div>
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <GraduationCap className="h-8 w-8 mb-2" />
+                <div className="h-8 w-8 mb-2">
+                  <GraduationCap className="h-full w-full" />
+                </div>
                 <h3 className="font-semibold mb-1">Merit-Based Funding</h3>
                 <p className="text-sm opacity-90">Opportunities for academic excellence</p>
               </div>
               <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <Award className="h-8 w-8 mb-2" />
+                <div className="h-8 w-8 mb-2">
+                  <Award className="h-full w-full" />
+                </div>
                 <h3 className="font-semibold mb-1">Special Programs</h3>
                 <p className="text-sm opacity-90">From government and private sector</p>
               </div>
@@ -66,32 +72,41 @@ const ScholarshipsPage = () => {
           </div>
         </div>
 
+        {/* Stats Card */}
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="grid gap-4 md:grid-cols-4">
               <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                <School className="h-10 w-10 text-blue-600 mr-4" />
+                <div className="h-10 w-10 text-blue-600 mr-4">
+                  <School className="h-full w-full" />
+                </div>
                 <div>
                   <h3 className="font-semibold">University Scholarships</h3>
                   <p className="text-sm text-muted-foreground">For higher education in the UAE</p>
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                <GraduationCap className="h-10 w-10 text-green-600 mr-4" />
+                <div className="h-10 w-10 text-green-600 mr-4">
+                  <GraduationCap className="h-full w-full" />
+                </div>
                 <div>
                   <h3 className="font-semibold">Merit-Based Funding</h3>
                   <p className="text-sm text-muted-foreground">For academic excellence</p>
                 </div>
               </div>
               <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-                <Globe className="h-10 w-10 text-purple-600 mr-4" />
+                <div className="h-10 w-10 text-purple-600 mr-4">
+                  <Globe className="h-full w-full" />
+                </div>
                 <div>
                   <h3 className="font-semibold">International Study</h3>
                   <p className="text-sm text-muted-foreground">Global opportunities</p>
                 </div>
               </div>
               <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-                <Award className="h-10 w-10 text-amber-600 mr-4" />
+                <div className="h-10 w-10 text-amber-600 mr-4">
+                  <Award className="h-full w-full" />
+                </div>
                 <div>
                   <h3 className="font-semibold">Special Programs</h3>
                   <p className="text-sm text-muted-foreground">Government and private sector</p>
@@ -101,7 +116,9 @@ const ScholarshipsPage = () => {
           </CardContent>
         </Card>
 
+        {/* Main Content */}
         <div className="grid md:grid-cols-4 gap-6">
+          {/* Filter Sidebar */}
           <div className="md:col-span-1">
             <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
               <h3 className="font-medium text-lg mb-4">Filter Scholarships</h3>
@@ -114,6 +131,7 @@ const ScholarshipsPage = () => {
             </div>
           </div>
           
+          {/* Content Area */}
           <div className="md:col-span-3">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-6">
@@ -134,7 +152,8 @@ const ScholarshipsPage = () => {
                       onClick={() => setIsCreateDialogOpen(true)}
                       className="ehrdc-button-primary"
                     >
-                      <PlusCircle className="h-4 w-4 mr-2" /> Create Scholarship
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      Create Scholarship
                     </Button>
                   )}
                 </div>
@@ -164,7 +183,8 @@ const ScholarshipsPage = () => {
                       onClick={() => setIsCreateDialogOpen(true)}
                       className="ehrdc-button-primary"
                     >
-                      <PlusCircle className="h-4 w-4 mr-2" /> Create Scholarship
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      Create Scholarship
                     </Button>
                   </div>
                   <ScholarshipsManage
@@ -178,10 +198,13 @@ const ScholarshipsPage = () => {
           </div>
         </div>
 
+        {/* Create Dialog */}
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogContent className="max-w-4xl">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold text-ehrdc-teal">Create New Scholarship</DialogTitle>
+              <DialogTitle className="text-2xl font-semibold text-ehrdc-teal">
+                Create New Scholarship
+              </DialogTitle>
             </DialogHeader>
             <div className="border-t border-gray-100 pt-4 mt-2">
               <ScholarshipsCreate onSuccess={() => setIsCreateDialogOpen(false)} />
