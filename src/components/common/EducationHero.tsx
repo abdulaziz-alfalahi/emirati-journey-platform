@@ -29,13 +29,16 @@ export const EducationHero: React.FC<EducationHeroProps> = ({
           {description}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-              <stat.icon className="h-8 w-8 mb-2" />
-              <h3 className="font-semibold mb-1">{stat.title}</h3>
-              <p className="text-sm opacity-90">{stat.description}</p>
-            </div>
-          ))}
+          {stats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <div key={index} className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <IconComponent className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">{stat.title}</h3>
+                <p className="text-sm opacity-90">{stat.description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
