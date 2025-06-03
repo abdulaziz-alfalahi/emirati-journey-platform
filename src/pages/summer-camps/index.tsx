@@ -19,24 +19,37 @@ const SummerCampsPage: React.FC = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Summer Knowledge Camps</h1>
-            <p className="text-muted-foreground">
-              Discover and register for educational summer camps across Dubai
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 mb-8 text-white">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl font-bold mb-4">Summer Knowledge Camps</h1>
+            <p className="text-xl opacity-90 mb-6">
+              Discover and register for educational summer camps across Dubai, designed to enrich students' learning experiences during school breaks.
             </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <School className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">40+ Camps</h3>
+                <p className="text-sm opacity-90">Available across Dubai</p>
+              </div>
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <Book className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">12 Categories</h3>
+                <p className="text-sm opacity-90">From tech to arts and sports</p>
+              </div>
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <Award className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">Certified Programs</h3>
+                <p className="text-sm opacity-90">Government approved learning</p>
+              </div>
+            </div>
           </div>
-          
-          {roles.includes('educational_institution') && (
-            <Button className="mt-4 md:mt-0">
-              <Calendar className="h-4 w-4 mr-2" /> Create New Camp
-            </Button>
-          )}
         </div>
 
+        {/* Stats Card */}
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
               <div className="bg-blue-50 p-4 rounded-lg flex items-center">
                 <School className="h-10 w-10 text-blue-600 mr-4" />
                 <div>
@@ -51,11 +64,18 @@ const SummerCampsPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground">From tech to arts and sports</p>
                 </div>
               </div>
+              <div className="bg-purple-50 p-4 rounded-lg flex items-center">
+                <Users className="h-10 w-10 text-purple-600 mr-4" />
+                <div>
+                  <h3 className="font-semibold">Expert Instructors</h3>
+                  <p className="text-sm text-muted-foreground">Qualified educators</p>
+                </div>
+              </div>
               <div className="bg-amber-50 p-4 rounded-lg flex items-center">
                 <Award className="h-10 w-10 text-amber-600 mr-4" />
                 <div>
                   <h3 className="font-semibold">Certified Programs</h3>
-                  <p className="text-sm text-muted-foreground">Government approved learning</p>
+                  <p className="text-sm text-muted-foreground">Government approved</p>
                 </div>
               </div>
             </div>
@@ -64,12 +84,15 @@ const SummerCampsPage: React.FC = () => {
 
         <div className="grid md:grid-cols-4 gap-6">
           <div className="md:col-span-1">
-            <CampsFilter 
-              onFilterChange={setSelectedFilters} 
-              onSearchChange={setSearchQuery}
-              selectedFilters={selectedFilters}
-              searchQuery={searchQuery}
-            />
+            <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+              <h3 className="font-medium text-lg mb-4">Filter Camps</h3>
+              <CampsFilter 
+                onFilterChange={setSelectedFilters} 
+                onSearchChange={setSearchQuery}
+                selectedFilters={selectedFilters}
+                searchQuery={searchQuery}
+              />
+            </div>
           </div>
           
           <div className="md:col-span-3">
@@ -83,6 +106,14 @@ const SummerCampsPage: React.FC = () => {
               </TabsList>
               
               <TabsContent value="available" className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">Available Summer Camps</h2>
+                  {roles.includes('educational_institution') && (
+                    <Button className="ehrdc-button-primary">
+                      <Calendar className="h-4 w-4 mr-2" /> Create New Camp
+                    </Button>
+                  )}
+                </div>
                 <CampsList 
                   type="available" 
                   filters={selectedFilters}
@@ -91,6 +122,7 @@ const SummerCampsPage: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="registered" className="space-y-4">
+                <h2 className="text-xl font-semibold mb-4">My Registered Camps</h2>
                 <CampsList 
                   type="registered" 
                   filters={selectedFilters}
@@ -100,6 +132,12 @@ const SummerCampsPage: React.FC = () => {
               
               {roles.includes('educational_institution') && (
                 <TabsContent value="managed" className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">Managed Camps</h2>
+                    <Button className="ehrdc-button-primary">
+                      <Calendar className="h-4 w-4 mr-2" /> Create New Camp
+                    </Button>
+                  </div>
                   <CampsList 
                     type="managed" 
                     filters={selectedFilters}
