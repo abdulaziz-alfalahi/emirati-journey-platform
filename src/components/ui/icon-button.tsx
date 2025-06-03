@@ -3,7 +3,7 @@ import * as React from "react"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export interface IconButtonProps extends ButtonProps {
+export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   icon: React.ReactNode
   children: React.ReactNode
 }
@@ -16,10 +16,10 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         className={cn("", className)}
         {...props}
       >
-        <span className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {icon}
           <span>{children}</span>
-        </span>
+        </div>
       </Button>
     )
   }
