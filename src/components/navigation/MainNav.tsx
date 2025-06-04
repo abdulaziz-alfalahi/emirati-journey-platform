@@ -6,8 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, 
   Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
-  BarChart3, Shield, School, Lightbulb, Building, Heart, 
-  Landmark, Rocket, Compass, Laptop, Handshake, Sparkles, Globe
+  BarChart3, Shield, School, Sparkles, Building, Heart, 
+  Landmark, Rocket, Compass, Laptop, Handshake, Lightbulb, Globe
 } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
@@ -28,28 +28,29 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
   const { pathname } = useLocation();
   const { roles } = useAuth();
 
-  // Enhanced navigation groups aligned with Emirati journey stages
+  // Enhanced navigation groups with chronological ordering and visual grouping
   const defaultNavGroups: NavGroup[] = [
     {
       id: 'education-pathway',
       name: 'Education Pathway',
       items: [
-        // Early Education & Youth Development
-        { name: 'Summer Camps', href: '/summer-camps', icon: Calendar },
-        { name: 'School Programs', href: '/school-programs', icon: School },
-        { name: 'Youth Development', href: '/youth-development', icon: Sparkles },
+        // Group 1 - Early Education/Administrative (chronological order)
+        { name: 'Summer Camps', href: '/summer-camps', icon: Calendar, group: 'early' },
+        { name: 'School Programs', href: '/school-programs', icon: School, group: 'early' },
+        { name: 'Scholarships', href: '/scholarships', icon: Award, group: 'early' },
+        { name: 'Assessments', href: '/assessments', icon: FileText, group: 'early' },
+        { name: 'Learning Management', href: '/lms', icon: GraduationCap, group: 'early' },
+        { name: 'Vocational Training', href: '/training', icon: BookOpen, group: 'early' },
         
-        // Higher Education & Academic Excellence
-        { name: 'Scholarships', href: '/scholarships', icon: Award },
-        { name: 'University Programs', href: '/university-programs', icon: Building },
-        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
-        { name: 'Academic Assessments', href: '/assessments', icon: FileText },
-        { name: 'Learning Management', href: '/lms', icon: GraduationCap },
+        // Separator
+        { type: 'separator', label: 'Advanced Education' },
         
-        // Specialized Training & Skills
-        { name: 'Vocational Training', href: '/training', icon: BookOpen },
-        { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield },
-        { name: 'Digital Skills', href: '/digital-skills', icon: Laptop },
+        // Group 2 - Advanced Education/Exploratory (chronological order)
+        { name: 'Youth Development', href: '/youth-development', icon: Sparkles, group: 'advanced' },
+        { name: 'University Programs', href: '/university-programs', icon: Building, group: 'advanced' },
+        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap, group: 'advanced' },
+        { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield, group: 'advanced' },
+        { name: 'Digital Skills Development', href: '/digital-skills', icon: Laptop, group: 'advanced' },
       ]
     },
     {
@@ -155,38 +156,81 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
               {group.name}
             </DropdownMenuLabel>
             {group.items.map((item, index) => {
-              const IconComponent = item.icon;
+              // Handle separator
+              if (item.type === 'separator') {
+                return (
+                  <div key={`separator-${index}`} className="py-2 px-2">
+                    <div className="h-px bg-ehrdc-neutral-light/70 mb-2"></div>
+                    {item.label && (
+                      <div className="text-xs text-ehrdc-neutral-dark/60 font-medium px-2 py-1 uppercase tracking-wide">
+                        {item.label}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              
+              const IconComponent = item.icon!;
               const isActive = pathname === item.href;
               
-              // Add separators for visual grouping
-              const showSeparator = 
-                (group.id === 'education-pathway' && (index === 3 || index === 7)) ||
-                (group.id === 'career-entry' && (index === 4 || index === 7)) ||
-                (group.id === 'professional-growth' && (index === 4 || index === 8)) ||
-                (group.id === 'lifelong-engagement' && (index === 4 || index === 7));
+              // Apply different styles based on group
+              const groupStyles = item.group === 'early' 
+                ? "hover:bg-[var(--group-early-bg)] focus:bg-[var(--group-early-bg)]" 
+                : item.group === 'advanced'
+                ? "hover:bg-[var(--group-advanced-bg)] focus:bg-[var(--group-advanced-bg)]"
+                : "hover:bg-ehrdc-light-teal/20 focus:bg-ehrdc-light-teal/20";
+              
+              const groupTextStyles = item.group === 'early'
+                ? "hover:text-[var(--group-early-text)] focus:text-[var(--group-early-text)]"
+                : item.group === 'advanced'
+                ? "hover:text-[var(--group-advanced-text)] focus:text-[var(--group-advanced-text)]"
+                : "hover:text-ehrdc-teal focus:text-ehrdc-teal";
+              
+              const activeStyles = isActive && (
+                item.group === 'early'
+                  ? "text-[var(--group-early-text)] bg-[var(--group-early-bg)] font-medium"
+                  : item.group === 'advanced'
+                  ? "text-[var(--group-advanced-text)] bg-[var(--group-advanced-bg)] font-medium"
+                  : "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium"
+              );
+              
+              const borderStyles = item.group === 'early'
+                ? "border-l-2 border-[var(--group-early-border)]"
+                : item.group === 'advanced'
+                ? "border-l-2 border-[var(--group-advanced-border)]"
+                : "";
+              
+              const iconStyles = item.group === 'early'
+                ? "text-[var(--group-early-text)]/70"
+                : item.group === 'advanced'
+                ? "text-[var(--group-advanced-text)]/70"
+                : "text-ehrdc-teal/70";
 
               return (
-                <React.Fragment key={item.href}>
-                  {showSeparator && <DropdownMenuSeparator />}
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to={item.href}
-                      className={cn(
-                        "flex w-full items-center gap-3 px-3 py-2 text-sm transition-all hover:bg-ehrdc-light-teal/20 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/20 focus:text-ehrdc-teal rounded-sm",
-                        isActive ? "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium" : "text-ehrdc-neutral-dark"
-                      )}
-                      onClick={(e) => {
-                        if (item.onClick) {
-                          e.preventDefault();
-                          item.onClick();
-                        }
-                      }}
-                    >
-                      <IconComponent className="h-4 w-4 flex-shrink-0" />
-                      <span className="flex-1">{item.name}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </React.Fragment>
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link
+                    to={item.href!}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-3 py-2 text-sm transition-all rounded-sm",
+                      groupStyles,
+                      groupTextStyles,
+                      borderStyles,
+                      activeStyles || "text-ehrdc-neutral-dark"
+                    )}
+                    onClick={(e) => {
+                      if (item.onClick) {
+                        e.preventDefault();
+                        item.onClick();
+                      }
+                    }}
+                  >
+                    <IconComponent className={cn(
+                      "h-4 w-4 flex-shrink-0",
+                      iconStyles
+                    )} />
+                    <span className="flex-1">{item.name}</span>
+                  </Link>
+                </DropdownMenuItem>
               );
             })}
           </DropdownMenuContent>

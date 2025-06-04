@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("./components/accessibility/accessibility.css");
 @import url("./components/ui/animations.css");
@@ -14,6 +15,18 @@
     --ehrdc-neutral-dark: #1A1A1A;
     --ehrdc-neutral-light: #F5F5F5;
     --ehrdc-white: #FFFFFF;
+
+    /* Group 1 - Early Education/Administrative */
+    --group-early-bg: rgba(179, 222, 221, 0.2);       /* ehrdc-light-teal at 20% opacity */
+    --group-early-hover: rgba(179, 222, 221, 0.3);    /* ehrdc-light-teal at 30% opacity */
+    --group-early-text: #006E6D;                      /* ehrdc-teal */
+    --group-early-border: rgba(179, 222, 221, 0.5);   /* ehrdc-light-teal at 50% opacity */
+    
+    /* Group 2 - Advanced Education/Exploratory */
+    --group-advanced-bg: rgba(219, 234, 254, 0.5);    /* blue-100 at 50% opacity */
+    --group-advanced-hover: rgba(191, 219, 254, 0.5); /* blue-200 at 50% opacity */
+    --group-advanced-text: #1d4ed8;                   /* blue-700 */
+    --group-advanced-border: rgba(191, 219, 254, 0.7);/* blue-200 at 70% opacity */
 
     /* Semantic color mappings */
     --background: var(--ehrdc-white);
