@@ -56,28 +56,28 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
       id: 'career-entry',
       name: 'Career Entry',
       items: [
-        // Career Exploration & Planning
-        { name: 'Career Journey Map', href: '/career-journey', icon: MapPin },
-        { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
-        { name: 'Industry Exploration', href: '/industries', icon: Compass },
-        { name: 'Skills Assessment', href: '/assessments?context=career', icon: BarChart3 },
+        // Career Exploration & Planning - early group
+        { name: 'Career Journey Map', href: '/career-journey', icon: MapPin, group: 'early' },
+        { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck, group: 'early' },
+        { name: 'Industry Exploration', href: '/industries', icon: Compass, group: 'early' },
+        { name: 'Skills Assessment', href: '/assessments?context=career', icon: BarChart3, group: 'early' },
         
         // Add separator with label
         { type: 'separator', label: 'Work Experience' },
         
-        // Work Experience & National Service
-        { name: 'Internships', href: '/internships', icon: Briefcase },
-        { name: 'National Service', href: '/national-service', icon: Flag },
-        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
+        // Work Experience & National Service - early group
+        { name: 'Internships', href: '/internships', icon: Briefcase, group: 'early' },
+        { name: 'National Service', href: '/national-service', icon: Flag, group: 'early' },
+        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap, group: 'early' },
         
         // Add separator with label
         { type: 'separator', label: 'Job Readiness' },
         
-        // Job Readiness & Application
-        { name: 'CV Builder', href: '/resume-builder', icon: FileText },
-        { name: 'Portfolio', href: '/portfolio', icon: User },
-        { name: 'Interview Preparation', href: '/interview-preparation', icon: MessageSquare },
-        { name: 'Job Matching', href: '/job-matching', icon: Search },
+        // Job Readiness & Application - advanced group
+        { name: 'CV Builder', href: '/resume-builder', icon: FileText, group: 'advanced' },
+        { name: 'Portfolio', href: '/portfolio', icon: User, group: 'advanced' },
+        { name: 'Interview Preparation', href: '/interview-preparation', icon: MessageSquare, group: 'advanced' },
+        { name: 'Job Matching', href: '/job-matching', icon: Search, group: 'advanced' },
       ]
     },
     {
@@ -178,49 +178,34 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
               const IconComponent = item.icon!;
               const isActive = pathname === item.href;
               
-              // Apply different styles based on group
-              const groupStyles = item.group === 'early' 
-                ? "hover:bg-[var(--group-early-bg)] focus:bg-[var(--group-early-bg)]" 
-                : item.group === 'advanced'
-                ? "hover:bg-[var(--group-advanced-bg)] focus:bg-[var(--group-advanced-bg)]"
-                : "hover:bg-ehrdc-light-teal/20 focus:bg-ehrdc-light-teal/20";
-              
-              const groupTextStyles = item.group === 'early'
-                ? "hover:text-[var(--group-early-text)] focus:text-[var(--group-early-text)]"
-                : item.group === 'advanced'
-                ? "hover:text-[var(--group-advanced-text)] focus:text-[var(--group-advanced-text)]"
-                : "hover:text-ehrdc-teal focus:text-ehrdc-teal";
-              
-              const activeStyles = isActive && (
-                item.group === 'early'
-                  ? "text-[var(--group-early-text)] bg-[var(--group-early-bg)] font-medium"
-                  : item.group === 'advanced'
-                  ? "text-[var(--group-advanced-text)] bg-[var(--group-advanced-bg)] font-medium"
-                  : "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium"
-              );
-              
-              const borderStyles = item.group === 'early'
-                ? "border-l-2 border-[var(--group-early-border)]"
-                : item.group === 'advanced'
-                ? "border-l-2 border-[var(--group-advanced-border)]"
-                : "";
-              
-              const iconStyles = item.group === 'early'
-                ? "text-[var(--group-early-text)]/70"
-                : item.group === 'advanced'
-                ? "text-[var(--group-advanced-text)]/70"
-                : "text-ehrdc-teal/70";
-
               return (
                 <DropdownMenuItem key={item.href} asChild>
                   <Link
                     to={item.href!}
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-2 text-sm transition-all rounded-sm",
-                      groupStyles,
-                      groupTextStyles,
-                      borderStyles,
-                      activeStyles || "text-ehrdc-neutral-dark"
+                      // Apply different hover styles based on group
+                      item.group === 'early' 
+                        ? "hover:bg-ehrdc-light-teal/20 focus:bg-ehrdc-light-teal/20 hover:text-ehrdc-teal focus:text-ehrdc-teal" 
+                        : item.group === 'advanced'
+                        ? "hover:bg-blue-100/50 focus:bg-blue-100/50 hover:text-blue-700 focus:text-blue-700"
+                        : "hover:bg-ehrdc-light-teal/20 focus:bg-ehrdc-light-teal/20 hover:text-ehrdc-teal focus:text-ehrdc-teal",
+                      // Apply different active styles based on group
+                      isActive && (
+                        item.group === 'early'
+                          ? "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium"
+                          : item.group === 'advanced'
+                          ? "text-blue-700 bg-blue-100/50 font-medium"
+                          : "text-ehrdc-teal bg-ehrdc-light-teal/20 font-medium"
+                      ),
+                      // Default text color if not active
+                      !isActive && "text-ehrdc-neutral-dark",
+                      // Add subtle left border for visual grouping
+                      item.group === 'early' 
+                        ? "border-l-2 border-ehrdc-light-teal/30" 
+                        : item.group === 'advanced'
+                        ? "border-l-2 border-blue-200/50"
+                        : ""
                     )}
                     onClick={(e) => {
                       if (item.onClick) {
@@ -231,7 +216,11 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
                   >
                     <IconComponent className={cn(
                       "h-4 w-4 flex-shrink-0",
-                      iconStyles
+                      item.group === 'early' 
+                        ? "text-ehrdc-teal/70" 
+                        : item.group === 'advanced'
+                        ? "text-blue-600/70"
+                        : "text-ehrdc-teal/70"
                     )} />
                     <span className="flex-1">{item.name}</span>
                   </Link>
