@@ -7,7 +7,7 @@ import {
   Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
   BarChart3, Shield, School, Sparkles, Building, Heart, 
   Landmark, Rocket, Compass, Laptop, Handshake, Lightbulb, Globe,
-  MessageSquare, Flag, UserPlus, Network, Target
+  MessageSquare, Flag, UserPlus, Network, Target, GitCompare, DollarSign
 } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
@@ -78,6 +78,14 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Portfolio', href: '/portfolio', icon: User, group: 'advanced' },
         { name: 'Interview Preparation', href: '/interview-preparation', icon: MessageSquare, group: 'advanced' },
         { name: 'Job Matching', href: '/job-matching', icon: Search, group: 'advanced' },
+
+        // Add separator with label
+        { type: 'separator', label: 'Career Tools' },
+
+        // New Career Tools - advanced group
+        { name: 'Career Path Comparison', href: '/career-comparison', icon: GitCompare, group: 'advanced' },
+        { name: 'Salary Explorer', href: '/salary-explorer', icon: DollarSign, group: 'advanced' },
+        { name: 'Mentor Matching', href: '/mentor-matching', icon: Users, group: 'advanced' },
       ]
     },
     {

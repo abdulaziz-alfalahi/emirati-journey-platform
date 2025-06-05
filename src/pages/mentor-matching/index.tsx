@@ -1,0 +1,75 @@
+
+import React from 'react';
+import Layout from '@/components/layout/Layout';
+import MobileLayout from '@/components/mobile/MobileLayout';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Users, Target, MessageSquare, Award } from 'lucide-react';
+
+const MentorMatchingPage: React.FC = () => {
+  const { isMobile, isCapacitor } = useMobileDetection();
+
+  const content = (
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg p-8 mb-8 text-white">
+        <div className="max-w-4xl">
+          <div className="flex items-center gap-3 mb-4">
+            <Users className="h-8 w-8" />
+            <h1 className="text-4xl font-bold">Mentor Matching</h1>
+          </div>
+          <p className="text-xl opacity-90 mb-6">
+            Connect with experienced professionals who can guide your career journey and help you achieve your goals.
+          </p>
+        </div>
+      </div>
+
+      {/* Coming Soon Card */}
+      <Card className="mb-8">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Coming Soon</CardTitle>
+          <CardDescription>
+            We're building an intelligent mentor matching system to connect you with the right career guides.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-purple-50 p-6 rounded-lg">
+              <Target className="h-8 w-8 text-purple-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Smart Matching</h3>
+              <p className="text-sm text-muted-foreground">
+                AI-powered algorithm to match you with mentors based on your goals and interests.
+              </p>
+            </div>
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <MessageSquare className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Direct Communication</h3>
+              <p className="text-sm text-muted-foreground">
+                Built-in messaging and video call features for seamless mentor-mentee interactions.
+              </p>
+            </div>
+            <div className="bg-green-50 p-6 rounded-lg">
+              <Award className="h-8 w-8 text-green-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Progress Tracking</h3>
+              <p className="text-sm text-muted-foreground">
+                Track your mentorship journey and measure your professional development progress.
+              </p>
+            </div>
+          </div>
+          <Button className="ehrdc-button-primary">
+            Get Notified When Available
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  if (isMobile || isCapacitor) {
+    return <MobileLayout>{content}</MobileLayout>;
+  }
+
+  return <Layout>{content}</Layout>;
+};
+
+export default MentorMatchingPage;
