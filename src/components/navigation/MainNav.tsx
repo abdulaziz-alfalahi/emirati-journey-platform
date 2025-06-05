@@ -37,7 +37,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Summer Camps', href: '/summer-camps', icon: Calendar, group: 'early' },
         { name: 'School Programs', href: '/school-programs', icon: School, group: 'early' },
         { name: 'Scholarships', href: '/scholarships', icon: Award, group: 'early' },
-        { name: 'Assessments', href: '/assessments', icon: FileText, group: 'early' },
+        { name: 'Academic Assessments', href: '/assessments?context=academic', icon: FileText, group: 'early' },
         { name: 'Learning Management', href: '/lms', icon: GraduationCap, group: 'early' },
         { name: 'Vocational Training', href: '/training', icon: BookOpen, group: 'early' },
         
@@ -60,7 +60,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Career Journey Map', href: '/career-journey', icon: MapPin },
         { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
         { name: 'Industry Exploration', href: '/industries', icon: Compass },
-        { name: 'Skills Assessment', href: '/assessments', icon: BarChart3 },
+        { name: 'Skills Assessment', href: '/assessments?context=career', icon: BarChart3 },
         
         // Work Experience & National Service
         { name: 'Internships', href: '/internships', icon: Briefcase },

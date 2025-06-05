@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { AssessmentsList } from '@/components/assessments/AssessmentsList';
@@ -10,55 +11,147 @@ import { AssessmentUpload } from '@/components/assessments/AssessmentUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, BarChart, Compass, Brain, Users, PlusCircle } from 'lucide-react';
+import { ClipboardCheck, BarChart, Compass, Brain, Users, PlusCircle, BookOpen, Target } from 'lucide-react';
 
 // Create a client
 const queryClient = new QueryClient();
 
 const AssessmentsPage = () => {
   const { user, roles, hasRole } = useAuth();
+  const [searchParams] = useSearchParams();
+  const context = searchParams.get('context');
   const [activeTab, setActiveTab] = useState('available');
   const [selectedFilters, setSelectedFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   
   const isAssessmentOrTrainingCenter = roles.includes('assessment_center') || roles.includes('training_center');
+
+  // Get context-specific content
+  const getContextContent = () => {
+    if (context === 'academic') {
+      return {
+        title: 'Academic Assessments',
+        subtitle: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey.',
+        heroGradient: 'from-blue-600 to-indigo-600',
+        features: [
+          {
+            icon: BookOpen,
+            title: 'Academic Evaluations',
+            description: 'Assess your knowledge and skills'
+          },
+          {
+            icon: BarChart,
+            title: 'Learning Progress',
+            description: 'Track your academic growth'
+          },
+          {
+            icon: Target,
+            title: 'Educational Guidance',
+            description: 'Personalized learning paths'
+          }
+        ]
+      };
+    } else if (context === 'career') {
+      return {
+        title: 'Skills Assessment',
+        subtitle: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey.',
+        heroGradient: 'from-green-600 to-emerald-600',
+        features: [
+          {
+            icon: ClipboardCheck,
+            title: 'Skills Evaluation',
+            description: 'Measure your professional competencies'
+          },
+          {
+            icon: BarChart,
+            title: 'Career Tracking',
+            description: 'Monitor your professional progress'
+          },
+          {
+            icon: Compass,
+            title: 'Career Guidance',
+            description: 'Personalized career recommendations'
+          }
+        ]
+      };
+    } else {
+      return {
+        title: 'Assessments',
+        subtitle: 'Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.',
+        heroGradient: 'from-ehrdc-teal to-ehrdc-light-teal',
+        features: [
+          {
+            icon: ClipboardCheck,
+            title: 'Skill Evaluations',
+            description: 'Measure your competencies'
+          },
+          {
+            icon: BarChart,
+            title: 'Performance Tracking',
+            description: 'Monitor your progress'
+          },
+          {
+            icon: Compass,
+            title: 'Career Guidance',
+            description: 'Personalized recommendations'
+          }
+        ]
+      };
+    }
+  };
+
+  const contextContent = getContextContent();
   
   return (
     <Layout>
       <QueryClientProvider client={queryClient}>
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           {/* Hero Section */}
-          <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 mb-8 text-white">
+          <div className={`bg-gradient-to-br ${contextContent.heroGradient} rounded-lg p-8 mb-8 text-white`}>
             <div className="max-w-4xl">
-              <h1 className="text-4xl font-bold mb-4">Assessments</h1>
+              <h1 className="text-4xl font-bold mb-4">{contextContent.title}</h1>
               <p className="text-xl opacity-90 mb-6">
-                Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.
+                {contextContent.subtitle}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                  <div className="h-8 w-8 mb-2">
-                    <ClipboardCheck className="h-full w-full" />
+                {contextContent.features.map((feature, index) => (
+                  <div key={index} className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                    <div className="h-8 w-8 mb-2">
+                      <feature.icon className="h-full w-full" />
+                    </div>
+                    <h3 className="font-semibold mb-1">{feature.title}</h3>
+                    <p className="text-sm opacity-90">{feature.description}</p>
                   </div>
-                  <h3 className="font-semibold mb-1">Skill Evaluations</h3>
-                  <p className="text-sm opacity-90">Measure your competencies</p>
-                </div>
-                <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                  <div className="h-8 w-8 mb-2">
-                    <BarChart className="h-full w-full" />
-                  </div>
-                  <h3 className="font-semibold mb-1">Performance Tracking</h3>
-                  <p className="text-sm opacity-90">Monitor your progress</p>
-                </div>
-                <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                  <div className="h-8 w-8 mb-2">
-                    <Compass className="h-full w-full" />
-                  </div>
-                  <h3 className="font-semibold mb-1">Career Guidance</h3>
-                  <p className="text-sm opacity-90">Personalized recommendations</p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
+
+          {/* Context-specific notice */}
+          {context && (
+            <Card className="mb-8">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  {context === 'academic' ? (
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                  ) : (
+                    <Target className="h-5 w-5 text-green-600" />
+                  )}
+                  <div>
+                    <h3 className="font-semibold">
+                      {context === 'academic' ? 'Academic Focus' : 'Career Focus'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {context === 'academic' 
+                        ? 'Showing assessments tailored for academic development and educational growth.'
+                        : 'Showing assessments tailored for career development and professional skills.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Stats Card */}
           <Card className="mb-8">
