@@ -47,7 +47,6 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Group 2 - Advanced Education/Exploratory (chronological order)
         { name: 'Youth Development', href: '/youth-development', icon: Sparkles, group: 'advanced' },
         { name: 'University Programs', href: '/university-programs', icon: Building, group: 'advanced' },
-        { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap, group: 'advanced' },
         { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield, group: 'advanced' },
         { name: 'Digital Skills Development', href: '/digital-skills', icon: Laptop, group: 'advanced' },
       ]
@@ -68,7 +67,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
         
         // Job Readiness & Application
-        { name: 'CV Builder', href: '/cv-builder', icon: FileText },
+        { name: 'CV Builder', href: '/resume-builder', icon: FileText },
         { name: 'Portfolio', href: '/portfolio', icon: User },
         { name: 'Interview Preparation', href: '/interview-preparation', icon: Users },
         { name: 'Job Matching', href: '/job-matching', icon: Search },
