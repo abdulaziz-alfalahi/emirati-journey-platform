@@ -6,7 +6,8 @@ import {
   Activity, ChevronDown, GraduationCap, BookOpen, Award, Users, 
   Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
   BarChart3, Shield, School, Sparkles, Building, Heart, 
-  Landmark, Rocket, Compass, Laptop, Handshake, Lightbulb, Globe
+  Landmark, Rocket, Compass, Laptop, Handshake, Lightbulb, Globe,
+  MessageSquare, Flag, UserPlus, Network, Target
 } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
@@ -63,13 +64,13 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         
         // Work Experience & National Service
         { name: 'Internships', href: '/internships', icon: Briefcase },
-        { name: 'National Service', href: '/national-service', icon: Shield },
+        { name: 'National Service', href: '/national-service', icon: Flag },
         { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
         
         // Job Readiness & Application
         { name: 'CV Builder', href: '/resume-builder', icon: FileText },
         { name: 'Portfolio', href: '/portfolio', icon: User },
-        { name: 'Interview Preparation', href: '/interview-preparation', icon: Users },
+        { name: 'Interview Preparation', href: '/interview-preparation', icon: MessageSquare },
         { name: 'Job Matching', href: '/job-matching', icon: Search },
       ]
     },
@@ -80,12 +81,12 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Skills Enhancement & Development
         { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Handshake },
         { name: 'Advanced Certifications', href: '/professional-certifications', icon: Award },
-        { name: 'Leadership Development', href: '/leadership', icon: Users },
+        { name: 'Leadership Development', href: '/leadership', icon: Target },
         { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
         
         // Career Advancement & Networking
-        { name: 'Mentorship', href: '/mentorship', icon: Users },
-        { name: 'Professional Communities', href: '/communities', icon: Users },
+        { name: 'Mentorship', href: '/mentorship', icon: UserPlus },
+        { name: 'Professional Communities', href: '/communities', icon: Network },
         { name: 'Industry Networks', href: '/networking', icon: Activity },
         { name: 'Career Transition', href: '/career-transition', icon: Compass },
         
