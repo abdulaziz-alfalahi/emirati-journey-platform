@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -60,7 +59,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Career Exploration & Planning
         { name: 'Career Journey Map', href: '/career-journey', icon: MapPin },
         { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck },
-        { name: 'Industry Exploration', href: '/industry-exploration', icon: Compass },
+        { name: 'Industry Exploration', href: '/industries', icon: Compass },
         { name: 'Skills Assessment', href: '/assessments', icon: BarChart3 },
         
         // Work Experience & National Service

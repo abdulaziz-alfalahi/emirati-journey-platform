@@ -74,7 +74,7 @@ function App() {
                   <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
                   <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                   <Route path="/digital-skills" element={<DigitalSkillsPage />} />
-                  <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
+                  <Route path="/industries" element={<IndustryExplorationPage />} />
                   <Route path="/national-service" element={<NationalServicePage />} />
                   <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
@@ -96,6 +96,7 @@ function App() {
                   
                   {/* Redirect old paths */}
                   <Route path="/cv-builder" element={<Navigate to="/resume-builder" replace />} />
+                  <Route path="/industry-exploration" element={<Navigate to="/industries" replace />} />
                   
                   {/* Catch all route */}
                   <Route path="*" element={<Navigate to="/" replace />} />
