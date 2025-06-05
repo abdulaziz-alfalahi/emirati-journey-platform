@@ -62,10 +62,16 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Industry Exploration', href: '/industries', icon: Compass },
         { name: 'Skills Assessment', href: '/assessments?context=career', icon: BarChart3 },
         
+        // Add separator with label
+        { type: 'separator', label: 'Work Experience' },
+        
         // Work Experience & National Service
         { name: 'Internships', href: '/internships', icon: Briefcase },
         { name: 'National Service', href: '/national-service', icon: Flag },
         { name: 'Graduate Programs', href: '/graduate-programs', icon: GraduationCap },
+        
+        // Add separator with label
+        { type: 'separator', label: 'Job Readiness' },
         
         // Job Readiness & Application
         { name: 'CV Builder', href: '/resume-builder', icon: FileText },
