@@ -1,82 +1,95 @@
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useResume } from '@/context/ResumeContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import ResumeBuilder from '@/components/resume/ResumeBuilder';
-import { ResumeTemplate } from '@/components/resume/types';
-import { toast } from 'sonner';
-import { getResumeData } from '@/services/resumeParserService';
+import MobileLayout from '@/components/mobile/MobileLayout';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
+import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
+import { ResumeBuilder } from '@/components/resume/ResumeBuilder';
+import { ImportOptions } from '@/components/resume/ImportOptions';
+import { ResumePreview } from '@/components/resume/ResumePreview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Upload, Eye, Download } from 'lucide-react';
 
-const defaultTemplate: ResumeTemplate = {
-  id: 'professional',
-  name: 'Professional',
-  description: 'A clean, professional layout ideal for corporate positions',
-  sections: ['personal', 'summary', 'experience', 'education', 'skills', 'languages', 'certifications']
-};
+const ResumeBuilderPage: React.FC = () => {
+  const { isMobile, isCapacitor } = useMobileDetection();
+  const [activeTab, setActiveTab] = useState('builder');
 
-const ResumeBuilderPage = () => {
-  const { user, isLoading } = useAuth();
-  const { resumeData } = useResume();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isLoadingResume, setIsLoadingResume] = useState(false);
+  const content = (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50">
+      {/* Standardized Hero Section */}
+      <CareerEntryHeroSection
+        title="CV Builder"
+        description="Create professional resumes that stand out to UAE employers with AI-powered optimization and industry-specific templates"
+        icon={<FileText className="h-12 w-12" />}
+        primaryActionLabel="Build My CV"
+        primaryActionIcon={<FileText className="h-5 w-5" />}
+        secondaryActionLabel="Import Existing CV"
+        secondaryActionIcon={<Upload className="h-5 w-5" />}
+      />
 
-  // Check for resume ID in URL params
-  useEffect(() => {
-    const checkForResumeId = async () => {
-      const params = new URLSearchParams(location.search);
-      const resumeId = params.get('resume_id');
-      
-      if (resumeId && user) {
-        setIsLoadingResume(true);
-        try {
-          const data = await getResumeData(resumeId);
-          if (data) {
-            toast.success("Resume Loaded");
-          }
-        } catch (error) {
-          console.error("Error loading resume data:", error);
-          toast.error("Failed to Load Resume");
-        } finally {
-          setIsLoadingResume(false);
-          // Remove resume_id from URL without causing navigation
-          navigate('/resume-builder', { replace: true });
-        }
-      }
-    };
-    
-    if (!isLoading && user) {
-      checkForResumeId();
-    }
-  }, [user, location.search, isLoading, navigate]);
-
-  if (isLoading || isLoadingResume) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-[60vh]">
-          <LoadingSpinner />
-          {isLoadingResume && (
-            <p className="ml-3 text-gray-600" aria-live="polite">
-              Loading resume data...
-            </p>
-          )}
+      {/* Key Statistics */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">50+</div>
+              <div className="text-gray-600">Professional Templates</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">AI-Powered</div>
+              <div className="text-gray-600">Content Optimization</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">95%</div>
+              <div className="text-gray-600">ATS Compatibility</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">Multi-format</div>
+              <div className="text-gray-600">Export Options</div>
+            </div>
+          </div>
         </div>
-      </Layout>
-    );
+      </section>
+
+      {/* Main Content Tabs */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8 bg-white border">
+            <TabsTrigger value="builder" className="flex items-center gap-2 text-ehrdc-teal">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Builder</span>
+            </TabsTrigger>
+            <TabsTrigger value="import" className="flex items-center gap-2 text-ehrdc-teal">
+              <Upload className="h-4 w-4" />
+              <span className="hidden sm:inline">Import</span>
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="flex items-center gap-2 text-ehrdc-teal">
+              <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline">Preview</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="builder">
+            <ResumeBuilder />
+          </TabsContent>
+          
+          <TabsContent value="import">
+            <ImportOptions />
+          </TabsContent>
+          
+          <TabsContent value="preview">
+            <ResumePreview />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+
+  if (isMobile || isCapacitor) {
+    return <MobileLayout>{content}</MobileLayout>;
   }
 
-  return (
-    <Layout>
-      <ResumeBuilder 
-        template={defaultTemplate} 
-        onBack={() => navigate(-1)} 
-        initialData={resumeData}
-      />
-    </Layout>
-  );
+  return <Layout>{content}</Layout>;
 };
 
 export default ResumeBuilderPage;
