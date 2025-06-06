@@ -59,7 +59,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Career Exploration & Planning - early group
         { name: 'Career Journey Map', href: '/career-journey', icon: MapPin, group: 'early' },
         { name: 'Career Advisory', href: '/career-advisory', icon: UserCheck, group: 'early' },
-        { name: 'Industry Exploration', href: '/industries', icon: Compass, group: 'early' },
+        { name: 'Industry Exploration', href: '/industry-exploration', icon: Compass, group: 'early' },
         { name: 'Skills Assessment', href: '/assessments?context=career', icon: BarChart3, group: 'early' },
         
         // Add separator with label
