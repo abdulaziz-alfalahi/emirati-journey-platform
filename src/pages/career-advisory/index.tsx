@@ -15,6 +15,19 @@ const CareerAdvisoryPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  // Mock session data for InterviewPrep component
+  const mockSession = {
+    id: '1',
+    candidateName: 'Sample User',
+    date: new Date().toISOString(),
+    position: 'Software Engineer',
+    status: 'scheduled' as const
+  };
+
+  const handleSessionUpdate = (updatedSession: any) => {
+    console.log('Session updated:', updatedSession);
+  };
+
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
       {/* Standardized Hero Section */}
@@ -91,7 +104,7 @@ const CareerAdvisoryPage: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="interview">
-            <InterviewPrep />
+            <InterviewPrep session={mockSession} onSessionUpdate={handleSessionUpdate} />
           </TabsContent>
           
           <TabsContent value="resources">

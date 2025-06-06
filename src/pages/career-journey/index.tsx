@@ -13,6 +13,20 @@ import { Map, GitCompare, Download, Navigation } from 'lucide-react';
 const CareerJourneyPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('journey');
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
+
+  // Mock data for the components
+  const mockPaths = [
+    { id: '1', name: 'Software Engineering', description: 'Technology career path' },
+    { id: '2', name: 'Digital Marketing', description: 'Marketing career path' }
+  ];
+
+  const mockJourneyData = {
+    currentStage: 'Entry Level',
+    goals: ['Get certified', 'Find mentor'],
+    milestones: ['Complete training', 'Apply for jobs']
+  };
 
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -74,11 +88,20 @@ const CareerJourneyPage: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="comparison">
-            <CareerPathComparison />
+            <CareerPathComparison 
+              availablePaths={mockPaths}
+              isOpen={isComparisonOpen}
+              onClose={() => setIsComparisonOpen(false)}
+            />
           </TabsContent>
           
           <TabsContent value="export">
-            <ExportJourneyDialog />
+            <ExportJourneyDialog 
+              isOpen={isExportOpen}
+              onOpenChange={setIsExportOpen}
+              elementRef={React.createRef()}
+              journeyData={mockJourneyData}
+            />
           </TabsContent>
         </Tabs>
       </div>

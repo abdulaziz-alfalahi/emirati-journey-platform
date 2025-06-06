@@ -14,6 +14,22 @@ const PortfolioPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('editor');
 
+  // Mock portfolio data
+  const mockPortfolio = {
+    id: '1',
+    userId: 'user1',
+    name: 'My Portfolio',
+    description: 'Professional portfolio',
+    isPublic: true,
+    sections: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  const handlePortfolioUpdate = (updatedPortfolio: any) => {
+    console.log('Portfolio updated:', updatedPortfolio);
+  };
+
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       {/* Standardized Hero Section */}
@@ -74,15 +90,21 @@ const PortfolioPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="editor">
-            <PortfolioEditor />
+            <PortfolioEditor 
+              portfolio={mockPortfolio}
+              onUpdate={handlePortfolioUpdate}
+            />
           </TabsContent>
           
           <TabsContent value="viewer">
-            <PortfolioViewer />
+            <PortfolioViewer 
+              portfolio={mockPortfolio}
+              isOwnPortfolio={true}
+            />
           </TabsContent>
           
           <TabsContent value="settings">
-            <PortfolioVisibility />
+            <PortfolioVisibility portfolio={mockPortfolio} />
           </TabsContent>
           
           <TabsContent value="share">

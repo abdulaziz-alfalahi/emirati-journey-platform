@@ -9,10 +9,29 @@ import ImportOptions from '@/components/resume/import/ImportOptions';
 import ResumePreview from '@/components/resume/ResumePreview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Upload, Eye, Download } from 'lucide-react';
+import { ResumeProvider, useResume } from '@/context/ResumeContext';
 
-const ResumeBuilderPage: React.FC = () => {
+const ResumeBuilderContent: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('builder');
+  const { resumeData, setResumeData } = useResume();
+
+  // Default template for resume preview
+  const defaultTemplate = {
+    id: 'classic',
+    name: 'Classic Template',
+    description: 'A classic professional template'
+  };
+
+  const handleImportComplete = (data: any) => {
+    setResumeData(data);
+    setActiveTab('builder'); // Switch to builder after import
+  };
+
+  const handleBackToTemplates = () => {
+    // Navigate back to template selection or main page
+    console.log('Back to templates');
+  };
 
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50">
@@ -70,15 +89,26 @@ const ResumeBuilderPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="builder">
-            <ResumeBuilder />
+            <ResumeBuilder 
+              template={defaultTemplate}
+              onBack={handleBackToTemplates}
+              initialData={resumeData}
+            />
           </TabsContent>
           
           <TabsContent value="import">
-            <ImportOptions />
+            <ImportOptions 
+              onImportComplete={handleImportComplete}
+              currentData={resumeData}
+            />
           </TabsContent>
           
           <TabsContent value="preview">
-            <ResumePreview />
+            <ResumePreview 
+              template={defaultTemplate}
+              data={resumeData}
+              theme="classic"
+            />
           </TabsContent>
         </Tabs>
       </div>
@@ -90,6 +120,14 @@ const ResumeBuilderPage: React.FC = () => {
   }
 
   return <Layout>{content}</Layout>;
+};
+
+const ResumeBuilderPage: React.FC = () => {
+  return (
+    <ResumeProvider>
+      <ResumeBuilderContent />
+    </ResumeProvider>
+  );
 };
 
 export default ResumeBuilderPage;
