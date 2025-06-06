@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
@@ -9,7 +8,7 @@ import CareerPathComparison from '@/components/career/CareerPathComparison';
 import ExportJourneyDialog from '@/components/career/ExportJourneyDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Map, GitCompare, Download, Navigation } from 'lucide-react';
-import { CareerPath } from '@/types/careerPath';
+import { CareerPath } from '@/components/career/journey-map/types';
 
 const CareerJourneyPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
@@ -17,23 +16,21 @@ const CareerJourneyPage: React.FC = () => {
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
-  // Mock data that matches CareerPath type
+  // Mock data that matches CareerPath type from journey-map
   const mockPaths: CareerPath[] = [
     { 
       id: '1', 
       title: 'Software Engineering', 
-      description: 'Technology career path focusing on software development',
       industry: 'Technology',
-      created_at: new Date().toISOString(),
-      updated_at: null
+      stages: [],
+      totalProgress: 0
     },
     { 
       id: '2', 
       title: 'Digital Marketing', 
-      description: 'Marketing career path focusing on digital channels',
       industry: 'Marketing',
-      created_at: new Date().toISOString(),
-      updated_at: null
+      stages: [],
+      totalProgress: 0
     }
   ];
 
