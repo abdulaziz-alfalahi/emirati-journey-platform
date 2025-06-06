@@ -3,28 +3,29 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
-import { MentorDiscovery } from '@/components/mentor-matching/MentorDiscovery';
-import { MatchingAlgorithm } from '@/components/mentor-matching/MatchingAlgorithm';
-import { ConnectionManager } from '@/components/mentor-matching/ConnectionManager';
-import { SessionScheduler } from '@/components/mentor-matching/SessionScheduler';
-import { ProgressTracker } from '@/components/mentor-matching/ProgressTracker';
-import { CommunityHub } from '@/components/mentor-matching/CommunityHub';
+import { JobMatchingHome } from '@/components/job-matching/JobMatchingHome';
+import { MatchingDashboard } from '@/components/job-matching/MatchingDashboard';
+import { JobFiltersPanel } from '@/components/job-matching/JobFiltersPanel';
+import { SavedJobsManager } from '@/components/job-matching/SavedJobsManager';
+import { ApplicationTracker } from '@/components/job-matching/ApplicationTracker';
+import { CareerInsights } from '@/components/job-matching/CareerInsights';
+import { InterviewScheduler } from '@/components/job-matching/InterviewScheduler';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-  Users, Target, MessageSquare, Award, Calendar, 
-  BarChart3, Network, Star, Heart, Compass 
+  Search, Target, Bookmark, Calendar, TrendingUp, 
+  MessageSquare, Zap, Heart, Compass, Star
 } from 'lucide-react';
 
-const MentorMatchingPage: React.FC = () => {
+const JobMatchingPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
-  const [activeTab, setActiveTab] = useState('discovery');
+  const [activeTab, setActiveTab] = useState('matching');
 
   const content = (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute inset-0 opacity-20" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-8.284-6.716-15-15-15s-15 6.716-15 15 6.716 15 15 15 15-6.716 15-15zm15 0c0-8.284-6.716-15-15-15s-15 6.716-15 15 6.716 15 15 15 15-6.716 15-15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -33,23 +34,23 @@ const MentorMatchingPage: React.FC = () => {
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div className="bg-white/20 rounded-full p-4">
-                <Users className="h-16 w-16" />
+                <Search className="h-16 w-16" />
               </div>
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-fade-in">
-              Mentor Matching
+              Smart Job Matching
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto opacity-90">
-              Connect with experienced professionals who will guide your career journey and unlock your full potential
+              Find your perfect career match with AI-powered job recommendations tailored to your skills and aspirations
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" className="bg-white text-ehrdc-teal hover:bg-gray-50 font-semibold">
-                <Target className="h-5 w-5 mr-2" />
-                Find My Mentor
+                <Search className="h-5 w-5 mr-2" />
+                Start Matching
               </Button>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-ehrdc-teal">
-                <Users className="h-5 w-5 mr-2" />
-                Become a Mentor
+                <Target className="h-5 w-5 mr-2" />
+                Set Preferences
               </Button>
             </div>
           </div>
@@ -61,33 +62,33 @@ const MentorMatchingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">5,000+</div>
-              <div className="text-gray-600">Active Mentors</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">50,000+</div>
+              <div className="text-gray-600">Active Jobs</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-ehrdc-teal mb-2">95%</div>
-              <div className="text-gray-600">Match Success Rate</div>
+              <div className="text-gray-600">Match Accuracy</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">10,000+</div>
-              <div className="text-gray-600">Sessions Completed</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">2,500+</div>
+              <div className="text-gray-600">Partner Companies</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-ehrdc-teal mb-2">24/7</div>
-              <div className="text-gray-600">Platform Access</div>
+              <div className="text-gray-600">Support Available</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Inspiring Quote */}
-      <section className="py-12 bg-gradient-to-r from-purple-100 to-pink-100">
+      {/* Inspirational Quote */}
+      <section className="py-12 bg-gradient-to-r from-purple-100 to-blue-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Star className="h-12 w-12 text-ehrdc-teal mx-auto mb-4" />
+          <Heart className="h-12 w-12 text-ehrdc-teal mx-auto mb-4" />
           <blockquote className="text-xl md:text-2xl font-medium text-gray-800 italic">
-            "Great mentors don't just show you the path - they walk alongside you and help you discover your own greatness."
+            "The right opportunity finds you when you're prepared to seize it - let AI guide you to your perfect match."
           </blockquote>
-          <p className="mt-4 text-ehrdc-teal font-semibold">- UAE Mentorship Excellence Initiative</p>
+          <p className="mt-4 text-ehrdc-teal font-semibold">- UAE Career Excellence Initiative</p>
         </div>
       </section>
 
@@ -95,54 +96,54 @@ const MentorMatchingPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 bg-white border">
-            <TabsTrigger value="discovery" className="flex items-center gap-2 text-ehrdc-teal">
-              <Compass className="h-4 w-4" />
-              <span className="hidden sm:inline">Discovery</span>
-            </TabsTrigger>
             <TabsTrigger value="matching" className="flex items-center gap-2 text-ehrdc-teal">
-              <Target className="h-4 w-4" />
+              <Search className="h-4 w-4" />
               <span className="hidden sm:inline">Matching</span>
             </TabsTrigger>
-            <TabsTrigger value="connections" className="flex items-center gap-2 text-ehrdc-teal">
-              <Network className="h-4 w-4" />
-              <span className="hidden sm:inline">Connections</span>
+            <TabsTrigger value="saved" className="flex items-center gap-2 text-ehrdc-teal">
+              <Bookmark className="h-4 w-4" />
+              <span className="hidden sm:inline">Saved</span>
             </TabsTrigger>
-            <TabsTrigger value="sessions" className="flex items-center gap-2 text-ehrdc-teal">
+            <TabsTrigger value="applications" className="flex items-center gap-2 text-ehrdc-teal">
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Sessions</span>
+              <span className="hidden sm:inline">Applications</span>
             </TabsTrigger>
-            <TabsTrigger value="progress" className="flex items-center gap-2 text-ehrdc-teal">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Progress</span>
+            <TabsTrigger value="insights" className="flex items-center gap-2 text-ehrdc-teal">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Insights</span>
             </TabsTrigger>
-            <TabsTrigger value="community" className="flex items-center gap-2 text-ehrdc-teal">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Community</span>
+            <TabsTrigger value="interviews" className="flex items-center gap-2 text-ehrdc-teal">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Interviews</span>
+            </TabsTrigger>
+            <TabsTrigger value="dashboard" className="flex items-center gap-2 text-ehrdc-teal">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="discovery">
-            <MentorDiscovery />
-          </TabsContent>
-          
           <TabsContent value="matching">
-            <MatchingAlgorithm />
+            <JobMatchingHome />
           </TabsContent>
           
-          <TabsContent value="connections">
-            <ConnectionManager />
+          <TabsContent value="saved">
+            <SavedJobsManager />
           </TabsContent>
           
-          <TabsContent value="sessions">
-            <SessionScheduler />
+          <TabsContent value="applications">
+            <ApplicationTracker />
           </TabsContent>
           
-          <TabsContent value="progress">
-            <ProgressTracker />
+          <TabsContent value="insights">
+            <CareerInsights />
           </TabsContent>
           
-          <TabsContent value="community">
-            <CommunityHub />
+          <TabsContent value="interviews">
+            <InterviewScheduler />
+          </TabsContent>
+          
+          <TabsContent value="dashboard">
+            <MatchingDashboard />
           </TabsContent>
         </Tabs>
       </div>
@@ -156,4 +157,4 @@ const MentorMatchingPage: React.FC = () => {
   return <Layout>{content}</Layout>;
 };
 
-export default MentorMatchingPage;
+export default JobMatchingPage;
