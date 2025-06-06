@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
+import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
 import { ServiceToCareerPathway } from '@/components/national-service/ServiceToCareerPathway';
 import { BenefitsShowcase } from '@/components/national-service/BenefitsShowcase';
 import { DocumentationCenter } from '@/components/national-service/DocumentationCenter';
@@ -8,12 +9,10 @@ import { PostServicePrograms } from '@/components/national-service/PostServicePr
 import { SupportNetwork } from '@/components/national-service/SupportNetwork';
 import { RecognitionGallery } from '@/components/national-service/RecognitionGallery';
 import { EmployerPartnershipPortal } from '@/components/national-service/EmployerPartnershipPortal';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Shield, Award, FileText, GraduationCap, Users, Star, 
-  Building, Map, TrendingUp, Heart, Medal, Flag 
+  Shield, Award, FileText, GraduationCap, Users, Medal, 
+  Building, Map, Flag 
 } from 'lucide-react';
 
 const NationalServicePage: React.FC = () => {
@@ -22,36 +21,16 @@ const NationalServicePage: React.FC = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50">
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-red-900 via-ehrdc-teal to-green-900 text-white overflow-hidden">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="absolute inset-0 opacity-20" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M40 40L20 20v40l20-20zm20 0L40 20v40l20-20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="bg-white/20 rounded-full p-4">
-                  <Shield className="h-12 w-12" />
-                </div>
-              </div>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-                National Service to Career
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-                Transform your military service experience into a successful civilian career with dedicated support and opportunities
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-white text-ehrdc-teal hover:bg-red-50 font-semibold">
-                  Begin Transition
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-ehrdc-teal">
-                  Explore Benefits
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Standardized Hero Section */}
+        <CareerEntryHeroSection
+          title="National Service to Career"
+          description="Transform your military service experience into a successful civilian career with dedicated support and opportunities"
+          icon={<Shield className="h-12 w-12" />}
+          primaryActionLabel="Begin Transition"
+          primaryActionIcon={<Map className="h-5 w-5" />}
+          secondaryActionLabel="Explore Benefits"
+          secondaryActionIcon={<Award className="h-5 w-5" />}
+        />
 
         {/* Key Statistics */}
         <section className="py-16 bg-white">

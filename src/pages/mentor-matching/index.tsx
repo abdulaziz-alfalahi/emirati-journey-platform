@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
+import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
 import { MentorDiscovery } from '@/components/mentor-matching/MentorDiscovery';
 import { MatchingAlgorithm } from '@/components/mentor-matching/MatchingAlgorithm';
 import { ConnectionManager } from '@/components/mentor-matching/ConnectionManager';
@@ -10,12 +11,7 @@ import { SessionScheduler } from '@/components/mentor-matching/SessionScheduler'
 import { ProgressTracker } from '@/components/mentor-matching/ProgressTracker';
 import { CommunityHub } from '@/components/mentor-matching/CommunityHub';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Users, Target, MessageSquare, Award, Calendar, 
-  BarChart3, Network, Star, Heart, Compass 
-} from 'lucide-react';
+import { Users, Target, Calendar, BarChart3, Network, Star } from 'lucide-react';
 
 const MentorMatchingPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
@@ -23,71 +19,38 @@ const MentorMatchingPage: React.FC = () => {
 
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-8.284-6.716-15-15-15s-15 6.716-15 15 6.716 15 15 15 15-6.716 15-15zm15 0c0-8.284-6.716-15-15-15s-15 6.716-15 15 6.716 15 15 15 15-6.716 15-15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="bg-white/20 rounded-full p-4">
-                <Users className="h-16 w-16" />
-              </div>
-            </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-fade-in">
-              Mentor Matching
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto opacity-90">
-              Connect with experienced professionals who will guide your career journey and unlock your full potential
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-white text-ehrdc-teal hover:bg-gray-50 font-semibold">
-                <Target className="h-5 w-5 mr-2" />
-                Find My Mentor
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-ehrdc-teal">
-                <Users className="h-5 w-5 mr-2" />
-                Become a Mentor
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Standardized Hero Section */}
+      <CareerEntryHeroSection
+        title="Mentor Matching"
+        description="Connect with experienced professionals who will guide your career journey and unlock your full potential"
+        icon={<Users className="h-12 w-12" />}
+        primaryActionLabel="Find My Mentor"
+        primaryActionIcon={<Target className="h-5 w-5" />}
+        secondaryActionLabel="Become a Mentor"
+        secondaryActionIcon={<Users className="h-5 w-5" />}
+      />
 
       {/* Key Statistics */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">5,000+</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">1000+</div>
               <div className="text-gray-600">Active Mentors</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">95%</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">98%</div>
               <div className="text-gray-600">Match Success Rate</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">10,000+</div>
-              <div className="text-gray-600">Sessions Completed</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">50+</div>
+              <div className="text-gray-600">Industry Experts</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">24/7</div>
-              <div className="text-gray-600">Platform Access</div>
+              <div className="text-4xl font-bold text-ehrdc-teal mb-2">AI-Powered</div>
+              <div className="text-gray-600">Matching Algorithm</div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Inspiring Quote */}
-      <section className="py-12 bg-gradient-to-r from-purple-100 to-pink-100">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Star className="h-12 w-12 text-ehrdc-teal mx-auto mb-4" />
-          <blockquote className="text-xl md:text-2xl font-medium text-gray-800 italic">
-            "Great mentors don't just show you the path - they walk alongside you and help you discover your own greatness."
-          </blockquote>
-          <p className="mt-4 text-ehrdc-teal font-semibold">- UAE Mentorship Excellence Initiative</p>
         </div>
       </section>
 
@@ -96,7 +59,7 @@ const MentorMatchingPage: React.FC = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 bg-white border">
             <TabsTrigger value="discovery" className="flex items-center gap-2 text-ehrdc-teal">
-              <Compass className="h-4 w-4" />
+              <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Discovery</span>
             </TabsTrigger>
             <TabsTrigger value="matching" className="flex items-center gap-2 text-ehrdc-teal">
@@ -116,7 +79,7 @@ const MentorMatchingPage: React.FC = () => {
               <span className="hidden sm:inline">Progress</span>
             </TabsTrigger>
             <TabsTrigger value="community" className="flex items-center gap-2 text-ehrdc-teal">
-              <Users className="h-4 w-4" />
+              <Star className="h-4 w-4" />
               <span className="hidden sm:inline">Community</span>
             </TabsTrigger>
           </TabsList>
