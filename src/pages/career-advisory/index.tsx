@@ -10,21 +10,34 @@ import AdvisorScheduling from '@/components/career-advisory/AdvisorScheduling';
 import InterviewPrep from '@/components/career-advisory/InterviewPrep';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, UserCheck, Calendar, MessageCircle, BookOpen } from 'lucide-react';
+import { AdvisorySession } from '@/types/careerAdvisory';
 
 const CareerAdvisoryPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Mock session data for InterviewPrep component
-  const mockSession = {
+  // Mock session data for InterviewPrep component that matches AdvisorySession type
+  const mockSession: AdvisorySession = {
     id: '1',
-    candidateName: 'Sample User',
-    date: new Date().toISOString(),
-    position: 'Software Engineer',
-    status: 'scheduled' as const
+    user_id: 'user1',
+    advisor_id: 'advisor1',
+    status: 'scheduled' as const,
+    scheduled_date: new Date().toISOString(),
+    completed_date: null,
+    topic: 'Software Engineer Interview Preparation',
+    details: 'Mock interview session for software engineering position',
+    notes: null,
+    rating: null,
+    feedback: null,
+    video_call_url: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_interview: true,
+    interview_type: 'mock',
+    interview_questions: null
   };
 
-  const handleSessionUpdate = (updatedSession: any) => {
+  const handleSessionUpdate = (updatedSession: AdvisorySession) => {
     console.log('Session updated:', updatedSession);
   };
 

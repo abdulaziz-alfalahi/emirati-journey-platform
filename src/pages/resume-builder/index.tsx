@@ -10,17 +10,19 @@ import ResumePreview from '@/components/resume/ResumePreview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Upload, Eye, Download } from 'lucide-react';
 import { ResumeProvider, useResume } from '@/context/ResumeContext';
+import { ResumeTemplate } from '@/components/resume/types';
 
 const ResumeBuilderContent: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState('builder');
   const { resumeData, setResumeData } = useResume();
 
-  // Default template for resume preview
-  const defaultTemplate = {
+  // Default template for resume preview with all required properties
+  const defaultTemplate: ResumeTemplate = {
     id: 'classic',
     name: 'Classic Template',
-    description: 'A classic professional template'
+    description: 'A classic professional template',
+    sections: ['personal', 'summary', 'experience', 'education', 'skills', 'languages']
   };
 
   const handleImportComplete = (data: any) => {

@@ -9,6 +9,7 @@ import CareerPathComparison from '@/components/career/CareerPathComparison';
 import ExportJourneyDialog from '@/components/career/ExportJourneyDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Map, GitCompare, Download, Navigation } from 'lucide-react';
+import { CareerPath } from '@/types/careerPath';
 
 const CareerJourneyPage: React.FC = () => {
   const { isMobile, isCapacitor } = useMobileDetection();
@@ -16,10 +17,24 @@ const CareerJourneyPage: React.FC = () => {
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
-  // Mock data for the components
-  const mockPaths = [
-    { id: '1', name: 'Software Engineering', description: 'Technology career path' },
-    { id: '2', name: 'Digital Marketing', description: 'Marketing career path' }
+  // Mock data that matches CareerPath type
+  const mockPaths: CareerPath[] = [
+    { 
+      id: '1', 
+      title: 'Software Engineering', 
+      description: 'Technology career path focusing on software development',
+      industry: 'Technology',
+      created_at: new Date().toISOString(),
+      updated_at: null
+    },
+    { 
+      id: '2', 
+      title: 'Digital Marketing', 
+      description: 'Marketing career path focusing on digital channels',
+      industry: 'Marketing',
+      created_at: new Date().toISOString(),
+      updated_at: null
+    }
   ];
 
   const mockJourneyData = {

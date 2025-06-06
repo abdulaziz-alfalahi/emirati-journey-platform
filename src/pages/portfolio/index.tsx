@@ -26,8 +26,8 @@ const PortfolioPage: React.FC = () => {
     updatedAt: new Date().toISOString()
   };
 
-  const handlePortfolioUpdate = (updatedPortfolio: any) => {
-    console.log('Portfolio updated:', updatedPortfolio);
+  const handlePortfolioUpdate = () => {
+    console.log('Portfolio updated');
   };
 
   const content = (
