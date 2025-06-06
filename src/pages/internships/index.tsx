@@ -79,11 +79,11 @@ const InternshipsPage: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="filter">
-            <InternshipsFilter />
+            <InternshipsFilter onFilterChange={() => {}} />
           </TabsContent>
           
           <TabsContent value="create">
-            <InternshipsCreate />
+            <InternshipsCreate onSuccess={() => {}} />
           </TabsContent>
           
           <TabsContent value="manage">

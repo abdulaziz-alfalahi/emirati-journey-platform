@@ -4,9 +4,9 @@ import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
-import { PortfolioEditor } from '@/components/portfolio/PortfolioEditor';
-import { PortfolioViewer } from '@/components/portfolio/PortfolioViewer';
-import { PortfolioVisibility } from '@/components/portfolio/PortfolioVisibility';
+import PortfolioEditor from '@/components/portfolio/PortfolioEditor';
+import PortfolioViewer from '@/components/portfolio/PortfolioViewer';
+import PortfolioVisibility from '@/components/portfolio/PortfolioVisibility';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Folder, Edit, Eye, Settings, Share } from 'lucide-react';
 

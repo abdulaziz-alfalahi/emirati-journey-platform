@@ -4,10 +4,10 @@ import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
-import { AdvisoryDashboard } from '@/components/career-advisory/AdvisoryDashboard';
-import { AdvisorPortfolio } from '@/components/career-advisory/AdvisorPortfolio';
-import { AdvisorScheduling } from '@/components/career-advisory/AdvisorScheduling';
-import { InterviewPrep } from '@/components/career-advisory/InterviewPrep';
+import AdvisoryDashboard from '@/components/career-advisory/AdvisoryDashboard';
+import AdvisorPortfolio from '@/components/career-advisory/AdvisorPortfolio';
+import AdvisorScheduling from '@/components/career-advisory/AdvisorScheduling';
+import InterviewPrep from '@/components/career-advisory/InterviewPrep';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, UserCheck, Calendar, MessageCircle, BookOpen } from 'lucide-react';
 

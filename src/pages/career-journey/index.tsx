@@ -4,9 +4,9 @@ import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
-import { CareerJourneyMap } from '@/components/career/CareerJourneyMap';
-import { CareerPathComparison } from '@/components/career/CareerPathComparison';
-import { ExportJourneyDialog } from '@/components/career/ExportJourneyDialog';
+import CareerJourneyMap from '@/components/career/CareerJourneyMap';
+import CareerPathComparison from '@/components/career/CareerPathComparison';
+import ExportJourneyDialog from '@/components/career/ExportJourneyDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Map, GitCompare, Download, Navigation } from 'lucide-react';
 

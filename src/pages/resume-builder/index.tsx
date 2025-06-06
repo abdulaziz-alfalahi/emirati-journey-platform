@@ -4,9 +4,9 @@ import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
-import { ResumeBuilder } from '@/components/resume/ResumeBuilder';
-import { ImportOptions } from '@/components/resume/ImportOptions';
-import { ResumePreview } from '@/components/resume/ResumePreview';
+import ResumeBuilder from '@/components/resume/ResumeBuilder';
+import ImportOptions from '@/components/resume/import/ImportOptions';
+import ResumePreview from '@/components/resume/ResumePreview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Upload, Eye, Download } from 'lucide-react';
 
