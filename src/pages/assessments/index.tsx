@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Layout from '@/components/layout/Layout';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import { AssessmentsList } from '@/components/assessments/AssessmentsList';
 import { UserAssessments } from '@/components/assessments/UserAssessments';
 import { CoachingRecommendations } from '@/components/assessments/CoachingRecommendations';
@@ -11,7 +11,10 @@ import { AssessmentUpload } from '@/components/assessments/AssessmentUpload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, BarChart, Compass, Brain, Users, PlusCircle, BookOpen, Target } from 'lucide-react';
+import { 
+  ClipboardCheck, BarChart, Target, Brain, 
+  Award, FileText, BookOpen, TrendingUp, Search 
+} from 'lucide-react';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -20,307 +23,212 @@ const AssessmentsPage = () => {
   const { user, roles, hasRole } = useAuth();
   const [searchParams] = useSearchParams();
   const context = searchParams.get('context');
-  const [activeTab, setActiveTab] = useState('available');
-  const [selectedFilters, setSelectedFilters] = useState({});
-  const [searchQuery, setSearchQuery] = useState('');
-  
   const isAssessmentOrTrainingCenter = roles.includes('assessment_center') || roles.includes('training_center');
+
+  // Assessment Center Controls Component
+  const AssessmentCenterControls = () => (
+    <Card className="mb-8">
+      <CardHeader>
+        <CardTitle>Assessment Center Controls</CardTitle>
+        <CardDescription>
+          Manage assessments for your organization
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="upload">
+          <TabsList className="mb-4">
+            <TabsTrigger value="upload">Upload Assessments</TabsTrigger>
+            <TabsTrigger value="manage">Manage Assessments</TabsTrigger>
+          </TabsList>
+          <TabsContent value="upload">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Upload New Assessments</h3>
+              <p className="text-muted-foreground mb-4">
+                Add new assessment materials to your organization's catalog.
+              </p>
+            </div>
+            <AssessmentUpload />
+          </TabsContent>
+          <TabsContent value="manage">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Manage Existing Assessments</h3>
+              <p className="text-muted-foreground mb-4">
+                Your published assessments appear in the list below.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+
+  // User Content Component
+  const UserContent = () => (
+    <div className="space-y-8">
+      {user ? (
+        <>
+          <UserAssessments />
+          <CoachingRecommendations />
+        </>
+      ) : (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Sign in to view assessments</h3>
+            <p className="text-muted-foreground">
+              Please sign in to access your assessment history
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
+  // Available Assessments Content
+  const AvailableContent = () => (
+    <div className="space-y-8">
+      {isAssessmentOrTrainingCenter && <AssessmentCenterControls />}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Available Assessments</h2>
+        <AssessmentsList />
+      </div>
+    </div>
+  );
 
   // Get context-specific content
   const getContextContent = () => {
     if (context === 'academic') {
       return {
         title: 'Academic Assessments',
-        subtitle: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey.',
-        heroGradient: 'from-blue-600 to-indigo-600',
-        features: [
-          {
-            icon: BookOpen,
-            title: 'Academic Evaluations',
-            description: 'Assess your knowledge and skills'
-          },
-          {
-            icon: BarChart,
-            title: 'Learning Progress',
-            description: 'Track your academic growth'
-          },
-          {
-            icon: Target,
-            title: 'Educational Guidance',
-            description: 'Personalized learning paths'
-          }
-        ]
+        description: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey with comprehensive assessments.',
+        gradientColors: 'from-blue-50 via-white to-indigo-50'
       };
     } else if (context === 'career') {
       return {
         title: 'Skills Assessment',
-        subtitle: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey.',
-        heroGradient: 'from-green-600 to-emerald-600',
-        features: [
-          {
-            icon: ClipboardCheck,
-            title: 'Skills Evaluation',
-            description: 'Measure your professional competencies'
-          },
-          {
-            icon: BarChart,
-            title: 'Career Tracking',
-            description: 'Monitor your professional progress'
-          },
-          {
-            icon: Compass,
-            title: 'Career Guidance',
-            description: 'Personalized career recommendations'
-          }
-        ]
+        description: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey with personalized assessments.',
+        gradientColors: 'from-green-50 via-white to-emerald-50'
       };
     } else {
       return {
-        title: 'Assessments',
-        subtitle: 'Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.',
-        heroGradient: 'from-ehrdc-teal to-ehrdc-light-teal',
-        features: [
-          {
-            icon: ClipboardCheck,
-            title: 'Skill Evaluations',
-            description: 'Measure your competencies'
-          },
-          {
-            icon: BarChart,
-            title: 'Performance Tracking',
-            description: 'Monitor your progress'
-          },
-          {
-            icon: Compass,
-            title: 'Career Guidance',
-            description: 'Personalized recommendations'
-          }
-        ]
+        title: 'Skills Assessment',
+        description: 'Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.',
+        gradientColors: 'from-blue-50 via-white to-indigo-50'
       };
     }
   };
 
   const contextContent = getContextContent();
-  
-  return (
-    <Layout>
-      <QueryClientProvider client={queryClient}>
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          {/* Hero Section */}
-          <div className={`bg-gradient-to-br ${contextContent.heroGradient} rounded-lg p-8 mb-8 text-white`}>
-            <div className="max-w-4xl">
-              <h1 className="text-4xl font-bold mb-4">{contextContent.title}</h1>
-              <p className="text-xl opacity-90 mb-6">
-                {contextContent.subtitle}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                {contextContent.features.map((feature, index) => (
-                  <div key={index} className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                    <div className="h-8 w-8 mb-2">
-                      <feature.icon className="h-full w-full" />
-                    </div>
-                    <h3 className="font-semibold mb-1">{feature.title}</h3>
-                    <p className="text-sm opacity-90">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
 
-          {/* Context-specific notice */}
-          {context && (
-            <Card className="mb-8">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  {context === 'academic' ? (
-                    <BookOpen className="h-5 w-5 text-blue-600" />
-                  ) : (
-                    <Target className="h-5 w-5 text-green-600" />
-                  )}
-                  <div>
-                    <h3 className="font-semibold">
-                      {context === 'academic' ? 'Academic Focus' : 'Career Focus'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {context === 'academic' 
-                        ? 'Showing assessments tailored for academic development and educational growth.'
-                        : 'Showing assessments tailored for career development and professional skills.'
-                      }
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Stats Card */}
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                  <div className="h-10 w-10 text-blue-600 mr-4">
-                    <ClipboardCheck className="h-full w-full" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Skill Assessments</h3>
-                    <p className="text-sm text-muted-foreground">Technical evaluations</p>
-                  </div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                  <div className="h-10 w-10 text-green-600 mr-4">
-                    <Brain className="h-full w-full" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Aptitude Tests</h3>
-                    <p className="text-sm text-muted-foreground">Cognitive abilities</p>
-                  </div>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-                  <div className="h-10 w-10 text-purple-600 mr-4">
-                    <Users className="h-full w-full" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Personality Profiles</h3>
-                    <p className="text-sm text-muted-foreground">Work style insights</p>
-                  </div>
-                </div>
-                <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-                  <div className="h-10 w-10 text-amber-600 mr-4">
-                    <Compass className="h-full w-full" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Career Guidance</h3>
-                    <p className="text-sm text-muted-foreground">Path recommendations</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Assessment Center Controls */}
-          {isAssessmentOrTrainingCenter && (
-            <Card className="mb-8">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl font-semibold">Assessment Center Controls</CardTitle>
-                <CardDescription>
-                  Manage assessments for your organization
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="upload">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="upload">
-                      <span>Upload Assessments</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="manage">
-                      <span>Manage Assessments</span>
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="upload">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-2">Upload New Assessments</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Add new assessment materials to your organization's catalog.
-                      </p>
-                    </div>
-                    <AssessmentUpload />
-                  </TabsContent>
-                  <TabsContent value="manage">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-2">Manage Existing Assessments</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Your published assessments appear in the list below.
-                      </p>
-                    </div>
-                    <div className="flex justify-end mb-4">
-                      <Button className="ehrdc-button-primary">
-                        <span className="flex items-center">
-                          <PlusCircle className="h-4 w-4 mr-2" />
-                          <span>Create Assessment</span>
-                        </span>
-                      </Button>
-                    </div>
-                    {/* Assessment management list would go here */}
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Main Content Grid */}
-          <div className="grid md:grid-cols-4 gap-6">
-            {/* Filter Sidebar */}
-            <div className="md:col-span-1">
-              <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
-                <h3 className="font-medium text-lg mb-4">Filter Assessments</h3>
-                {/* AssessmentsFilter component would go here */}
-                <div className="text-sm text-muted-foreground">
-                  Filter options coming soon
-                </div>
-              </div>
-            </div>
-            
-            {/* Content Area */}
-            <div className="md:col-span-3">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-6">
-                  <TabsTrigger value="available">
-                    <span>Available</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="my-assessments">
-                    <span>My Assessments</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="recommendations">
-                    <span>Recommendations</span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="available" className="space-y-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Available Assessments</h2>
-                  </div>
-                  <AssessmentsList />
-                </TabsContent>
-                
-                <TabsContent value="my-assessments" className="space-y-4">
-                  <h2 className="text-xl font-semibold mb-4">My Assessments</h2>
-                  {user ? (
-                    <UserAssessments />
-                  ) : (
-                    <Card>
-                      <CardContent className="flex flex-col items-center justify-center py-12">
-                        <ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Sign in to view assessments</h3>
-                        <p className="text-muted-foreground">
-                          Please sign in to access your assessment history
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="recommendations" className="space-y-4">
-                  <h2 className="text-xl font-semibold mb-4">Coaching Recommendations</h2>
-                  {user ? (
-                    <CoachingRecommendations />
-                  ) : (
-                    <Card>
-                      <CardContent className="flex flex-col items-center justify-center py-12">
-                        <Compass className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Sign in for recommendations</h3>
-                        <p className="text-muted-foreground">
-                          Please sign in to receive personalized coaching recommendations
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
+  // Define tabs for the Career Entry layout
+  const tabs = [
+    {
+      id: 'available',
+      label: 'Available',
+      icon: <ClipboardCheck className="h-4 w-4" />,
+      content: <AvailableContent />
+    },
+    {
+      id: 'my-assessments',
+      label: 'My Results',
+      icon: <BarChart className="h-4 w-4" />,
+      content: <UserContent />
+    },
+    {
+      id: 'skills',
+      label: 'Skills',
+      icon: <Target className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <Target className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Skills Gap Analysis</h3>
+          <p className="text-gray-600">Comprehensive skills assessment and gap analysis coming soon.</p>
         </div>
-      </QueryClientProvider>
-    </Layout>
+      )
+    },
+    {
+      id: 'cognitive',
+      label: 'Cognitive',
+      icon: <Brain className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <Brain className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Cognitive Assessments</h3>
+          <p className="text-gray-600">Cognitive abilities and aptitude tests coming soon.</p>
+        </div>
+      )
+    },
+    {
+      id: 'personality',
+      label: 'Personality',
+      icon: <FileText className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <FileText className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Personality Profiles</h3>
+          <p className="text-gray-600">Personality assessments and work style insights coming soon.</p>
+        </div>
+      )
+    },
+    {
+      id: 'technical',
+      label: 'Technical',
+      icon: <BookOpen className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <BookOpen className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Technical Skills</h3>
+          <p className="text-gray-600">Technical skills and knowledge assessments coming soon.</p>
+        </div>
+      )
+    },
+    {
+      id: 'progress',
+      label: 'Progress',
+      icon: <TrendingUp className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <TrendingUp className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Progress Tracking</h3>
+          <p className="text-gray-600">Track your assessment progress and improvements over time.</p>
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CareerPageLayout
+        // Hero props
+        title={contextContent.title}
+        description={contextContent.description}
+        heroIcon={<ClipboardCheck className="h-12 w-12" />}
+        primaryActionLabel="Find Assessments"
+        primaryActionIcon={<Search className="h-5 w-5" />}
+        secondaryActionLabel="View Results"
+        secondaryActionIcon={<BarChart className="h-5 w-5" />}
+        
+        // Stats props
+        stats={[
+          { value: "500+", label: "Available Assessments" },
+          { value: "92%", label: "Completion Rate" },
+          { value: "15+", label: "Skill Categories" },
+          { value: "24/7", label: "Access Anytime" }
+        ]}
+        
+        // Quote props
+        quote="Self-assessment is the first step to growth. Know your strengths, understand your gaps, and chart your path to excellence."
+        attribution="UAE Skills Development Framework"
+        quoteIcon={<Award className="h-12 w-12" />}
+        
+        // Tabs props
+        tabs={tabs}
+        defaultTab="available"
+        
+        // Gradient override
+        gradientColors={contextContent.gradientColors}
+      />
+    </QueryClientProvider>
   );
 };
 
