@@ -1,20 +1,14 @@
 
-import React, { useState } from 'react';
-import Layout from '@/components/layout/Layout';
-import MobileLayout from '@/components/mobile/MobileLayout';
-import { useMobileDetection } from '@/hooks/use-mobile-detection';
-import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
+import React from 'react';
+import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import ResumeBuilder from '@/components/resume/ResumeBuilder';
 import ImportOptions from '@/components/resume/import/ImportOptions';
 import ResumePreview from '@/components/resume/ResumePreview';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Upload, Eye, Download } from 'lucide-react';
 import { ResumeProvider, useResume } from '@/context/ResumeContext';
+import { FileText, Upload, Eye, Download, Heart } from 'lucide-react';
 import { ResumeTemplate } from '@/components/resume/types';
 
 const ResumeBuilderContent: React.FC = () => {
-  const { isMobile, isCapacitor } = useMobileDetection();
-  const [activeTab, setActiveTab] = useState('builder');
   const { resumeData, setResumeData } = useResume();
 
   // Default template for resume preview with all required properties
@@ -27,101 +21,116 @@ const ResumeBuilderContent: React.FC = () => {
 
   const handleImportComplete = (data: any) => {
     setResumeData(data);
-    setActiveTab('builder'); // Switch to builder after import
   };
 
   const handleBackToTemplates = () => {
-    // Navigate back to template selection or main page
     console.log('Back to templates');
   };
 
-  const content = (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50">
-      {/* Standardized Hero Section */}
-      <CareerEntryHeroSection
-        title="CV Builder"
-        description="Create professional resumes that stand out to UAE employers with AI-powered optimization and industry-specific templates"
-        icon={<FileText className="h-12 w-12" />}
-        primaryActionLabel="Build My CV"
-        primaryActionIcon={<FileText className="h-5 w-5" />}
-        secondaryActionLabel="Import Existing CV"
-        secondaryActionIcon={<Upload className="h-5 w-5" />}
-      />
-
-      {/* Key Statistics */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">50+</div>
-              <div className="text-gray-600">Professional Templates</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">AI-Powered</div>
-              <div className="text-gray-600">Content Optimization</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">95%</div>
-              <div className="text-gray-600">ATS Compatibility</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">Multi-format</div>
-              <div className="text-gray-600">Export Options</div>
-            </div>
-          </div>
+  // Define tabs for the Career Entry layout
+  const tabs = [
+    {
+      id: 'builder',
+      label: 'Builder',
+      icon: <FileText className="h-4 w-4" />,
+      content: (
+        <ResumeBuilder 
+          template={defaultTemplate}
+          onBack={handleBackToTemplates}
+          initialData={resumeData}
+        />
+      )
+    },
+    {
+      id: 'import',
+      label: 'Import',
+      icon: <Upload className="h-4 w-4" />,
+      content: (
+        <ImportOptions 
+          onImportComplete={handleImportComplete}
+          currentData={resumeData}
+        />
+      )
+    },
+    {
+      id: 'preview',
+      label: 'Preview',
+      icon: <Eye className="h-4 w-4" />,
+      content: (
+        <ResumePreview 
+          template={defaultTemplate}
+          data={resumeData}
+          theme="classic"
+        />
+      )
+    },
+    {
+      id: 'templates',
+      label: 'Templates',
+      icon: <FileText className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <FileText className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Resume Templates</h3>
+          <p className="text-muted-foreground">Choose from professional templates designed for UAE employers.</p>
         </div>
-      </section>
+      )
+    },
+    {
+      id: 'export',
+      label: 'Export',
+      icon: <Download className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <Download className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Export Options</h3>
+          <p className="text-muted-foreground">Export your resume in multiple formats including PDF, Word, and more.</p>
+        </div>
+      )
+    },
+    {
+      id: 'tips',
+      label: 'Tips',
+      icon: <Heart className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <Heart className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Resume Writing Tips</h3>
+          <p className="text-muted-foreground">Expert advice and tips for creating compelling resumes that get noticed.</p>
+        </div>
+      )
+    }
+  ];
 
-      {/* Main Content Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 bg-white border">
-            <TabsTrigger value="builder" className="flex items-center gap-2 text-ehrdc-teal">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Builder</span>
-            </TabsTrigger>
-            <TabsTrigger value="import" className="flex items-center gap-2 text-ehrdc-teal">
-              <Upload className="h-4 w-4" />
-              <span className="hidden sm:inline">Import</span>
-            </TabsTrigger>
-            <TabsTrigger value="preview" className="flex items-center gap-2 text-ehrdc-teal">
-              <Eye className="h-4 w-4" />
-              <span className="hidden sm:inline">Preview</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="builder">
-            <ResumeBuilder 
-              template={defaultTemplate}
-              onBack={handleBackToTemplates}
-              initialData={resumeData}
-            />
-          </TabsContent>
-          
-          <TabsContent value="import">
-            <ImportOptions 
-              onImportComplete={handleImportComplete}
-              currentData={resumeData}
-            />
-          </TabsContent>
-          
-          <TabsContent value="preview">
-            <ResumePreview 
-              template={defaultTemplate}
-              data={resumeData}
-              theme="classic"
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+  return (
+    <CareerPageLayout
+      // Hero props
+      title="CV Builder"
+      description="Create professional resumes that stand out to UAE employers with AI-powered optimization and industry-specific templates"
+      heroIcon={<FileText className="h-12 w-12" />}
+      primaryActionLabel="Build My CV"
+      primaryActionIcon={<FileText className="h-5 w-5" />}
+      secondaryActionLabel="Import Existing CV"
+      secondaryActionIcon={<Upload className="h-5 w-5" />}
+      
+      // Stats props
+      stats={[
+        { value: "50+", label: "Professional Templates" },
+        { value: "AI-Powered", label: "Content Optimization" },
+        { value: "95%", label: "ATS Compatibility" },
+        { value: "Multi-format", label: "Export Options" }
+      ]}
+      
+      // Quote props
+      quote="Your resume is more than a document—it's the story of your professional journey and the key that unlocks your next opportunity."
+      attribution="UAE Career Excellence Initiative"
+      quoteIcon={<Heart className="h-12 w-12" />}
+      
+      // Tabs props
+      tabs={tabs}
+      defaultTab="builder"
+    />
   );
-
-  if (isMobile || isCapacitor) {
-    return <MobileLayout>{content}</MobileLayout>;
-  }
-
-  return <Layout>{content}</Layout>;
 };
 
 const ResumeBuilderPage: React.FC = () => {
