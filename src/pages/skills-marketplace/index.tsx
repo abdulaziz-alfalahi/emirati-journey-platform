@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AuthenticationRequired } from '@/components/auth/AuthenticationRequired';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   Search, 
   Users, 
@@ -19,7 +18,6 @@ import { CreateOpportunityDialog } from '@/components/skills-marketplace/CreateO
 import { UserSkillsManager } from '@/components/skills-marketplace/UserSkillsManager';
 import { SkillExchangeBoard } from '@/components/skills-marketplace/SkillExchangeBoard';
 import { useAuth } from '@/context/AuthContext';
-import { skillsMarketplaceService } from '@/services/skillsMarketplaceService';
 import { useToast } from '@/hooks/use-toast';
 
 const SkillsMarketplacePage: React.FC = () => {
@@ -61,16 +59,10 @@ const SkillsMarketplacePage: React.FC = () => {
         icon={<Briefcase className="h-8 w-8 text-white" />}
         tabs={[]}
       >
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Login Required</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Please log in to access the skills marketplace and start collaborating with other professionals
-            </p>
-            <Button>Sign In</Button>
-          </CardContent>
-        </Card>
+        <AuthenticationRequired 
+          message="Please log in to access the skills marketplace and start collaborating with other professionals" 
+          icon={<Users className="h-12 w-12 text-muted-foreground mb-4" />}
+        />
       </ProfessionalGrowthLayout>
     );
   }
