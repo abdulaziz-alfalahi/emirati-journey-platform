@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { AuthenticationRequired } from '@/components/auth/AuthenticationRequired';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,7 +11,8 @@ import {
   Star, 
   TrendingUp,
   Plus,
-  ArrowRightLeft
+  ArrowRightLeft,
+  BarChart
 } from 'lucide-react';
 import { SkillsMarketplaceDashboard } from '@/components/skills-marketplace/SkillsMarketplaceDashboard';
 import { OpportunitiesList } from '@/components/skills-marketplace/OpportunitiesList';
@@ -119,41 +121,79 @@ const SkillsMarketplacePage: React.FC = () => {
       id: "dashboard",
       label: "Dashboard",
       icon: <TrendingUp className="h-4 w-4" />,
-      content: <SkillsMarketplaceDashboard />
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Dashboard"
+          icon={<TrendingUp className="h-5 w-5 text-indigo-500" />}
+          description="Overview of your skills marketplace activity"
+        >
+          <SkillsMarketplaceDashboard />
+        </ProfessionalGrowthTabContent>
+      )
     },
     {
       id: "browse",
       label: "Browse Opportunities",
       icon: <Search className="h-4 w-4" />,
       content: (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold">Browse Opportunities</h2>
-              <p className="text-muted-foreground">Find projects and collaborations that match your skills</p>
-            </div>
+        <ProfessionalGrowthTabContent
+          title="Browse Opportunities"
+          icon={<Search className="h-5 w-5 text-indigo-500" />}
+          description="Find projects and collaborations that match your skills"
+          action={
             <CreateOpportunityDialog>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Post Opportunity
               </Button>
             </CreateOpportunityDialog>
-          </div>
+          }
+        >
           <OpportunitiesList />
-        </div>
+        </ProfessionalGrowthTabContent>
       )
     },
     {
       id: "my-skills",
       label: "My Skills",
       icon: <Users className="h-4 w-4" />,
-      content: <UserSkillsManager />
+      content: (
+        <ProfessionalGrowthTabContent
+          title="My Skills"
+          icon={<Users className="h-5 w-5 text-indigo-500" />}
+          description="Manage your skills profile and showcase your expertise"
+        >
+          <UserSkillsManager />
+        </ProfessionalGrowthTabContent>
+      )
     },
     {
       id: "skill-exchange",
       label: "Skill Exchange",
       icon: <ArrowRightLeft className="h-4 w-4" />,
-      content: <SkillExchangeBoard />
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Skill Exchange"
+          icon={<ArrowRightLeft className="h-5 w-5 text-indigo-500" />}
+          description="Exchange skills with other professionals through collaborative learning"
+        >
+          <SkillExchangeBoard />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: <BarChart className="h-4 w-4" />,
+      content: (
+        <EmptyTabContent
+          icon={BarChart}
+          title="Skills Analytics"
+          description="Track your skills development and marketplace activity over time."
+          actionLabel="Enable Analytics"
+          onAction={() => toast({ title: "Analytics coming soon!", description: "We're working on advanced analytics features." })}
+        />
+      )
     }
   ];
 
