@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
@@ -93,26 +92,22 @@ const SkillsMarketplacePage: React.FC = () => {
     {
       value: stats.totalOpportunities.toString(),
       label: "Open Opportunities",
-      icon: Briefcase,
-      color: "bg-indigo-500"
+      icon: Briefcase
     },
     {
       value: stats.activeProjects.toString(),
       label: "Active Projects",
-      icon: TrendingUp,
-      color: "bg-purple-500"
+      icon: TrendingUp
     },
     {
       value: stats.skillExchanges.toString(),
       label: "Skill Exchanges",
-      icon: ArrowRightLeft,
-      color: "bg-violet-500"
+      icon: ArrowRightLeft
     },
     {
       value: `${stats.successRate}%`,
       label: "Success Rate",
-      icon: Star,
-      color: "bg-fuchsia-500"
+      icon: Star
     }
   ];
 
@@ -124,7 +119,7 @@ const SkillsMarketplacePage: React.FC = () => {
       content: (
         <ProfessionalGrowthTabContent
           title="Dashboard"
-          icon={<TrendingUp className="h-5 w-5 text-indigo-500" />}
+          icon={<TrendingUp className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
           description="Overview of your skills marketplace activity"
         >
           <SkillsMarketplaceDashboard />
@@ -138,7 +133,7 @@ const SkillsMarketplacePage: React.FC = () => {
       content: (
         <ProfessionalGrowthTabContent
           title="Browse Opportunities"
-          icon={<Search className="h-5 w-5 text-indigo-500" />}
+          icon={<Search className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
           description="Find projects and collaborations that match your skills"
           action={
             <CreateOpportunityDialog>
@@ -160,7 +155,7 @@ const SkillsMarketplacePage: React.FC = () => {
       content: (
         <ProfessionalGrowthTabContent
           title="My Skills"
-          icon={<Users className="h-5 w-5 text-indigo-500" />}
+          icon={<Users className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
           description="Manage your skills profile and showcase your expertise"
         >
           <UserSkillsManager />
@@ -174,7 +169,7 @@ const SkillsMarketplacePage: React.FC = () => {
       content: (
         <ProfessionalGrowthTabContent
           title="Skill Exchange"
-          icon={<ArrowRightLeft className="h-5 w-5 text-indigo-500" />}
+          icon={<ArrowRightLeft className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
           description="Exchange skills with other professionals through collaborative learning"
         >
           <SkillExchangeBoard />

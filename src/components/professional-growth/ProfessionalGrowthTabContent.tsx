@@ -48,13 +48,13 @@ export const EmptyTabContent: React.FC<{
 }> = ({ icon: Icon, title, description, actionLabel, onAction }) => {
   return (
     <div className="text-center py-12">
-      <Icon className="h-16 w-16 text-indigo-500 mx-auto mb-4" />
+      <Icon className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
       <h3 className="text-2xl font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground max-w-md mx-auto mb-6">{description}</p>
       {actionLabel && onAction && (
         <button 
           onClick={onAction}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md"
+          className="bg-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))/90] text-white px-4 py-2 rounded-md"
         >
           {actionLabel}
         </button>

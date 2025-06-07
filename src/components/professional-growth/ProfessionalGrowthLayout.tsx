@@ -4,12 +4,13 @@ import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LucideIcon } from 'lucide-react';
+import { getStatColor } from '@/lib/colors';
 
 export interface StatItem {
   value: string;
   label: string;
   icon: LucideIcon;
-  color: string;
+  color?: string; // Keep for backward compatibility but will be overridden
 }
 
 export interface TabItem {
@@ -40,9 +41,9 @@ export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> =
 }) => {
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
+      <div className="min-h-screen bg-[rgb(var(--pg-background))]">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div className="bg-gradient-to-r from-[rgb(var(--pg-gradient-from))] to-[rgb(var(--pg-gradient-to))] text-white">
           <div className="container mx-auto px-4 py-12">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -65,7 +66,7 @@ export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> =
                     <Card key={index} className="border-0 shadow-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${stat.color}`}>
+                          <div className={`p-2 rounded-full ${getStatColor(index)}`}>
                             <IconComponent className="h-5 w-5 text-white" />
                           </div>
                           <div>

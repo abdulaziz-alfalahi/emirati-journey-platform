@@ -16,6 +16,17 @@
     --ehrdc-neutral-light: #F5F5F5;
     --ehrdc-white: #FFFFFF;
 
+    /* Professional Growth color palette */
+    --pg-primary: 238 100 156; /* Fuchsia-500 */
+    --pg-primary-light: 245 208 254; /* Fuchsia-200 */
+    --pg-secondary: 99 102 241; /* Indigo-500 */
+    --pg-secondary-light: 199 210 254; /* Indigo-200 */
+    --pg-accent: 139 92 246; /* Violet-500 */
+    --pg-accent-light: 221 214 254; /* Violet-200 */
+    --pg-background: 245 243 255; /* Violet-50 */
+    --pg-gradient-from: 79 70 229; /* Indigo-600 */
+    --pg-gradient-to: 147 51 234; /* Purple-600 */
+
     /* Group 1 - Early Education/Administrative */
     --group-early-bg: rgba(179, 222, 221, 0.2);       /* ehrdc-light-teal at 20% opacity */
     --group-early-hover: rgba(179, 222, 221, 0.3);    /* ehrdc-light-teal at 30% opacity */
