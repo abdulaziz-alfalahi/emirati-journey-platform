@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
+import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import { AuthenticationRequired } from '@/components/auth/AuthenticationRequired';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AssessmentsList } from '@/components/assessments/AssessmentsList';
@@ -13,9 +12,8 @@ import { useAuth } from '@/context/AuthContext';
 import { AssessmentUpload } from '@/components/assessments/AssessmentUpload';
 import { Button } from '@/components/ui/button';
 import { 
-  ClipboardCheck, Target, Brain, 
-  Award, FileText, TrendingUp, Search,
-  Users, CheckCircle
+  ClipboardCheck, Search, Award, Target, Brain, 
+  FileText, TrendingUp, BookOpen
 } from 'lucide-react';
 
 // Create a client
@@ -72,84 +70,79 @@ const AssessmentsPage = () => {
 
   if (!user) {
     return (
-      <ProfessionalGrowthLayout
-        title={contextContent.title}
-        description={contextContent.description}
-        icon={<ClipboardCheck className="h-8 w-8 text-white" />}
-        tabs={[]}
-      >
-        <AuthenticationRequired 
-          message="Please log in to access assessments and track your development journey" 
-          icon={<ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />}
-        />
-      </ProfessionalGrowthLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="flex items-center justify-center min-h-screen">
+          <AuthenticationRequired 
+            message="Please log in to access assessments and track your development journey" 
+            icon={<ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />}
+          />
+        </div>
+      </div>
     );
   }
 
-  const statsItems: StatItem[] = [
+  const stats = [
     {
       value: "500+",
-      label: "Available Tests",
-      icon: ClipboardCheck
+      label: "Available Tests"
     },
     {
       value: "92%",
-      label: "Completion Rate",
-      icon: Target
+      label: "Completion Rate"
     },
     {
       value: "15+",
-      label: "Skill Categories",
-      icon: Users
+      label: "Skill Categories"
     },
     {
       value: "24/7",
-      label: "Access",
-      icon: CheckCircle
+      label: "Access"
     }
   ];
 
-  const tabs: TabItem[] = [
+  const tabs = [
     {
       id: "available",
-      label: "Available Assessments",
+      label: "Available",
       icon: <Search className="h-4 w-4" />,
       content: (
-        <ProfessionalGrowthTabContent
-          title="Available Assessments"
-          icon={<Search className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Discover and complete assessments to evaluate your skills and track your progress"
-          action={
-            isAssessmentOrTrainingCenter ? (
-              <Button className="bg-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))/90]">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Available Assessments</h2>
+              <p className="text-muted-foreground">
+                Discover and complete assessments to evaluate your skills and track your progress
+              </p>
+            </div>
+            {isAssessmentOrTrainingCenter && (
+              <Button className="bg-ehrdc-teal hover:bg-ehrdc-teal/90">
                 <ClipboardCheck className="h-4 w-4 mr-2" />
                 Create Assessment
               </Button>
-            ) : undefined
-          }
-        >
-          <div className="space-y-6">
-            {isAssessmentOrTrainingCenter && <AssessmentCenterControls />}
-            <AssessmentsList />
+            )}
           </div>
-        </ProfessionalGrowthTabContent>
+          {isAssessmentOrTrainingCenter && <AssessmentCenterControls />}
+          <AssessmentsList />
+        </div>
       )
     },
     {
-      id: "my-assessments",
+      id: "results",
       label: "My Results",
       icon: <Award className="h-4 w-4" />,
       content: (
-        <ProfessionalGrowthTabContent
-          title="My Assessment Results"
-          icon={<Award className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="View your assessment history and track your progress over time"
-        >
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">My Assessment Results</h2>
+            <p className="text-muted-foreground">
+              View your assessment history and track your progress over time
+            </p>
+          </div>
           <div className="space-y-8">
             <UserAssessments />
             <CoachingRecommendations />
           </div>
-        </ProfessionalGrowthTabContent>
+        </div>
       )
     },
     {
@@ -157,27 +150,33 @@ const AssessmentsPage = () => {
       label: "Skills Analysis",
       icon: <Target className="h-4 w-4" />,
       content: (
-        <EmptyTabContent
-          icon={Target}
-          title="Skills Gap Analysis"
-          description="Comprehensive skills assessment and gap analysis to identify your strengths and areas for improvement."
-          actionLabel="Coming Soon"
-          onAction={() => {}}
-        />
+        <div className="text-center py-12">
+          <Target className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Skills Gap Analysis</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            Comprehensive skills assessment and gap analysis to identify your strengths and areas for improvement.
+          </p>
+          <Button variant="outline" className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
+            Coming Soon
+          </Button>
+        </div>
       )
     },
     {
       id: "cognitive",
-      label: "Cognitive Tests",
+      label: "Cognitive",
       icon: <Brain className="h-4 w-4" />,
       content: (
-        <EmptyTabContent
-          icon={Brain}
-          title="Cognitive Assessments"
-          description="Cognitive abilities and aptitude tests to evaluate your mental capabilities and problem-solving skills."
-          actionLabel="Coming Soon"
-          onAction={() => {}}
-        />
+        <div className="text-center py-12">
+          <Brain className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Cognitive Assessments</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            Cognitive abilities and aptitude tests to evaluate your mental capabilities and problem-solving skills.
+          </p>
+          <Button variant="outline" className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
+            Coming Soon
+          </Button>
+        </div>
       )
     },
     {
@@ -185,13 +184,16 @@ const AssessmentsPage = () => {
       label: "Personality",
       icon: <FileText className="h-4 w-4" />,
       content: (
-        <EmptyTabContent
-          icon={FileText}
-          title="Personality Profiles"
-          description="Personality assessments and work style insights to understand your professional preferences and behaviors."
-          actionLabel="Coming Soon"
-          onAction={() => {}}
-        />
+        <div className="text-center py-12">
+          <FileText className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Personality Profiles</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            Personality assessments and work style insights to understand your professional preferences and behaviors.
+          </p>
+          <Button variant="outline" className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
+            Coming Soon
+          </Button>
+        </div>
       )
     },
     {
@@ -199,24 +201,34 @@ const AssessmentsPage = () => {
       label: "Progress",
       icon: <TrendingUp className="h-4 w-4" />,
       content: (
-        <EmptyTabContent
-          icon={TrendingUp}
-          title="Progress Tracking"
-          description="Track your assessment progress and improvements over time with detailed analytics and insights."
-          actionLabel="View Progress"
-          onAction={() => {}}
-        />
+        <div className="text-center py-12">
+          <TrendingUp className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Progress Tracking</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            Track your assessment progress and improvements over time with detailed analytics and insights.
+          </p>
+          <Button className="bg-ehrdc-teal hover:bg-ehrdc-teal/90">
+            View Progress
+          </Button>
+        </div>
       )
     }
   ];
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ProfessionalGrowthLayout
+      <CareerPageLayout
         title={contextContent.title}
         description={contextContent.description}
-        icon={<ClipboardCheck className="h-8 w-8 text-white" />}
-        stats={statsItems}
+        heroIcon={<ClipboardCheck className="h-12 w-12" />}
+        primaryActionLabel="Start Assessment"
+        primaryActionIcon={<ClipboardCheck className="h-5 w-5" />}
+        secondaryActionLabel="View My Results"
+        secondaryActionIcon={<Award className="h-5 w-5" />}
+        stats={stats}
+        quote="Continuous assessment and skill development are the foundation of a successful career in the modern economy"
+        attribution="UAE Vision 2071"
+        quoteIcon={<BookOpen className="h-12 w-12" />}
         tabs={tabs}
         defaultTab="available"
       />
