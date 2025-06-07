@@ -9,11 +9,11 @@ import { WorkLifeBalance } from '@/components/career-comparison/WorkLifeBalance'
 import { PersonalizedInsights } from '@/components/career-comparison/PersonalizedInsights';
 import { 
   GitCompare, TrendingUp, BookOpen, Heart, 
-  Star, BarChart3, Search
+  Star, BarChart3, Search, Users
 } from 'lucide-react';
 
 const CareerComparisonPage: React.FC = () => {
-  // Define tabs for the Career Entry layout
+  // Define tabs for the Career Entry layout - standardized to 6 tabs
   const tabs = [
     {
       id: 'comparison',

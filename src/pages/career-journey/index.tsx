@@ -5,11 +5,11 @@ import CareerJourneyMap from '@/components/career/CareerJourneyMap';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Navigation, Map, GitCompare, Target, 
-  BarChart3, TrendingUp, Heart
+  BarChart3, TrendingUp, Heart, Users
 } from 'lucide-react';
 
 const CareerJourneyPage: React.FC = () => {
-  // Define tabs for the Career Entry layout
+  // Define tabs for the Career Entry layout - standardized to 6 tabs
   const tabs = [
     {
       id: 'journey',
@@ -38,6 +38,18 @@ const CareerJourneyPage: React.FC = () => {
           <BarChart3 className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">Progress Tracking</h3>
           <p className="text-muted-foreground">Monitor your career development and achievements over time.</p>
+        </div>
+      )
+    },
+    {
+      id: 'networking',
+      label: 'Network',
+      icon: <Users className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-12">
+          <Users className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Professional Network</h3>
+          <p className="text-muted-foreground">Connect with professionals and expand your career network.</p>
         </div>
       )
     },

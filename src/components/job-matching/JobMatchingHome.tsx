@@ -1,11 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Sparkles, MapPin, Clock, Users, Building, DollarSign, ExternalLink } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Filter, Sparkles, MapPin, Clock, Users, Building, DollarSign, ExternalLink, Sliders } from 'lucide-react';
 
 export function JobMatchingHome() {
+  const [showFilters, setShowFilters] = useState(false);
+
   // Mock job data
   const featuredJobs = [
     {
@@ -42,25 +46,87 @@ export function JobMatchingHome() {
 
   return (
     <div className="space-y-8">
+      {/* Search and Filters Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5 text-ehrdc-teal" />
+            Smart Job Search
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Main Search Bar */}
+          <div className="flex gap-2">
+            <Input 
+              placeholder="Search jobs by title, company, or keywords..." 
+              className="flex-1"
+            />
+            <Button>
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Sliders className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
+          </div>
+
+          {/* Collapsible Filters */}
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dubai">Dubai</SelectItem>
+                  <SelectItem value="abu-dhabi">Abu Dhabi</SelectItem>
+                  <SelectItem value="sharjah">Sharjah</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="technology">Technology</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="healthcare">Healthcare</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Job Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full-time">Full-time</SelectItem>
+                  <SelectItem value="part-time">Part-time</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Salary Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5k-10k">AED 5,000 - 10,000</SelectItem>
+                  <SelectItem value="10k-15k">AED 10,000 - 15,000</SelectItem>
+                  <SelectItem value="15k-25k">AED 15,000 - 25,000</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-ehrdc-teal" />
-              Smart Job Search
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Find jobs that match your skills and preferences with AI-powered search algorithms.
-            </p>
-            <Button className="w-full">
-              Start Searching
-            </Button>
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -72,7 +138,7 @@ export function JobMatchingHome() {
             <p className="text-muted-foreground mb-4">
               Get personalized job recommendations based on your profile and career goals.
             </p>
-            <Button variant="outline" className="w-full">
+            <Button className="w-full">
               View Recommendations
             </Button>
           </CardContent>
@@ -81,48 +147,34 @@ export function JobMatchingHome() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-ehrdc-teal" />
-              Advanced Filters
+              <Users className="h-5 w-5 text-ehrdc-teal" />
+              Verified Employers
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Refine your search with location, salary, industry, and experience filters.
+              Explore opportunities with trusted company partners across the UAE.
             </p>
             <Button variant="outline" className="w-full">
-              Set Preferences
+              Browse Companies
             </Button>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <MapPin className="h-5 w-5 text-ehrdc-teal" />
-            <div>
-              <p className="font-medium">UAE-Wide Coverage</p>
-              <p className="text-muted-foreground text-sm">All Emirates & Industries</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <Clock className="h-5 w-5 text-ehrdc-teal" />
-            <div>
-              <p className="font-medium">Real-Time Updates</p>
-              <p className="text-muted-foreground text-sm">Fresh opportunities daily</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <Users className="h-5 w-5 text-ehrdc-teal" />
-            <div>
-              <p className="font-medium">Verified Employers</p>
-              <p className="text-muted-foreground text-sm">Trusted company partners</p>
-            </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-ehrdc-teal" />
+              Real-Time Updates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Get notified about fresh opportunities that match your preferences.
+            </p>
+            <Button variant="outline" className="w-full">
+              Set Alerts
+            </Button>
           </CardContent>
         </Card>
       </div>

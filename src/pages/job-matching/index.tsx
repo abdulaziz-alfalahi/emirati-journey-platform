@@ -5,7 +5,6 @@ import { JobMatchingHome } from '@/components/job-matching/JobMatchingHome';
 import { ApplicationTracker } from '@/components/job-matching/ApplicationTracker';
 import { SavedJobsManager } from '@/components/job-matching/SavedJobsManager';
 import { CareerInsights } from '@/components/job-matching/CareerInsights';
-import { JobFiltersPanel } from '@/components/job-matching/JobFiltersPanel';
 import { SkillsGapAnalysis } from '@/components/job-matching/SkillsGapAnalysis';
 import { MatchingPreferences } from '@/components/job-matching/MatchingPreferences';
 import { 
@@ -14,22 +13,13 @@ import {
 } from 'lucide-react';
 
 const JobMatchingPage: React.FC = () => {
-  // Define tabs for the Career Entry layout
+  // Define tabs for the Career Entry layout - standardized to 6 tabs
   const tabs = [
     {
       id: 'search',
       label: 'Search',
       icon: <Search className="h-4 w-4" />,
-      content: (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <JobFiltersPanel />
-          </div>
-          <div className="lg:col-span-3">
-            <JobMatchingHome />
-          </div>
-        </div>
-      )
+      content: <JobMatchingHome />
     },
     {
       id: 'applications',
@@ -44,16 +34,16 @@ const JobMatchingPage: React.FC = () => {
       content: <SavedJobsManager />
     },
     {
-      id: 'preferences',
-      label: 'Preferences',
-      icon: <Settings className="h-4 w-4" />,
-      content: <MatchingPreferences />
-    },
-    {
       id: 'skills-gap',
       label: 'Skills Gap',
       icon: <BarChart2 className="h-4 w-4" />,
       content: <SkillsGapAnalysis />
+    },
+    {
+      id: 'preferences',
+      label: 'Preferences',
+      icon: <Settings className="h-4 w-4" />,
+      content: <MatchingPreferences />
     },
     {
       id: 'insights',
