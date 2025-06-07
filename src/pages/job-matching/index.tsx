@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import { JobMatchingHome } from '@/components/job-matching/JobMatchingHome';
 import { ApplicationTracker } from '@/components/job-matching/ApplicationTracker';
 import { SavedJobsManager } from '@/components/job-matching/SavedJobsManager';
 import { CareerInsights } from '@/components/job-matching/CareerInsights';
 import { JobFiltersPanel } from '@/components/job-matching/JobFiltersPanel';
+import { SkillsGapAnalysis } from '@/components/job-matching/SkillsGapAnalysis';
+import { MatchingPreferences } from '@/components/job-matching/MatchingPreferences';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Search, Briefcase, Star, Clock, Settings, 
@@ -46,29 +48,13 @@ const JobMatchingPage: React.FC = () => {
       id: 'preferences',
       label: 'Preferences',
       icon: <Settings className="h-4 w-4" />,
-      content: (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Settings className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Matching Preferences</h3>
-            <p className="text-gray-600">Customize your job matching criteria and preferences.</p>
-          </CardContent>
-        </Card>
-      )
+      content: <MatchingPreferences />
     },
     {
       id: 'skills-gap',
       label: 'Skills Gap',
       icon: <BarChart2 className="h-4 w-4" />,
-      content: (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <BarChart2 className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Skills Gap Analysis</h3>
-            <p className="text-gray-600">Identify skill gaps and get recommendations for career advancement.</p>
-          </CardContent>
-        </Card>
-      )
+      content: <SkillsGapAnalysis />
     },
     {
       id: 'insights',

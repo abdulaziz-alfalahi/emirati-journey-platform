@@ -44,52 +44,52 @@ export function JobMatchingHome() {
     <div className="space-y-8">
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow border-l-4 border-l-blue-600">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Search className="h-5 w-5 text-blue-600" />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5 text-ehrdc-teal" />
               Smart Job Search
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4 text-sm">
+            <p className="text-muted-foreground mb-4">
               Find jobs that match your skills and preferences with AI-powered search algorithms.
             </p>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
+            <Button className="w-full">
               Start Searching
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow border-l-4 border-l-purple-600">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="h-5 w-5 text-purple-600" />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-ehrdc-teal" />
               AI Recommendations
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4 text-sm">
+            <p className="text-muted-foreground mb-4">
               Get personalized job recommendations based on your profile and career goals.
             </p>
-            <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
+            <Button variant="outline" className="w-full">
               View Recommendations
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow border-l-4 border-l-green-600">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Filter className="h-5 w-5 text-green-600" />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-ehrdc-teal" />
               Advanced Filters
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4 text-sm">
+            <p className="text-muted-foreground mb-4">
               Refine your search with location, salary, industry, and experience filters.
             </p>
-            <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50">
+            <Button variant="outline" className="w-full">
               Set Preferences
             </Button>
           </CardContent>
@@ -97,28 +97,34 @@ export function JobMatchingHome() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-          <MapPin className="h-5 w-5 text-blue-600" />
-          <div>
-            <p className="text-sm font-medium text-blue-900">UAE-Wide Coverage</p>
-            <p className="text-xs text-blue-700">All Emirates & Industries</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-          <Clock className="h-5 w-5 text-green-600" />
-          <div>
-            <p className="text-sm font-medium text-green-900">Real-Time Updates</p>
-            <p className="text-xs text-green-700">Fresh opportunities daily</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
-          <Users className="h-5 w-5 text-purple-600" />
-          <div>
-            <p className="text-sm font-medium text-purple-900">Verified Employers</p>
-            <p className="text-xs text-purple-700">Trusted company partners</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <MapPin className="h-5 w-5 text-ehrdc-teal" />
+            <div>
+              <p className="font-medium">UAE-Wide Coverage</p>
+              <p className="text-muted-foreground text-sm">All Emirates & Industries</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Clock className="h-5 w-5 text-ehrdc-teal" />
+            <div>
+              <p className="font-medium">Real-Time Updates</p>
+              <p className="text-muted-foreground text-sm">Fresh opportunities daily</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <Users className="h-5 w-5 text-ehrdc-teal" />
+            <div>
+              <p className="font-medium">Verified Employers</p>
+              <p className="text-muted-foreground text-sm">Trusted company partners</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Featured Jobs */}
@@ -132,17 +138,17 @@ export function JobMatchingHome() {
         <CardContent>
           <div className="space-y-4">
             {featuredJobs.map((job) => (
-              <Card key={job.id} className="border border-ehrdc-neutral-light">
+              <Card key={job.id}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{job.title}</h3>
-                      <div className="flex items-center gap-2 text-ehrdc-teal font-medium">
+                      <h3 className="text-lg font-semibold mb-2">{job.title}</h3>
+                      <div className="flex items-center gap-2 text-ehrdc-teal">
                         <Building className="h-4 w-4" />
                         {job.company}
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-800">
+                    <Badge variant="outline" className="bg-ehrdc-light-teal/10 text-ehrdc-teal border-ehrdc-light-teal/20">
                       {job.match} Match
                     </Badge>
                   </div>
@@ -167,7 +173,7 @@ export function JobMatchingHome() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-ehrdc-teal hover:bg-ehrdc-dark-teal">
+                    <Button className="flex-1">
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Apply Now
                     </Button>

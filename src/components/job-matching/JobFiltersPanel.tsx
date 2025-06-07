@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Filter, MapPin, DollarSign, Clock, Building } from 'lucide-react';
 
 export const JobFiltersPanel: React.FC = () => {
@@ -107,7 +106,7 @@ export const JobFiltersPanel: React.FC = () => {
 
         {/* Apply Filters */}
         <div className="space-y-2">
-          <Button className="w-full bg-ehrdc-teal hover:bg-ehrdc-dark-teal">
+          <Button className="w-full">
             Apply Filters
           </Button>
           <Button variant="outline" className="w-full">
