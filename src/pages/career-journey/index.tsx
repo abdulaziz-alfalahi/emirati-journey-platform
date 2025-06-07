@@ -2,39 +2,13 @@
 import React from 'react';
 import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import CareerJourneyMap from '@/components/career/CareerJourneyMap';
-import CareerPathComparison from '@/components/career/CareerPathComparison';
-import ExportJourneyDialog from '@/components/career/ExportJourneyDialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
-  Navigation, Map, GitCompare, Download, Target, 
-  BarChart3, TrendingUp, Heart, Settings 
+  Navigation, Map, GitCompare, Target, 
+  BarChart3, TrendingUp, Heart
 } from 'lucide-react';
-import { CareerPath } from '@/components/career/journey-map/types';
 
 const CareerJourneyPage: React.FC = () => {
-  // Mock data that matches CareerPath type from journey-map
-  const mockPaths: CareerPath[] = [
-    { 
-      id: '1', 
-      title: 'Software Engineering', 
-      industry: 'Technology',
-      stages: [],
-      totalProgress: 0
-    },
-    { 
-      id: '2', 
-      title: 'Digital Marketing', 
-      industry: 'Marketing',
-      stages: [],
-      totalProgress: 0
-    }
-  ];
-
-  const mockJourneyData = {
-    currentStage: 'Entry Level',
-    goals: ['Get certified', 'Find mentor'],
-    milestones: ['Complete training', 'Apply for jobs']
-  };
-
   // Define tabs for the Career Entry layout
   const tabs = [
     {
@@ -44,18 +18,6 @@ const CareerJourneyPage: React.FC = () => {
       content: <CareerJourneyMap />
     },
     {
-      id: 'comparison',
-      label: 'Compare Paths',
-      icon: <GitCompare className="h-4 w-4" />,
-      content: (
-        <CareerPathComparison 
-          availablePaths={mockPaths}
-          isOpen={false}
-          onClose={() => {}}
-        />
-      )
-    },
-    {
       id: 'goals',
       label: 'Goals',
       icon: <Target className="h-4 w-4" />,
@@ -63,7 +25,7 @@ const CareerJourneyPage: React.FC = () => {
         <div className="text-center py-12">
           <Target className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">Goal Setting</h3>
-          <p className="text-gray-600">Set and track your career milestones and professional objectives.</p>
+          <p className="text-muted-foreground">Set and track your career milestones and professional objectives.</p>
         </div>
       )
     },
@@ -75,7 +37,7 @@ const CareerJourneyPage: React.FC = () => {
         <div className="text-center py-12">
           <BarChart3 className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">Progress Tracking</h3>
-          <p className="text-gray-600">Monitor your career development and achievements over time.</p>
+          <p className="text-muted-foreground">Monitor your career development and achievements over time.</p>
         </div>
       )
     },
@@ -87,21 +49,20 @@ const CareerJourneyPage: React.FC = () => {
         <div className="text-center py-12">
           <TrendingUp className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
           <h3 className="text-2xl font-semibold mb-2">Career Insights</h3>
-          <p className="text-gray-600">Get personalized insights and recommendations for your career path.</p>
+          <p className="text-muted-foreground">Get personalized insights and recommendations for your career path.</p>
         </div>
       )
     },
     {
-      id: 'export',
-      label: 'Export',
-      icon: <Download className="h-4 w-4" />,
+      id: 'comparison',
+      label: 'Compare',
+      icon: <GitCompare className="h-4 w-4" />,
       content: (
-        <ExportJourneyDialog 
-          isOpen={false}
-          onOpenChange={() => {}}
-          elementRef={React.createRef()}
-          journeyData={mockJourneyData}
-        />
+        <div className="text-center py-12">
+          <GitCompare className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
+          <h3 className="text-2xl font-semibold mb-2">Path Comparison</h3>
+          <p className="text-muted-foreground">Compare different career paths to make informed decisions.</p>
+        </div>
       )
     }
   ];
@@ -133,9 +94,6 @@ const CareerJourneyPage: React.FC = () => {
       // Tabs props
       tabs={tabs}
       defaultTab="journey"
-      
-      // Gradient override
-      gradientColors="from-slate-50 via-white to-blue-50"
     />
   );
 };

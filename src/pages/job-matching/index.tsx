@@ -8,10 +8,9 @@ import { CareerInsights } from '@/components/job-matching/CareerInsights';
 import { JobFiltersPanel } from '@/components/job-matching/JobFiltersPanel';
 import { SkillsGapAnalysis } from '@/components/job-matching/SkillsGapAnalysis';
 import { MatchingPreferences } from '@/components/job-matching/MatchingPreferences';
-import { Card, CardContent } from '@/components/ui/card';
 import { 
-  Search, Briefcase, Star, Clock, Settings, 
-  BarChart2, TrendingUp, Compass, Heart 
+  Search, Briefcase, Star, Settings, 
+  BarChart2, TrendingUp, Heart 
 } from 'lucide-react';
 
 const JobMatchingPage: React.FC = () => {
@@ -69,7 +68,7 @@ const JobMatchingPage: React.FC = () => {
       // Hero props
       title="Job Matching"
       description="Find your perfect career match with our AI-powered job matching system that aligns your skills, experience, and preferences with available opportunities."
-      heroIcon={<Compass className="h-12 w-12" />}
+      heroIcon={<Search className="h-12 w-12" />}
       primaryActionLabel="Find Jobs"
       primaryActionIcon={<Search className="h-5 w-5" />}
       secondaryActionLabel="Update Profile"

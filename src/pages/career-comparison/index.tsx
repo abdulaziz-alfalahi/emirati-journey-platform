@@ -9,7 +9,7 @@ import { WorkLifeBalance } from '@/components/career-comparison/WorkLifeBalance'
 import { PersonalizedInsights } from '@/components/career-comparison/PersonalizedInsights';
 import { 
   GitCompare, TrendingUp, BookOpen, Heart, 
-  Star, BarChart3, Compass, Search
+  Star, BarChart3, Search
 } from 'lucide-react';
 
 const CareerComparisonPage: React.FC = () => {
@@ -75,14 +75,11 @@ const CareerComparisonPage: React.FC = () => {
       // Quote props
       quote="Every career path is unique - compare, analyze, and choose the journey that aligns with your dreams and values."
       attribution="UAE Career Excellence Initiative"
-      quoteIcon={<Compass className="h-12 w-12" />}
+      quoteIcon={<Heart className="h-12 w-12" />}
       
       // Tabs props
       tabs={tabs}
       defaultTab="comparison"
-      
-      // Gradient override
-      gradientColors="from-blue-50 via-white to-indigo-50"
     />
   );
 };

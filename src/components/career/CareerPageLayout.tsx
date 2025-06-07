@@ -41,8 +41,7 @@ interface CareerPageLayoutProps {
   tabs: TabItem[];
   defaultTab: string;
   
-  // Optional gradient override
-  gradientColors?: string;
+  // Optional gradient override - removed to ensure consistency
 }
 
 export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
@@ -60,14 +59,16 @@ export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
   attribution,
   quoteIcon,
   tabs,
-  defaultTab,
-  gradientColors = "from-blue-50 via-white to-indigo-50"
+  defaultTab
 }) => {
   const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState(defaultTab);
 
+  // Use consistent gradient for all Career Entry pages
+  const standardGradient = "from-blue-50 via-white to-indigo-50";
+
   const content = (
-    <div className={`min-h-screen bg-gradient-to-br ${gradientColors}`}>
+    <div className={`min-h-screen bg-gradient-to-br ${standardGradient}`}>
       {/* Standardized Hero Section */}
       <CareerEntryHeroSection
         title={title}
@@ -88,7 +89,7 @@ export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="text-4xl font-bold text-ehrdc-teal mb-2">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -114,7 +115,7 @@ export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-8 bg-white border min-w-max">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-8 bg-white border min-w-max">
               {tabs.map((tab) => (
                 <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 text-ehrdc-teal whitespace-nowrap">
                   {tab.icon}
