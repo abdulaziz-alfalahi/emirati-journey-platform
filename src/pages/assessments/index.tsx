@@ -100,20 +100,17 @@ const AssessmentsPage = () => {
     if (context === 'academic') {
       return {
         title: 'Academic Assessments',
-        description: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey with comprehensive assessments.',
-        gradientColors: 'from-blue-50 via-white to-indigo-50'
+        description: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey with comprehensive assessments.'
       };
     } else if (context === 'career') {
       return {
         title: 'Skills Assessment',
-        description: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey with personalized assessments.',
-        gradientColors: 'from-green-50 via-white to-emerald-50'
+        description: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey with personalized assessments.'
       };
     } else {
       return {
         title: 'Skills Assessment',
-        description: 'Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.',
-        gradientColors: 'from-blue-50 via-white to-indigo-50'
+        description: 'Discover and complete assessments to evaluate your skills, identify growth opportunities, and track your professional development journey.'
       };
     }
   };
@@ -224,9 +221,6 @@ const AssessmentsPage = () => {
         // Tabs props
         tabs={tabs}
         defaultTab="available"
-        
-        // Gradient override
-        gradientColors={contextContent.gradientColors}
       />
     </QueryClientProvider>
   );
