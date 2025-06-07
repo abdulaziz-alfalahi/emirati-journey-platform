@@ -32,7 +32,7 @@ export const MentorDiscovery: React.FC = () => {
     },
     {
       id: 3,
-      name: 'Fatima Al-Zahra',
+      name: 'Dr. Mohammad Mubarak',
       title: 'Software Engineering Director',
       company: 'Microsoft',
       location: 'Abu Dhabi',

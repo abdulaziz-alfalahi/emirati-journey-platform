@@ -1,4 +1,3 @@
-
 import { SuccessStory, StorySubmissionData, EditorialReview } from '@/types/successStories';
 
 // Mock data for demonstration
@@ -83,7 +82,7 @@ Today, we've installed over 10,000 solar systems, created 200 jobs, and prevente
 The UAE's commitment to becoming carbon neutral by 2050 has created an incredible environment for green innovation. As Emiratis, we have a unique opportunity to lead the region's sustainability transformation.`,
     author: {
       id: 'user2',
-      name: 'Fatima Al Zahra',
+      name: 'Dr. Mohammad Mubarak',
       avatar: '/placeholder.svg?height=64&width=64',
       title: 'Founder & CEO',
       company: 'GreenTech Emirates',
