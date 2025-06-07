@@ -13,47 +13,108 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   
   const { fetchUserRoles } = useFetchUserRoles();
   const { signIn, signUp, signOut } = useAuthOperations(setIsLoading);
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        console.log('Auth state changed:', event);
+      async (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.id);
         
-        // Don't do any async operations directly in the callback
+        if (!mounted) return;
+        
+        // Prevent infinite loops by checking if session actually changed
+        if (currentSession?.access_token === session?.access_token) {
+          return;
+        }
+        
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
           // Use setTimeout to avoid potential deadlocks with auth callbacks
-          setTimeout(() => {
-            fetchUserRoles(currentSession.user.id, currentSession.user)
-              .then(userRoles => setRoles(userRoles));
+          setTimeout(async () => {
+            if (mounted) {
+              try {
+                const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
+                if (mounted) {
+                  setRoles(userRoles);
+                }
+              } catch (error) {
+                console.error('Error fetching user roles:', error);
+                if (mounted) {
+                  setRoles([]);
+                }
+              }
+            }
           }, 0);
         } else {
           setRoles([]);
         }
+        
+        if (!initialized) {
+          setInitialized(true);
+          setIsLoading(false);
+        }
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      
-      if (currentSession?.user) {
-        fetchUserRoles(currentSession.user.id, currentSession.user)
-          .then(userRoles => setRoles(userRoles));
+    // Check for existing session only once
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          setInitialized(true);
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          try {
+            const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
+            if (mounted) {
+              setRoles(userRoles);
+            }
+          } catch (error) {
+            console.error('Error fetching user roles:', error);
+            if (mounted) {
+              setRoles([]);
+            }
+          }
+        }
+        
+        if (mounted) {
+          setInitialized(true);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setIsLoading(false);
+          setInitialized(true);
+        }
       }
-      
-      setIsLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
-  }, []);
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []); // Remove dependencies to prevent re-initialization
 
   const hasRole = (role: UserRole) => {
     return roles.includes(role);

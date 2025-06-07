@@ -24,11 +24,17 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
           name: error.name
         });
         
-        // Special handling for 'Email not confirmed' error to provide a clearer message
+        // Special handling for common auth errors
         if (error.message === 'Email not confirmed') {
           toast({
             title: "Email not confirmed",
-            description: "Please check Supabase settings to disable email confirmations for development.",
+            description: "Please check your email and click the confirmation link, or contact support.",
+            variant: "destructive"
+          });
+        } else if (error.message === 'Invalid login credentials') {
+          toast({
+            title: "Invalid credentials",
+            description: "Please check your email and password and try again.",
             variant: "destructive"
           });
         } else {
@@ -58,6 +64,9 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
     try {
       setIsLoading(true);
       
+      // Get the current origin for redirect
+      const redirectUrl = `${window.location.origin}/`;
+      
       // 1. Create the user account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -66,7 +75,7 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: window.location.origin + '/auth',
+          emailRedirectTo: redirectUrl,
         },
       });
 
