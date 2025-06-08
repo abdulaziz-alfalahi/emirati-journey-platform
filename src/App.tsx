@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 // Pages
 import HomePage from '@/pages/home';
+import AuthPage from '@/pages/auth';
 import DashboardPage from '@/pages/dashboard';
 import ProfilePage from '@/pages/profile';
 import PortfolioPage from '@/pages/portfolio';
@@ -65,6 +66,7 @@ function App() {
               <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/auth" element={<AuthPage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />

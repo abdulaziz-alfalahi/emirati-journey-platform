@@ -1,433 +1,235 @@
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth, UserRole } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import RoleSelector from '@/components/auth/RoleSelector';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, LogIn, UserPlus, Shield } from 'lucide-react';
+import { RoleSelector } from '@/components/auth/RoleSelector';
+import { UserRole } from '@/types/auth';
 
-const AUTH_TABS = {
-  SIGN_IN: 'sign-in',
-  SIGN_UP: 'sign-up',
-};
-
-type PersonaOption = {
-  value: UserRole;
-  label: string;
-};
-
-// Public signup persona options (excludes administrative roles)
-const signupPersonaOptions: PersonaOption[] = [
-  { value: 'school_student', label: 'School Student' },
-  { value: 'national_service_participant', label: 'National Service Participant' },
-  { value: 'university_student', label: 'University Student' },
-  { value: 'intern', label: 'Internship Trainee' },
-  { value: 'full_time_employee', label: 'Full-Time Employee' },
-  { value: 'part_time_employee', label: 'Part-Time Employee' },
-  { value: 'gig_worker', label: 'Gig Worker' },
-  { value: 'jobseeker', label: 'Jobseeker' },
-  { value: 'lifelong_learner', label: 'Lifelong Learner' },
-  { value: 'entrepreneur', label: 'Entrepreneur/Business Owner' },
-  { value: 'retiree', label: 'Retiree' },
-  { value: 'educational_institution', label: 'Educational Institution' },
-  { value: 'parent', label: 'Parent' },
-  { value: 'private_sector_recruiter', label: 'Private Sector Recruiter' },
-  { value: 'government_representative', label: 'Government Representative' },
-  { value: 'retiree_advocate', label: 'Retiree Advocate' },
-  { value: 'training_center', label: 'Training Center' },
-  { value: 'assessment_center', label: 'Assessment Center' },
-  { value: 'mentor', label: 'Mentor/Coach' },
-  { value: 'career_advisor', label: 'Career Advisor' },
-  { value: 'platform_operator', label: 'Platform Operator' },
-];
-
-const AuthPage = () => {
-  const { signIn, signUp, user, isLoading } = useAuth();
+const AuthPage: React.FC = () => {
+  const { user, signIn, signUp, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const [activeTab, setActiveTab] = useState(AUTH_TABS.SIGN_IN);
+  const location = useLocation();
   
-  // Sign in form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Sign up form state
   const [fullName, setFullName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
-  
-  // Loading states
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
-  const [isCreatingTestAccounts, setIsCreatingTestAccounts] = useState(false);
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('signin');
 
+  // Redirect if already logged in
   useEffect(() => {
-    // If user is already authenticated, redirect to home
     if (user) {
-      navigate('/');
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, location]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
     if (!email || !password) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all fields",
-        variant: "destructive"
-      });
+      setError('Please fill in all fields');
       return;
     }
-    
+
     try {
-      setIsSigningIn(true);
       await signIn(email, password);
-      navigate('/');
-    } catch (error) {
-      console.error('Sign in error:', error);
-      toast({
-        title: "Sign In Failed",
-        description: error instanceof Error ? error.message : "Failed to sign in. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSigningIn(false);
+    } catch (error: any) {
+      setError(error.message || 'Sign in failed');
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
-    // Validate form inputs
-    if (!fullName || !newEmail || !newPassword || !confirmPassword || selectedRoles.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all fields and select at least one role",
-        variant: "destructive"
-      });
+    if (!email || !password || !fullName) {
+      setError('Please fill in all fields');
       return;
     }
-    
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Password Error",
-        description: "Passwords do not match",
-        variant: "destructive"
-      });
+
+    if (selectedRoles.length === 0) {
+      setError('Please select at least one role');
       return;
     }
-    
+
     try {
-      setIsSigningUp(true);
-      
-      // Create the user account first
-      const { data: userData, error: signUpError } = await supabase.auth.signUp({
-        email: newEmail,
-        password: newPassword,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-          emailRedirectTo: window.location.origin + '/auth',
-        },
-      });
-
-      if (signUpError) {
-        toast({
-          title: "Registration failed",
-          description: signUpError.message,
-          variant: "destructive"
-        });
-        throw signUpError;
-      }
-
-      if (!userData.user) {
-        throw new Error('User creation failed');
-      }
-
-      // Assign all selected roles
-      for (const role of selectedRoles) {
-        const { error: roleError } = await supabase.functions.invoke(
-          'assign-user-role',
-          {
-            body: { 
-              userId: userData.user.id,
-              role: role
-            }
-          }
-        );
-
-        if (roleError) {
-          console.error(`Failed to assign role ${role}:`, roleError);
-          // Continue with other roles even if one fails
-        }
-      }
-
-      toast({
-        title: "Account created",
-        description: `You've successfully registered with ${selectedRoles.length} role(s). You can now log in.`
-      });
-      
-      // After successful signup, switch to sign in tab
-      setActiveTab(AUTH_TABS.SIGN_IN);
-      setEmail(newEmail);
+      await signUp(email, password, fullName, selectedRoles);
+      setActiveTab('signin');
+      setError('');
+      setEmail('');
       setPassword('');
-      
-    } catch (error) {
-      console.error('Sign up error:', error);
-      toast({
-        title: "Registration Failed",
-        description: error instanceof Error ? error.message : "Failed to create account. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSigningUp(false);
+      setFullName('');
+      setSelectedRoles([]);
+    } catch (error: any) {
+      setError(error.message || 'Sign up failed');
     }
-  };
-  
-  const createAllTestAccounts = async () => {
-    try {
-      setIsCreatingTestAccounts(true);
-      
-      toast({
-        title: "Creating Test Accounts",
-        description: "Please wait while we create the test accounts...",
-      });
-      
-      const { data, error } = await supabase.functions.invoke('seed-test-accounts', {});
-      
-      if (error) {
-        console.error('Error creating test accounts:', error);
-        toast({
-          title: "Error",
-          description: "Failed to create test accounts: " + error.message,
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      toast({
-        title: "Test Accounts Created",
-        description: `Successfully created test accounts. Use any of them with password: journey123!`,
-      });
-      
-      // Switch to sign in tab
-      setActiveTab(AUTH_TABS.SIGN_IN);
-      
-      // Set a default account to sign in with
-      const defaultEmail = 'school-student@gmail.com';
-      setEmail(defaultEmail);
-      setPassword('journey123!');
-      
-    } catch (error) {
-      console.error('Create test accounts error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create test accounts. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCreatingTestAccounts(false);
-    }
-  };
-  
-  const loginWithPersona = (persona: PersonaOption) => {
-    const email = `${persona.value.replace(/_/g, '-')}@gmail.com`;
-    const password = "journey123!";
-    
-    setEmail(email);
-    setPassword(password);
-    setActiveTab(AUTH_TABS.SIGN_IN);
-    
-    toast({
-      title: "Credentials Filled",
-      description: `You can now sign in as ${persona.label}`,
-    });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emirati-teal"></div>
-      </div>
-    );
+  if (user) {
+    return null; // Will redirect via useEffect
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-emirati-navy">Emirati Journey</h1>
-          <p className="text-gray-600 mt-2">Sign in to access your personal journey</p>
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 bg-emirati-teal rounded-lg flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome to EHRDC</h1>
+          <p className="text-gray-600">Sign in to your account or create a new one</p>
         </div>
-        
-        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value={AUTH_TABS.SIGN_IN}>Sign In</TabsTrigger>
-            <TabsTrigger value={AUTH_TABS.SIGN_UP}>Sign Up</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value={AUTH_TABS.SIGN_IN}>
-            <Card>
-              <CardHeader>
+
+        <Card>
+          <CardHeader className="space-y-1">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin" className="flex items-center gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
+              
+              {error && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <TabsContent value="signin">
                 <CardTitle>Sign In</CardTitle>
                 <CardDescription>
                   Enter your credentials to access your account
                 </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignIn}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                
+                <form onSubmit={handleSignIn} className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="signin-email">Email</Label>
                     <Input
-                      id="email"
+                      id="signin-email"
                       type="email"
-                      placeholder="name@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                  <div>
+                    <Label htmlFor="signin-password">Password</Label>
                     <Input
-                      id="password"
+                      id="signin-password"
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
                     />
                   </div>
-                </CardContent>
-                <CardFooter>
                   <Button 
                     type="submit" 
-                    className="w-full" 
-                    disabled={isSigningIn}
+                    className="w-full bg-emirati-teal hover:bg-emirati-teal/90"
+                    disabled={isLoading}
                   >
-                    {isSigningIn ? 'Signing in...' : 'Sign In'}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      'Sign In'
+                    )}
                   </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value={AUTH_TABS.SIGN_UP}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Create an Account</CardTitle>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="signup">
+                <CardTitle>Create Account</CardTitle>
                 <CardDescription>
-                  Enter your information to create an account
+                  Join the EHRDC platform and start your journey
                 </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSignUp}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                
+                <form onSubmit={handleSignUp} className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="signup-name">Full Name</Label>
                     <Input
-                      id="fullName"
-                      placeholder="Enter your full name"
+                      id="signup-name"
+                      type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Enter your full name"
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newEmail">Email</Label>
+                  <div>
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
-                      id="newEmail"
+                      id="signup-email"
                       type="email"
-                      placeholder="name@example.com"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">Password</Label>
+                  <div>
+                    <Label htmlFor="signup-password">Password</Label>
                     <Input
-                      id="newPassword"
+                      id="signup-password"
                       type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create a password"
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                  
+                  <div>
+                    <Label>Select Your Role(s)</Label>
+                    <RoleSelector
+                      selectedRoles={selectedRoles}
+                      onRolesChange={setSelectedRoles}
                     />
                   </div>
-                  <RoleSelector
-                    selectedRoles={selectedRoles}
-                    onRolesChange={setSelectedRoles}
-                  />
-                </CardContent>
-                <CardFooter>
+                  
                   <Button 
                     type="submit" 
-                    className="w-full" 
-                    disabled={isSigningUp}
+                    className="w-full bg-emirati-teal hover:bg-emirati-teal/90"
+                    disabled={isLoading}
                   >
-                    {isSigningUp ? 'Creating Account...' : 'Create Account'}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      'Create Account'
+                    )}
                   </Button>
-                </CardFooter>
-              </form>
-            </Card>
-            
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-gray-50 px-2 text-gray-500">Test Accounts</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 space-y-4">
-                <Button
-                  variant="outline"
-                  onClick={createAllTestAccounts}
-                  disabled={isCreatingTestAccounts}
-                  className="w-full"
-                >
-                  {isCreatingTestAccounts ? 'Creating Test Accounts...' : 'Create All Test Accounts'}
-                </Button>
-                
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-gray-50 px-2 text-gray-500">Or Login As</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  {signupPersonaOptions.map((persona) => (
-                    <Button
-                      key={persona.value}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => loginWithPersona(persona)}
-                      className="text-xs h-auto py-1 justify-start overflow-hidden text-ellipsis whitespace-nowrap"
-                    >
-                      {persona.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardHeader>
+        </Card>
+        
+        <div className="text-center mt-6 text-sm text-gray-600">
+          <p>Need help? Contact support at support@ehrdc.ae</p>
+        </div>
       </div>
     </div>
   );
