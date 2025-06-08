@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -97,6 +96,7 @@ function App() {
                   <Route path="/business-development" element={<BusinessDevelopmentPage />} />
                   <Route path="/startup" element={<StartupPage />} />
                   <Route path="/innovation" element={<InnovationPage />} />
+                  <Route path="/communities" element={<CommunitiesPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />
@@ -105,7 +105,6 @@ function App() {
                   <Route path="/collaborative-assessments" element={<CollaborativeAssessmentsPage />} />
                   <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
                   <Route path="/job-matching" element={<JobMatchingPage />} />
-                  <Route path="/communities" element={<CommunitiesPage />} />
                   <Route path="/mentorship" element={<MentorshipPage />} />
                   <Route path="/skills-marketplace" element={<SkillsMarketplacePage />} />
                   <Route path="/credentials" element={<CredentialsPage />} />
