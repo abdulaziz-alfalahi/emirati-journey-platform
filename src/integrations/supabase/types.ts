@@ -542,6 +542,54 @@ export type Database = {
         }
         Relationships: []
       }
+      bizdev_resources: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty_level: string | null
+          downloadable_file_url: string | null
+          focus_area: string
+          id: string
+          image_url: string | null
+          link_url: string | null
+          provider_or_author: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          downloadable_file_url?: string | null
+          focus_area: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          provider_or_author?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          downloadable_file_url?: string | null
+          focus_area?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          provider_or_author?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       blockchain_credentials: {
         Row: {
           block_number: number

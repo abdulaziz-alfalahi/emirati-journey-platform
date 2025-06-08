@@ -47,6 +47,7 @@ import MentorMatchingPage from '@/pages/mentor-matching';
 import LeadershipPage from '@/pages/leadership';
 import NetworkingPage from '@/pages/networking';
 import CareerTransitionPage from '@/pages/career-transition';
+import BusinessDevelopmentPage from '@/pages/business-development';
 
 import './App.css';
 
@@ -91,6 +92,7 @@ function App() {
                   <Route path="/leadership" element={<LeadershipPage />} />
                   <Route path="/networking" element={<NetworkingPage />} />
                   <Route path="/career-transition" element={<CareerTransitionPage />} />
+                  <Route path="/business-development" element={<BusinessDevelopmentPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />
