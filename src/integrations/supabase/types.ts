@@ -1138,6 +1138,59 @@ export type Database = {
           },
         ]
       }
+      community_events: {
+        Row: {
+          community_id: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          event_type: string
+          id: string
+          image_url: string | null
+          location: string | null
+          registration_url: string | null
+          start_date: string
+          status: string
+          title: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          event_type: string
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          registration_url?: string | null
+          start_date: string
+          status?: string
+          title: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          event_type?: string
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          registration_url?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_events_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "professional_communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_enrollments: {
         Row: {
           certificate_issued_at: string | null
@@ -3369,6 +3422,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      professional_communities: {
+        Row: {
+          application_url: string | null
+          benefits: string[] | null
+          community_type: string
+          created_at: string
+          description: string
+          featured: boolean
+          founding_year: number | null
+          id: string
+          industry_focus: string[]
+          location_type: string
+          logo_url: string | null
+          meeting_frequency: string | null
+          membership_fee: string | null
+          membership_type: string
+          name: string
+          physical_location: string | null
+          size: string | null
+          status: string
+          website_url: string | null
+        }
+        Insert: {
+          application_url?: string | null
+          benefits?: string[] | null
+          community_type: string
+          created_at?: string
+          description: string
+          featured?: boolean
+          founding_year?: number | null
+          id?: string
+          industry_focus: string[]
+          location_type: string
+          logo_url?: string | null
+          meeting_frequency?: string | null
+          membership_fee?: string | null
+          membership_type: string
+          name: string
+          physical_location?: string | null
+          size?: string | null
+          status?: string
+          website_url?: string | null
+        }
+        Update: {
+          application_url?: string | null
+          benefits?: string[] | null
+          community_type?: string
+          created_at?: string
+          description?: string
+          featured?: boolean
+          founding_year?: number | null
+          id?: string
+          industry_focus?: string[]
+          location_type?: string
+          logo_url?: string | null
+          meeting_frequency?: string | null
+          membership_fee?: string | null
+          membership_type?: string
+          name?: string
+          physical_location?: string | null
+          size?: string | null
+          status?: string
+          website_url?: string | null
+        }
+        Relationships: []
       }
       professional_groups: {
         Row: {
