@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, LogIn, UserPlus, Shield } from 'lucide-react';
-import { RoleSelector } from '@/components/auth/RoleSelector';
+import RoleSelector from '@/components/auth/RoleSelector';
 import { UserRole } from '@/types/auth';
 
 const AuthPage: React.FC = () => {
