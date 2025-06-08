@@ -2085,6 +2085,54 @@ export type Database = {
           },
         ]
       }
+      industry_networks: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          description: string | null
+          id: string
+          industry_focus: string[]
+          is_official_partner: boolean
+          location: string | null
+          logo_url: string | null
+          membership_fee: string | null
+          name: string
+          status: string
+          type: string
+          website_url: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry_focus: string[]
+          is_official_partner?: boolean
+          location?: string | null
+          logo_url?: string | null
+          membership_fee?: string | null
+          name: string
+          status?: string
+          type: string
+          website_url?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry_focus?: string[]
+          is_official_partner?: boolean
+          location?: string | null
+          logo_url?: string | null
+          membership_fee?: string | null
+          name?: string
+          status?: string
+          type?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       internship_applications: {
         Row: {
           id: string
