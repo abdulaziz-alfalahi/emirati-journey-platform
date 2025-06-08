@@ -4081,6 +4081,51 @@ export type Database = {
         }
         Relationships: []
       }
+      startup_ecosystem_entities: {
+        Row: {
+          application_link_or_email: string | null
+          created_at: string
+          description: string | null
+          funding_stage_focus: string | null
+          id: string
+          industry_focus: string[] | null
+          location: string | null
+          logo_url: string | null
+          name: string
+          status: string
+          type: string
+          website_url: string
+        }
+        Insert: {
+          application_link_or_email?: string | null
+          created_at?: string
+          description?: string | null
+          funding_stage_focus?: string | null
+          id?: string
+          industry_focus?: string[] | null
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          status?: string
+          type: string
+          website_url: string
+        }
+        Update: {
+          application_link_or_email?: string | null
+          created_at?: string
+          description?: string | null
+          funding_stage_focus?: string | null
+          id?: string
+          industry_focus?: string[] | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          status?: string
+          type?: string
+          website_url?: string
+        }
+        Relationships: []
+      }
       summer_camps: {
         Row: {
           age_group: string
