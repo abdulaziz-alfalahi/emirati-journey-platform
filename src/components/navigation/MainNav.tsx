@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -48,7 +49,6 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Group 2 - Advanced Education/Exploratory (chronological order)
         { name: 'Youth Development', href: '/youth-development', icon: Sparkles, group: 'advanced' },
         { name: 'University Programs', href: '/university-programs', icon: Building, group: 'advanced' },
-        { name: 'Professional Certifications', href: '/professional-certifications', icon: Shield, group: 'advanced' },
         { name: 'Digital Skills Development', href: '/digital-skills', icon: Laptop, group: 'advanced' },
       ]
     },
@@ -94,7 +94,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
       items: [
         // Skills Enhancement & Development
         { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Handshake },
-        { name: 'Advanced Certifications', href: '/professional-certifications', icon: Award },
+        { name: 'Professional Certifications', href: '/professional-certifications', icon: Award },
         { name: 'Leadership Development', href: '/leadership', icon: Target },
         { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
         
