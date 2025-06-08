@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -39,7 +38,6 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Summer Camps', href: '/summer-camps', icon: Calendar, group: 'early' },
         { name: 'School Programs', href: '/school-programs', icon: School, group: 'early' },
         { name: 'Scholarships', href: '/scholarships', icon: Award, group: 'early' },
-        { name: 'Academic Assessments', href: '/assessments?context=academic', icon: FileText, group: 'early' },
         { name: 'Learning Management', href: '/lms', icon: GraduationCap, group: 'early' },
         { name: 'Vocational Training', href: '/training', icon: BookOpen, group: 'early' },
         
@@ -49,6 +47,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Group 2 - Advanced Education/Exploratory (chronological order)
         { name: 'Youth Development', href: '/youth-development', icon: Sparkles, group: 'advanced' },
         { name: 'University Programs', href: '/university-programs', icon: Building, group: 'advanced' },
+        { name: 'Academic Assessments', href: '/assessments?context=academic', icon: FileText, group: 'advanced' },
         { name: 'Digital Skills Development', href: '/digital-skills', icon: Laptop, group: 'advanced' },
       ]
     },
