@@ -49,6 +49,7 @@ import NetworkingPage from '@/pages/networking';
 import CareerTransitionPage from '@/pages/career-transition';
 import BusinessDevelopmentPage from '@/pages/business-development';
 import StartupPage from '@/pages/startup';
+import InnovationPage from '@/pages/innovation';
 
 import './App.css';
 
@@ -95,6 +96,7 @@ function App() {
                   <Route path="/career-transition" element={<CareerTransitionPage />} />
                   <Route path="/business-development" element={<BusinessDevelopmentPage />} />
                   <Route path="/startup" element={<StartupPage />} />
+                  <Route path="/innovation" element={<InnovationPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />

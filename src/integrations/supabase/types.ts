@@ -2232,6 +2232,57 @@ export type Database = {
         }
         Relationships: []
       }
+      innovation_hub_content: {
+        Row: {
+          author_or_source: string | null
+          category: string
+          challenge_deadline: string | null
+          content_markdown: string | null
+          content_url: string | null
+          created_at: string
+          description: string | null
+          event_date: string | null
+          id: string
+          image_url: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          type: string
+        }
+        Insert: {
+          author_or_source?: string | null
+          category: string
+          challenge_deadline?: string | null
+          content_markdown?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          type: string
+        }
+        Update: {
+          author_or_source?: string | null
+          category?: string
+          challenge_deadline?: string | null
+          content_markdown?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       internship_applications: {
         Row: {
           id: string
