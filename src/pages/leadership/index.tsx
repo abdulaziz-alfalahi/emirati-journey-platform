@@ -275,7 +275,7 @@ const LeadershipPage = () => {
                 Discover comprehensive leadership development opportunities
               </p>
             </div>
-            {user && hasRole('admin') && (
+            {user && hasRole('administrator') && (
               <Button onClick={handleAddResource} className="bg-ehrdc-teal hover:bg-ehrdc-teal/90">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Resource
