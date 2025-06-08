@@ -891,6 +891,57 @@ export type Database = {
         }
         Relationships: []
       }
+      career_transition_resources: {
+        Row: {
+          content_markdown: string | null
+          content_url: string | null
+          created_at: string
+          description: string | null
+          estimated_transition_time: string | null
+          id: string
+          image_url: string | null
+          required_skills_summary: string | null
+          source_from_industry: string | null
+          status: string
+          tags: string[] | null
+          target_to_industry: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          content_markdown?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_transition_time?: string | null
+          id?: string
+          image_url?: string | null
+          required_skills_summary?: string | null
+          source_from_industry?: string | null
+          status?: string
+          tags?: string[] | null
+          target_to_industry?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          content_markdown?: string | null
+          content_url?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_transition_time?: string | null
+          id?: string
+          image_url?: string | null
+          required_skills_summary?: string | null
+          source_from_industry?: string | null
+          status?: string
+          tags?: string[] | null
+          target_to_industry?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           certificate_number: string
