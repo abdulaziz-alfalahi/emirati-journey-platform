@@ -44,6 +44,7 @@ import InterviewPreparationPage from '@/pages/interview-preparation';
 import CareerComparisonPage from '@/pages/career-comparison';
 import SalaryExplorerPage from '@/pages/salary-explorer';
 import MentorMatchingPage from '@/pages/mentor-matching';
+import LeadershipPage from '@/pages/leadership';
 
 import './App.css';
 
@@ -85,6 +86,7 @@ function App() {
                   <Route path="/career-comparison" element={<CareerComparisonPage />} />
                   <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
+                  <Route path="/leadership" element={<LeadershipPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
                   <Route path="/training" element={<TrainingPage />} />

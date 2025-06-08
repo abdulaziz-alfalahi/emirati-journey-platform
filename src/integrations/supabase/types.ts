@@ -2336,6 +2336,57 @@ export type Database = {
         }
         Relationships: []
       }
+      leadership_resources: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          link_url: string
+          provider: string | null
+          status: string
+          tags: string[] | null
+          target_personas: string[] | null
+          title: string
+          type: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          link_url: string
+          provider?: string | null
+          status?: string
+          tags?: string[] | null
+          target_personas?: string[] | null
+          title: string
+          type: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          link_url?: string
+          provider?: string | null
+          status?: string
+          tags?: string[] | null
+          target_personas?: string[] | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
