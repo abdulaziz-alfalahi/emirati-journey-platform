@@ -9,11 +9,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 
-interface Session {
+// Simple interface that matches the database schema exactly
+interface MentorshipSession {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
-  topic: string;
+  topic?: string;
   status: string;
   notes?: string;
   feedback?: string;
@@ -26,7 +27,7 @@ interface Session {
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<MentorshipSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export const MentorSessions: React.FC = () => {
         if (error) throw error;
         
         if (sessionsData) {
-          setSessions(sessionsData as Session[]);
+          setSessions(sessionsData);
         }
       }
     } catch (error) {
@@ -94,11 +95,11 @@ export const MentorSessions: React.FC = () => {
     return sessions.filter(session => session.status === status);
   };
 
-  const SessionCard: React.FC<{ session: Session }> = ({ session }) => (
+  const SessionCard: React.FC<{ session: MentorshipSession }> = ({ session }) => (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{session.topic}</CardTitle>
+          <CardTitle className="text-lg">{session.topic || 'Mentorship Session'}</CardTitle>
           <Badge className={getStatusColor(session.status)}>
             {session.status}
           </Badge>
