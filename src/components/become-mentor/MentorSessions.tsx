@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,7 +47,8 @@ export const MentorSessions: React.FC = () => {
         .single();
 
       if (mentorData) {
-        const { data: rawSessions, error } = await supabase
+        // Use explicit any type to avoid TypeScript inference issues
+        const { data: rawSessions, error }: { data: any[] | null; error: any } = await supabase
           .from('mentorship_sessions')
           .select('*')
           .eq('mentor_id', mentorData.id)
