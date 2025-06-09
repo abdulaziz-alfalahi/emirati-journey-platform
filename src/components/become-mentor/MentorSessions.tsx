@@ -52,7 +52,7 @@ export const MentorSessions: React.FC = () => {
 
         if (error) throw error;
         
-        // Map the database response to our interface
+        // Map the database response to our interface - use actual column names
         const mappedSessions: Session[] = (sessionsData || []).map(session => ({
           id: session.id,
           session_date: session.session_date,
