@@ -55,23 +55,9 @@ export const MentorSessions: React.FC = () => {
 
         if (error) throw error;
         
-        // Map the database response to our interface - use actual column names
-        const mappedSessions: Session[] = (sessionsData || []).map(session => ({
-          id: session.id,
-          scheduled_date: session.scheduled_date,
-          duration_minutes: session.duration_minutes,
-          topic: session.topic || '',
-          status: session.status,
-          notes: session.notes,
-          feedback: session.feedback,
-          rating: session.rating,
-          relationship_id: session.relationship_id,
-          video_call_url: session.video_call_url,
-          created_at: session.created_at,
-          updated_at: session.updated_at
-        }));
-        
-        setSessions(mappedSessions);
+        if (sessionsData) {
+          setSessions(sessionsData as Session[]);
+        }
       }
     } catch (error) {
       console.error('Error fetching sessions:', error);
