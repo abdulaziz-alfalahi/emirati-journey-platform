@@ -60,7 +60,23 @@ export const useMentorProfile = () => {
         throw error;
       }
 
-      setMentorProfile(data);
+      if (data) {
+        // Map the database response to our interface
+        const mappedProfile: MentorProfile = {
+          id: data.id,
+          user_id: data.user_id,
+          full_name: data.full_name || '',
+          bio: data.bio,
+          expertise: data.expertise || [],
+          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
+          linkedin_url: data.linkedin_url,
+          profile_picture_url: data.profile_picture_url,
+          is_active: data.is_active,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        };
+        setMentorProfile(mappedProfile);
+      }
     } catch (error) {
       console.error('Error fetching mentor profile:', error);
     } finally {
@@ -87,7 +103,7 @@ export const useMentorProfile = () => {
         .select('*', { count: 'exact', head: true })
         .eq('status', 'completed');
 
-      // Calculate average rating
+      // Calculate average rating - using correct column name
       const { data: ratingData } = await supabase
         .from('mentorship_sessions')
         .select('mentor_rating')
@@ -122,7 +138,21 @@ export const useMentorProfile = () => {
           .single();
 
         if (error) throw error;
-        setMentorProfile(data);
+        
+        const mappedProfile: MentorProfile = {
+          id: data.id,
+          user_id: data.user_id,
+          full_name: data.full_name || '',
+          bio: data.bio,
+          expertise: data.expertise || [],
+          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
+          linkedin_url: data.linkedin_url,
+          profile_picture_url: data.profile_picture_url,
+          is_active: data.is_active,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        };
+        setMentorProfile(mappedProfile);
       } else {
         // Create new profile
         const { data, error } = await supabase
@@ -135,7 +165,21 @@ export const useMentorProfile = () => {
           .single();
 
         if (error) throw error;
-        setMentorProfile(data);
+        
+        const mappedProfile: MentorProfile = {
+          id: data.id,
+          user_id: data.user_id,
+          full_name: data.full_name || '',
+          bio: data.bio,
+          expertise: data.expertise || [],
+          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
+          linkedin_url: data.linkedin_url,
+          profile_picture_url: data.profile_picture_url,
+          is_active: data.is_active,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        };
+        setMentorProfile(mappedProfile);
       }
 
       return true;

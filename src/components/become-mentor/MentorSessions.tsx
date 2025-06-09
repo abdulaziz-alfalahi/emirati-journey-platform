@@ -51,7 +51,21 @@ export const MentorSessions: React.FC = () => {
           .order('session_date', { ascending: false });
 
         if (error) throw error;
-        setSessions(sessionsData || []);
+        
+        // Map the database response to our interface
+        const mappedSessions: Session[] = (sessionsData || []).map(session => ({
+          id: session.id,
+          session_date: session.session_date,
+          duration_minutes: session.duration_minutes,
+          topic: session.topic || '',
+          status: session.status,
+          notes: session.notes,
+          mentee_feedback: session.mentee_feedback,
+          mentor_rating: session.mentor_rating,
+          mentee_id: session.mentee_id
+        }));
+        
+        setSessions(mappedSessions);
       }
     } catch (error) {
       console.error('Error fetching sessions:', error);
