@@ -9,8 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 
-// Simple interface that matches the database schema exactly
-interface MentorSessionRecord {
+// Simple interface that matches our expected data structure
+interface SessionRecord {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -27,7 +27,7 @@ interface MentorSessionRecord {
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<MentorSessionRecord[]>([]);
+  const [sessions, setSessions] = useState<SessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,27 +50,29 @@ export const MentorSessions: React.FC = () => {
       if (mentorData) {
         const { data: sessionsData, error } = await supabase
           .from('mentorship_sessions')
-          .select(`
-            id,
-            scheduled_date,
-            duration_minutes,
-            topic,
-            status,
-            notes,
-            feedback,
-            rating,
-            relationship_id,
-            video_call_url,
-            created_at,
-            updated_at
-          `)
+          .select('*')
           .eq('mentor_id', mentorData.id)
           .order('scheduled_date', { ascending: false });
 
         if (error) throw error;
         
         if (sessionsData) {
-          setSessions(sessionsData as MentorSessionRecord[]);
+          // Map the data to our interface without complex type casting
+          const mappedSessions: SessionRecord[] = sessionsData.map(session => ({
+            id: session.id,
+            scheduled_date: session.scheduled_date,
+            duration_minutes: session.duration_minutes,
+            topic: session.topic,
+            status: session.status,
+            notes: session.notes,
+            feedback: session.feedback,
+            rating: session.rating,
+            relationship_id: session.relationship_id,
+            video_call_url: session.video_call_url,
+            created_at: session.created_at,
+            updated_at: session.updated_at
+          }));
+          setSessions(mappedSessions);
         }
       }
     } catch (error) {
@@ -108,7 +110,7 @@ export const MentorSessions: React.FC = () => {
     return sessions.filter(session => session.status === status);
   };
 
-  const SessionCard: React.FC<{ session: MentorSessionRecord }> = ({ session }) => (
+  const SessionCard: React.FC<{ session: SessionRecord }> = ({ session }) => (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
