@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 
 // Simple interface that matches the database schema exactly
-interface MentorshipSession {
+interface SessionData {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -27,7 +27,7 @@ interface MentorshipSession {
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<MentorshipSession[]>([]);
+  const [sessions, setSessions] = useState<SessionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +50,20 @@ export const MentorSessions: React.FC = () => {
       if (mentorData) {
         const { data: sessionsData, error } = await supabase
           .from('mentorship_sessions')
-          .select('*')
+          .select(`
+            id,
+            scheduled_date,
+            duration_minutes,
+            topic,
+            status,
+            notes,
+            feedback,
+            rating,
+            relationship_id,
+            video_call_url,
+            created_at,
+            updated_at
+          `)
           .eq('mentor_id', mentorData.id)
           .order('scheduled_date', { ascending: false });
 
@@ -95,7 +108,7 @@ export const MentorSessions: React.FC = () => {
     return sessions.filter(session => session.status === status);
   };
 
-  const SessionCard: React.FC<{ session: MentorshipSession }> = ({ session }) => (
+  const SessionCard: React.FC<{ session: SessionData }> = ({ session }) => (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
