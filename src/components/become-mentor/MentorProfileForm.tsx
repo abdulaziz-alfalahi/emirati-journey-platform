@@ -20,7 +20,6 @@ export const MentorProfileForm: React.FC<MentorProfileFormProps> = ({ mentorProf
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
-    full_name: mentorProfile?.full_name || '',
     bio: mentorProfile?.bio || '',
     expertise: mentorProfile?.expertise || [],
     availability: mentorProfile?.availability || {
@@ -28,8 +27,7 @@ export const MentorProfileForm: React.FC<MentorProfileFormProps> = ({ mentorProf
       hours: [],
       timezone: 'Asia/Dubai'
     },
-    linkedin_url: mentorProfile?.linkedin_url || '',
-    profile_picture_url: mentorProfile?.profile_picture_url || ''
+    years_experience: mentorProfile?.years_experience || 0
   });
 
   const [newExpertise, setNewExpertise] = useState('');
@@ -102,26 +100,15 @@ export const MentorProfileForm: React.FC<MentorProfileFormProps> = ({ mentorProf
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="full_name">Full Name</Label>
-              <Input
-                id="full_name"
-                value={formData.full_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="linkedin_url">LinkedIn Profile</Label>
-              <Input
-                id="linkedin_url"
-                type="url"
-                placeholder="https://linkedin.com/in/yourprofile"
-                value={formData.linkedin_url}
-                onChange={(e) => setFormData(prev => ({ ...prev, linkedin_url: e.target.value }))}
-              />
-            </div>
+          <div>
+            <Label htmlFor="years_experience">Years of Experience</Label>
+            <Input
+              id="years_experience"
+              type="number"
+              min="0"
+              value={formData.years_experience}
+              onChange={(e) => setFormData(prev => ({ ...prev, years_experience: parseInt(e.target.value) || 0 }))}
+            />
           </div>
 
           <div>

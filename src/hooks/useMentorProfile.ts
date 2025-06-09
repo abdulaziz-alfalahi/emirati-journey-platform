@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 export interface MentorProfile {
   id: string;
   user_id: string;
-  full_name: string;
   bio?: string;
   expertise: string[];
   availability: {
@@ -14,9 +13,11 @@ export interface MentorProfile {
     hours: string[];
     timezone: string;
   };
-  linkedin_url?: string;
-  profile_picture_url?: string;
   is_active: boolean;
+  is_verified: boolean;
+  rating?: number;
+  review_count: number;
+  years_experience?: number;
   created_at: string;
   updated_at: string;
 }
@@ -65,13 +66,14 @@ export const useMentorProfile = () => {
         const mappedProfile: MentorProfile = {
           id: data.id,
           user_id: data.user_id,
-          full_name: data.full_name || '',
           bio: data.bio,
           expertise: data.expertise || [],
-          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
-          linkedin_url: data.linkedin_url,
-          profile_picture_url: data.profile_picture_url,
+          availability: (data.availability as any) || { days: [], hours: [], timezone: 'Asia/Dubai' },
           is_active: data.is_active,
+          is_verified: data.is_verified,
+          rating: data.rating,
+          review_count: data.review_count,
+          years_experience: data.years_experience,
           created_at: data.created_at,
           updated_at: data.updated_at
         };
@@ -92,7 +94,7 @@ export const useMentorProfile = () => {
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true);
 
-      // Get total sessions
+      // Get total sessions from mentorship_sessions
       const { count: totalSessions } = await supabase
         .from('mentorship_sessions')
         .select('*', { count: 'exact', head: true });
@@ -103,14 +105,14 @@ export const useMentorProfile = () => {
         .select('*', { count: 'exact', head: true })
         .eq('status', 'completed');
 
-      // Calculate average rating - using correct column name
+      // Calculate average rating - using correct column name from the schema
       const { data: ratingData } = await supabase
         .from('mentorship_sessions')
-        .select('mentor_rating')
-        .not('mentor_rating', 'is', null);
+        .select('rating')
+        .not('rating', 'is', null);
 
       const averageRating = ratingData && ratingData.length > 0
-        ? ratingData.reduce((sum, session) => sum + (session.mentor_rating || 0), 0) / ratingData.length
+        ? ratingData.reduce((sum, session) => sum + (session.rating || 0), 0) / ratingData.length
         : 0;
 
       setStats({
@@ -142,13 +144,14 @@ export const useMentorProfile = () => {
         const mappedProfile: MentorProfile = {
           id: data.id,
           user_id: data.user_id,
-          full_name: data.full_name || '',
           bio: data.bio,
           expertise: data.expertise || [],
-          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
-          linkedin_url: data.linkedin_url,
-          profile_picture_url: data.profile_picture_url,
+          availability: (data.availability as any) || { days: [], hours: [], timezone: 'Asia/Dubai' },
           is_active: data.is_active,
+          is_verified: data.is_verified,
+          rating: data.rating,
+          review_count: data.review_count,
+          years_experience: data.years_experience,
           created_at: data.created_at,
           updated_at: data.updated_at
         };
@@ -169,13 +172,14 @@ export const useMentorProfile = () => {
         const mappedProfile: MentorProfile = {
           id: data.id,
           user_id: data.user_id,
-          full_name: data.full_name || '',
           bio: data.bio,
           expertise: data.expertise || [],
-          availability: data.availability || { days: [], hours: [], timezone: 'Asia/Dubai' },
-          linkedin_url: data.linkedin_url,
-          profile_picture_url: data.profile_picture_url,
+          availability: (data.availability as any) || { days: [], hours: [], timezone: 'Asia/Dubai' },
           is_active: data.is_active,
+          is_verified: data.is_verified,
+          rating: data.rating,
+          review_count: data.review_count,
+          years_experience: data.years_experience,
           created_at: data.created_at,
           updated_at: data.updated_at
         };

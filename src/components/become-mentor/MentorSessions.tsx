@@ -11,14 +11,17 @@ import { format } from 'date-fns';
 
 interface Session {
   id: string;
-  session_date: string;
+  scheduled_date: string;
   duration_minutes: number;
   topic: string;
   status: string;
   notes?: string;
-  mentee_feedback?: string;
-  mentor_rating?: number;
-  mentee_id: string;
+  feedback?: string;
+  rating?: number;
+  relationship_id: string;
+  video_call_url?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const MentorSessions: React.FC = () => {
@@ -48,21 +51,24 @@ export const MentorSessions: React.FC = () => {
           .from('mentorship_sessions')
           .select('*')
           .eq('mentor_id', mentorData.id)
-          .order('session_date', { ascending: false });
+          .order('scheduled_date', { ascending: false });
 
         if (error) throw error;
         
         // Map the database response to our interface - use actual column names
         const mappedSessions: Session[] = (sessionsData || []).map(session => ({
           id: session.id,
-          session_date: session.session_date,
+          scheduled_date: session.scheduled_date,
           duration_minutes: session.duration_minutes,
           topic: session.topic || '',
           status: session.status,
           notes: session.notes,
-          mentee_feedback: session.mentee_feedback,
-          mentor_rating: session.mentor_rating,
-          mentee_id: session.mentee_id
+          feedback: session.feedback,
+          rating: session.rating,
+          relationship_id: session.relationship_id,
+          video_call_url: session.video_call_url,
+          created_at: session.created_at,
+          updated_at: session.updated_at
         }));
         
         setSessions(mappedSessions);
@@ -117,7 +123,7 @@ export const MentorSessions: React.FC = () => {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              {format(new Date(session.session_date), 'PPP')}
+              {format(new Date(session.scheduled_date), 'PPP')}
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
@@ -132,10 +138,10 @@ export const MentorSessions: React.FC = () => {
             </div>
           )}
           
-          {session.mentor_rating && (
+          {session.rating && (
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm">Rating: {session.mentor_rating}/5</span>
+              <span className="text-sm">Rating: {session.rating}/5</span>
             </div>
           )}
           
