@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, ChevronDown, Menu, Phone, Mail, X } from 'lucide-react';
@@ -50,11 +49,11 @@ const DubaiGovHeader: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <div className="hidden lg:flex items-center space-x-4">
                   <a 
-                    href="tel:600545555" 
+                    href="tel:048729292" 
                     className="flex items-center space-x-1 hover:text-ehrdc-light-teal transition-colors"
                   >
                     <Phone className="h-3 w-3" />
-                    <span>600 54 5555</span>
+                    <span>048729292</span>
                   </a>
                   <a 
                     href="mailto:info@ehrdc.gov.ae" 
