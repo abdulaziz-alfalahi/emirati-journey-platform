@@ -9,8 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 
-// Simple interface that matches our expected data structure
-interface SessionRecord {
+// Simplified interface to avoid type recursion
+interface SessionData {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -27,7 +27,7 @@ interface SessionRecord {
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<SessionRecord[]>([]);
+  const [sessions, setSessions] = useState<SessionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export const MentorSessions: React.FC = () => {
         .single();
 
       if (mentorData) {
-        const { data: sessionsData, error } = await supabase
+        const { data: rawSessions, error } = await supabase
           .from('mentorship_sessions')
           .select('*')
           .eq('mentor_id', mentorData.id)
@@ -56,23 +56,28 @@ export const MentorSessions: React.FC = () => {
 
         if (error) throw error;
         
-        if (sessionsData) {
-          // Map the data to our interface without complex type casting
-          const mappedSessions: SessionRecord[] = sessionsData.map(session => ({
-            id: session.id,
-            scheduled_date: session.scheduled_date,
-            duration_minutes: session.duration_minutes,
-            topic: session.topic,
-            status: session.status,
-            notes: session.notes,
-            feedback: session.feedback,
-            rating: session.rating,
-            relationship_id: session.relationship_id,
-            video_call_url: session.video_call_url,
-            created_at: session.created_at,
-            updated_at: session.updated_at
-          }));
-          setSessions(mappedSessions);
+        if (rawSessions) {
+          // Simple explicit mapping to avoid type issues
+          const processedSessions: SessionData[] = [];
+          
+          for (const session of rawSessions) {
+            processedSessions.push({
+              id: String(session.id),
+              scheduled_date: String(session.scheduled_date),
+              duration_minutes: Number(session.duration_minutes),
+              topic: session.topic ? String(session.topic) : null,
+              status: String(session.status),
+              notes: session.notes ? String(session.notes) : null,
+              feedback: session.feedback ? String(session.feedback) : null,
+              rating: session.rating ? Number(session.rating) : null,
+              relationship_id: String(session.relationship_id),
+              video_call_url: session.video_call_url ? String(session.video_call_url) : null,
+              created_at: String(session.created_at),
+              updated_at: String(session.updated_at)
+            });
+          }
+          
+          setSessions(processedSessions);
         }
       }
     } catch (error) {
@@ -110,7 +115,7 @@ export const MentorSessions: React.FC = () => {
     return sessions.filter(session => session.status === status);
   };
 
-  const SessionCard: React.FC<{ session: SessionRecord }> = ({ session }) => (
+  const SessionCard: React.FC<{ session: SessionData }> = ({ session }) => (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
