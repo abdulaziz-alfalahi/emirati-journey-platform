@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Globe, ChevronDown, Menu, Phone, Mail, X } from 'lucide-react';
@@ -56,7 +57,7 @@ const DubaiGovHeader: React.FC = () => {
                     <span>048729292</span>
                   </a>
                   <a 
-                    href="mailto:info@ehrdc.gov.ae" 
+                    href="mailto:recruitment@ehrdc.gov.ae" 
                     className="flex items-center space-x-1 hover:text-ehrdc-light-teal transition-colors"
                   >
                     <Mail className="h-3 w-3" />
