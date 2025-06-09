@@ -10,24 +10,24 @@ import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
 
 // Simple interface that matches the database schema exactly
-interface SessionData {
+interface MentorSessionRecord {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
-  topic?: string;
+  topic: string | null;
   status: string;
-  notes?: string;
-  feedback?: string;
-  rating?: number;
+  notes: string | null;
+  feedback: string | null;
+  rating: number | null;
   relationship_id: string;
-  video_call_url?: string;
+  video_call_url: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [sessions, setSessions] = useState<MentorSessionRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export const MentorSessions: React.FC = () => {
         if (error) throw error;
         
         if (sessionsData) {
-          setSessions(sessionsData);
+          setSessions(sessionsData as MentorSessionRecord[]);
         }
       }
     } catch (error) {
@@ -108,7 +108,7 @@ export const MentorSessions: React.FC = () => {
     return sessions.filter(session => session.status === status);
   };
 
-  const SessionCard: React.FC<{ session: SessionData }> = ({ session }) => (
+  const SessionCard: React.FC<{ session: MentorSessionRecord }> = ({ session }) => (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
