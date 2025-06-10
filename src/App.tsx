@@ -48,8 +48,6 @@ import PostCareerOptionsPage from '@/pages/retiree/index';
 import RetirementBenefitsPage from '@/pages/retiree/index';
 import VolunteerProgramsPage from '@/pages/volunteer-programs/index';
 import LegacyProjectsPage from '@/pages/legacy-projects/index';
-import AdminUsersPage from '@/pages/admin/users/index';
-import AdminSettingsPage from '@/pages/admin/settings/index';
 import CareerPathComparisonPage from '@/pages/career-comparison/index';
 import SalaryExplorerPage from '@/pages/salary-explorer/index';
 import MentorMatchingPage from '@/pages/mentor-matching/index';
@@ -106,8 +104,6 @@ function App() {
               <Route path="/retirement-benefits" element={<RetirementBenefitsPage />} />
               <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
               <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
-              <Route path="/admin/users" element={<AdminUsersPage />} />
-              <Route path="/admin/settings" element={<AdminSettingsPage />} />
               <Route path="/career-comparison" element={<CareerPathComparisonPage />} />
               <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
               <Route path="/mentor-matching" element={<MentorMatchingPage />} />
