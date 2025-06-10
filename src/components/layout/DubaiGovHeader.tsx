@@ -185,7 +185,7 @@ const DubaiGovHeader: React.FC = () => {
               {/* Right side - EHRDC Logo and mobile menu */}
               <div className="flex items-center space-x-4">
                 {/* EHRDC Logo and Platform Name */}
-                <Link to="/home" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                   <img 
                     src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
                     alt="Emirati Human Resources Development Council"
