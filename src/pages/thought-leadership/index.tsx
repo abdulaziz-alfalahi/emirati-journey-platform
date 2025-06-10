@@ -1,8 +1,11 @@
 
 import React from 'react';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { Lightbulb, FileText, Video, Mic, Users } from 'lucide-react';
-import { ThoughtLeadershipContent } from '@/components/thought-leadership/ThoughtLeadershipContent';
+import { Lightbulb, FileText, Video, Users } from 'lucide-react';
+import { ArticlesTab } from '@/components/thought-leadership/ArticlesTab';
+import { ResearchPapersTab } from '@/components/thought-leadership/ResearchPapersTab';
+import { MediaTab } from '@/components/thought-leadership/MediaTab';
+import { ContributorsTab } from '@/components/thought-leadership/ContributorsTab';
 
 const ThoughtLeadershipPage: React.FC = () => {
   const stats = [
@@ -17,25 +20,25 @@ const ThoughtLeadershipPage: React.FC = () => {
       id: 'articles',
       label: 'Articles',
       icon: <FileText className="h-4 w-4" />,
-      content: <ThoughtLeadershipContent />
+      content: <ArticlesTab searchQuery="" />
     },
     {
       id: 'research',
       label: 'Research Papers', 
       icon: <FileText className="h-4 w-4" />,
-      content: <ThoughtLeadershipContent />
+      content: <ResearchPapersTab searchQuery="" />
     },
     {
       id: 'media',
       label: 'Videos & Podcasts',
       icon: <Video className="h-4 w-4" />,
-      content: <ThoughtLeadershipContent />
+      content: <MediaTab searchQuery="" />
     },
     {
       id: 'contributors',
       label: 'Contributors',
       icon: <Users className="h-4 w-4" />,
-      content: <ThoughtLeadershipContent />
+      content: <ContributorsTab searchQuery="" />
     }
   ];
 
