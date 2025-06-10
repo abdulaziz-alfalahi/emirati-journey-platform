@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { DollarSign, TrendingUp, Banknote, Calculator, Users } from 'lucide-react';
+import { TrendingUp, Banknote, Calculator, Users } from 'lucide-react';
+import { DirhamSign } from '@/components/icons/DirhamSign';
 import { FinancialPlanningContent } from '@/components/financial-planning/FinancialPlanningContent';
 
 const FinancialPlanningPage: React.FC = () => {
@@ -28,7 +29,7 @@ const FinancialPlanningPage: React.FC = () => {
     {
       id: 'retirement',
       label: 'Retirement Planning',
-      icon: <DollarSign className="h-4 w-4" />,
+      icon: <DirhamSign className="h-4 w-4" />,
       content: <FinancialPlanningContent category="retirement" />
     },
     {
@@ -43,7 +44,7 @@ const FinancialPlanningPage: React.FC = () => {
     <ProfessionalGrowthLayout
       title="Financial Planning"
       description="Take control of your financial future with comprehensive planning tools, investment guidance, and retirement strategies tailored for UAE residents."
-      icon={<DollarSign className="h-8 w-8" />}
+      icon={<DirhamSign className="h-8 w-8" />}
       stats={stats}
       tabs={tabs}
       defaultTab="budgeting"
