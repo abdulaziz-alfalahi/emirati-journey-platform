@@ -5339,6 +5339,125 @@ export type Database = {
           },
         ]
       }
+      volunteer_applications: {
+        Row: {
+          application_message: string | null
+          applied_at: string
+          completion_date: string | null
+          hours_completed: number | null
+          id: string
+          opportunity_id: string
+          organization_feedback: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          volunteer_feedback: string | null
+        }
+        Insert: {
+          application_message?: string | null
+          applied_at?: string
+          completion_date?: string | null
+          hours_completed?: number | null
+          id?: string
+          opportunity_id: string
+          organization_feedback?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          volunteer_feedback?: string | null
+        }
+        Update: {
+          application_message?: string | null
+          applied_at?: string
+          completion_date?: string | null
+          hours_completed?: number | null
+          id?: string
+          opportunity_id?: string
+          organization_feedback?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          volunteer_feedback?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_opportunities: {
+        Row: {
+          benefits: string | null
+          category: string | null
+          created_at: string
+          created_by: string | null
+          current_volunteers: number | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_remote: boolean | null
+          location: string | null
+          max_volunteers: number | null
+          organization_contact_email: string | null
+          organization_name: string
+          requirements: string | null
+          skills_required: string[] | null
+          start_date: string | null
+          status: string | null
+          time_commitment: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          benefits?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_volunteers?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_volunteers?: number | null
+          organization_contact_email?: string | null
+          organization_name: string
+          requirements?: string | null
+          skills_required?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          time_commitment?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          benefits?: string | null
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_volunteers?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_remote?: boolean | null
+          location?: string | null
+          max_volunteers?: number | null
+          organization_contact_email?: string | null
+          organization_name?: string
+          requirements?: string | null
+          skills_required?: string[] | null
+          start_date?: string | null
+          status?: string | null
+          time_commitment?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       resume_view: {
