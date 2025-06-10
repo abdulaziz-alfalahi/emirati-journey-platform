@@ -29,8 +29,7 @@ const PostCareerOptionsTab: React.FC = () => {
   const fetchPostCareerResources = async () => {
     try {
       setLoading(true);
-      // Use type assertion to work around TypeScript issues with new table
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('retiree_resources')
         .select('*')
         .like('category', 'post_career_%')

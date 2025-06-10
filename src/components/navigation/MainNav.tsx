@@ -7,7 +7,7 @@ import {
   Briefcase, Calendar, FileText, User, MapPin, UserCheck, Search, 
   BarChart3, Shield, School, Sparkles, Building, Heart, 
   Landmark, Rocket, Compass, Laptop, Handshake, Lightbulb, Globe,
-  MessageSquare, Flag, UserPlus, Network, Target, GitCompare, DollarSign
+  MessageSquare, Flag, UserPlus, Network, Target, GitCompare, DollarSign, Clock
 } from 'lucide-react';
 import { NavGroup } from '@/components/layout/types';
 
@@ -119,10 +119,11 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Advisory Positions', href: '/advisory-positions', icon: Landmark },
         { name: 'Thought Leadership', href: '/thought-leadership', icon: Lightbulb },
         
-        // Retirement Planning & Transition
+        // Consolidated Post-Career & Retirement
+        { name: 'Post-Career & Retirement', href: '/retiree', icon: Clock },
+        
+        // Financial Planning & Legacy
         { name: 'Financial Planning', href: '/financial-planning', icon: BarChart3 },
-        { name: 'Post-Career Options', href: '/post-career', icon: Compass },
-        { name: 'Retirement Benefits', href: '/retirement-benefits', icon: Shield },
         
         // Community Contribution & Legacy
         { name: 'Volunteer Programs', href: '/volunteer-programs', icon: Heart },

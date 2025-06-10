@@ -29,8 +29,7 @@ const RetirementBenefitsTab: React.FC = () => {
   const fetchRetirementBenefits = async () => {
     try {
       setLoading(true);
-      // Use type assertion to work around TypeScript issues with new table
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('retiree_resources')
         .select('*')
         .like('category', 'retirement_%')

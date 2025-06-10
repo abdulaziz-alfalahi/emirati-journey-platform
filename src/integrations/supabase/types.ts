@@ -4224,6 +4224,54 @@ export type Database = {
         }
         Relationships: []
       }
+      retiree_resources: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          estimated_read_time: number | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          resource_url: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          estimated_read_time?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          resource_url?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          estimated_read_time?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          resource_url?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       scholarship_applications: {
         Row: {
           application_data: Json | null
