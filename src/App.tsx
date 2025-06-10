@@ -44,8 +44,7 @@ import BecomeMentorPage from '@/pages/become-mentor/index';
 import SuccessStoriesPage from '@/pages/success-stories/index';
 import AdvisoryPositionsPage from '@/pages/advisory-positions/index';
 import FinancialPlanningPage from '@/pages/financial-planning';
-import PostCareerOptionsPage from '@/pages/retiree/index';
-import RetirementBenefitsPage from '@/pages/retiree/index';
+import RetireeServicesPage from '@/pages/retiree/index';
 import VolunteerProgramsPage from '@/pages/volunteer-programs/index';
 import LegacyProjectsPage from '@/pages/legacy-projects/index';
 import CareerPathComparisonPage from '@/pages/career-comparison/index';
@@ -100,8 +99,9 @@ function App() {
               <Route path="/success-stories" element={<SuccessStoriesPage />} />
               <Route path="/advisory-positions" element={<AdvisoryPositionsPage />} />
               <Route path="/financial-planning" element={<FinancialPlanningPage />} />
-              <Route path="/post-career" element={<PostCareerOptionsPage />} />
-              <Route path="/retirement-benefits" element={<RetirementBenefitsPage />} />
+              <Route path="/retiree" element={<RetireeServicesPage />} />
+              <Route path="/post-career" element={<RetireeServicesPage />} />
+              <Route path="/retirement-benefits" element={<RetireeServicesPage />} />
               <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
               <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
               <Route path="/career-comparison" element={<CareerPathComparisonPage />} />
