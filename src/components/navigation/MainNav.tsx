@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -126,7 +125,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Retirement Benefits', href: '/retirement-benefits', icon: Shield },
         
         // Community Contribution & Legacy
-        { name: 'Volunteer Programs', href: '/volunteer', icon: Heart },
+        { name: 'Volunteer Programs', href: '/volunteer-programs', icon: Heart },
         { name: 'Legacy Projects', href: '/legacy-projects', icon: Landmark },
         { name: 'Community Leadership', href: '/community-leadership', icon: Users },
       ]
