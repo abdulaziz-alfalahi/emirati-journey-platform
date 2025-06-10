@@ -54,6 +54,7 @@ import AdvisoryPositionsPage from '@/pages/advisory-positions';
 import ThoughtLeadershipPage from '@/pages/thought-leadership';
 import FinancialPlanningPage from '@/pages/financial-planning';
 import VolunteerProgramsPage from '@/pages/volunteer-programs';
+import LegacyProjectsPage from '@/pages/legacy-projects';
 
 import './App.css';
 
@@ -122,6 +123,7 @@ function App() {
                   <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
                   <Route path="/financial-planning" element={<FinancialPlanningPage />} />
                   <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
+                  <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
                   
                   {/* Redirect old paths */}
                   <Route path="/cv-builder" element={<Navigate to="/resume-builder" replace />} />

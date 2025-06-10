@@ -2796,6 +2796,78 @@ export type Database = {
         }
         Relationships: []
       }
+      legacy_projects: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          current_funding: number | null
+          description: string | null
+          expected_completion_date: string | null
+          focus_area: string | null
+          funding_currency: string | null
+          funding_goal: number | null
+          id: string
+          image_url: string | null
+          impact_metrics: string | null
+          initiator_id: string | null
+          is_featured: boolean | null
+          location: string | null
+          project_status: string | null
+          requirements: string | null
+          skills_needed: string[] | null
+          start_date: string | null
+          title: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          current_funding?: number | null
+          description?: string | null
+          expected_completion_date?: string | null
+          focus_area?: string | null
+          funding_currency?: string | null
+          funding_goal?: number | null
+          id?: string
+          image_url?: string | null
+          impact_metrics?: string | null
+          initiator_id?: string | null
+          is_featured?: boolean | null
+          location?: string | null
+          project_status?: string | null
+          requirements?: string | null
+          skills_needed?: string[] | null
+          start_date?: string | null
+          title: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          current_funding?: number | null
+          description?: string | null
+          expected_completion_date?: string | null
+          focus_area?: string | null
+          funding_currency?: string | null
+          funding_goal?: number | null
+          id?: string
+          image_url?: string | null
+          impact_metrics?: string | null
+          initiator_id?: string | null
+          is_featured?: boolean | null
+          location?: string | null
+          project_status?: string | null
+          requirements?: string | null
+          skills_needed?: string[] | null
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
@@ -3790,6 +3862,62 @@ export type Database = {
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "skill_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_contributions: {
+        Row: {
+          amount: number | null
+          contribution_date: string
+          contribution_type: string
+          created_at: string
+          currency: string | null
+          description: string | null
+          hours_contributed: number | null
+          id: string
+          project_id: string
+          skills_provided: string[] | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          contribution_date?: string
+          contribution_type: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          hours_contributed?: number | null
+          id?: string
+          project_id: string
+          skills_provided?: string[] | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          contribution_date?: string
+          contribution_type?: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          hours_contributed?: number | null
+          id?: string
+          project_id?: string
+          skills_provided?: string[] | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_contributions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "legacy_projects"
             referencedColumns: ["id"]
           },
         ]
