@@ -9,6 +9,113 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      advisory_applications: {
+        Row: {
+          additional_documents: string[] | null
+          cover_letter: string | null
+          id: string
+          notes: string | null
+          position_id: string
+          resume_url: string | null
+          status: string | null
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_documents?: string[] | null
+          cover_letter?: string | null
+          id?: string
+          notes?: string | null
+          position_id: string
+          resume_url?: string | null
+          status?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_documents?: string[] | null
+          cover_letter?: string | null
+          id?: string
+          notes?: string | null
+          position_id?: string
+          resume_url?: string | null
+          status?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisory_applications_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "advisory_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advisory_positions: {
+        Row: {
+          application_deadline: string | null
+          commitment_hours_per_month: number | null
+          compensation_type: string | null
+          contact_email: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          experience_level: string | null
+          id: string
+          location: string | null
+          organization: string
+          remote_allowed: boolean | null
+          requirements: string | null
+          skills_required: string[] | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          commitment_hours_per_month?: number | null
+          compensation_type?: string | null
+          contact_email?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          experience_level?: string | null
+          id?: string
+          location?: string | null
+          organization: string
+          remote_allowed?: boolean | null
+          requirements?: string | null
+          skills_required?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_deadline?: string | null
+          commitment_hours_per_month?: number | null
+          compensation_type?: string | null
+          contact_email?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          experience_level?: string | null
+          id?: string
+          location?: string | null
+          organization?: string
+          remote_allowed?: boolean | null
+          requirements?: string | null
+          skills_required?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       advisory_sessions: {
         Row: {
           advisor_id: string
