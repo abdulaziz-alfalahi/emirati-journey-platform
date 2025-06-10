@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { DollarSign, TrendingUp, PiggyBank, Calculator, Users } from 'lucide-react';
+import { DollarSign, TrendingUp, Banknote, Calculator, Users } from 'lucide-react';
 import { FinancialPlanningContent } from '@/components/financial-planning/FinancialPlanningContent';
 
 const FinancialPlanningPage: React.FC = () => {
   const stats = [
     { value: "15+", label: "Financial Tools", icon: Calculator },
     { value: "50+", label: "Investment Guides", icon: TrendingUp },
-    { value: "25+", label: "Budgeting Resources", icon: PiggyBank },
+    { value: "25+", label: "Budgeting Resources", icon: Banknote },
     { value: "1000+", label: "Active Users", icon: Users }
   ];
 
@@ -16,7 +16,7 @@ const FinancialPlanningPage: React.FC = () => {
     {
       id: 'budgeting',
       label: 'Budgeting & Savings',
-      icon: <PiggyBank className="h-4 w-4" />,
+      icon: <Banknote className="h-4 w-4" />,
       content: <FinancialPlanningContent category="budgeting" />
     },
     {
