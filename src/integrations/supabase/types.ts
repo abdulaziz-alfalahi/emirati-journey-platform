@@ -1298,6 +1298,75 @@ export type Database = {
           },
         ]
       }
+      community_leadership_resources: {
+        Row: {
+          application_deadline: string | null
+          created_at: string
+          description: string | null
+          difficulty_level: string | null
+          duration_hours: number | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          is_virtual: boolean | null
+          location: string | null
+          provider: string | null
+          requirements: string | null
+          start_date: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          duration_hours?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          provider?: string | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          type: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          application_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string | null
+          duration_hours?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          provider?: string | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           certificate_issued_at: string | null
