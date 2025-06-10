@@ -40,7 +40,8 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setResources(data || []);
+      // Type assertion to ensure the data matches our interface
+      setResources((data || []) as FinancialResource[]);
     } catch (error) {
       console.error('Error fetching financial resources:', error);
     } finally {
@@ -165,7 +166,7 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
             {filteredResources
               .filter(resource => resource.is_featured)
               .map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} featured />
+                <ResourceCard key={resource.id} resource={resource} featured getDifficultyColor={getDifficultyColor} />
               ))}
           </div>
         </div>
@@ -178,7 +179,7 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
           {filteredResources
             .filter(resource => !resource.is_featured)
             .map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} />
+              <ResourceCard key={resource.id} resource={resource} getDifficultyColor={getDifficultyColor} />
             ))}
         </div>
       </div>
@@ -196,9 +197,14 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
   );
 };
 
-const ResourceCard: React.FC<{ resource: FinancialResource; featured?: boolean }> = ({ 
+const ResourceCard: React.FC<{ 
+  resource: FinancialResource; 
+  featured?: boolean;
+  getDifficultyColor: (level: string) => string;
+}> = ({ 
   resource, 
-  featured = false 
+  featured = false,
+  getDifficultyColor
 }) => {
   return (
     <Card className={`hover:shadow-md transition-shadow ${featured ? 'border-yellow-200 bg-yellow-50/50' : ''}`}>
