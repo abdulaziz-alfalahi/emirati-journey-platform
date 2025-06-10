@@ -39,8 +39,9 @@ export const MediaTab: React.FC<MediaTabProps> = ({ searchQuery }) => {
 
       if (error) throw error;
       
-      setVideos(data?.filter(item => item.content_type === 'video') || []);
-      setPodcasts(data?.filter(item => item.content_type === 'podcast') || []);
+      const typedData = (data || []) as ThoughtLeadershipContent[];
+      setVideos(typedData.filter(item => item.content_type === 'video'));
+      setPodcasts(typedData.filter(item => item.content_type === 'podcast'));
     } catch (error) {
       console.error('Error fetching media:', error);
     } finally {

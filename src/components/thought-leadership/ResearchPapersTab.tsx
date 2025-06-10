@@ -36,7 +36,7 @@ export const ResearchPapersTab: React.FC<ResearchPapersTabProps> = ({ searchQuer
       const { data, error } = await query;
 
       if (error) throw error;
-      setPapers(data || []);
+      setPapers((data || []) as ThoughtLeadershipContent[]);
     } catch (error) {
       console.error('Error fetching research papers:', error);
     } finally {

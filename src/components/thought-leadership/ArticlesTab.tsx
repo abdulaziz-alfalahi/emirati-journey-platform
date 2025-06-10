@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, ExternalLink, Eye, Star } from 'lucide-react';
+import { Clock, ExternalLink, Eye, Star, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ThoughtLeadershipContent } from './types';
 
@@ -36,7 +36,7 @@ export const ArticlesTab: React.FC<ArticlesTabProps> = ({ searchQuery }) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setArticles(data || []);
+      setArticles((data || []) as ThoughtLeadershipContent[]);
     } catch (error) {
       console.error('Error fetching articles:', error);
     } finally {
