@@ -1,248 +1,265 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search } from 'lucide-react';
-import { SuccessStory } from '@/types/successStories';
-import { SuccessStoriesService } from '@/services/successStoriesService';
-import StoryCard from './StoryCard';
-import SearchAndFilters from './SearchAndFilters';
-import FeaturedStoriesSection from './FeaturedStoriesSection';
-import StoriesGrid from './StoriesGrid';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Eye, Star, Search, Calendar, MapPin, User, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 import StoryViewDialog from './StoryViewDialog';
 
-interface SuccessStoriesShowcaseProps {
-  variant?: 'full' | 'featured' | 'compact';
-  limit?: number;
-  showFilters?: boolean;
+interface SuccessStory {
+  id: string;
+  title: string;
+  summary: string;
+  full_story: string;
+  author_name: string;
+  author_title?: string;
+  author_location?: string;
+  category: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  is_featured: boolean;
+  submitted_at: string;
+  approved_at?: string;
 }
 
-const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ 
-  variant = 'full', 
-  limit,
-  showFilters = true 
-}) => {
+interface SuccessStoriesShowcaseProps {
+  showOnlyUserStories?: boolean;
+}
+
+const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ showOnlyUserStories = false }) => {
+  const { user } = useAuth();
   const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [featuredStories, setFeaturedStories] = useState<SuccessStory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState('newest');
+
+  const categories = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'entrepreneurship', label: 'Entrepreneurship' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'engineering', label: 'Engineering' },
+    { value: 'leadership', label: 'Leadership' },
+    { value: 'education', label: 'Education' },
+    { value: 'healthcare', label: 'Healthcare' },
+    { value: 'arts_culture', label: 'Arts & Culture' },
+    { value: 'sports', label: 'Sports' },
+    { value: 'social_impact', label: 'Social Impact' },
+    { value: 'women_empowerment', label: 'Women Empowerment' }
+  ];
 
   useEffect(() => {
-    loadStories();
-  }, []);
+    fetchStories();
+  }, [showOnlyUserStories, user]);
 
-  const loadStories = async () => {
-    setIsLoading(true);
+  const fetchStories = async () => {
     try {
-      const allStories = await SuccessStoriesService.getStories({ 
-        status: 'published', 
-        limit: limit 
-      });
-      const featured = await SuccessStoriesService.getFeaturedStories(3);
-      
-      setStories(allStories);
-      setFeaturedStories(featured);
+      setLoading(true);
+      let query = supabase
+        .from('success_stories')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      if (showOnlyUserStories && user) {
+        // Show all user's stories regardless of status
+        query = query.eq('author_id', user.id);
+      } else {
+        // Show only approved stories for public viewing
+        query = query.eq('status', 'approved');
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setStories(data || []);
     } catch (error) {
-      console.error('Failed to load stories:', error);
+      console.error('Error fetching stories:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  // Calculate story counts by category and popular tags
-  const { storyCounts, popularTags } = useMemo(() => {
-    const counts: Record<string, number> = {};
-    const tagFrequency: Record<string, number> = {};
+  const filteredStories = stories.filter(story => {
+    const matchesSearch = story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         story.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         story.author_name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || story.category.includes(selectedCategory);
+    
+    return matchesSearch && matchesCategory;
+  });
 
-    stories.forEach(story => {
-      counts[story.category] = (counts[story.category] || 0) + 1;
-      story.tags.forEach(tag => {
-        tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
-      });
-    });
+  const featuredStories = filteredStories.filter(story => story.is_featured);
+  const regularStories = filteredStories.filter(story => !story.is_featured);
 
-    const topTags = Object.entries(tagFrequency)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([tag]) => tag);
-
-    return { storyCounts: counts, popularTags: topTags };
-  }, [stories]);
-
-  // Filter and sort stories
-  const filteredStories = useMemo(() => {
-    let filtered = [...stories];
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(story => 
-        story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        story.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        story.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        story.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        story.author.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'success';
+      case 'pending': return 'secondary';
+      case 'rejected': return 'destructive';
+      default: return 'secondary';
     }
-
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(story => story.category === selectedCategory);
-    }
-
-    // Filter by selected tags
-    if (selectedTags.length > 0) {
-      filtered = filtered.filter(story => 
-        selectedTags.some(tag => story.tags.includes(tag))
-      );
-    }
-
-    // Sort stories
-    switch (sortBy) {
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
-        break;
-      case 'popular':
-        filtered.sort((a, b) => b.view_count - a.view_count);
-        break;
-      case 'most_liked':
-        filtered.sort((a, b) => b.likes_count - a.likes_count);
-        break;
-      case 'alphabetical':
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-    }
-
-    return filtered;
-  }, [stories, searchTerm, selectedCategory, selectedTags, sortBy]);
-
-  const handleTagToggle = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
   };
 
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('all');
-    setSelectedTags([]);
-    setSortBy('newest');
-  };
-
-  if (variant === 'featured') {
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-2">Featured Success Stories</h2>
-          <p className="text-muted-foreground">Inspiring journeys from UAE's rising stars</p>
+  const StoryCard: React.FC<{ story: SuccessStory }> = ({ story }) => (
+    <Card className={`hover:shadow-md transition-shadow cursor-pointer ${story.is_featured ? 'border-yellow-200 bg-yellow-50/50' : ''}`}>
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg leading-tight flex items-center gap-2">
+              {story.title}
+              {story.is_featured && (
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                  <Star className="h-3 w-3 mr-1" />
+                  Featured
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription className="mt-2">
+              <div className="flex items-center gap-1 text-sm">
+                <User className="h-3 w-3" />
+                {story.author_name}
+                {story.author_title && ` • ${story.author_title}`}
+              </div>
+              {story.author_location && (
+                <div className="flex items-center gap-1 text-sm mt-1">
+                  <MapPin className="h-3 w-3" />
+                  {story.author_location}
+                </div>
+              )}
+            </CardDescription>
+          </div>
+          {showOnlyUserStories && (
+            <Badge variant={getStatusColor(story.status)}>
+              {story.status}
+            </Badge>
+          )}
         </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+          {story.summary}
+        </p>
         
-        <FeaturedStoriesSection
-          featuredStories={featuredStories}
-          isLoading={isLoading}
-          onStorySelect={setSelectedStory}
-        />
+        <div className="flex flex-wrap gap-1 mb-4">
+          {story.category.slice(0, 3).map((cat, index) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              {categories.find(c => c.value === cat)?.label || cat}
+            </Badge>
+          ))}
+          {story.category.length > 3 && (
+            <Badge variant="outline" className="text-xs">
+              +{story.category.length - 3} more
+            </Badge>
+          )}
+        </div>
 
-        <StoryViewDialog story={selectedStory} onClose={() => setSelectedStory(null)} />
-      </div>
-    );
-  }
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            {new Date(story.submitted_at).toLocaleDateString()}
+          </div>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => setSelectedStory(story)}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Read Story
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-  if (variant === 'compact') {
+  if (loading) {
     return (
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Latest Success Stories</h3>
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-4">
-                  <div className="flex space-x-3">
-                    <div className="h-12 w-12 bg-muted rounded-full"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded"></div>
-                      <div className="h-3 bg-muted rounded w-2/3"></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredStories.slice(0, limit || 5).map((story) => (
-              <StoryCard 
-                key={story.id} 
-                story={story} 
-                variant="compact"
-                onReadMore={setSelectedStory}
-              />
-            ))}
-          </div>
-        )}
-        
-        <StoryViewDialog story={selectedStory} onClose={() => setSelectedStory(null)} />
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading stories...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Success Stories</h1>
-        <p className="text-lg text-muted-foreground mb-8">
-          Discover inspiring career journeys and achievements from UAE's talented professionals
-        </p>
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search stories by title, summary, or author..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Filter by category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.value} value={category.value}>
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Featured Stories */}
-      <FeaturedStoriesSection
-        featuredStories={featuredStories}
-        isLoading={isLoading}
-        onStorySelect={setSelectedStory}
-      />
-
-      {/* Enhanced Filters */}
-      {showFilters && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Search className="h-5 w-5" />
-              <span>Discover Stories</span>
-            </CardTitle>
-            <CardDescription>Find the perfect success story that inspires you</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SearchAndFilters
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              onClearFilters={handleClearFilters}
-              storyCounts={storyCounts}
-              popularTags={popularTags}
-              selectedTags={selectedTags}
-              onTagToggle={handleTagToggle}
-            />
-          </CardContent>
-        </Card>
+      {featuredStories.length > 0 && !showOnlyUserStories && (
+        <div>
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            Featured Stories
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {featuredStories.map((story) => (
+              <StoryCard key={story.id} story={story} />
+            ))}
+          </div>
+        </div>
       )}
 
-      {/* Stories Grid */}
-      <StoriesGrid
-        filteredStories={filteredStories}
-        totalStories={stories.length}
-        isLoading={isLoading}
-        onStorySelect={setSelectedStory}
-      />
+      {/* Regular Stories */}
+      <div>
+        <h3 className="text-xl font-semibold mb-4">
+          {showOnlyUserStories ? 'Your Stories' : 'All Stories'}
+        </h3>
+        {regularStories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {regularStories.map((story) => (
+              <StoryCard key={story.id} story={story} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">
+              {showOnlyUserStories ? 'No stories submitted yet' : 'No stories found'}
+            </h3>
+            <p className="text-muted-foreground">
+              {showOnlyUserStories 
+                ? 'Start sharing your success story to inspire others!' 
+                : 'Try adjusting your search terms or filters.'}
+            </p>
+          </div>
+        )}
+      </div>
 
-      <StoryViewDialog story={selectedStory} onClose={() => setSelectedStory(null)} />
+      {/* Story View Dialog */}
+      {selectedStory && (
+        <StoryViewDialog
+          story={selectedStory}
+          open={!!selectedStory}
+          onOpenChange={() => setSelectedStory(null)}
+        />
+      )}
     </div>
   );
 };

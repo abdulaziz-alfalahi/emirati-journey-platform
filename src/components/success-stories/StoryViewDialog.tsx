@@ -1,130 +1,114 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SuccessStory } from '@/types/successStories';
-import SocialShareButtons from './SocialShareButtons';
-import MediaPlayer from './MediaPlayer';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Calendar, MapPin, User, Star } from 'lucide-react';
 
-interface StoryViewDialogProps {
-  story: SuccessStory | null;
-  onClose: () => void;
+interface SuccessStory {
+  id: string;
+  title: string;
+  summary: string;
+  full_story: string;
+  author_name: string;
+  author_title?: string;
+  author_location?: string;
+  category: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  is_featured: boolean;
+  submitted_at: string;
+  approved_at?: string;
 }
 
-const StoryViewDialog: React.FC<StoryViewDialogProps> = ({ story, onClose }) => {
-  if (!story) return null;
+interface StoryViewDialogProps {
+  story: SuccessStory;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const StoryViewDialog: React.FC<StoryViewDialogProps> = ({ story, open, onOpenChange }) => {
+  const categories = [
+    { value: 'entrepreneurship', label: 'Entrepreneurship' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'engineering', label: 'Engineering' },
+    { value: 'leadership', label: 'Leadership' },
+    { value: 'education', label: 'Education' },
+    { value: 'healthcare', label: 'Healthcare' },
+    { value: 'arts_culture', label: 'Arts & Culture' },
+    { value: 'sports', label: 'Sports' },
+    { value: 'social_impact', label: 'Social Impact' },
+    { value: 'women_empowerment', label: 'Women Empowerment' }
+  ];
 
   return (
-    <Dialog open={!!story} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <DialogTitle className="text-2xl mb-2">{story.title}</DialogTitle>
-              <DialogDescription className="text-base">{story.summary}</DialogDescription>
-            </div>
-            <Badge variant="outline" className="ml-4">
-              {story.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            </Badge>
-          </div>
-          
-          {story.media.video_testimonial ? (
-            <MediaPlayer
-              type="video"
-              src={story.media.video_testimonial.url}
-              title="Video Testimonial"
-              thumbnail={story.media.video_testimonial.thumbnail || story.media.featured_image}
-              duration={story.media.video_testimonial.duration}
-              className="w-full"
-            />
-          ) : story.media.featured_image && (
-            <img 
-              src={story.media.featured_image} 
-              alt={story.title}
-              className="w-full h-64 object-cover rounded-lg"
-            />
-          )}
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl">
+            {story.title}
+            {story.is_featured && (
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                <Star className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
-          <div className="prose max-w-none">
-            <p className="whitespace-pre-wrap text-base leading-relaxed">{story.content}</p>
-          </div>
-          
-          {/* Audio Clips Section */}
-          {story.media.audio_clips && story.media.audio_clips.length > 0 && (
-            <div>
-              <h4 className="text-lg font-semibold mb-3">Audio Highlights</h4>
-              <div className="space-y-3">
-                {story.media.audio_clips.map((clip, index) => (
-                  <MediaPlayer
-                    key={index}
-                    type="audio"
-                    src={clip.url}
-                    title={clip.title}
-                    duration={clip.duration}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Image Gallery */}
-          {story.media.gallery && story.media.gallery.length > 0 && (
-            <div>
-              <h4 className="text-lg font-semibold mb-3">Gallery</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {story.media.gallery.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image}
-                    alt={`Gallery image ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {story.metrics && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Impact & Achievements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {story.metrics.career_growth && (
-                    <div>
-                      <h4 className="font-medium text-sm text-muted-foreground">Career Growth</h4>
-                      <p className="font-semibold">{story.metrics.career_growth}</p>
-                    </div>
-                  )}
-                  {story.metrics.impact && (
-                    <div>
-                      <h4 className="font-medium text-sm text-muted-foreground">Impact</h4>
-                      <p className="font-semibold">{story.metrics.impact}</p>
-                    </div>
-                  )}
-                  {story.metrics.timeline && (
-                    <div>
-                      <h4 className="font-medium text-sm text-muted-foreground">Timeline</h4>
-                      <p className="font-semibold">{story.metrics.timeline}</p>
-                    </div>
-                  )}
+          {/* Author Information */}
+          <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {story.author_name.split(' ').map(n => n[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h4 className="font-medium">{story.author_name}</h4>
+              {story.author_title && (
+                <p className="text-sm text-muted-foreground">{story.author_title}</p>
+              )}
+              {story.author_location && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                  <MapPin className="h-3 w-3" />
+                  {story.author_location}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-          
-          <div className="flex flex-wrap gap-2">
-            {story.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">{tag}</Badge>
-            ))}
+              )}
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                <Calendar className="h-3 w-3" />
+                Published {new Date(story.submitted_at).toLocaleDateString()}
+              </div>
+            </div>
           </div>
-          
-          <div className="border-t pt-6">
-            <SocialShareButtons story={story} />
+
+          {/* Categories */}
+          <div className="space-y-2">
+            <h5 className="font-medium text-sm">Categories</h5>
+            <div className="flex flex-wrap gap-2">
+              {story.category.map((cat, index) => (
+                <Badge key={index} variant="outline">
+                  {categories.find(c => c.value === cat)?.label || cat}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="space-y-2">
+            <h5 className="font-medium text-sm">Summary</h5>
+            <p className="text-muted-foreground">{story.summary}</p>
+          </div>
+
+          {/* Full Story */}
+          <div className="space-y-2">
+            <h5 className="font-medium text-sm">Full Story</h5>
+            <div className="prose prose-sm max-w-none">
+              {story.full_story.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
       </DialogContent>
