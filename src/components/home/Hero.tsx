@@ -1,20 +1,17 @@
-
 import React, { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { user } = useAuth();
-  
+  const {
+    user
+  } = useAuth();
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-  
-  return (
-    <section className="relative min-h-[75vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-8 pb-8 md:pt-12 md:pb-12">
+  return <section className="relative min-h-[75vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-8 pb-8 md:pt-12 md:pb-12">
       {/* Main Content */}
       <div className="container px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -33,14 +30,11 @@ const Hero: React.FC = () => {
           </p>
           
           <div className={`flex flex-col sm:flex-row justify-center gap-4 transition-all duration-1000 delay-400 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {user ? (
-              <Link to="/dashboard">
+            {user ? <Link to="/dashboard">
                 <Button size="lg" className="bg-emirati-teal hover:bg-emirati-teal/90 text-white px-8 py-3 text-lg">
                   Go to Dashboard
                 </Button>
-              </Link>
-            ) : (
-              <>
+              </Link> : <>
                 <Link to="/auth">
                   <Button size="lg" className="bg-emirati-teal hover:bg-emirati-teal/90 text-white px-8 py-3 text-lg">
                     Sign In
@@ -51,25 +45,19 @@ const Hero: React.FC = () => {
                     Get Started
                   </Button>
                 </Link>
-              </>
-            )}
+              </>}
           </div>
         </div>
         
         {/* Scroll Indicator - Moving down further to prevent overlap */}
         <div className={`absolute -bottom-4 left-1/2 transform -translate-x-1/2 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <a href="#journey" className="flex flex-col items-center text-foreground/60 hover:text-emirati-teal transition-colors">
-            <span className="text-sm mb-2 text-center">Discover More</span>
-            <ChevronDown className="animate-bounce" />
-          </a>
+          
         </div>
       </div>
       
       {/* Decorative Elements */}
       <div className="absolute top-1/3 -right-20 w-96 h-96 bg-emirati-teal/10 rounded-full filter blur-3xl"></div>
       <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-emirati-gold/10 rounded-full filter blur-3xl"></div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
