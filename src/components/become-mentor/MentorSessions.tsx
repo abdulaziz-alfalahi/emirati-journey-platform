@@ -1,15 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, User, MessageSquare, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { format } from 'date-fns';
+import { SessionCard } from './SessionCard';
 
-// Simplified interface to avoid type recursion
 interface SessionData {
   id: string;
   scheduled_date: string;
@@ -17,88 +12,8 @@ interface SessionData {
   topic: string | null;
   status: string;
   notes: string | null;
-  feedback: string | null;
   rating: number | null;
-  relationship_id: string;
-  video_call_url: string | null;
-  created_at: string;
-  updated_at: string;
 }
-
-// Move SessionCard outside to avoid type resolution issues
-const SessionCard: React.FC<{ session: SessionData; onUpdateStatus: (sessionId: string, status: string) => void }> = ({ 
-  session, 
-  onUpdateStatus 
-}) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'no_show': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  return (
-    <Card className="mb-4">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{session.topic || 'Mentorship Session'}</CardTitle>
-          <Badge className={getStatusColor(session.status)}>
-            {session.status}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              {format(new Date(session.scheduled_date), 'PPP')}
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              {session.duration_minutes} minutes
-            </div>
-          </div>
-          
-          {session.notes && (
-            <div className="flex items-start gap-2">
-              <MessageSquare className="h-4 w-4 mt-0.5 text-muted-foreground" />
-              <p className="text-sm">{session.notes}</p>
-            </div>
-          )}
-          
-          {session.rating && (
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm">Rating: {session.rating}/5</span>
-            </div>
-          )}
-          
-          {session.status === 'scheduled' && (
-            <div className="flex gap-2 pt-2">
-              <Button 
-                size="sm" 
-                onClick={() => onUpdateStatus(session.id, 'completed')}
-              >
-                Mark Complete
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => onUpdateStatus(session.id, 'cancelled')}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
@@ -116,38 +31,35 @@ export const MentorSessions: React.FC = () => {
 
     try {
       // First get the mentor profile
-      const { data: mentorData } = await supabase
+      const mentorQuery = await supabase
         .from('mentors')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (mentorData) {
-        // Use explicit field selection to avoid complex type inference
-        const { data: rawSessions, error } = await supabase
+      if (mentorQuery.data) {
+        // Simple query with basic field selection
+        const sessionsQuery = await supabase
           .from('mentorship_sessions')
-          .select(`
-            id,
-            scheduled_date,
-            duration_minutes,
-            topic,
-            status,
-            notes,
-            feedback,
-            rating,
-            relationship_id,
-            video_call_url,
-            created_at,
-            updated_at
-          `)
-          .eq('mentor_id', mentorData.id)
+          .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
+          .eq('mentor_id', mentorQuery.data.id)
           .order('scheduled_date', { ascending: false });
 
-        if (error) throw error;
+        if (sessionsQuery.error) throw sessionsQuery.error;
         
-        if (rawSessions) {
-          // Direct assignment with type assertion
-          setSessions(rawSessions as SessionData[]);
+        if (sessionsQuery.data) {
+          // Simple mapping without complex type inference
+          const mappedSessions: SessionData[] = sessionsQuery.data.map((session: any) => ({
+            id: session.id,
+            scheduled_date: session.scheduled_date,
+            duration_minutes: session.duration_minutes,
+            topic: session.topic,
+            status: session.status,
+            notes: session.notes,
+            rating: session.rating
+          }));
+          
+          setSessions(mappedSessions);
         }
       }
     } catch (error) {
