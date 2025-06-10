@@ -47,12 +47,13 @@ export const MentorSessions: React.FC = () => {
         .single();
 
       if (mentorData) {
-        // Use explicit any type to avoid TypeScript inference issues
-        const { data: rawSessions, error }: { data: any[] | null; error: any } = await supabase
+        // Break down the query to avoid complex type inference
+        const query = supabase
           .from('mentorship_sessions')
           .select('*')
-          .eq('mentor_id', mentorData.id)
-          .order('scheduled_date', { ascending: false });
+          .eq('mentor_id', mentorData.id);
+        
+        const { data: rawSessions, error } = await query.order('scheduled_date', { ascending: false });
 
         if (error) throw error;
         
