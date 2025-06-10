@@ -44,36 +44,33 @@ export const MentorSessions: React.FC = () => {
         return;
       }
 
-      // Use type assertion to bypass complex inference completely
-      const query = supabase
+      // Completely bypass TypeScript inference with explicit casting
+      const queryResult: any = await supabase
         .from('mentorship_sessions')
-        .select('*')
+        .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
         .eq('mentor_id', mentorResponse.data.id)
         .order('scheduled_date', { ascending: false });
-
-      const result = await query;
       
-      if (result.error) {
-        console.error('Sessions query error:', result.error);
+      if (queryResult.error) {
+        console.error('Sessions query error:', queryResult.error);
         setLoading(false);
         return;
       }
       
-      // Direct assignment with manual construction
+      // Manual construction with explicit typing
       const sessionsData: SimpleSession[] = [];
-      if (result.data) {
-        for (let i = 0; i < result.data.length; i++) {
-          const item = result.data[i];
-          sessionsData.push({
-            id: String(item.id || ''),
-            scheduled_date: String(item.scheduled_date || ''),
-            duration_minutes: Number(item.duration_minutes) || 0,
-            topic: item.topic || null,
-            status: String(item.status || ''),
-            notes: item.notes || null,
-            rating: item.rating ? Number(item.rating) : null
-          });
-        }
+      const rawData = queryResult.data || [];
+      
+      for (const item of rawData) {
+        sessionsData.push({
+          id: String(item.id || ''),
+          scheduled_date: String(item.scheduled_date || ''),
+          duration_minutes: Number(item.duration_minutes) || 0,
+          topic: item.topic || null,
+          status: String(item.status || ''),
+          notes: item.notes || null,
+          rating: item.rating ? Number(item.rating) : null
+        });
       }
       
       setSessions(sessionsData);
