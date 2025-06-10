@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -116,7 +117,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         // Knowledge Transfer & Mentoring
         { name: 'Become a Mentor', href: '/become-mentor', icon: Users },
         { name: 'Share Success Stories', href: '/success-stories', icon: Award },
-        { name: 'Advisory Positions', href: '/advisory-roles', icon: Landmark },
+        { name: 'Advisory Positions', href: '/advisory-positions', icon: Landmark },
         { name: 'Thought Leadership', href: '/thought-leadership', icon: Lightbulb },
         
         // Retirement Planning & Transition
