@@ -73,17 +73,17 @@ export const ContributorsTab: React.FC<ContributorsTabProps> = ({ searchQuery })
         },
         {
           id: '3',
-          name: 'Dr. Fatima Al-Zahra',
+          name: 'Dr. Mohammed Mubarak',
           title: 'Research Director',
           organization: 'Emirates Institute for Advanced Science and Technology',
           bio: 'Leading research in AI applications for career development and skills assessment.',
-          avatar_url: '/images/contributors/fatima.jpg',
+          avatar_url: '/images/contributors/mohammed.jpg',
           expertise_areas: ['Artificial Intelligence', 'EdTech', 'Skills Assessment'],
           content_count: 15,
           is_featured: true,
           social_links: {
-            linkedin: 'https://linkedin.com/in/fatima-alzahra',
-            twitter: 'https://twitter.com/fatima_research'
+            linkedin: 'https://linkedin.com/in/mohammed-mubarak',
+            twitter: 'https://twitter.com/mohammed_research'
           }
         }
       ];
