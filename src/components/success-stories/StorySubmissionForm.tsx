@@ -75,8 +75,9 @@ export const StorySubmissionForm: React.FC<StorySubmissionFormProps> = ({ onSubm
     setIsSubmitting(true);
 
     try {
+      // Use a more flexible approach for the insert operation
       const { error } = await supabase
-        .from('success_stories')
+        .from('success_stories' as any)
         .insert({
           title: formData.title,
           summary: formData.summary,

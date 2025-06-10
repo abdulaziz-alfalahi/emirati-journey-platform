@@ -59,7 +59,7 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ showOnl
     try {
       setLoading(true);
       let query = supabase
-        .from('success_stories')
+        .from('success_stories' as any)
         .select('*')
         .order('submitted_at', { ascending: false });
 
@@ -133,7 +133,7 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ showOnl
             </CardDescription>
           </div>
           {showOnlyUserStories && (
-            <Badge variant={getStatusColor(story.status)}>
+            <Badge variant={getStatusColor(story.status) as any}>
               {story.status}
             </Badge>
           )}
