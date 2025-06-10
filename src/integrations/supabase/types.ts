@@ -4466,6 +4466,72 @@ export type Database = {
         }
         Relationships: []
       }
+      thought_leadership_content: {
+        Row: {
+          author_name: string
+          author_organization: string | null
+          author_title: string | null
+          content_type: string
+          created_at: string
+          created_by: string | null
+          duration_minutes: number | null
+          full_content_url: string | null
+          id: string
+          is_featured: boolean | null
+          published_date: string
+          reading_time_minutes: number | null
+          status: string | null
+          summary: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_name: string
+          author_organization?: string | null
+          author_title?: string | null
+          content_type: string
+          created_at?: string
+          created_by?: string | null
+          duration_minutes?: number | null
+          full_content_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          published_date?: string
+          reading_time_minutes?: number | null
+          status?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_name?: string
+          author_organization?: string | null
+          author_title?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          duration_minutes?: number | null
+          full_content_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          published_date?: string
+          reading_time_minutes?: number | null
+          status?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       training_materials: {
         Row: {
           category: string
