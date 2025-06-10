@@ -44,36 +44,39 @@ export const MentorSessions: React.FC = () => {
         return;
       }
 
-      // Get sessions with simplified query
-      const sessionsResponse = await supabase
+      // Use type assertion to bypass complex inference completely
+      const query = supabase
         .from('mentorship_sessions')
-        .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
+        .select('*')
         .eq('mentor_id', mentorResponse.data.id)
         .order('scheduled_date', { ascending: false });
 
-      if (sessionsResponse.error) {
-        console.error('Sessions query error:', sessionsResponse.error);
+      const result = await query;
+      
+      if (result.error) {
+        console.error('Sessions query error:', result.error);
         setLoading(false);
         return;
       }
       
-      // Use any type to bypass complex inference and manually construct sessions
-      const rawData: any[] = sessionsResponse.data || [];
-      const mappedSessions: SimpleSession[] = [];
+      // Direct assignment with manual construction
+      const sessionsData: SimpleSession[] = [];
+      if (result.data) {
+        for (let i = 0; i < result.data.length; i++) {
+          const item = result.data[i];
+          sessionsData.push({
+            id: String(item.id || ''),
+            scheduled_date: String(item.scheduled_date || ''),
+            duration_minutes: Number(item.duration_minutes) || 0,
+            topic: item.topic || null,
+            status: String(item.status || ''),
+            notes: item.notes || null,
+            rating: item.rating ? Number(item.rating) : null
+          });
+        }
+      }
       
-      rawData.forEach((item: any) => {
-        mappedSessions.push({
-          id: String(item.id || ''),
-          scheduled_date: String(item.scheduled_date || ''),
-          duration_minutes: Number(item.duration_minutes) || 0,
-          topic: item.topic || null,
-          status: String(item.status || ''),
-          notes: item.notes || null,
-          rating: item.rating ? Number(item.rating) : null
-        });
-      });
-      
-      setSessions(mappedSessions);
+      setSessions(sessionsData);
     } catch (error) {
       console.error('Error fetching sessions:', error);
     } finally {
@@ -99,7 +102,7 @@ export const MentorSessions: React.FC = () => {
     }
   };
 
-  // Simple filter functions with explicit return types
+  // Simple filter functions
   const getScheduledSessions = () => {
     return sessions.filter(s => s.status === 'scheduled');
   };
