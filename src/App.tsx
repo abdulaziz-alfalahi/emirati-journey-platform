@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -53,6 +52,7 @@ import InnovationPage from '@/pages/innovation';
 import BecomeMentorPage from '@/pages/become-mentor';
 import AdvisoryPositionsPage from '@/pages/advisory-positions';
 import ThoughtLeadershipPage from '@/pages/thought-leadership';
+import FinancialPlanningPage from '@/pages/financial-planning';
 
 import './App.css';
 
@@ -119,6 +119,7 @@ function App() {
                   <Route path="/become-mentor" element={<BecomeMentorPage />} />
                   <Route path="/advisory-positions" element={<AdvisoryPositionsPage />} />
                   <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                  <Route path="/financial-planning" element={<FinancialPlanningPage />} />
                   
                   {/* Redirect old paths */}
                   <Route path="/cv-builder" element={<Navigate to="/resume-builder" replace />} />
