@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { SessionCard } from './SessionCard';
 
-// Simple interface without complex inheritance
-interface SessionData {
+// Minimal interface to avoid type complexity
+interface SimpleSession {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -18,7 +18,7 @@ interface SessionData {
 
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [sessions, setSessions] = useState<SimpleSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,44 +31,51 @@ export const MentorSessions: React.FC = () => {
     if (!user) return;
 
     try {
-      // Get mentor profile first
-      const mentorQuery = await supabase
+      // Get mentor profile
+      const { data: mentorData, error: mentorError } = await supabase
         .from('mentors')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (mentorQuery.data) {
-        // Use basic query without complex type inference
-        const sessionsQuery = await supabase
-          .from('mentorship_sessions')
-          .select('*')
-          .eq('mentor_id', mentorQuery.data.id)
-          .order('scheduled_date', { ascending: false });
+      if (mentorError || !mentorData) {
+        console.error('Mentor query error:', mentorError);
+        return;
+      }
 
-        if (sessionsQuery.error) {
-          console.error('Sessions query error:', sessionsQuery.error);
-          return;
-        }
+      // Get sessions with explicit type handling
+      const { data: rawSessions, error: sessionsError } = await supabase
+        .from('mentorship_sessions')
+        .select(`
+          id,
+          scheduled_date,
+          duration_minutes,
+          topic,
+          status,
+          notes,
+          rating
+        `)
+        .eq('mentor_id', mentorData.id)
+        .order('scheduled_date', { ascending: false });
+
+      if (sessionsError) {
+        console.error('Sessions query error:', sessionsError);
+        return;
+      }
+      
+      if (rawSessions) {
+        // Manual mapping with type safety
+        const mappedSessions: SimpleSession[] = rawSessions.map(session => ({
+          id: String(session.id),
+          scheduled_date: String(session.scheduled_date),
+          duration_minutes: Number(session.duration_minutes) || 0,
+          topic: session.topic || null,
+          status: String(session.status),
+          notes: session.notes || null,
+          rating: session.rating ? Number(session.rating) : null
+        }));
         
-        if (sessionsQuery.data) {
-          // Manual mapping to avoid type inference issues
-          const mappedSessions: SessionData[] = [];
-          
-          for (const session of sessionsQuery.data) {
-            mappedSessions.push({
-              id: String(session.id || ''),
-              scheduled_date: String(session.scheduled_date || ''),
-              duration_minutes: Number(session.duration_minutes || 0),
-              topic: session.topic ? String(session.topic) : null,
-              status: String(session.status || 'unknown'),
-              notes: session.notes ? String(session.notes) : null,
-              rating: session.rating ? Number(session.rating) : null
-            });
-          }
-          
-          setSessions(mappedSessions);
-        }
+        setSessions(mappedSessions);
       }
     } catch (error) {
       console.error('Error fetching sessions:', error);
@@ -89,16 +96,16 @@ export const MentorSessions: React.FC = () => {
         return;
       }
       
-      // Refresh the list
       fetchSessions();
     } catch (error) {
       console.error('Error updating session status:', error);
     }
   };
 
-  const filterSessionsByStatus = (status: string): SessionData[] => {
-    return sessions.filter(session => session.status === status);
-  };
+  // Simple filter functions
+  const scheduledSessions = sessions.filter(s => s.status === 'scheduled');
+  const completedSessions = sessions.filter(s => s.status === 'completed');
+  const cancelledSessions = sessions.filter(s => s.status === 'cancelled');
 
   if (loading) {
     return (
@@ -115,13 +122,13 @@ export const MentorSessions: React.FC = () => {
       <Tabs defaultValue="scheduled" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="scheduled">
-            Scheduled ({filterSessionsByStatus('scheduled').length})
+            Scheduled ({scheduledSessions.length})
           </TabsTrigger>
           <TabsTrigger value="completed">
-            Completed ({filterSessionsByStatus('completed').length})
+            Completed ({completedSessions.length})
           </TabsTrigger>
           <TabsTrigger value="cancelled">
-            Cancelled ({filterSessionsByStatus('cancelled').length})
+            Cancelled ({cancelledSessions.length})
           </TabsTrigger>
           <TabsTrigger value="all">
             All ({sessions.length})
@@ -129,8 +136,8 @@ export const MentorSessions: React.FC = () => {
         </TabsList>
         
         <TabsContent value="scheduled" className="space-y-4">
-          {filterSessionsByStatus('scheduled').length > 0 ? (
-            filterSessionsByStatus('scheduled').map(session => (
+          {scheduledSessions.length > 0 ? (
+            scheduledSessions.map(session => (
               <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
@@ -141,8 +148,8 @@ export const MentorSessions: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="completed" className="space-y-4">
-          {filterSessionsByStatus('completed').length > 0 ? (
-            filterSessionsByStatus('completed').map(session => (
+          {completedSessions.length > 0 ? (
+            completedSessions.map(session => (
               <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
@@ -153,8 +160,8 @@ export const MentorSessions: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="cancelled" className="space-y-4">
-          {filterSessionsByStatus('cancelled').length > 0 ? (
-            filterSessionsByStatus('cancelled').map(session => (
+          {cancelledSessions.length > 0 ? (
+            cancelledSessions.map(session => (
               <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (

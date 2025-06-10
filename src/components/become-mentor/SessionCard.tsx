@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, MessageSquare, Star } from 'lucide-react';
 import { format } from 'date-fns';
 
-interface SessionData {
+interface SimpleSession {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -17,7 +17,7 @@ interface SessionData {
 }
 
 interface SessionCardProps {
-  session: SessionData;
+  session: SimpleSession;
   onUpdateStatus: (sessionId: string, status: string) => void;
 }
 
