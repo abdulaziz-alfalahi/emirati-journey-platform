@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,8 +74,8 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ showOnl
 
       if (error) throw error;
       
-      // Explicitly cast the data to our interface type
-      const typedData = (data || []) as SuccessStory[];
+      // Use double casting to handle TypeScript type mismatch
+      const typedData = (data || []) as unknown as SuccessStory[];
       setStories(typedData);
     } catch (error) {
       console.error('Error fetching stories:', error);
