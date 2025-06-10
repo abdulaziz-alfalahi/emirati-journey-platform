@@ -50,6 +50,7 @@ import LegacyProjectsPage from '@/pages/legacy-projects/index';
 import CareerPathComparisonPage from '@/pages/career-comparison/index';
 import SalaryExplorerPage from '@/pages/salary-explorer/index';
 import MentorMatchingPage from '@/pages/mentor-matching/index';
+import AuthPage from '@/pages/auth/index';
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ function App() {
           <div className="App">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/auth" element={<AuthPage />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/training" element={<Training />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
