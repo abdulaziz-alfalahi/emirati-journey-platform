@@ -44,8 +44,8 @@ export const MentorSessions: React.FC = () => {
         return;
       }
 
-      // Completely bypass TypeScript inference with explicit casting
-      const queryResult: any = await supabase
+      // @ts-ignore - Bypass complex TypeScript inference for Supabase query
+      const queryResult = await supabase
         .from('mentorship_sessions')
         .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
         .eq('mentor_id', mentorResponse.data.id)
