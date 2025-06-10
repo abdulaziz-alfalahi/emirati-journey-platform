@@ -1,16 +1,16 @@
 
 import React from 'react';
-import { Clock, Briefcase, Shield, Users, Award, Quote } from 'lucide-react';
-import { CareerPageLayout } from '@/components/career/CareerPageLayout';
+import { Clock, Briefcase, Shield, Users, Award } from 'lucide-react';
+import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import PostCareerOptionsTab from '@/components/retiree/PostCareerOptionsTab';
 import RetirementBenefitsTab from '@/components/retiree/RetirementBenefitsTab';
 
 const RetireeServicesPage: React.FC = () => {
   const stats = [
-    { value: '50+', label: 'Post-Career Opportunities' },
-    { value: '25+', label: 'Benefit Programs' },
-    { value: '1000+', label: 'Active Retirees' },
-    { value: '15+', label: 'Years Average Experience' }
+    { value: '50+', label: 'Post-Career Opportunities', icon: Briefcase },
+    { value: '25+', label: 'Benefit Programs', icon: Shield },
+    { value: '1000+', label: 'Active Retirees', icon: Users },
+    { value: '15+', label: 'Years Average Experience', icon: Clock }
   ];
 
   const tabs = [
@@ -29,20 +29,11 @@ const RetireeServicesPage: React.FC = () => {
   ];
 
   return (
-    <CareerPageLayout
+    <ProfessionalGrowthLayout
       title="Emirati Retiree Journey: A New Chapter of Purpose and Prosperity"
       description="Discover meaningful post-career opportunities and maximize your retirement benefits. Continue making a valuable contribution to society while securing your financial future."
-      heroIcon={<Clock className="h-8 w-8" />}
-      primaryActionLabel="Explore Opportunities"
-      primaryActionIcon={<Briefcase className="h-4 w-4" />}
-      primaryActionOnClick={() => console.log('Explore opportunities clicked')}
-      secondaryActionLabel="View Benefits"
-      secondaryActionIcon={<Shield className="h-4 w-4" />}
-      secondaryActionOnClick={() => console.log('View benefits clicked')}
+      icon={<Clock className="h-8 w-8" />}
       stats={stats}
-      quote="Retirement is not the end of the road. It is the beginning of the open highway."
-      attribution="Unknown"
-      quoteIcon={<Quote className="h-8 w-8" />}
       tabs={tabs}
       defaultTab="post-career"
     />
