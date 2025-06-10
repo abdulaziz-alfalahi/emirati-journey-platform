@@ -1,145 +1,120 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/AuthContext';
-import { RoleProvider } from '@/context/RoleContext';
-import { ThemeProvider } from '@/components/theme-provider';
 
-// Pages
-import HomePage from '@/pages/home';
-import AuthPage from '@/pages/auth';
-import DashboardPage from '@/pages/dashboard';
-import ProfilePage from '@/pages/profile';
-import PortfolioPage from '@/pages/portfolio';
-import ResumeBuilderPage from '@/pages/resume-builder';
-import CareerJourneyPage from '@/pages/career-journey';
-import SummerCampsPage from '@/pages/summer-camps';
-import ScholarshipsPage from '@/pages/scholarships';
-import InternshipsPage from '@/pages/internships';
-import TrainingPage from '@/pages/training';
-import LMSPage from '@/pages/lms';
-import AssessmentsPage from '@/pages/assessments';
-import CollaborativeAssessmentsPage from '@/pages/collaborative-assessments';
-import CareerAdvisoryPage from '@/pages/career-advisory';
-import JobMatchingPage from '@/pages/job-matching';
-import CommunitiesPage from '@/pages/communities';
-import MentorshipPage from '@/pages/mentorship';
-import SkillsMarketplacePage from '@/pages/skills-marketplace';
-import CredentialsPage from '@/pages/credentials';
-import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
-import SuccessStoriesPage from '@/pages/success-stories';
-import AnalyticsPage from '@/pages/analytics';
-import DesignSystemPage from '@/pages/DesignSystem';
-import SchoolProgramsPage from '@/pages/school-programs';
-import YouthDevelopmentPage from '@/pages/youth-development';
-import UniversityProgramsPage from '@/pages/university-programs';
-import GraduateProgramsPage from '@/pages/graduate-programs';
-import ProfessionalCertificationsPage from '@/pages/professional-certifications';
-import DigitalSkillsPage from '@/pages/digital-skills';
-import IndustryExplorationPage from '@/pages/industry-exploration';
-import NationalServicePage from '@/pages/national-service';
-import InterviewPreparationPage from '@/pages/interview-preparation';
-import CareerComparisonPage from '@/pages/career-comparison';
-import SalaryExplorerPage from '@/pages/salary-explorer';
-import MentorMatchingPage from '@/pages/mentor-matching';
-import LeadershipPage from '@/pages/leadership';
-import NetworkingPage from '@/pages/networking';
-import CareerTransitionPage from '@/pages/career-transition';
-import BusinessDevelopmentPage from '@/pages/business-development';
-import StartupPage from '@/pages/startup';
-import InnovationPage from '@/pages/innovation';
-import BecomeMentorPage from '@/pages/become-mentor';
-import AdvisoryPositionsPage from '@/pages/advisory-positions';
+import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
+import Training from '@/pages/Training';
+import AnalyticsPage from '@/pages/Analytics';
+import LMSPage from '@/pages/LMS';
+import AssessmentsPage from '@/pages/Assessments';
 import ThoughtLeadershipPage from '@/pages/thought-leadership';
-import FinancialPlanningPage from '@/pages/financial-planning';
-import VolunteerProgramsPage from '@/pages/volunteer-programs';
-import LegacyProjectsPage from '@/pages/legacy-projects';
 import CommunityLeadershipPage from '@/pages/community-leadership';
+import SummerCampsPage from '@/pages/SummerCamps';
+import SchoolProgramsPage from '@/pages/SchoolPrograms';
+import ScholarshipsPage from '@/pages/Scholarships';
+import YouthDevelopmentPage from '@/pages/YouthDevelopment';
+import UniversityProgramsPage from '@/pages/UniversityPrograms';
+import DigitalSkillsPage from '@/pages/DigitalSkills';
+import CareerJourneyPage from '@/pages/CareerJourney';
+import CareerAdvisoryPage from '@/pages/CareerAdvisory';
+import IndustryExplorationPage from '@/pages/IndustryExploration';
+import InternshipsPage from '@/pages/Internships';
+import NationalServicePage from '@/pages/NationalService';
+import GraduateProgramsPage from '@/pages/GraduatePrograms';
+import ResumeBuilderPage from '@/pages/ResumeBuilder';
+import PortfolioPage from '@/pages/Portfolio';
+import InterviewPreparationPage from '@/pages/InterviewPreparation';
+import JobMatchingPage from '@/pages/JobMatching';
+import SkillsMarketplacePage from '@/pages/SkillsMarketplace';
+import ProfessionalCertificationsPage from '@/pages/ProfessionalCertifications';
+import LeadershipPage from '@/pages/Leadership';
+import BlockchainCredentialsPage from '@/pages/BlockchainCredentials';
+import MentorshipPage from '@/pages/Mentorship';
+import CommunitiesPage from '@/pages/Communities';
+import NetworkingPage from '@/pages/Networking';
+import CareerTransitionPage from '@/pages/CareerTransition';
+import BusinessDevelopmentPage from '@/pages/BusinessDevelopment';
+import StartupPage from '@/pages/Startup';
+import InnovationPage from '@/pages/Innovation';
+import BecomeMentorPage from '@/pages/BecomeMentor';
+import SuccessStoriesPage from '@/pages/SuccessStories';
+import AdvisoryPositionsPage from '@/pages/AdvisoryPositions';
+import FinancialPlanningPage from '@/pages/FinancialPlanning';
+import PostCareerOptionsPage from '@/pages/PostCareerOptions';
+import RetirementBenefitsPage from '@/pages/RetirementBenefits';
+import VolunteerProgramsPage from '@/pages/VolunteerPrograms';
+import LegacyProjectsPage from '@/pages/LegacyProjects';
+import AdminUsersPage from '@/pages/admin/Users';
+import AdminSettingsPage from '@/pages/admin/Settings';
+import CareerPathComparisonPage from '@/pages/CareerPathComparison';
+import SalaryExplorerPage from '@/pages/SalaryExplorer';
+import MentorMatchingPage from '@/pages/MentorMatching';
 
-import './App.css';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="ehrdc-ui-theme">
-        <AuthProvider>
-          <RoleProvider>
-            <Router>
-              <div className="min-h-screen bg-background">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/portfolio" element={<PortfolioPage />} />
-                  <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-                  <Route path="/career-journey" element={<CareerJourneyPage />} />
-                  <Route path="/summer-camps" element={<SummerCampsPage />} />
-                  <Route path="/school-programs" element={<SchoolProgramsPage />} />
-                  <Route path="/youth-development" element={<YouthDevelopmentPage />} />
-                  <Route path="/university-programs" element={<UniversityProgramsPage />} />
-                  <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
-                  <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
-                  <Route path="/digital-skills" element={<DigitalSkillsPage />} />
-                  <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
-                  <Route path="/national-service" element={<NationalServicePage />} />
-                  <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
-                  <Route path="/career-comparison" element={<CareerComparisonPage />} />
-                  <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
-                  <Route path="/mentor-matching" element={<MentorMatchingPage />} />
-                  <Route path="/leadership" element={<LeadershipPage />} />
-                  <Route path="/networking" element={<NetworkingPage />} />
-                  <Route path="/career-transition" element={<CareerTransitionPage />} />
-                  <Route path="/business-development" element={<BusinessDevelopmentPage />} />
-                  <Route path="/startup" element={<StartupPage />} />
-                  <Route path="/innovation" element={<InnovationPage />} />
-                  <Route path="/communities" element={<CommunitiesPage />} />
-                  <Route path="/scholarships" element={<ScholarshipsPage />} />
-                  <Route path="/internships" element={<InternshipsPage />} />
-                  <Route path="/training" element={<TrainingPage />} />
-                  <Route path="/lms" element={<LMSPage />} />
-                  <Route path="/assessments" element={<AssessmentsPage />} />
-                  <Route path="/collaborative-assessments" element={<CollaborativeAssessmentsPage />} />
-                  <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
-                  <Route path="/job-matching" element={<JobMatchingPage />} />
-                  <Route path="/mentorship" element={<MentorshipPage />} />
-                  <Route path="/skills-marketplace" element={<SkillsMarketplacePage />} />
-                  <Route path="/credentials" element={<CredentialsPage />} />
-                  <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
-                  <Route path="/success-stories" element={<SuccessStoriesPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/design-system" element={<DesignSystemPage />} />
-                  <Route path="/become-mentor" element={<BecomeMentorPage />} />
-                  <Route path="/advisory-positions" element={<AdvisoryPositionsPage />} />
-                  <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
-                  <Route path="/financial-planning" element={<FinancialPlanningPage />} />
-                  <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
-                  <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
-                  <Route path="/community-leadership" element={<CommunityLeadershipPage />} />
-                  
-                  {/* Redirect old paths */}
-                  <Route path="/cv-builder" element={<Navigate to="/resume-builder" replace />} />
-                  <Route path="/industries" element={<Navigate to="/industry-exploration" replace />} />
-                  
-                  {/* Catch all route */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </div>
-              <Toaster />
-            </Router>
-          </RoleProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/training" element={<Training />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/lms" element={<LMSPage />} />
+              <Route path="/assessments" element={<AssessmentsPage />} />
+              <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+              <Route path="/community-leadership" element={<CommunityLeadershipPage />} />
+              <Route path="/summer-camps" element={<SummerCampsPage />} />
+              <Route path="/school-programs" element={<SchoolProgramsPage />} />
+              <Route path="/scholarships" element={<ScholarshipsPage />} />
+              <Route path="/youth-development" element={<YouthDevelopmentPage />} />
+              <Route path="/university-programs" element={<UniversityProgramsPage />} />
+              <Route path="/digital-skills" element={<DigitalSkillsPage />} />
+              <Route path="/career-journey" element={<CareerJourneyPage />} />
+              <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
+              <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
+              <Route path="/internships" element={<InternshipsPage />} />
+              <Route path="/national-service" element={<NationalServicePage />} />
+              <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
+              <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
+              <Route path="/job-matching" element={<JobMatchingPage />} />
+              <Route path="/skills-marketplace" element={<SkillsMarketplacePage />} />
+              <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
+              <Route path="/leadership" element={<LeadershipPage />} />
+              <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
+              <Route path="/mentorship" element={<MentorshipPage />} />
+              <Route path="/communities" element={<CommunitiesPage />} />
+              <Route path="/networking" element={<NetworkingPage />} />
+              <Route path="/career-transition" element={<CareerTransitionPage />} />
+              <Route path="/business-development" element={<BusinessDevelopmentPage />} />
+              <Route path="/startup" element={<StartupPage />} />
+              <Route path="/innovation" element={<InnovationPage />} />
+              <Route path="/become-mentor" element={<BecomeMentorPage />} />
+              <Route path="/success-stories" element={<SuccessStoriesPage />} />
+              <Route path="/advisory-positions" element={<AdvisoryPositionsPage />} />
+              <Route path="/financial-planning" element={<FinancialPlanningPage />} />
+              <Route path="/post-career" element={<PostCareerOptionsPage />} />
+              <Route path="/retirement-benefits" element={<RetirementBenefitsPage />} />
+              <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
+              <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/career-comparison" element={<CareerPathComparisonPage />} />
+              <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
+              <Route path="/mentor-matching" element={<MentorMatchingPage />} />
+            </Routes>
+          </div>
+          <Toaster />
+        </Router>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
