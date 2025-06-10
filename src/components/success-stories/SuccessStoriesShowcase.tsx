@@ -74,9 +74,13 @@ const SuccessStoriesShowcase: React.FC<SuccessStoriesShowcaseProps> = ({ showOnl
       const { data, error } = await query;
 
       if (error) throw error;
-      setStories(data || []);
+      
+      // Explicitly cast the data to our interface type
+      const typedData = (data || []) as SuccessStory[];
+      setStories(typedData);
     } catch (error) {
       console.error('Error fetching stories:', error);
+      setStories([]);
     } finally {
       setLoading(false);
     }
