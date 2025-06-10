@@ -5,8 +5,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { SessionCard } from './SessionCard';
 
-// Minimal interface to avoid type complexity
+// Simple interface to avoid type complexity
 interface SimpleSession {
+  id: string;
+  scheduled_date: string;
+  duration_minutes: number;
+  topic: string | null;
+  status: string;
+  notes: string | null;
+  rating: number | null;
+}
+
+// Explicit raw data interface
+interface RawSessionData {
   id: string;
   scheduled_date: string;
   duration_minutes: number;
@@ -31,52 +42,49 @@ export const MentorSessions: React.FC = () => {
     if (!user) return;
 
     try {
-      // Get mentor profile
-      const { data: mentorData, error: mentorError } = await supabase
+      // Get mentor profile first
+      const mentorResponse = await supabase
         .from('mentors')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (mentorError || !mentorData) {
-        console.error('Mentor query error:', mentorError);
+      if (mentorResponse.error || !mentorResponse.data) {
+        console.error('Mentor query error:', mentorResponse.error);
+        setLoading(false);
         return;
       }
 
-      // Get sessions with explicit type handling
-      const { data: rawSessions, error: sessionsError } = await supabase
+      // Get sessions with simplified query
+      const sessionsResponse = await supabase
         .from('mentorship_sessions')
-        .select(`
-          id,
-          scheduled_date,
-          duration_minutes,
-          topic,
-          status,
-          notes,
-          rating
-        `)
-        .eq('mentor_id', mentorData.id)
+        .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
+        .eq('mentor_id', mentorResponse.data.id)
         .order('scheduled_date', { ascending: false });
 
-      if (sessionsError) {
-        console.error('Sessions query error:', sessionsError);
+      if (sessionsResponse.error) {
+        console.error('Sessions query error:', sessionsResponse.error);
+        setLoading(false);
         return;
       }
       
-      if (rawSessions) {
-        // Manual mapping with type safety
-        const mappedSessions: SimpleSession[] = rawSessions.map(session => ({
+      // Manual type-safe mapping without complex inference
+      const rawData = sessionsResponse.data as RawSessionData[];
+      const mappedSessions: SimpleSession[] = [];
+      
+      for (const session of rawData) {
+        mappedSessions.push({
           id: String(session.id),
           scheduled_date: String(session.scheduled_date),
           duration_minutes: Number(session.duration_minutes) || 0,
-          topic: session.topic || null,
+          topic: session.topic,
           status: String(session.status),
-          notes: session.notes || null,
+          notes: session.notes,
           rating: session.rating ? Number(session.rating) : null
-        }));
-        
-        setSessions(mappedSessions);
+        });
       }
+      
+      setSessions(mappedSessions);
     } catch (error) {
       console.error('Error fetching sessions:', error);
     } finally {
@@ -102,10 +110,18 @@ export const MentorSessions: React.FC = () => {
     }
   };
 
-  // Simple filter functions
-  const scheduledSessions = sessions.filter(s => s.status === 'scheduled');
-  const completedSessions = sessions.filter(s => s.status === 'completed');
-  const cancelledSessions = sessions.filter(s => s.status === 'cancelled');
+  // Simple filter functions with explicit return types
+  const getScheduledSessions = (): SimpleSession[] => {
+    return sessions.filter(s => s.status === 'scheduled');
+  };
+
+  const getCompletedSessions = (): SimpleSession[] => {
+    return sessions.filter(s => s.status === 'completed');
+  };
+
+  const getCancelledSessions = (): SimpleSession[] => {
+    return sessions.filter(s => s.status === 'cancelled');
+  };
 
   if (loading) {
     return (
@@ -116,6 +132,10 @@ export const MentorSessions: React.FC = () => {
       </div>
     );
   }
+
+  const scheduledSessions = getScheduledSessions();
+  const completedSessions = getCompletedSessions();
+  const cancelledSessions = getCancelledSessions();
 
   return (
     <div>
