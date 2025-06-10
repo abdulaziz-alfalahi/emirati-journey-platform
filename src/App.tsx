@@ -52,6 +52,7 @@ import StartupPage from '@/pages/startup';
 import InnovationPage from '@/pages/innovation';
 import BecomeMentorPage from '@/pages/become-mentor';
 import AdvisoryPositionsPage from '@/pages/advisory-positions';
+import ThoughtLeadershipPage from '@/pages/thought-leadership';
 
 import './App.css';
 
@@ -117,6 +118,7 @@ function App() {
                   <Route path="/design-system" element={<DesignSystemPage />} />
                   <Route path="/become-mentor" element={<BecomeMentorPage />} />
                   <Route path="/advisory-positions" element={<AdvisoryPositionsPage />} />
+                  <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
                   
                   {/* Redirect old paths */}
                   <Route path="/cv-builder" element={<Navigate to="/resume-builder" replace />} />
