@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,84 +25,11 @@ interface SessionData {
   updated_at: string;
 }
 
-export const MentorSessions: React.FC = () => {
-  const { user } = useAuth();
-  const [sessions, setSessions] = useState<SessionData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      fetchSessions();
-    }
-  }, [user]);
-
-  const fetchSessions = async () => {
-    if (!user) return;
-
-    try {
-      // First get the mentor profile
-      const { data: mentorData } = await supabase
-        .from('mentors')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (mentorData) {
-        // Break down the query to avoid complex type inference
-        const query = supabase
-          .from('mentorship_sessions')
-          .select('*')
-          .eq('mentor_id', mentorData.id);
-        
-        const { data: rawSessions, error } = await query.order('scheduled_date', { ascending: false });
-
-        if (error) throw error;
-        
-        if (rawSessions) {
-          // Simple explicit mapping to avoid type issues
-          const processedSessions: SessionData[] = [];
-          
-          for (const session of rawSessions) {
-            processedSessions.push({
-              id: String(session.id),
-              scheduled_date: String(session.scheduled_date),
-              duration_minutes: Number(session.duration_minutes),
-              topic: session.topic ? String(session.topic) : null,
-              status: String(session.status),
-              notes: session.notes ? String(session.notes) : null,
-              feedback: session.feedback ? String(session.feedback) : null,
-              rating: session.rating ? Number(session.rating) : null,
-              relationship_id: String(session.relationship_id),
-              video_call_url: session.video_call_url ? String(session.video_call_url) : null,
-              created_at: String(session.created_at),
-              updated_at: String(session.updated_at)
-            });
-          }
-          
-          setSessions(processedSessions);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateSessionStatus = async (sessionId: string, status: string) => {
-    try {
-      const { error } = await supabase
-        .from('mentorship_sessions')
-        .update({ status })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-      fetchSessions(); // Refresh the list
-    } catch (error) {
-      console.error('Error updating session status:', error);
-    }
-  };
-
+// Move SessionCard outside to avoid type resolution issues
+const SessionCard: React.FC<{ session: SessionData; onUpdateStatus: (sessionId: string, status: string) => void }> = ({ 
+  session, 
+  onUpdateStatus 
+}) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled': return 'bg-blue-100 text-blue-800';
@@ -112,11 +40,7 @@ export const MentorSessions: React.FC = () => {
     }
   };
 
-  const filterSessionsByStatus = (status: string) => {
-    return sessions.filter(session => session.status === status);
-  };
-
-  const SessionCard: React.FC<{ session: SessionData }> = ({ session }) => (
+  return (
     <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
@@ -157,14 +81,14 @@ export const MentorSessions: React.FC = () => {
             <div className="flex gap-2 pt-2">
               <Button 
                 size="sm" 
-                onClick={() => updateSessionStatus(session.id, 'completed')}
+                onClick={() => onUpdateStatus(session.id, 'completed')}
               >
                 Mark Complete
               </Button>
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => updateSessionStatus(session.id, 'cancelled')}
+                onClick={() => onUpdateStatus(session.id, 'cancelled')}
               >
                 Cancel
               </Button>
@@ -174,6 +98,82 @@ export const MentorSessions: React.FC = () => {
       </CardContent>
     </Card>
   );
+};
+
+export const MentorSessions: React.FC = () => {
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchSessions();
+    }
+  }, [user]);
+
+  const fetchSessions = async () => {
+    if (!user) return;
+
+    try {
+      // First get the mentor profile
+      const { data: mentorData } = await supabase
+        .from('mentors')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (mentorData) {
+        // Use explicit field selection to avoid complex type inference
+        const { data: rawSessions, error } = await supabase
+          .from('mentorship_sessions')
+          .select(`
+            id,
+            scheduled_date,
+            duration_minutes,
+            topic,
+            status,
+            notes,
+            feedback,
+            rating,
+            relationship_id,
+            video_call_url,
+            created_at,
+            updated_at
+          `)
+          .eq('mentor_id', mentorData.id)
+          .order('scheduled_date', { ascending: false });
+
+        if (error) throw error;
+        
+        if (rawSessions) {
+          // Direct assignment with type assertion
+          setSessions(rawSessions as SessionData[]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateSessionStatus = async (sessionId: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('mentorship_sessions')
+        .update({ status })
+        .eq('id', sessionId);
+
+      if (error) throw error;
+      fetchSessions(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating session status:', error);
+    }
+  };
+
+  const filterSessionsByStatus = (status: string) => {
+    return sessions.filter(session => session.status === status);
+  };
 
   if (loading) {
     return <div className="animate-pulse space-y-4">
@@ -204,7 +204,7 @@ export const MentorSessions: React.FC = () => {
         <TabsContent value="scheduled" className="space-y-4">
           {filterSessionsByStatus('scheduled').length > 0 ? (
             filterSessionsByStatus('scheduled').map(session => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
@@ -216,7 +216,7 @@ export const MentorSessions: React.FC = () => {
         <TabsContent value="completed" className="space-y-4">
           {filterSessionsByStatus('completed').length > 0 ? (
             filterSessionsByStatus('completed').map(session => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
@@ -228,7 +228,7 @@ export const MentorSessions: React.FC = () => {
         <TabsContent value="cancelled" className="space-y-4">
           {filterSessionsByStatus('cancelled').length > 0 ? (
             filterSessionsByStatus('cancelled').map(session => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
@@ -240,7 +240,7 @@ export const MentorSessions: React.FC = () => {
         <TabsContent value="all" className="space-y-4">
           {sessions.length > 0 ? (
             sessions.map(session => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard key={session.id} session={session} onUpdateStatus={updateSessionStatus} />
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
