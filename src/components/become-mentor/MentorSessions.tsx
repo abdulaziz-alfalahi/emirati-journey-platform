@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { SessionCard } from './SessionCard';
 
+// Simple interface without complex inheritance
 interface SessionData {
   id: string;
   scheduled_date: string;
@@ -30,7 +31,7 @@ export const MentorSessions: React.FC = () => {
     if (!user) return;
 
     try {
-      // First get the mentor profile
+      // Get mentor profile first
       const mentorQuery = await supabase
         .from('mentors')
         .select('id')
@@ -38,26 +39,33 @@ export const MentorSessions: React.FC = () => {
         .single();
 
       if (mentorQuery.data) {
-        // Simple query with basic field selection
+        // Use basic query without complex type inference
         const sessionsQuery = await supabase
           .from('mentorship_sessions')
-          .select('id, scheduled_date, duration_minutes, topic, status, notes, rating')
+          .select('*')
           .eq('mentor_id', mentorQuery.data.id)
           .order('scheduled_date', { ascending: false });
 
-        if (sessionsQuery.error) throw sessionsQuery.error;
+        if (sessionsQuery.error) {
+          console.error('Sessions query error:', sessionsQuery.error);
+          return;
+        }
         
         if (sessionsQuery.data) {
-          // Simple mapping without complex type inference
-          const mappedSessions: SessionData[] = sessionsQuery.data.map((session: any) => ({
-            id: session.id,
-            scheduled_date: session.scheduled_date,
-            duration_minutes: session.duration_minutes,
-            topic: session.topic,
-            status: session.status,
-            notes: session.notes,
-            rating: session.rating
-          }));
+          // Manual mapping to avoid type inference issues
+          const mappedSessions: SessionData[] = [];
+          
+          for (const session of sessionsQuery.data) {
+            mappedSessions.push({
+              id: String(session.id || ''),
+              scheduled_date: String(session.scheduled_date || ''),
+              duration_minutes: Number(session.duration_minutes || 0),
+              topic: session.topic ? String(session.topic) : null,
+              status: String(session.status || 'unknown'),
+              notes: session.notes ? String(session.notes) : null,
+              rating: session.rating ? Number(session.rating) : null
+            });
+          }
           
           setSessions(mappedSessions);
         }
@@ -76,23 +84,30 @@ export const MentorSessions: React.FC = () => {
         .update({ status })
         .eq('id', sessionId);
 
-      if (error) throw error;
-      fetchSessions(); // Refresh the list
+      if (error) {
+        console.error('Error updating session status:', error);
+        return;
+      }
+      
+      // Refresh the list
+      fetchSessions();
     } catch (error) {
       console.error('Error updating session status:', error);
     }
   };
 
-  const filterSessionsByStatus = (status: string) => {
+  const filterSessionsByStatus = (status: string): SessionData[] => {
     return sessions.filter(session => session.status === status);
   };
 
   if (loading) {
-    return <div className="animate-pulse space-y-4">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="h-32 bg-gray-200 rounded"></div>
-      ))}
-    </div>;
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="h-32 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    );
   }
 
   return (
