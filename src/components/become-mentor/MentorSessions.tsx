@@ -16,17 +16,6 @@ interface SimpleSession {
   rating: number | null;
 }
 
-// Explicit raw data interface
-interface RawSessionData {
-  id: string;
-  scheduled_date: string;
-  duration_minutes: number;
-  topic: string | null;
-  status: string;
-  notes: string | null;
-  rating: number | null;
-}
-
 export const MentorSessions: React.FC = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<SimpleSession[]>([]);
@@ -68,21 +57,21 @@ export const MentorSessions: React.FC = () => {
         return;
       }
       
-      // Manual type-safe mapping without complex inference
-      const rawData = sessionsResponse.data as RawSessionData[];
+      // Use any type to bypass complex inference and manually construct sessions
+      const rawData: any[] = sessionsResponse.data || [];
       const mappedSessions: SimpleSession[] = [];
       
-      for (const session of rawData) {
+      rawData.forEach((item: any) => {
         mappedSessions.push({
-          id: String(session.id),
-          scheduled_date: String(session.scheduled_date),
-          duration_minutes: Number(session.duration_minutes) || 0,
-          topic: session.topic,
-          status: String(session.status),
-          notes: session.notes,
-          rating: session.rating ? Number(session.rating) : null
+          id: String(item.id || ''),
+          scheduled_date: String(item.scheduled_date || ''),
+          duration_minutes: Number(item.duration_minutes) || 0,
+          topic: item.topic || null,
+          status: String(item.status || ''),
+          notes: item.notes || null,
+          rating: item.rating ? Number(item.rating) : null
         });
-      }
+      });
       
       setSessions(mappedSessions);
     } catch (error) {
@@ -111,15 +100,15 @@ export const MentorSessions: React.FC = () => {
   };
 
   // Simple filter functions with explicit return types
-  const getScheduledSessions = (): SimpleSession[] => {
+  const getScheduledSessions = () => {
     return sessions.filter(s => s.status === 'scheduled');
   };
 
-  const getCompletedSessions = (): SimpleSession[] => {
+  const getCompletedSessions = () => {
     return sessions.filter(s => s.status === 'completed');
   };
 
-  const getCancelledSessions = (): SimpleSession[] => {
+  const getCancelledSessions = () => {
     return sessions.filter(s => s.status === 'cancelled');
   };
 
