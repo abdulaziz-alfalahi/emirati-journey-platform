@@ -1,20 +1,65 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import { UniversityExplorer } from '@/components/university-programs/UniversityExplorer';
-import { ProgramFinder } from '@/components/university-programs/ProgramFinder';
-import { ApplicationTimeline } from '@/components/university-programs/ApplicationTimeline';
-import { ScholarshipHub } from '@/components/university-programs/ScholarshipHub';
-import { PreparationResources } from '@/components/university-programs/PreparationResources';
-import { AlumniNetwork } from '@/components/university-programs/AlumniNetwork';
-import { UniversityRepresentatives } from '@/components/university-programs/UniversityRepresentatives';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Search, Calendar, Award, BookOpen, Users, Video } from 'lucide-react';
+import { GraduationCap, Users, Building, Calendar } from 'lucide-react';
+import UniversityProgramsFilter from '@/components/university-programs/UniversityProgramsFilter';
+import ProgramsList from '@/components/university-programs/ProgramsList';
+
+interface FilterState {
+  search: string;
+  university: string;
+  degreeLevel: string;
+  fieldOfStudy: string;
+}
 
 const UniversityProgramsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('explorer');
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    university: '',
+    degreeLevel: '',
+    fieldOfStudy: '',
+  });
+
+  // Fetch filter options
+  const { data: filterOptions } = useQuery({
+    queryKey: ['university-programs-filter-options'],
+    queryFn: async () => {
+      const { data: programs, error } = await supabase
+        .from('university_programs')
+        .select('university_name, degree_level, field_of_study')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+
+      const universities = [...new Set(programs.map(p => p.university_name))].sort();
+      const degreeLevels = [...new Set(programs.map(p => p.degree_level))].sort();
+      const fieldsOfStudy = [...new Set(programs.map(p => p.field_of_study))].sort();
+
+      return { universities, degreeLevels, fieldsOfStudy };
+    }
+  });
+
+  // Fetch stats
+  const { data: stats } = useQuery({
+    queryKey: ['university-programs-stats'],
+    queryFn: async () => {
+      const { data: programs, error } = await supabase
+        .from('university_programs')
+        .select('*')
+        .eq('is_active', true);
+      
+      if (error) throw error;
+
+      const totalPrograms = programs.length;
+      const universities = new Set(programs.map(p => p.university_name)).size;
+      const fields = new Set(programs.map(p => p.field_of_study)).size;
+
+      return { totalPrograms, universities, fields };
+    }
+  });
 
   return (
     <Layout>
@@ -35,80 +80,82 @@ const UniversityProgramsPage: React.FC = () => {
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
                 Explore world-class higher education opportunities for Emirati students across local and international universities
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-white/90 font-semibold">
-                  Explore Universities
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                  Find Scholarships
-                </Button>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-8">
-              <TabsTrigger value="explorer" className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Explorer</span>
-              </TabsTrigger>
-              <TabsTrigger value="programs" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Programs</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Timeline</span>
-              </TabsTrigger>
-              <TabsTrigger value="scholarships" className="flex items-center gap-2">
-                <Award className="h-4 w-4" />
-                <span className="hidden sm:inline">Scholarships</span>
-              </TabsTrigger>
-              <TabsTrigger value="resources" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Resources</span>
-              </TabsTrigger>
-              <TabsTrigger value="alumni" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Alumni</span>
-              </TabsTrigger>
-              <TabsTrigger value="representatives" className="flex items-center gap-2">
-                <Video className="h-4 w-4" />
-                <span className="hidden sm:inline">Meet Reps</span>
-              </TabsTrigger>
-            </TabsList>
+        {/* Stats Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
+          <div className="grid gap-4 md:grid-cols-3 mb-8">
+            <div className="bg-blue-50 p-6 rounded-lg flex items-center">
+              <GraduationCap className="h-10 w-10 text-blue-600 mr-4" />
+              <div>
+                <h3 className="font-semibold text-lg">{stats?.totalPrograms || 0} Programs</h3>
+                <p className="text-sm text-muted-foreground">Available university programs</p>
+              </div>
+            </div>
+            <div className="bg-green-50 p-6 rounded-lg flex items-center">
+              <Building className="h-10 w-10 text-green-600 mr-4" />
+              <div>
+                <h3 className="font-semibold text-lg">{stats?.universities || 0} Universities</h3>
+                <p className="text-sm text-muted-foreground">Partner institutions</p>
+              </div>
+            </div>
+            <div className="bg-amber-50 p-6 rounded-lg flex items-center">
+              <Users className="h-10 w-10 text-amber-600 mr-4" />
+              <div>
+                <h3 className="font-semibold text-lg">{stats?.fields || 0} Fields</h3>
+                <p className="text-sm text-muted-foreground">Different fields of study</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <TabsContent value="explorer">
-              <UniversityExplorer />
-            </TabsContent>
-            
-            <TabsContent value="programs">
-              <ProgramFinder />
-            </TabsContent>
-            
-            <TabsContent value="timeline">
-              <ApplicationTimeline />
-            </TabsContent>
-            
-            <TabsContent value="scholarships">
-              <ScholarshipHub />
-            </TabsContent>
-            
-            <TabsContent value="resources">
-              <PreparationResources />
-            </TabsContent>
-            
-            <TabsContent value="alumni">
-              <AlumniNetwork />
-            </TabsContent>
-            
-            <TabsContent value="representatives">
-              <UniversityRepresentatives />
-            </TabsContent>
-          </Tabs>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="grid gap-8 lg:grid-cols-4">
+            {/* Filter Sidebar */}
+            <div className="lg:col-span-1">
+              {filterOptions && (
+                <UniversityProgramsFilter
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  universities={filterOptions.universities}
+                  degreeLevels={filterOptions.degreeLevels}
+                  fieldsOfStudy={filterOptions.fieldsOfStudy}
+                />
+              )}
+            </div>
+
+            {/* Main Content Area */}
+            <div className="lg:col-span-3">
+              <Tabs defaultValue="all-programs" className="w-full">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="all-programs" className="flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4" />
+                    All Programs
+                  </TabsTrigger>
+                  <TabsTrigger value="featured" className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Application Deadlines
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="all-programs">
+                  <ProgramsList filters={filters} />
+                </TabsContent>
+
+                <TabsContent value="featured">
+                  <ProgramsList 
+                    filters={{
+                      ...filters,
+                      // Add logic to filter by upcoming deadlines if needed
+                    }} 
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
