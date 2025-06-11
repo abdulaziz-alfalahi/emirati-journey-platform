@@ -13,6 +13,7 @@ import NationalServicePage from '@/pages/national-service';
 import YouthDevelopmentPage from '@/pages/youth-development';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 import DigitalSkillsDevelopmentPage from '@/pages/digital-skills-development';
+import AssessmentsPage from '@/pages/assessments';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/youth-development" element={<YouthDevelopmentPage />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                 <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
+                <Route path="/assessments" element={<AssessmentsPage />} />
               </Routes>
             </div>
           </RoleProvider>
