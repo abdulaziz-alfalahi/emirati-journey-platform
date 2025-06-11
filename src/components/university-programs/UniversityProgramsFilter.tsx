@@ -76,13 +76,13 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
           <Label className="text-sm font-medium">University</Label>
           <Select
             value={filters.university}
-            onValueChange={(value) => onFilterChange({ ...filters, university: value })}
+            onValueChange={(value) => onFilterChange({ ...filters, university: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Universities" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Universities</SelectItem>
+              <SelectItem value="all">All Universities</SelectItem>
               {universities.map((university) => (
                 <SelectItem key={university} value={university}>
                   {university}
@@ -96,13 +96,13 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
           <Label className="text-sm font-medium">Degree Level</Label>
           <Select
             value={filters.degreeLevel}
-            onValueChange={(value) => onFilterChange({ ...filters, degreeLevel: value })}
+            onValueChange={(value) => onFilterChange({ ...filters, degreeLevel: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all">All Levels</SelectItem>
               {degreeLevels.map((level) => (
                 <SelectItem key={level} value={level}>
                   {level}
@@ -116,13 +116,13 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
           <Label className="text-sm font-medium">Field of Study</Label>
           <Select
             value={filters.fieldOfStudy}
-            onValueChange={(value) => onFilterChange({ ...filters, fieldOfStudy: value })}
+            onValueChange={(value) => onFilterChange({ ...filters, fieldOfStudy: value === 'all' ? '' : value })}
           >
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Fields" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Fields</SelectItem>
+              <SelectItem value="all">All Fields</SelectItem>
               {fieldsOfStudy.map((field) => (
                 <SelectItem key={field} value={field}>
                   {field}
