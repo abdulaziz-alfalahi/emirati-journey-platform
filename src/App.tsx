@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
@@ -6,11 +7,8 @@ import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityTo
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import DashboardPage from '@/pages/dashboard';
 import ProfilePage from '@/pages/profile';
-import SettingsPage from '@/pages/settings';
 import NationalServicePage from '@/pages/national-service';
 import YouthDevelopmentPage from '@/pages/youth-development';
-import ResumeUploaderPage from '@/pages/resume-uploader';
-import TrainingCenterDashboard from '@/pages/training-center';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 
 function App() {
@@ -25,11 +23,8 @@ function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/national-service" element={<NationalServicePage />} />
               <Route path="/youth-development" element={<YouthDevelopmentPage />} />
-              <Route path="/resume-uploader" element={<ResumeUploaderPage />} />
-              <Route path="/training-center/*" element={<TrainingCenterDashboard />} />
               <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
             </Routes>
           </div>

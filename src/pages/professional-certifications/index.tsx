@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Layout } from '@/components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 import { ProfessionalCertificationsList } from '@/components/professional-certifications/ProfessionalCertificationsList';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Building2, TrendingUp, Users } from 'lucide-react';
