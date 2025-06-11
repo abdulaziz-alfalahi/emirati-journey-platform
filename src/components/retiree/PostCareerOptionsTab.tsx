@@ -14,7 +14,13 @@ interface RetireeResource {
   description: string;
   resource_url: string;
   tags: string[];
-  published_date: string;
+  created_at: string;
+  updated_at: string;
+  image_url: string;
+  is_featured: boolean;
+  difficulty_level: string;
+  estimated_read_time: number;
+  status: string;
 }
 
 const PostCareerOptionsTab: React.FC = () => {
@@ -25,7 +31,7 @@ const PostCareerOptionsTab: React.FC = () => {
         .from('retiree_resources')
         .select('*')
         .in('category', ['post_career_consulting', 'post_career_volunteering', 'post_career_entrepreneurship'])
-        .order('published_date', { ascending: false });
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as RetireeResource[];
