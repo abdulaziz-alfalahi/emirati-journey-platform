@@ -1,111 +1,141 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Shield, DollarSign, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Shield, Star } from 'lucide-react';
-import RetireeResourceCard from './RetireeResourceCard';
+import { DirhamSign } from '@/components/icons/DirhamSign';
 
 interface RetireeResource {
   id: string;
   title: string;
-  description: string;
   category: string;
+  description: string;
   resource_url: string;
-  image_url?: string;
   tags: string[];
-  is_featured: boolean;
-  difficulty_level: string;
-  estimated_read_time: number;
-  status: string;
+  published_date: string;
 }
 
 const RetirementBenefitsTab: React.FC = () => {
-  const [resources, setResources] = useState<RetireeResource[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchRetirementBenefits();
-  }, []);
-
-  const fetchRetirementBenefits = async () => {
-    try {
-      setLoading(true);
+  const { data: resources, isLoading, error } = useQuery({
+    queryKey: ['retiree-resources', 'retirement-benefits'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('retiree_resources')
         .select('*')
-        .like('category', 'retirement_%')
-        .eq('status', 'active')
-        .order('is_featured', { ascending: false })
-        .order('created_at', { ascending: false });
-
+        .in('category', ['retirement_pension', 'retirement_financial_planning', 'retirement_healthcare'])
+        .order('published_date', { ascending: false });
+      
       if (error) throw error;
-      setResources(data || []);
-    } catch (error) {
-      console.error('Error fetching retirement benefits:', error);
-      setResources([]);
-    } finally {
-      setLoading(false);
+      return data as RetireeResource[];
+    }
+  });
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'retirement_pension':
+        return <DirhamSign className="h-5 w-5" />;
+      case 'retirement_financial_planning':
+        return <DirhamSign className="h-5 w-5" />;
+      case 'retirement_healthcare':
+        return <Heart className="h-5 w-5" />;
+      default:
+        return <Shield className="h-5 w-5" />;
     }
   };
 
-  if (loading) {
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case 'retirement_pension':
+        return 'Pension';
+      case 'retirement_financial_planning':
+        return 'Financial Planning';
+      case 'retirement_healthcare':
+        return 'Healthcare';
+      default:
+        return 'Benefits';
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-ehrdc-teal" />
-        <span className="ml-2">Loading retirement benefits...</span>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  const featuredResources = resources.filter(resource => resource.is_featured);
-  const regularResources = resources.filter(resource => !resource.is_featured);
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-center text-muted-foreground">
+            Failed to load retirement benefits information. Please try again later.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <div className="flex justify-center mb-4">
-          <div className="bg-ehrdc-teal/10 rounded-full p-3">
-            <Shield className="h-6 w-6 text-ehrdc-teal" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-semibold mb-2">Retirement Benefits</h2>
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold mb-2">Retirement Benefits</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Comprehensive information about your retirement benefits, pension planning, and financial security.
+          Comprehensive information about pension schemes, financial planning, and healthcare benefits available to UAE retirees.
         </p>
       </div>
 
-      {featuredResources.length > 0 && (
-        <div>
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Star className="h-5 w-5 text-ehrdc-teal" />
-            Essential Benefits Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {featuredResources.map((resource) => (
-              <RetireeResourceCard key={resource.id} resource={resource} />
-            ))}
-          </div>
+      {resources && resources.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {resources.map((resource) => (
+            <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {getCategoryIcon(resource.category)}
+                    <Badge variant="outline">
+                      {getCategoryLabel(resource.category)}
+                    </Badge>
+                  </div>
+                </div>
+                <CardTitle className="text-lg">{resource.title}</CardTitle>
+                <CardDescription>{resource.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {resource.tags?.map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                {resource.resource_url && (
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <a href={resource.resource_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Learn More
+                    </a>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
-
-      {regularResources.length > 0 && (
-        <div>
-          <h3 className="text-xl font-semibold mb-4">Additional Benefits Resources</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {regularResources.map((resource) => (
-              <RetireeResourceCard key={resource.id} resource={resource} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {resources.length === 0 && (
-        <div className="text-center py-12">
-          <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium mb-2">No retirement benefits information available</h3>
-          <p className="text-muted-foreground">
-            Check back soon for updated benefits information and resources.
-          </p>
-        </div>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Benefits Information Available</h3>
+              <p className="text-muted-foreground">
+                Retirement benefits information will be available soon.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
