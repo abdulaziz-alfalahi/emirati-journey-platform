@@ -81,7 +81,7 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Universities" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
               <SelectItem value="all">All Universities</SelectItem>
               {universities.map((university) => (
                 <SelectItem key={university} value={university}>
@@ -101,7 +101,7 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
               <SelectItem value="all">All Levels</SelectItem>
               {degreeLevels.map((level) => (
                 <SelectItem key={level} value={level}>
@@ -121,7 +121,7 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="All Fields" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
               <SelectItem value="all">All Fields</SelectItem>
               {fieldsOfStudy.map((field) => (
                 <SelectItem key={field} value={field}>
