@@ -48,7 +48,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups = [] }) => {
         { name: 'Youth Development', href: '/youth-development', icon: Sparkles, group: 'advanced' },
         { name: 'University Programs', href: '/university-programs', icon: Building, group: 'advanced' },
         { name: 'Academic Assessments', href: '/assessments?context=academic', icon: FileText, group: 'advanced' },
-        { name: 'Digital Skills Development', href: '/digital-skills', icon: Laptop, group: 'advanced' },
+        { name: 'Digital Skills Development', href: '/digital-skills-development', icon: Laptop, group: 'advanced' },
       ]
     },
     {
