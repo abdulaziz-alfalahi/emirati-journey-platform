@@ -3812,6 +3812,45 @@ export type Database = {
           },
         ]
       }
+      professional_certifications: {
+        Row: {
+          certification_name: string
+          certification_url: string | null
+          cost: number | null
+          created_at: string | null
+          description: string | null
+          duration_weeks: number | null
+          id: string
+          industry: string
+          is_active: boolean | null
+          issuing_body: string
+        }
+        Insert: {
+          certification_name: string
+          certification_url?: string | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          industry: string
+          is_active?: boolean | null
+          issuing_body: string
+        }
+        Update: {
+          certification_name?: string
+          certification_url?: string | null
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          industry?: string
+          is_active?: boolean | null
+          issuing_body?: string
+        }
+        Relationships: []
+      }
       professional_communities: {
         Row: {
           application_url: string | null
