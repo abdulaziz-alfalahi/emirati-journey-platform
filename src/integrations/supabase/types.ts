@@ -2073,6 +2073,48 @@ export type Database = {
         }
         Relationships: []
       }
+      graduate_programs: {
+        Row: {
+          application_deadline: string | null
+          created_at: string | null
+          degree_level: string
+          description: string | null
+          duration_years: number | null
+          field_of_study: string
+          id: string
+          is_active: boolean | null
+          program_name: string
+          program_url: string | null
+          university_name: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          created_at?: string | null
+          degree_level: string
+          description?: string | null
+          duration_years?: number | null
+          field_of_study: string
+          id?: string
+          is_active?: boolean | null
+          program_name: string
+          program_url?: string | null
+          university_name: string
+        }
+        Update: {
+          application_deadline?: string | null
+          created_at?: string | null
+          degree_level?: string
+          description?: string | null
+          duration_years?: number | null
+          field_of_study?: string
+          id?: string
+          is_active?: boolean | null
+          program_name?: string
+          program_url?: string | null
+          university_name?: string
+        }
+        Relationships: []
+      }
       group_activity_metrics: {
         Row: {
           activity_date: string
