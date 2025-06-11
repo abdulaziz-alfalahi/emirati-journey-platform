@@ -1548,6 +1548,48 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_skills_resources: {
+        Row: {
+          cost: number | null
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          duration_hours: number | null
+          id: string
+          is_active: boolean | null
+          provider: string
+          resource_url: string | null
+          skill_category: string
+          title: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          provider: string
+          resource_url?: string | null
+          skill_category: string
+          title: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          provider?: string
+          resource_url?: string | null
+          skill_category?: string
+          title?: string
+        }
+        Relationships: []
+      }
       engagement_analytics: {
         Row: {
           booths_visited: number | null
