@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Crown, Lightbulb, Palette, Heart, Users, Search, MapPin, Clock } from 'lucide-react';
+import { YouthProgramsList } from './YouthProgramsList';
 
 export const ProgramCategories: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,115 +117,128 @@ export const ProgramCategories: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search programs..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="md:w-64">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="featured" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="featured">Featured Programs</TabsTrigger>
+          <TabsTrigger value="all-programs">All Programs</TabsTrigger>
+        </TabsList>
 
-      {/* Category Overview */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category) => {
-          const Icon = category.icon;
-          return (
-            <Card key={category.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <div className={`inline-flex p-4 rounded-full ${category.color} mb-4`}>
-                  <Icon className="h-8 w-8" />
+        <TabsContent value="featured" className="space-y-6">
+          {/* Search and Filters */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search programs..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{category.description}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                  className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white"
-                >
-                  Explore Programs
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Programs Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPrograms.map((program) => {
-          const category = categories.find(cat => cat.id === program.category);
-          return (
-            <Card key={program.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-video relative overflow-hidden">
-                <img
-                  src={program.image}
-                  alt={program.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 left-3">
-                  <Badge className={category?.color}>{category?.name}</Badge>
-                </div>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="md:w-64">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-2">{program.title}</h3>
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{program.description}</p>
-                
-                <div className="space-y-2 mb-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-ehrdc-teal" />
-                    <span>{program.duration}</span>
+            </CardContent>
+          </Card>
+
+          {/* Category Overview */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((category) => {
+              const Icon = category.icon;
+              return (
+                <Card key={category.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className={`inline-flex p-4 rounded-full ${category.color} mb-4`}>
+                      <Icon className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-4">{category.description}</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSelectedCategory(category.id)}
+                      className="border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white"
+                    >
+                      Explore Programs
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Featured Programs Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPrograms.map((program) => {
+              const category = categories.find(cat => cat.id === program.category);
+              return (
+                <Card key={program.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-video relative overflow-hidden">
+                    <img
+                      src={program.image}
+                      alt={program.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <Badge className={category?.color}>{category?.name}</Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-ehrdc-teal" />
-                    <span>{program.location}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Ages {program.ageRange}</span>
-                    <span className="text-muted-foreground">{program.spots} spots available</span>
-                  </div>
-                </div>
-                
-                <Button className="w-full ehrdc-button-primary">
-                  Learn More & Apply
-                </Button>
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold mb-2">{program.title}</h3>
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{program.description}</p>
+                    
+                    <div className="space-y-2 mb-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-ehrdc-teal" />
+                        <span>{program.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-ehrdc-teal" />
+                        <span>{program.location}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Ages {program.ageRange}</span>
+                        <span className="text-muted-foreground">{program.spots} spots available</span>
+                      </div>
+                    </div>
+                    
+                    <Button className="w-full ehrdc-button-primary">
+                      Learn More & Apply
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {filteredPrograms.length === 0 && (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No programs found</h3>
+                <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          )}
+        </TabsContent>
 
-      {filteredPrograms.length === 0 && (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No programs found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
-          </CardContent>
-        </Card>
-      )}
+        <TabsContent value="all-programs">
+          <YouthProgramsList />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -5787,6 +5787,48 @@ export type Database = {
         }
         Relationships: []
       }
+      youth_development_programs: {
+        Row: {
+          age_group: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          focus_area: string
+          id: string
+          is_active: boolean | null
+          organizer: string
+          program_name: string
+          program_url: string | null
+          start_date: string | null
+        }
+        Insert: {
+          age_group?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          focus_area: string
+          id?: string
+          is_active?: boolean | null
+          organizer: string
+          program_name: string
+          program_url?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          age_group?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          focus_area?: string
+          id?: string
+          is_active?: boolean | null
+          organizer?: string
+          program_name?: string
+          program_url?: string | null
+          start_date?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       resume_view: {
