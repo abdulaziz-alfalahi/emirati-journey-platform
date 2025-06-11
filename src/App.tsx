@@ -6,6 +6,7 @@ import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
+import HomePage from '@/pages/home';
 import DashboardPage from '@/pages/dashboard';
 import ProfilePage from '@/pages/profile';
 import NationalServicePage from '@/pages/national-service';
@@ -22,7 +23,7 @@ function App() {
               <AccessibilityToolbar />
               <SkipNavigation />
               <Routes>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/national-service" element={<NationalServicePage />} />
