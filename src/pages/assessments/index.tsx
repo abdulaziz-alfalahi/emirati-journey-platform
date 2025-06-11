@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -20,10 +19,16 @@ import {
 const queryClient = new QueryClient();
 
 const AssessmentsPage = () => {
+  console.log('AssessmentsPage component rendering');
+  
   const { user, roles, hasRole } = useAuth();
   const [searchParams] = useSearchParams();
   const context = searchParams.get('context');
   const isAssessmentOrTrainingCenter = roles.includes('assessment_center') || roles.includes('training_center');
+
+  console.log('User:', user);
+  console.log('Context from URL:', context);
+  console.log('Roles:', roles);
 
   // Assessment Center Controls Component
   const AssessmentCenterControls = () => (
@@ -49,16 +54,19 @@ const AssessmentsPage = () => {
   // Get context-specific content
   const getContextContent = () => {
     if (context === 'academic') {
+      console.log('Loading academic context content');
       return {
         title: 'Academic Assessments',
         description: 'Evaluate your academic performance, identify learning opportunities, and track your educational development journey with comprehensive assessments.'
       };
     } else if (context === 'career') {
+      console.log('Loading career context content');
       return {
         title: 'Skills Assessment',
         description: 'Evaluate your professional skills, identify growth opportunities, and advance your career development journey with personalized assessments.'
       };
     } else {
+      console.log('Loading default context content');
       return {
         title: 'Academic Assessments',
         description: 'Discover and complete assessments to evaluate your academic skills, identify learning opportunities, and track your educational development journey.'
@@ -67,8 +75,10 @@ const AssessmentsPage = () => {
   };
 
   const contextContent = getContextContent();
+  console.log('Context content:', contextContent);
 
   if (!user) {
+    console.log('No user found, showing authentication required');
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         <div className="flex items-center justify-center min-h-screen">
@@ -80,6 +90,8 @@ const AssessmentsPage = () => {
       </div>
     );
   }
+
+  console.log('User authenticated, rendering main content');
 
   const stats = [
     {
@@ -214,6 +226,8 @@ const AssessmentsPage = () => {
       )
     }
   ];
+
+  console.log('About to render CareerPageLayout');
 
   return (
     <QueryClientProvider client={queryClient}>
