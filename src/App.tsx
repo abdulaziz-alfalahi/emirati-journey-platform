@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
+import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
@@ -16,18 +17,20 @@ function App() {
     <Router>
       <QueryProvider>
         <AuthProvider>
-          <div className="min-h-screen bg-background font-sans antialiased">
-            <AccessibilityToolbar />
-            <SkipNavigation />
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/national-service" element={<NationalServicePage />} />
-              <Route path="/youth-development" element={<YouthDevelopmentPage />} />
-              <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
-            </Routes>
-          </div>
+          <RoleProvider>
+            <div className="min-h-screen bg-background font-sans antialiased">
+              <AccessibilityToolbar />
+              <SkipNavigation />
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/national-service" element={<NationalServicePage />} />
+                <Route path="/youth-development" element={<YouthDevelopmentPage />} />
+                <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
+              </Routes>
+            </div>
+          </RoleProvider>
         </AuthProvider>
       </QueryProvider>
     </Router>
