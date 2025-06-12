@@ -23,6 +23,7 @@ import MentorshipPage from '@/pages/mentorship';
 import ShareSuccessStoriesPage from '@/pages/share-success-stories';
 import UserRolesAdminPage from '@/pages/admin/user-roles';
 import ContentManagementPage from '@/pages/admin/content-management';
+import NotificationsPage from '@/pages/notifications';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/national-service" element={<NationalServicePage />} />
                 <Route path="/youth-development" element={<YouthDevelopmentPage />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
