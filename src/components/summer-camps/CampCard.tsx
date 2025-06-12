@@ -22,8 +22,14 @@ const CampCard: React.FC<CampCardProps> = ({
   isEnrolled, 
   showActions 
 }) => {
-  const isRegistrationOpen = new Date(camp.registration_deadline) > new Date();
-  const isFull = camp.enrolled >= camp.max_participants;
+  // Use capacity as fallback for max_participants if not available
+  const maxParticipants = camp.max_participants || camp.capacity;
+  const registrationDeadline = camp.registration_deadline;
+  
+  const isRegistrationOpen = registrationDeadline 
+    ? new Date(registrationDeadline) > new Date()
+    : true; // Default to open if no deadline specified
+  const isFull = camp.enrolled >= maxParticipants;
 
   return (
     <Card className="h-full flex flex-col">
@@ -54,16 +60,18 @@ const CampCard: React.FC<CampCardProps> = ({
             </span>
           </div>
           
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>
-              Registration deadline: {formatDistanceToNow(new Date(camp.registration_deadline), { addSuffix: true })}
-            </span>
-          </div>
+          {registrationDeadline && (
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>
+                Registration deadline: {formatDistanceToNow(new Date(registrationDeadline), { addSuffix: true })}
+              </span>
+            </div>
+          )}
           
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span>{camp.enrolled}/{camp.max_participants} enrolled</span>
+            <span>{camp.enrolled}/{maxParticipants} enrolled</span>
           </div>
 
           <div className="flex items-center gap-2">

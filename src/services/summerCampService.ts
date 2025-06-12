@@ -15,6 +15,15 @@ function transformEnrollment(enrollment: any): CampEnrollment {
   };
 }
 
+// Helper function to transform database data to SummerCamp type
+const transformCampData = (data: any): SummerCamp => ({
+  ...data,
+  // Provide defaults for optional fields that might not exist in DB
+  max_participants: data.max_participants || data.capacity,
+  registration_deadline: data.registration_deadline || null,
+  rating: data.rating || null
+});
+
 /**
  * Fetch all summer camps with optional filtering
  */
@@ -54,7 +63,7 @@ export const getCamps = async (filters?: CampFilters): Promise<SummerCamp[]> => 
       throw error;
     }
     
-    return data || [];
+    return (data || []).map(transformCampData);
   } catch (error) {
     console.error('Error in getCamps:', error);
     toast({
@@ -82,7 +91,7 @@ export const getCampById = async (id: string): Promise<SummerCamp | null> => {
       throw error;
     }
     
-    return data;
+    return data ? transformCampData(data) : null;
   } catch (error) {
     console.error('Error in getCampById:', error);
     toast({
@@ -109,7 +118,7 @@ export const getCampsByInstitution = async (userId: string): Promise<SummerCamp[
       throw error;
     }
     
-    return data || [];
+    return (data || []).map(transformCampData);
   } catch (error) {
     console.error('Error in getCampsByInstitution:', error);
     toast({
@@ -142,7 +151,7 @@ export const createCamp = async (campData: Omit<SummerCamp, 'id' | 'created_at' 
       description: "Summer camp created successfully.",
     });
     
-    return data;
+    return transformCampData(data);
   } catch (error) {
     console.error('Error in createCamp:', error);
     toast({
@@ -176,7 +185,7 @@ export const updateCamp = async (id: string, campData: Partial<SummerCamp>): Pro
       description: "Summer camp updated successfully.",
     });
     
-    return data;
+    return transformCampData(data);
   } catch (error) {
     console.error('Error in updateCamp:', error);
     toast({
@@ -200,7 +209,8 @@ export const enrollInCamp = async (campId: string, userId: string): Promise<Camp
       throw new Error('Camp not found');
     }
     
-    if (camp.enrolled >= camp.capacity) {
+    const maxParticipants = camp.max_participants || camp.capacity;
+    if (camp.enrolled >= maxParticipants) {
       toast({
         title: "Cannot Enroll",
         description: "This camp is already at full capacity.",

@@ -16,6 +16,15 @@ export interface CampQueryOptions {
   filters?: CampFilters;
 }
 
+// Helper function to transform database data to SummerCamp type
+const transformCampData = (data: any): SummerCamp => ({
+  ...data,
+  // Provide defaults for optional fields that might not exist in DB
+  max_participants: data.max_participants || data.capacity,
+  registration_deadline: data.registration_deadline || null,
+  rating: data.rating || null
+});
+
 // Service for querying camps with optimized pagination and N+1 query prevention
 export const campQueryService = {
   /**
@@ -70,7 +79,7 @@ export const campQueryService = {
         throw error;
       }
       
-      const camps = (data || []).map(camp => ({
+      const camps = (data || []).map(camp => transformCampData({
         ...camp,
         // Extract enrollment count from the aggregated data
         enrolled: camp.enrollments?.[0]?.count || 0
@@ -141,10 +150,10 @@ export const campQueryService = {
         (enrollment: any) => enrollment.status === 'confirmed'
       ).length || 0;
 
-      return {
+      return transformCampData({
         ...data,
         enrolled: enrolledCount
-      };
+      });
     } catch (error) {
       handleServiceError(error, 'Failed to fetch camp details. Please try again later.');
       return null;
@@ -176,7 +185,7 @@ export const campQueryService = {
         throw error;
       }
       
-      const camps = (data || []).map(camp => ({
+      const camps = (data || []).map(camp => transformCampData({
         ...camp,
         enrolled: camp.enrollments?.[0]?.count || 0
       }));

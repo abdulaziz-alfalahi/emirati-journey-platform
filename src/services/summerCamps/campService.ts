@@ -4,6 +4,15 @@ import { SummerCamp } from '@/types/summerCamps';
 import { toast } from '@/hooks/use-toast';
 import { handleServiceError } from './utils';
 
+// Helper function to transform database data to SummerCamp type
+const transformCampData = (data: any): SummerCamp => ({
+  ...data,
+  // Provide defaults for optional fields that might not exist in DB
+  max_participants: data.max_participants || data.capacity,
+  registration_deadline: data.registration_deadline || null,
+  rating: data.rating || null
+});
+
 // Service for camp CRUD operations
 export const campService = {
   /**
@@ -26,7 +35,7 @@ export const campService = {
         description: "Summer camp created successfully.",
       });
       
-      return data;
+      return transformCampData(data);
     } catch (error) {
       handleServiceError(error, 'Failed to create summer camp. Please try again.');
       return null;
@@ -54,7 +63,7 @@ export const campService = {
         description: "Summer camp updated successfully.",
       });
       
-      return data;
+      return transformCampData(data);
     } catch (error) {
       handleServiceError(error, 'Failed to update summer camp. Please try again.');
       return null;
