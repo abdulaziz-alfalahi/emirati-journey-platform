@@ -22,6 +22,7 @@ import CommunitiesPage from '@/pages/communities';
 import MentorshipPage from '@/pages/mentorship';
 import ShareSuccessStoriesPage from '@/pages/share-success-stories';
 import UserRolesAdminPage from '@/pages/admin/user-roles';
+import ContentManagementPage from '@/pages/admin/content-management';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
                 
                 {/* Admin Routes */}
                 <Route path="/admin/user-roles" element={<UserRolesAdminPage />} />
+                <Route path="/admin/content-management" element={<ContentManagementPage />} />
                 
                 {/* Education Pathway routes */}
                 <Route path="/summer-camps" element={<SummerCampsPage />} />
