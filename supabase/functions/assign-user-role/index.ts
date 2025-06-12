@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Validation utilities - Updated to match the frontend UserRole type exactly
+// Updated USER_ROLES to match the frontend UserRole type exactly
 const USER_ROLES = [
   'school_student',
   'national_service_participant', 
