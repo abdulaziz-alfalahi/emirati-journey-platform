@@ -18,6 +18,7 @@ import SchoolProgramsPage from '@/pages/school-programs';
 import MentorMatchingPage from '@/pages/mentor-matching';
 import InternshipsPage from '@/pages/internships';
 import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
+import CommunitiesPage from '@/pages/communities';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
                 <Route path="/assessments" element={<AssessmentsPage />} />
                 <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
+                <Route path="/communities" element={<CommunitiesPage />} />
                 
                 {/* Education Pathway routes */}
                 <Route path="/summer-camps" element={<SummerCampsPage />} />

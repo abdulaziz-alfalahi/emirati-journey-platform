@@ -1,544 +1,283 @@
 
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Users, Calendar, Search, Filter, Plus } from 'lucide-react';
-import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CommunityCard } from '@/components/professional-growth/CommunityCard';
-import { EventCard } from '@/components/professional-growth/EventCard';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { Users, Search, Filter, ExternalLink, Mail, Globe } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Community {
   id: string;
   name: string;
   description: string;
+  focus_area: string;
   community_type: string;
-  industry_focus: string[];
-  size: string;
-  location_type: string;
-  physical_location?: string;
-  benefits?: string[];
-  website_url?: string;
+  member_count: number;
   logo_url?: string;
-  featured: boolean;
-  membership_type: string;
-  membership_fee?: string;
+  website_url?: string;
+  contact_email?: string;
+  is_active: boolean;
+  created_at: string;
 }
 
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  event_type: string;
-  start_date: string;
-  end_date?: string;
-  location: string;
-  registration_url?: string;
-  image_url?: string;
-  community: {
-    name: string;
-    logo_url?: string;
-  };
-}
-
-const CommunitiesPage = () => {
-  const { user, hasRole } = useAuth();
-  const { toast } = useToast();
+const CommunitiesPage: React.FC = () => {
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [filteredCommunities, setFilteredCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [industryFilter, setIndustryFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
+  const [focusAreaFilter, setFocusAreaFilter] = useState<string>('all');
+  const [communityTypeFilter, setCommunityTypeFilter] = useState<string>('all');
+  const { toast } = useToast();
 
-  const { data: communities = [], isLoading: loadingCommunities } = useQuery({
-    queryKey: ['professional-communities'],
-    queryFn: async () => {
+  const fetchCommunities = async () => {
+    try {
       const { data, error } = await supabase
-        .from('professional_communities')
+        .from('communities')
         .select('*')
-        .eq('status', 'active')
-        .order('featured', { ascending: false })
-        .order('name');
+        .eq('is_active', true)
+        .order('member_count', { ascending: false });
 
       if (error) throw error;
-      return data as Community[];
+      
+      setCommunities(data || []);
+      setFilteredCommunities(data || []);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load communities",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  });
-
-  const { data: events = [], isLoading: loadingEvents } = useQuery({
-    queryKey: ['community-events'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('community_events')
-        .select(`
-          *,
-          community:community_id (
-            name,
-            logo_url
-          )
-        `)
-        .eq('status', 'upcoming')
-        .order('start_date', { ascending: true });
-
-      if (error) throw error;
-      return data as Event[];
-    }
-  });
-
-  const filteredCommunities = communities.filter(community => {
-    const matchesSearch = !searchQuery || 
-      community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      community.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesIndustry = industryFilter === 'all' || 
-      community.industry_focus.some(industry => industry.toLowerCase().includes(industryFilter.toLowerCase()));
-    
-    const matchesType = typeFilter === 'all' || community.community_type === typeFilter;
-    const matchesLocation = locationFilter === 'all' || community.location_type === locationFilter;
-    
-    return matchesSearch && matchesIndustry && matchesType && matchesLocation;
-  });
-
-  const featuredCommunities = communities.filter(community => community.featured);
-
-  // Extract unique values for filters
-  const industries = Array.from(new Set(communities.flatMap(c => c.industry_focus))).sort();
-  const communityTypes = Array.from(new Set(communities.map(c => c.community_type))).sort();
-  const locationTypes = Array.from(new Set(communities.map(c => c.location_type))).sort();
-
-  const handleAddCommunity = () => {
-    toast({
-      title: "Admin: Manage Communities",
-      description: "Community management functionality will be available soon.",
-    });
   };
 
-  const FilterControls = () => (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="text-xl">Filter Communities</CardTitle>
-        <CardDescription>
-          Narrow down communities based on your interests and preferences
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search communities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <Select value={industryFilter} onValueChange={setIndustryFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Industries" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Industries</SelectItem>
-              {industries.map(industry => (
-                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {communityTypes.map(type => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={locationFilter} onValueChange={setLocationFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Locations" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              {locationTypes.map(type => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="flex gap-2 mt-4">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setSearchQuery('');
-              setIndustryFilter('all');
-              setTypeFilter('all');
-              setLocationFilter('all');
-            }}
-          >
-            Reset Filters
-          </Button>
-          {user && hasRole('administrator') && (
-            <Button onClick={handleAddCommunity} className="bg-ehrdc-teal hover:bg-ehrdc-teal/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Community
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  useEffect(() => {
+    fetchCommunities();
+  }, []);
 
-  const CommunitiesGrid = ({ communities }: { communities: Community[] }) => {
-    if (loadingCommunities) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 h-48 rounded-lg"></div>
-            </div>
-          ))}
-        </div>
+  useEffect(() => {
+    let filtered = communities;
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(community => 
+        community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        community.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        community.focus_area.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (communities.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No communities found</h3>
-          <p className="text-muted-foreground">
-            Try adjusting your search criteria or filters.
-          </p>
-        </div>
+    // Apply focus area filter
+    if (focusAreaFilter !== 'all') {
+      filtered = filtered.filter(community => 
+        community.focus_area.toLowerCase() === focusAreaFilter.toLowerCase()
       );
     }
 
+    // Apply community type filter
+    if (communityTypeFilter !== 'all') {
+      filtered = filtered.filter(community => 
+        community.community_type.toLowerCase() === communityTypeFilter.toLowerCase()
+      );
+    }
+
+    setFilteredCommunities(filtered);
+  }, [searchQuery, focusAreaFilter, communityTypeFilter, communities]);
+
+  const totalMembers = communities.reduce((sum, community) => sum + community.member_count, 0);
+  const activeCommunities = communities.filter(c => c.is_active).length;
+  const focusAreas = [...new Set(communities.map(c => c.focus_area))];
+  const communityTypes = [...new Set(communities.map(c => c.community_type))];
+
+  if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {communities.map((community) => (
-          <CommunityCard 
-            key={community.id} 
-            community={community} 
-            featured={community.featured}
-          />
-        ))}
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </Layout>
     );
-  };
+  }
 
-  const EventsGrid = ({ events }: { events: Event[] }) => {
-    if (loadingEvents) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-gray-200 h-64 rounded-lg"></div>
+  return (
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-ehrdc-teal to-blue-600 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <div className="bg-white/20 rounded-full p-4">
+                  <Users className="h-12 w-12" />
+                </div>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                Communities: Connect, Collaborate, Grow
+              </h1>
+              <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
+                Join vibrant communities of professionals and enthusiasts. Network, learn, and grow together in your field of interest.
+              </p>
             </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (events.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No upcoming events</h3>
-          <p className="text-muted-foreground">
-            Check back soon for new community events and activities.
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
-    );
-  };
-
-  const stats = [
-    {
-      value: `${communities.length}+`,
-      label: "Active Communities",
-      icon: Users,
-    },
-    {
-      value: `${events.length}`,
-      label: "Upcoming Events", 
-      icon: Calendar,
-    },
-    {
-      value: `${industries.length}+`,
-      label: "Industries Covered",
-      icon: Search,
-    }
-  ];
-
-  const tabs = [
-    {
-      id: "all",
-      label: "All Communities",
-      icon: <Users className="h-4 w-4" />,
-      content: (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Discover Professional Communities</h2>
-            <p className="text-muted-foreground">
-              Find and join communities that align with your professional interests and career goals
-            </p>
           </div>
-          <FilterControls />
-          <CommunitiesGrid communities={filteredCommunities} />
         </div>
-      )
-    },
-    {
-      id: "featured",
-      label: "Featured Communities",
-      icon: <Filter className="h-4 w-4" />,
-      content: (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Featured Communities</h2>
-            <p className="text-muted-foreground">
-              Handpicked communities offering exceptional value and opportunities
-            </p>
-          </div>
-          {loadingCommunities ? (
-            <div className="space-y-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 h-64 rounded-lg"></div>
-                </div>
-              ))}
+
+        {/* Stats Section */}
+        <section className="py-16 bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="border-0 shadow-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-ehrdc-teal mb-2">{activeCommunities}</div>
+                  <div className="text-muted-foreground">Active Communities</div>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-ehrdc-teal mb-2">{totalMembers.toLocaleString()}</div>
+                  <div className="text-muted-foreground">Total Members</div>
+                </CardContent>
+              </Card>
+              <Card className="border-0 shadow-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-ehrdc-teal mb-2">{focusAreas.length}</div>
+                  <div className="text-muted-foreground">Focus Areas</div>
+                </CardContent>
+              </Card>
             </div>
-          ) : featuredCommunities.length > 0 ? (
-            <div className="space-y-6">
-              {featuredCommunities.map(community => (
-                <Card key={community.id} className="overflow-hidden border-ehrdc-teal/20">
-                  <div className="md:flex">
-                    <div className="md:w-1/3 bg-muted p-6 flex items-center justify-center">
-                      {community.logo_url ? (
-                        <img 
-                          src={community.logo_url} 
-                          alt={community.name} 
-                          className="max-h-40 max-w-full object-contain"
-                        />
-                      ) : (
-                        <div className="h-32 w-32 rounded-full bg-ehrdc-teal/10 flex items-center justify-center">
-                          <Users className="h-16 w-16 text-ehrdc-teal" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="md:w-2/3 p-6">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-2xl font-bold">{community.name}</h3>
-                        <Badge variant="outline" className="bg-ehrdc-teal/10 text-ehrdc-teal border-ehrdc-teal/20">
-                          Featured
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground mb-4">{community.description}</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <p className="text-sm font-medium">Type</p>
-                          <p className="text-sm text-muted-foreground">{community.community_type}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">Size</p>
-                          <p className="text-sm text-muted-foreground">{community.size}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">Location</p>
-                          <p className="text-sm text-muted-foreground">{community.location_type}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">Membership</p>
-                          <p className="text-sm text-muted-foreground">
-                            {community.membership_type}
-                            {community.membership_fee && ` (${community.membership_fee})`}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {community.industry_focus.map((industry, i) => (
-                          <Badge key={i} variant="secondary">
-                            {industry}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {community.benefits && community.benefits.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-sm font-medium mb-2">Benefits:</p>
-                          <ul className="text-sm text-muted-foreground space-y-1">
-                            {community.benefits.map((benefit, i) => (
-                              <li key={i} className="flex items-start">
-                                <span className="mr-2">•</span> {benefit}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      <div className="flex gap-3">
-                        <Button className="bg-ehrdc-teal hover:bg-ehrdc-teal/90">Join Community</Button>
-                        {community.website_url && (
-                          <Button variant="outline" asChild>
-                            <a href={community.website_url} target="_blank" rel="noopener noreferrer">
-                              Visit Website
-                            </a>
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No featured communities</h3>
-              <p className="text-muted-foreground">Check back soon for featured community highlights.</p>
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      id: "events",
-      label: "Upcoming Events",
-      icon: <Calendar className="h-4 w-4" />,
-      content: (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Upcoming Community Events</h2>
-            <p className="text-muted-foreground">
-              Discover networking events, workshops, and conferences hosted by professional communities
-            </p>
           </div>
-          <EventsGrid events={events} />
-        </div>
-      )
-    },
-    {
-      id: "finder",
-      label: "Find Your Community",
-      icon: <Search className="h-4 w-4" />,
-      content: (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Find Your Perfect Community</h2>
-            <p className="text-muted-foreground">
-              Answer a few questions to discover communities that match your professional interests and goals
-            </p>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">What industry are you most interested in?</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an industry" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {industries.map(industry => (
-                        <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        </section>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Filters Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Find Your Community
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search communities..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">What type of community are you looking for?</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select community type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {communityTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Do you prefer in-person or virtual communities?</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select location preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Virtual">Virtual</SelectItem>
-                      <SelectItem value="In-person">In-person</SelectItem>
-                      <SelectItem value="Hybrid">Hybrid</SelectItem>
-                      <SelectItem value="No preference">No preference</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">What are your primary goals for joining a community?</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your primary goal" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Networking">Networking</SelectItem>
-                      <SelectItem value="Learning">Learning & Skill Development</SelectItem>
-                      <SelectItem value="Career">Career Advancement</SelectItem>
-                      <SelectItem value="Mentorship">Mentorship</SelectItem>
-                      <SelectItem value="Business">Business Opportunities</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <Button className="w-full bg-ehrdc-teal hover:bg-ehrdc-teal/90">
-                  Find Communities
-                </Button>
-                
-                <div className="bg-muted p-4 rounded-md">
-                  <p className="text-sm text-center text-muted-foreground">
-                    This feature will provide personalized community recommendations based on your selections.
-                    <br />
-                    For now, please use the filters in the "All Communities" tab.
-                  </p>
-                </div>
+                <Select value={focusAreaFilter} onValueChange={setFocusAreaFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by focus area" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Focus Areas</SelectItem>
+                    {focusAreas.map(area => (
+                      <SelectItem key={area} value={area.toLowerCase()}>{area}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={communityTypeFilter} onValueChange={setCommunityTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by community type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Community Types</SelectItem>
+                    {communityTypes.map(type => (
+                      <SelectItem key={type} value={type.toLowerCase()}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
-        </div>
-      )
-    }
-  ];
 
-  return (
-    <ProfessionalGrowthLayout
-      title="Professional Communities"
-      description="Connect with like-minded professionals. Discover and join communities, associations, and interest groups aligned with your career goals and passions."
-      icon={<Users className="h-10 w-10" />}
-      stats={stats}
-      tabs={tabs}
-      defaultTab="all"
-    />
+          {/* Communities Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCommunities.map((community) => (
+              <Card key={community.id} className="h-full hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      {community.logo_url ? (
+                        <div className="h-12 w-12 rounded-full overflow-hidden bg-muted">
+                          <img 
+                            src={community.logo_url} 
+                            alt={community.name} 
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="h-6 w-6 text-primary" />
+                        </div>
+                      )}
+                      <div>
+                        <CardTitle className="text-lg">{community.name}</CardTitle>
+                        <CardDescription className="text-sm">{community.community_type}</CardDescription>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {community.focus_area}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {community.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span>{community.member_count.toLocaleString()} members</span>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      Join Community
+                    </Button>
+                    {community.website_url && (
+                      <Button variant="ghost" size="sm" asChild>
+                        <a href={community.website_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                    {community.contact_email && (
+                      <Button variant="ghost" size="sm" asChild>
+                        <a href={`mailto:${community.contact_email}`}>
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {filteredCommunities.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No communities found</h3>
+                <p className="text-muted-foreground">
+                  Try adjusting your search criteria or filters to find communities that match your interests.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 };
 
