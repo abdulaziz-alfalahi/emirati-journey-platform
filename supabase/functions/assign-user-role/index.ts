@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -193,13 +194,3 @@ serve(async (req) => {
     )
   }
 })
-
-const sanitizeString = (input: string): string => {
-  if (typeof input !== 'string') return '';
-  return input.trim().slice(0, 255); // Limit length and trim whitespace
-};
-
-const isValidUUID = (uuid: string): boolean => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
-};
