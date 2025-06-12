@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Internship, InternshipApplication } from '@/types/internships';
+import { Internship, InternshipApplication, InternshipWithApplications } from '@/types/internships';
 
 export interface InternshipFilters {
   industry?: string[];
@@ -108,6 +108,91 @@ export const getInternships = async (filters?: InternshipFilters): Promise<Inter
 };
 
 /**
+ * Create a new internship listing
+ */
+export const createInternship = async (internshipData: Omit<Internship, 'id' | 'created_at'>): Promise<Internship> => {
+  try {
+    const { data, error } = await supabase
+      .from('internships')
+      .insert([internshipData])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error creating internship:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update internship status (active/inactive)
+ */
+export const updateInternshipStatus = async (internshipId: string, isActive: boolean): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('internships')
+      .update({ is_active: isActive })
+      .eq('id', internshipId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error updating internship status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get internships with application counts for management
+ */
+export const getInternshipsWithApplicationCounts = async (userId: string): Promise<InternshipWithApplications[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('internships')
+      .select(`
+        *,
+        applications:internship_applications(
+          status,
+          count
+        )
+      `)
+      .eq('created_by', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(internship => {
+      const applications = internship.applications || [];
+      const statusCounts = {
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        withdrawn: 0,
+        get total() { 
+          return this.pending + this.approved + this.rejected + this.withdrawn;
+        }
+      };
+
+      // Count applications by status
+      applications.forEach((app: any) => {
+        if (app.status in statusCounts) {
+          statusCounts[app.status as keyof typeof statusCounts]++;
+        }
+      });
+
+      return {
+        ...internship,
+        applications: statusCounts
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching internships with application counts:', error);
+    throw error;
+  }
+};
+
+/**
  * Apply for an internship
  */
 export const applyForInternship = async (
@@ -121,7 +206,7 @@ export const applyForInternship = async (
         {
           internship_id: internshipId,
           student_id: userId,
-          status: 'pending'
+          status: 'pending' as const
         }
       ])
       .select(`
@@ -131,7 +216,7 @@ export const applyForInternship = async (
       .single();
 
     if (error) throw error;
-    return data;
+    return data as InternshipApplication;
   } catch (error) {
     console.error('Error applying for internship:', error);
     throw error;
@@ -153,7 +238,7 @@ export const getUserApplications = async (userId: string): Promise<InternshipApp
       .order('submitted_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as InternshipApplication[];
   } catch (error) {
     console.error('Error fetching user applications:', error);
     throw error;
