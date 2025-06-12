@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
-import { sanitizeText, USER_ROLES, isValidUserRole } from '@/utils/validation';
+import { sanitizeText, USER_ROLES } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -25,6 +24,11 @@ interface SupabaseUser {
 interface UserWithRoles extends SupabaseUser {
   roles: UserRole[];
 }
+
+// Custom validation function that uses the correct UserRole type
+const isValidUserRole = (role: string): role is UserRole => {
+  return USER_ROLES.includes(role as UserRole);
+};
 
 const UserRolesAdminPage: React.FC = React.memo(() => {
   const { user, hasRole } = useAuth();
@@ -127,7 +131,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       return;
     }
 
-    // Check if role is valid using the isValidUserRole function
+    // Check if role is valid using our custom validation function
     if (!isValidUserRole(role)) {
       toast({
         title: "Error",
@@ -340,4 +344,3 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
 UserRolesAdminPage.displayName = 'UserRolesAdminPage';
 
 export default UserRolesAdminPage;
-
