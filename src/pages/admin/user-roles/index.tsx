@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
+import { UserCard } from '@/components/admin/UserCard';
 
 interface SupabaseUser {
   id: string;
@@ -31,7 +33,7 @@ const UserRolesAdminPage: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
 
-  const allRoles: UserRole[] = [
+  const allRoles: UserRole[] = useMemo(() => [
     'school_student',
     'national_service_participant',
     'university_student',
@@ -54,10 +56,21 @@ const UserRolesAdminPage: React.FC = () => {
     'career_advisor',
     'administrator',
     'super_user'
-  ];
+  ], []);
 
   // Check if user has admin permissions
-  const isAuthorized = hasRole('administrator') || hasRole('super_user');
+  const isAuthorized = useMemo(() => 
+    hasRole('administrator') || hasRole('super_user'), 
+    [hasRole]
+  );
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter as UserRole);
+      return matchesSearch && matchesRole;
+    });
+  }, [users, searchTerm, roleFilter]);
 
   useEffect(() => {
     if (!user) return;
@@ -74,7 +87,7 @@ const UserRolesAdminPage: React.FC = () => {
     fetchUsers();
   }, [user, isAuthorized]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -111,9 +124,9 @@ const UserRolesAdminPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const assignRole = async (userId: string, role: UserRole) => {
+  const assignRole = useCallback(async (userId: string, role: UserRole) => {
     try {
       setProcessingUserId(userId);
 
@@ -146,9 +159,9 @@ const UserRolesAdminPage: React.FC = () => {
     } finally {
       setProcessingUserId(null);
     }
-  };
+  }, [toast]);
 
-  const removeRole = async (userId: string, role: UserRole) => {
+  const removeRole = useCallback(async (userId: string, role: UserRole) => {
     try {
       setProcessingUserId(userId);
 
@@ -183,13 +196,7 @@ const UserRolesAdminPage: React.FC = () => {
     } finally {
       setProcessingUserId(null);
     }
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter as UserRole);
-    return matchesSearch && matchesRole;
-  });
+  }, [toast]);
 
   if (!user) {
     return (
@@ -264,62 +271,14 @@ const UserRolesAdminPage: React.FC = () => {
         ) : (
           <div className="grid gap-4">
             {filteredUsers.map(user => (
-              <Card key={user.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{user.email}</CardTitle>
-                      <CardDescription>
-                        User ID: {user.id} • Created: {new Date(user.created_at).toLocaleDateString()}
-                      </CardDescription>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {user.roles.map(role => (
-                        <Badge key={role} variant="outline" className="flex items-center gap-1">
-                          {role.replace(/_/g, ' ')}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                            onClick={() => removeRole(user.id, role)}
-                            disabled={processingUserId === user.id}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Add role:</span>
-                    <Select
-                      onValueChange={(value) => assignRole(user.id, value as UserRole)}
-                      disabled={processingUserId === user.id}
-                    >
-                      <SelectTrigger className="w-64">
-                        <SelectValue placeholder="Select a role to add" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allRoles
-                          .filter(role => !user.roles.includes(role))
-                          .map(role => (
-                            <SelectItem key={role} value={role}>
-                              <div className="flex items-center gap-2">
-                                <Plus className="h-3 w-3" />
-                                {role.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                              </div>
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    {processingUserId === user.id && (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <UserCard
+                key={user.id}
+                user={user}
+                allRoles={allRoles}
+                processingUserId={processingUserId}
+                onAssignRole={assignRole}
+                onRemoveRole={removeRole}
+              />
             ))}
             
             {filteredUsers.length === 0 && !loading && (

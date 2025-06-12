@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import ProgramCard from './ProgramCard';
@@ -31,9 +31,11 @@ interface ProgramsListProps {
   filters: FilterState;
 }
 
-const ProgramsList: React.FC<ProgramsListProps> = ({ filters }) => {
+const ProgramsList: React.FC<ProgramsListProps> = React.memo(({ filters }) => {
+  const queryKey = useMemo(() => ['university-programs', filters], [filters]);
+
   const { data: programs, isLoading, error } = useQuery({
-    queryKey: ['university-programs', filters],
+    queryKey,
     queryFn: async () => {
       let query = supabase
         .from('university_programs')
@@ -65,43 +67,21 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ filters }) => {
     }
   });
 
+  const hasActiveFilters = useMemo(() => 
+    Object.values(filters).some(filter => filter),
+    [filters]
+  );
+
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
-            Failed to load programs. Please try again later.
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return <ErrorState />;
   }
 
   if (!programs || programs.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Programs Found</h3>
-            <p className="text-muted-foreground">
-              {Object.values(filters).some(filter => filter) 
-                ? "No programs match your current filters. Try adjusting your search criteria."
-                : "No university programs are currently available."
-              }
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <EmptyState hasActiveFilters={hasActiveFilters} />;
   }
 
   return (
@@ -111,6 +91,51 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ filters }) => {
       ))}
     </div>
   );
-};
+});
+
+ProgramsList.displayName = 'ProgramsList';
+
+const LoadingState: React.FC = React.memo(() => (
+  <div className="flex justify-center items-center h-64">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
+));
+
+LoadingState.displayName = 'LoadingState';
+
+const ErrorState: React.FC = React.memo(() => (
+  <Card>
+    <CardContent className="pt-6">
+      <p className="text-center text-muted-foreground">
+        Failed to load programs. Please try again later.
+      </p>
+    </CardContent>
+  </Card>
+));
+
+ErrorState.displayName = 'ErrorState';
+
+interface EmptyStateProps {
+  hasActiveFilters: boolean;
+}
+
+const EmptyState: React.FC<EmptyStateProps> = React.memo(({ hasActiveFilters }) => (
+  <Card>
+    <CardContent className="pt-6">
+      <div className="text-center">
+        <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">No Programs Found</h3>
+        <p className="text-muted-foreground">
+          {hasActiveFilters
+            ? "No programs match your current filters. Try adjusting your search criteria."
+            : "No university programs are currently available."
+          }
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+));
+
+EmptyState.displayName = 'EmptyState';
 
 export default ProgramsList;

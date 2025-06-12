@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ResponsiveContainer } from 'recharts';
 
 interface CrossFilterableChartProps {
@@ -10,24 +10,27 @@ interface CrossFilterableChartProps {
   className?: string;
 }
 
-export const CrossFilterableChart: React.FC<CrossFilterableChartProps> = ({
+export const CrossFilterableChart: React.FC<CrossFilterableChartProps> = React.memo(({
   children,
   onDataClick,
   filterType,
   isFiltered = false,
   className = "h-80"
 }) => {
-  const handleChartClick = (data: any) => {
+  const handleChartClick = useCallback((data: any) => {
     if (onDataClick && data && data.activePayload && data.activePayload[0]) {
       const clickedData = data.activePayload[0].payload;
       onDataClick(clickedData, filterType);
     }
-  };
+  }, [onDataClick, filterType]);
+
+  const containerClassName = React.useMemo(() => 
+    `${className} ${isFiltered ? 'ring-2 ring-blue-500 ring-opacity-50' : ''} transition-all duration-200`,
+    [className, isFiltered]
+  );
 
   return (
-    <div 
-      className={`${className} ${isFiltered ? 'ring-2 ring-blue-500 ring-opacity-50' : ''} transition-all duration-200`}
-    >
+    <div className={containerClassName}>
       <ResponsiveContainer width="100%" height="100%">
         <div onClick={handleChartClick} className="cursor-pointer">
           {children}
@@ -35,4 +38,6 @@ export const CrossFilterableChart: React.FC<CrossFilterableChartProps> = ({
       </ResponsiveContainer>
     </div>
   );
-};
+});
+
+CrossFilterableChart.displayName = 'CrossFilterableChart';
