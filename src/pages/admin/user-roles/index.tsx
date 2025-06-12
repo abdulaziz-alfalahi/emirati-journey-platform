@@ -57,7 +57,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     'platform_operator',
     'administrator',
     'super_user'
-  ], []);
+  ] as const, []);
 
   // Check if user has admin permissions
   const isAuthorized = useMemo(() => 
