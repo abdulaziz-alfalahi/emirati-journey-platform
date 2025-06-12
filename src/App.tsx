@@ -1,29 +1,41 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
-import HomePage from '@/pages/home';
-import DashboardPage from '@/pages/dashboard';
-import ProfilePage from '@/pages/profile';
-import NationalServicePage from '@/pages/national-service';
-import YouthDevelopmentPage from '@/pages/youth-development';
-import ProfessionalCertificationsPage from '@/pages/professional-certifications';
-import DigitalSkillsDevelopmentPage from '@/pages/digital-skills-development';
-import AssessmentsPage from '@/pages/assessments';
-import SummerCampsPage from '@/pages/summer-camps';
-import SchoolProgramsPage from '@/pages/school-programs';
-import MentorMatchingPage from '@/pages/mentor-matching';
-import InternshipsPage from '@/pages/internships';
-import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
-import CommunitiesPage from '@/pages/communities';
-import MentorshipPage from '@/pages/mentorship';
-import ShareSuccessStoriesPage from '@/pages/share-success-stories';
-import UserRolesAdminPage from '@/pages/admin/user-roles';
-import ContentManagementPage from '@/pages/admin/content-management';
-import NotificationsPage from '@/pages/notifications';
+
+// Lazy-loaded page components
+const HomePage = React.lazy(() => import('@/pages/home'));
+const DashboardPage = React.lazy(() => import('@/pages/dashboard'));
+const ProfilePage = React.lazy(() => import('@/pages/profile'));
+const NationalServicePage = React.lazy(() => import('@/pages/national-service'));
+const YouthDevelopmentPage = React.lazy(() => import('@/pages/youth-development'));
+const ProfessionalCertificationsPage = React.lazy(() => import('@/pages/professional-certifications'));
+const DigitalSkillsDevelopmentPage = React.lazy(() => import('@/pages/digital-skills-development'));
+const AssessmentsPage = React.lazy(() => import('@/pages/assessments'));
+const SummerCampsPage = React.lazy(() => import('@/pages/summer-camps'));
+const SchoolProgramsPage = React.lazy(() => import('@/pages/school-programs'));
+const MentorMatchingPage = React.lazy(() => import('@/pages/mentor-matching'));
+const InternshipsPage = React.lazy(() => import('@/pages/internships'));
+const BlockchainCredentialsPage = React.lazy(() => import('@/pages/blockchain-credentials'));
+const CommunitiesPage = React.lazy(() => import('@/pages/communities'));
+const MentorshipPage = React.lazy(() => import('@/pages/mentorship'));
+const ShareSuccessStoriesPage = React.lazy(() => import('@/pages/share-success-stories'));
+const UserRolesAdminPage = React.lazy(() => import('@/pages/admin/user-roles'));
+const ContentManagementPage = React.lazy(() => import('@/pages/admin/content-management'));
+const NotificationsPage = React.lazy(() => import('@/pages/notifications'));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ehrdc-teal mx-auto mb-4"></div>
+      <p className="text-muted-foreground">Loading page...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
@@ -33,50 +45,52 @@ function App() {
           <RoleProvider>
             <div className="min-h-screen bg-background font-sans antialiased">
               <SkipNavigation />
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/national-service" element={<NationalServicePage />} />
-                <Route path="/youth-development" element={<YouthDevelopmentPage />} />
-                <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
-                <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
-                <Route path="/assessments" element={<AssessmentsPage />} />
-                <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
-                <Route path="/communities" element={<CommunitiesPage />} />
-                <Route path="/mentorship" element={<MentorshipPage />} />
-                <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
-                {/* Redirect for old URL */}
-                <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
-                
-                {/* Admin Routes */}
-                <Route path="/admin/user-roles" element={<UserRolesAdminPage />} />
-                <Route path="/admin/content-management" element={<ContentManagementPage />} />
-                
-                {/* Education Pathway routes */}
-                <Route path="/summer-camps" element={<SummerCampsPage />} />
-                <Route path="/school-programs" element={<SchoolProgramsPage />} />
-                <Route path="/scholarships" element={<div className="p-8"><h1 className="text-2xl font-bold">Scholarships - Coming Soon</h1></div>} />
-                <Route path="/lms" element={<div className="p-8"><h1 className="text-2xl font-bold">Learning Management System - Coming Soon</h1></div>} />
-                <Route path="/training" element={<div className="p-8"><h1 className="text-2xl font-bold">Vocational Training - Coming Soon</h1></div>} />
-                <Route path="/university-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">University Programs - Coming Soon</h1></div>} />
-                
-                {/* Career Entry routes */}
-                <Route path="/career-journey" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Journey Map - Coming Soon</h1></div>} />
-                <Route path="/career-advisory" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Advisory - Coming Soon</h1></div>} />
-                <Route path="/industry-exploration" element={<div className="p-8"><h1 className="text-2xl font-bold">Industry Exploration - Coming Soon</h1></div>} />
-                <Route path="/internships" element={<InternshipsPage />} />
-                <Route path="/graduate-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">Graduate Programs - Coming Soon</h1></div>} />
-                <Route path="/resume-builder" element={<div className="p-8"><h1 className="text-2xl font-bold">CV Builder - Coming Soon</h1></div>} />
-                <Route path="/portfolio" element={<div className="p-8"><h1 className="text-2xl font-bold">Portfolio - Coming Soon</h1></div>} />
-                <Route path="/interview-preparation" element={<div className="p-8"><h1 className="text-2xl font-bold">Interview Preparation - Coming Soon</h1></div>} />
-                <Route path="/job-matching" element={<div className="p-8"><h1 className="text-2xl font-bold">Job Matching - Coming Soon</h1></div>} />
-                <Route path="/career-comparison" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Path Comparison - Coming Soon</h1></div>} />
-                <Route path="/salary-explorer" element={<div className="p-8"><h1 className="text-2xl font-bold">Salary Explorer - Coming Soon</h1></div>} />
-                <Route path="/mentor-matching" element={<MentorMatchingPage />} />
-              </Routes>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/home" element={<HomePage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/national-service" element={<NationalServicePage />} />
+                  <Route path="/youth-development" element={<YouthDevelopmentPage />} />
+                  <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
+                  <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
+                  <Route path="/assessments" element={<AssessmentsPage />} />
+                  <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
+                  <Route path="/communities" element={<CommunitiesPage />} />
+                  <Route path="/mentorship" element={<MentorshipPage />} />
+                  <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
+                  {/* Redirect for old URL */}
+                  <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin/user-roles" element={<UserRolesAdminPage />} />
+                  <Route path="/admin/content-management" element={<ContentManagementPage />} />
+                  
+                  {/* Education Pathway routes */}
+                  <Route path="/summer-camps" element={<SummerCampsPage />} />
+                  <Route path="/school-programs" element={<SchoolProgramsPage />} />
+                  <Route path="/scholarships" element={<div className="p-8"><h1 className="text-2xl font-bold">Scholarships - Coming Soon</h1></div>} />
+                  <Route path="/lms" element={<div className="p-8"><h1 className="text-2xl font-bold">Learning Management System - Coming Soon</h1></div>} />
+                  <Route path="/training" element={<div className="p-8"><h1 className="text-2xl font-bold">Vocational Training - Coming Soon</h1></div>} />
+                  <Route path="/university-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">University Programs - Coming Soon</h1></div>} />
+                  
+                  {/* Career Entry routes */}
+                  <Route path="/career-journey" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Journey Map - Coming Soon</h1></div>} />
+                  <Route path="/career-advisory" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Advisory - Coming Soon</h1></div>} />
+                  <Route path="/industry-exploration" element={<div className="p-8"><h1 className="text-2xl font-bold">Industry Exploration - Coming Soon</h1></div>} />
+                  <Route path="/internships" element={<InternshipsPage />} />
+                  <Route path="/graduate-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">Graduate Programs - Coming Soon</h1></div>} />
+                  <Route path="/resume-builder" element={<div className="p-8"><h1 className="text-2xl font-bold">CV Builder - Coming Soon</h1></div>} />
+                  <Route path="/portfolio" element={<div className="p-8"><h1 className="text-2xl font-bold">Portfolio - Coming Soon</h1></div>} />
+                  <Route path="/interview-preparation" element={<div className="p-8"><h1 className="text-2xl font-bold">Interview Preparation - Coming Soon</h1></div>} />
+                  <Route path="/job-matching" element={<div className="p-8"><h1 className="text-2xl font-bold">Job Matching - Coming Soon</h1></div>} />
+                  <Route path="/career-comparison" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Path Comparison - Coming Soon</h1></div>} />
+                  <Route path="/salary-explorer" element={<div className="p-8"><h1 className="text-2xl font-bold">Salary Explorer - Coming Soon</h1></div>} />
+                  <Route path="/mentor-matching" element={<MentorMatchingPage />} />
+                </Routes>
+              </Suspense>
             </div>
           </RoleProvider>
         </AuthProvider>
