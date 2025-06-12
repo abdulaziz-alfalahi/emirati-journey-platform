@@ -36,7 +36,7 @@ export const validateLength = (text: string, min: number, max: number): boolean 
 };
 
 // User role validation - using the actual UserRole type to ensure consistency
-export const USER_ROLES: readonly UserRole[] = [
+export const USER_ROLES: UserRole[] = [
   'school_student',
   'national_service_participant', 
   'university_student',
@@ -60,10 +60,10 @@ export const USER_ROLES: readonly UserRole[] = [
   'platform_operator',
   'administrator',
   'super_user'
-] as const;
+];
 
 export const isValidUserRole = (role: string): role is UserRole => {
-  return (USER_ROLES as readonly string[]).includes(role);
+  return USER_ROLES.includes(role as UserRole);
 };
 
 // Common form validation schemas
