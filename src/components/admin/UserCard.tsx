@@ -37,7 +37,7 @@ const UserCard: React.FC<UserCardProps> = React.memo(({
 
   const handleAssignRole = useCallback((value: string) => {
     // Ensure the value is a valid UserRole by checking against allRoles
-    const selectedRole = allRoles.find(role => role === value);
+    const selectedRole = allRoles.find(role => role === value) as UserRole;
     if (selectedRole) {
       onAssignRole(user.id, selectedRole);
     } else {
