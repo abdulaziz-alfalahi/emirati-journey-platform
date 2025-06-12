@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/types/auth';
 import { Plus, Minus, Loader2 } from 'lucide-react';
+import { isValidUserRole, ValidatedUserRole } from '@/utils/validation';
 
 interface User {
   id: string;
@@ -19,7 +20,7 @@ interface UserCardProps {
   user: User;
   allRoles: UserRole[];
   processingUserId: string | null;
-  onAssignRole: (userId: string, role: UserRole) => void;
+  onAssignRole: (userId: string, role: ValidatedUserRole) => void;
   onRemoveRole: (userId: string, role: UserRole) => void;
 }
 
@@ -36,8 +37,12 @@ const UserCard: React.FC<UserCardProps> = React.memo(({
   );
 
   const handleAssignRole = useCallback((value: string) => {
-    // Type assertion is safe here because we control the select options
-    onAssignRole(user.id, value as UserRole);
+    // Validate the role before assignment
+    if (isValidUserRole(value)) {
+      onAssignRole(user.id, value);
+    } else {
+      console.error('Invalid role selected:', value);
+    }
   }, [onAssignRole, user.id]);
 
   const handleRemoveRole = useCallback((role: UserRole) => {

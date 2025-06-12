@@ -12,6 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
+import { ValidatedUserRole, isValidUserRole, sanitizeText } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -67,7 +68,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
-      const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const sanitizedSearchTerm = sanitizeText(searchTerm);
+      const matchesSearch = user.email.toLowerCase().includes(sanitizedSearchTerm.toLowerCase());
       const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter as UserRole);
       return matchesSearch && matchesRole;
     });
@@ -127,7 +129,26 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     }
   }, [toast]);
 
-  const assignRole = useCallback(async (userId: string, role: UserRole) => {
+  const assignRole = useCallback(async (userId: string, role: ValidatedUserRole) => {
+    // Validate input
+    if (!userId || typeof userId !== 'string') {
+      toast({
+        title: "Error",
+        description: "Invalid user ID.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isValidUserRole(role)) {
+      toast({
+        title: "Error",
+        description: "Invalid role specified.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setProcessingUserId(userId);
 
@@ -142,7 +163,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       // Update local state
       setUsers(prev => prev.map(user => 
         user.id === userId 
-          ? { ...user, roles: [...user.roles, role] }
+          ? { ...user, roles: [...user.roles, role as UserRole] }
           : user
       ));
 
@@ -163,6 +184,25 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
   }, [toast]);
 
   const removeRole = useCallback(async (userId: string, role: UserRole) => {
+    // Validate input
+    if (!userId || typeof userId !== 'string') {
+      toast({
+        title: "Error",
+        description: "Invalid user ID.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!role || typeof role !== 'string') {
+      toast({
+        title: "Error",
+        description: "Invalid role specified.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setProcessingUserId(userId);
 
@@ -198,6 +238,11 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       setProcessingUserId(null);
     }
   }, [toast]);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeText(e.target.value);
+    setSearchTerm(sanitizedValue);
+  }, []);
 
   if (!user) {
     return (
@@ -243,8 +288,9 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
             <Input
               placeholder="Search by email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="pl-10"
+              maxLength={100}
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
