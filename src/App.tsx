@@ -20,6 +20,7 @@ import InternshipsPage from '@/pages/internships';
 import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
 import CommunitiesPage from '@/pages/communities';
 import MentorshipPage from '@/pages/mentorship';
+import ShareSuccessStoriesPage from '@/pages/share-success-stories';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
                 <Route path="/communities" element={<CommunitiesPage />} />
                 <Route path="/mentorship" element={<MentorshipPage />} />
+                <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
                 
                 {/* Education Pathway routes */}
                 <Route path="/summer-camps" element={<SummerCampsPage />} />

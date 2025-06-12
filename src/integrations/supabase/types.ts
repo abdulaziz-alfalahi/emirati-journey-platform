@@ -4912,6 +4912,42 @@ export type Database = {
         }
         Relationships: []
       }
+      success_stories: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          impact_metrics: string | null
+          is_approved: boolean | null
+          story_content: string
+          submission_date: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          impact_metrics?: string | null
+          is_approved?: boolean | null
+          story_content: string
+          submission_date?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          impact_metrics?: string | null
+          is_approved?: boolean | null
+          story_content?: string
+          submission_date?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       summer_camps: {
         Row: {
           age_group: string
