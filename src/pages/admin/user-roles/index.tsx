@@ -127,7 +127,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     }
 
     // Check if role is valid by checking if it exists in USER_ROLES
-    if (!USER_ROLES.includes(role)) {
+    // Use type assertion to ensure compatibility
+    if (!(USER_ROLES as readonly string[]).includes(role)) {
       toast({
         title: "Error",
         description: "Invalid role specified.",
