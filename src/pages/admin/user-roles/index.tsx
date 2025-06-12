@@ -24,7 +24,7 @@ interface UserWithRoles extends SupabaseUser {
   roles: UserRole[];
 }
 
-const UserRolesAdminPage: React.FC = () => {
+const UserRolesAdminPage: React.FC = React.memo(() => {
   const { user, hasRole } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserWithRoles[]>([]);
@@ -54,6 +54,7 @@ const UserRolesAdminPage: React.FC = () => {
     'assessment_center',
     'mentor',
     'career_advisor',
+    'platform_operator',
     'administrator',
     'super_user'
   ], []);
@@ -300,6 +301,8 @@ const UserRolesAdminPage: React.FC = () => {
       </div>
     </Layout>
   );
-};
+});
+
+UserRolesAdminPage.displayName = 'UserRolesAdminPage';
 
 export default UserRolesAdminPage;
