@@ -196,7 +196,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role as string);
+        .eq('role', role);
 
       if (error) {
         throw error;
