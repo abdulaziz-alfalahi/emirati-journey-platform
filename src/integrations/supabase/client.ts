@@ -3,8 +3,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://ltzrdfiqivmedupzcndj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0enJkZmlxaXZtZWR1cHpjbmRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1ODQ0NzUsImV4cCI6MjA1ODE2MDQ3NX0.6_QGpupbOhluj4n7WGgZ1pcH5mBnpEM4hTaFxMjN86s";
+// Load from environment variables
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Ensure environment variables are set
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Supabase URL and/or Anon Key are not set in environment variables.');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
