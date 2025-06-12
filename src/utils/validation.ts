@@ -1,5 +1,6 @@
 
 import { z } from 'zod';
+import { UserRole } from '@/types/auth';
 
 // Common validation schemas
 export const emailSchema = z.string().email('Invalid email format');
@@ -44,8 +45,8 @@ export const validateLength = (text: string, min: number, max: number): boolean 
   return text.length >= min && text.length <= max;
 };
 
-// User role validation - updated to match UserRole type exactly
-export const USER_ROLES = [
+// User role validation - using the actual UserRole type to ensure consistency
+export const USER_ROLES: readonly UserRole[] = [
   'school_student',
   'national_service_participant', 
   'university_student',
@@ -71,8 +72,8 @@ export const USER_ROLES = [
   'super_user'
 ] as const;
 
-export const isValidUserRole = (role: string): boolean => {
-  return USER_ROLES.includes(role as any);
+export const isValidUserRole = (role: string): role is UserRole => {
+  return (USER_ROLES as readonly string[]).includes(role);
 };
 
 // Common form validation schemas
