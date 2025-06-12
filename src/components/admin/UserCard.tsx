@@ -35,8 +35,9 @@ const UserCard: React.FC<UserCardProps> = React.memo(({
     [allRoles, user.roles]
   );
 
-  const handleAssignRole = useCallback((role: string) => {
-    onAssignRole(user.id, role as UserRole);
+  const handleAssignRole = useCallback((value: string) => {
+    // Type assertion is safe here because we control the select options
+    onAssignRole(user.id, value as UserRole);
   }, [onAssignRole, user.id]);
 
   const handleRemoveRole = useCallback((role: UserRole) => {
@@ -73,6 +74,7 @@ const UserCard: React.FC<UserCardProps> = React.memo(({
           <Select
             onValueChange={handleAssignRole}
             disabled={isProcessing}
+            value=""
           >
             <SelectTrigger className="w-64">
               <SelectValue placeholder="Select a role to add" />
