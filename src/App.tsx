@@ -13,6 +13,10 @@ import YouthDevelopmentPage from '@/pages/youth-development';
 import ProfessionalCertificationsPage from '@/pages/professional-certifications';
 import DigitalSkillsDevelopmentPage from '@/pages/digital-skills-development';
 import AssessmentsPage from '@/pages/assessments';
+import SummerCampsPage from '@/pages/summer-camps';
+import SchoolProgramsPage from '@/pages/school-programs';
+import MentorMatchingPage from '@/pages/mentor-matching';
+import InternshipsPage from '@/pages/internships';
 
 function App() {
   return (
@@ -32,6 +36,28 @@ function App() {
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                 <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
                 <Route path="/assessments" element={<AssessmentsPage />} />
+                
+                {/* Education Pathway routes */}
+                <Route path="/summer-camps" element={<SummerCampsPage />} />
+                <Route path="/school-programs" element={<SchoolProgramsPage />} />
+                <Route path="/scholarships" element={<div className="p-8"><h1 className="text-2xl font-bold">Scholarships - Coming Soon</h1></div>} />
+                <Route path="/lms" element={<div className="p-8"><h1 className="text-2xl font-bold">Learning Management System - Coming Soon</h1></div>} />
+                <Route path="/training" element={<div className="p-8"><h1 className="text-2xl font-bold">Vocational Training - Coming Soon</h1></div>} />
+                <Route path="/university-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">University Programs - Coming Soon</h1></div>} />
+                
+                {/* Career Entry routes */}
+                <Route path="/career-journey" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Journey Map - Coming Soon</h1></div>} />
+                <Route path="/career-advisory" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Advisory - Coming Soon</h1></div>} />
+                <Route path="/industry-exploration" element={<div className="p-8"><h1 className="text-2xl font-bold">Industry Exploration - Coming Soon</h1></div>} />
+                <Route path="/internships" element={<InternshipsPage />} />
+                <Route path="/graduate-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">Graduate Programs - Coming Soon</h1></div>} />
+                <Route path="/resume-builder" element={<div className="p-8"><h1 className="text-2xl font-bold">CV Builder - Coming Soon</h1></div>} />
+                <Route path="/portfolio" element={<div className="p-8"><h1 className="text-2xl font-bold">Portfolio - Coming Soon</h1></div>} />
+                <Route path="/interview-preparation" element={<div className="p-8"><h1 className="text-2xl font-bold">Interview Preparation - Coming Soon</h1></div>} />
+                <Route path="/job-matching" element={<div className="p-8"><h1 className="text-2xl font-bold">Job Matching - Coming Soon</h1></div>} />
+                <Route path="/career-comparison" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Path Comparison - Coming Soon</h1></div>} />
+                <Route path="/salary-explorer" element={<div className="p-8"><h1 className="text-2xl font-bold">Salary Explorer - Coming Soon</h1></div>} />
+                <Route path="/mentor-matching" element={<MentorMatchingPage />} />
               </Routes>
             </div>
           </RoleProvider>
