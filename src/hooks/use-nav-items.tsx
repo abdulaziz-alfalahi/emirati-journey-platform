@@ -43,7 +43,7 @@ const useNavItems = () => {
     { name: 'Skills Marketplace', href: '/skills-marketplace', icon: Users },
     { name: 'Credentials', href: '/credentials', icon: Award },
     { name: 'Blockchain Credentials', href: '/blockchain-credentials', icon: Shield },
-    { name: 'Success Stories', href: '/success-stories', icon: Award },
+    { name: 'Share Success Stories', href: '/share-success-stories', icon: Award },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 }
   ];
 
