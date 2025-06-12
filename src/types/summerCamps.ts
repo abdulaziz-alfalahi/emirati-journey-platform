@@ -11,10 +11,13 @@ export type SummerCamp = {
   duration: string;
   location: string;
   capacity: number;
+  max_participants: number;
   enrolled: number;
   price: number;
   image_url: string;
   tags: string[];
+  registration_deadline: string;
+  rating?: number;
   created_at: string;
   updated_at: string | null;
   created_by?: string;

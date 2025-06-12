@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Internship, InternshipApplication, InternshipWithApplications } from '@/types/internships';
 
@@ -168,10 +167,7 @@ export const getInternshipsWithApplicationCounts = async (userId: string): Promi
         pending: 0,
         approved: 0,
         rejected: 0,
-        withdrawn: 0,
-        get total() { 
-          return this.pending + this.approved + this.rejected + this.withdrawn;
-        }
+        withdrawn: 0
       };
 
       // Count applications by status
@@ -181,9 +177,15 @@ export const getInternshipsWithApplicationCounts = async (userId: string): Promi
         }
       });
 
+      // Calculate total separately to avoid readonly issue
+      const totalApplications = statusCounts.pending + statusCounts.approved + statusCounts.rejected + statusCounts.withdrawn;
+
       return {
         ...internship,
-        applications: statusCounts
+        applications: {
+          ...statusCounts,
+          total: totalApplications
+        }
       };
     });
   } catch (error) {
