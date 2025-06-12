@@ -58,7 +58,7 @@ const UserRolesAdminPage: React.FC = () => {
     'super_user'
   ];
 
-  // Check if user has admin permissions - fix the type casting
+  // Check if user has admin permissions
   const isAuthorized = hasRole('administrator' as any) || hasRole('super_user' as any);
 
   useEffect(() => {
