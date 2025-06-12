@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
@@ -43,6 +44,8 @@ function App() {
                 <Route path="/communities" element={<CommunitiesPage />} />
                 <Route path="/mentorship" element={<MentorshipPage />} />
                 <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
+                {/* Redirect for old URL */}
+                <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
                 
                 {/* Education Pathway routes */}
                 <Route path="/summer-camps" element={<SummerCampsPage />} />
