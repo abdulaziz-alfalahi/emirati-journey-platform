@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,8 +57,8 @@ const UserRolesAdminPage: React.FC = () => {
     'super_user'
   ];
 
-  // Check if user has admin permissions
-  const isAuthorized = hasRole('administrator' as UserRole) || hasRole('super_user' as UserRole);
+  // Check if user has admin permissions - fix the type casting
+  const isAuthorized = hasRole('administrator' as any) || hasRole('super_user' as any);
 
   useEffect(() => {
     if (!user) return;
