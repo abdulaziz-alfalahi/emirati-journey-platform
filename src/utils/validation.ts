@@ -71,10 +71,8 @@ export const USER_ROLES = [
   'super_user'
 ] as const;
 
-export type ValidatedUserRole = typeof USER_ROLES[number];
-
-export const isValidUserRole = (role: string): role is ValidatedUserRole => {
-  return USER_ROLES.includes(role as ValidatedUserRole);
+export const isValidUserRole = (role: string): boolean => {
+  return USER_ROLES.includes(role as any);
 };
 
 // Common form validation schemas
