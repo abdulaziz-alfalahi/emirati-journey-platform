@@ -25,11 +25,6 @@ interface UserWithRoles extends SupabaseUser {
   roles: UserRole[];
 }
 
-// Custom validation function that uses the correct UserRole type
-const isValidUserRole = (role: string): role is UserRole => {
-  return USER_ROLES.includes(role as UserRole);
-};
-
 const UserRolesAdminPage: React.FC = React.memo(() => {
   const { user, hasRole } = useAuth();
   const { toast } = useToast();
@@ -131,8 +126,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       return;
     }
 
-    // Check if role is valid using our custom validation function
-    if (!isValidUserRole(role)) {
+    // Check if role is valid
+    if (!USER_ROLES.includes(role)) {
       toast({
         title: "Error",
         description: "Invalid role specified.",
