@@ -10,13 +10,22 @@ import {
   Building2,
   Lightbulb,
   Heart,
-  Trophy
+  Trophy,
+  User,
+  FileText,
+  MapPin,
+  Monitor,
+  CheckSquare,
+  UserCheck,
+  Search,
+  Shield,
+  BarChart3
 } from 'lucide-react';
 
 export const navigationGroups: NavGroup[] = [
   {
     id: 'education',
-    name: 'Education',
+    name: 'Education Pathway',
     description: 'Educational programs and learning opportunities',
     items: [
       {
@@ -42,14 +51,26 @@ export const navigationGroups: NavGroup[] = [
         href: '/university-programs',
         description: 'Higher education pathways',
         icon: GraduationCap
+      },
+      {
+        name: 'Learning Management System',
+        href: '/lms',
+        description: 'Online learning platform',
+        icon: Monitor
       }
     ]
   },
   {
     id: 'career',
-    name: 'Career Development',
+    name: 'Career Entry',
     description: 'Professional growth and career opportunities',
     items: [
+      {
+        name: 'Career Journey',
+        href: '/career-journey',
+        description: 'Map your career path',
+        icon: MapPin
+      },
       {
         name: 'Internships',
         href: '/internships',
@@ -57,28 +78,34 @@ export const navigationGroups: NavGroup[] = [
         icon: Briefcase
       },
       {
-        name: 'Professional Certifications',
-        href: '/professional-certifications',
-        description: 'Industry-recognized certifications',
-        icon: Award
+        name: 'Job Matching',
+        href: '/job-matching',
+        description: 'Find opportunities that match your skills',
+        icon: Search
       },
       {
         name: 'Career Advisory',
         href: '/career-advisory',
         description: 'Professional career guidance',
-        icon: Users
+        icon: UserCheck
       },
       {
-        name: 'Mentor Matching',
-        href: '/mentor-matching',
-        description: 'Connect with experienced mentors',
-        icon: Heart
+        name: 'Resume Builder',
+        href: '/resume-builder',
+        description: 'Build your professional resume',
+        icon: FileText
+      },
+      {
+        name: 'Interview Preparation',
+        href: '/interview-preparation',
+        description: 'Prepare for job interviews',
+        icon: Users
       }
     ]
   },
   {
-    id: 'skills',
-    name: 'Skills & Development',
+    id: 'professional',
+    name: 'Professional Growth',
     description: 'Skill development and training programs',
     items: [
       {
@@ -88,10 +115,10 @@ export const navigationGroups: NavGroup[] = [
         icon: Lightbulb
       },
       {
-        name: 'Assessments',
-        href: '/assessments',
-        description: 'Skill assessment and evaluation',
-        icon: Trophy
+        name: 'Professional Certifications',
+        href: '/professional-certifications',
+        description: 'Industry-recognized certifications',
+        icon: Award
       },
       {
         name: 'Training Programs',
@@ -100,24 +127,30 @@ export const navigationGroups: NavGroup[] = [
         icon: BookOpen
       },
       {
-        name: 'Youth Development',
-        href: '/youth-development',
-        description: 'Programs for youth empowerment',
-        icon: Users
-      }
-    ]
-  },
-  {
-    id: 'community',
-    name: 'Community',
-    description: 'Community engagement and networking',
-    items: [
+        name: 'Assessments',
+        href: '/assessments',
+        description: 'Skill assessment and evaluation',
+        icon: CheckSquare
+      },
+      {
+        name: 'Mentorship',
+        href: '/mentorship',
+        description: 'Connect with experienced mentors',
+        icon: Heart
+      },
       {
         name: 'Communities',
         href: '/communities',
         description: 'Join professional communities',
         icon: Users
-      },
+      }
+    ]
+  },
+  {
+    id: 'lifelong',
+    name: 'Lifelong Engagement',
+    description: 'Community engagement and continuous learning',
+    items: [
       {
         name: 'National Service',
         href: '/national-service',
@@ -125,16 +158,28 @@ export const navigationGroups: NavGroup[] = [
         icon: Building2
       },
       {
-        name: 'Share Success Stories',
+        name: 'Youth Development',
+        href: '/youth-development',
+        description: 'Programs for youth empowerment',
+        icon: Users
+      },
+      {
+        name: 'Success Stories',
         href: '/share-success-stories',
         description: 'Share your achievements and inspire others',
         icon: Trophy
       },
       {
-        name: 'Mentorship',
-        href: '/mentorship',
-        description: 'Mentorship programs and opportunities',
-        icon: Heart
+        name: 'Blockchain Credentials',
+        href: '/blockchain-credentials',
+        description: 'Digital credential verification',
+        icon: Shield
+      },
+      {
+        name: 'Analytics',
+        href: '/analytics',
+        description: 'View insights and analytics',
+        icon: BarChart3
       }
     ]
   }
