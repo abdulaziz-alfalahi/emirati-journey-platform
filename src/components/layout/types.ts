@@ -10,10 +10,12 @@ export interface NavItem {
   group?: 'early' | 'advanced';
   type?: 'separator';
   label?: string;
+  description?: string; // Add description property
 }
 
 export interface NavGroup {
   id: string;
   name: string;
+  description?: string; // Add description property
   items: NavItem[];
 }
