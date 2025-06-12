@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart4, BookOpen, User, Users, Settings } from 'lucide-react';
+import { BarChart4, BookOpen, User, Users, Settings, Shield } from 'lucide-react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardMetrics from '@/components/dashboard/DashboardMetrics';
 import DashboardActions from '@/components/dashboard/DashboardActions';
@@ -65,6 +65,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeTab }) => (
         <CardContent>
           <DashboardActions 
             actions={[
+              { title: "User Role Management", description: "Assign and manage user roles", icon: Shield, link: "/admin/user-roles" },
               { title: "User Management", description: "Manage accounts", icon: Users },
               { title: "Role Administration", description: "Assign user roles", icon: User },
               { title: "Content Manager", description: "Manage platform content", icon: BookOpen },

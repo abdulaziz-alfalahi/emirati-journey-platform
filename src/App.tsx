@@ -21,6 +21,7 @@ import BlockchainCredentialsPage from '@/pages/blockchain-credentials';
 import CommunitiesPage from '@/pages/communities';
 import MentorshipPage from '@/pages/mentorship';
 import ShareSuccessStoriesPage from '@/pages/share-success-stories';
+import UserRolesAdminPage from '@/pages/admin/user-roles';
 
 function App() {
   return (
@@ -46,6 +47,9 @@ function App() {
                 <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
                 {/* Redirect for old URL */}
                 <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin/user-roles" element={<UserRolesAdminPage />} />
                 
                 {/* Education Pathway routes */}
                 <Route path="/summer-camps" element={<SummerCampsPage />} />
