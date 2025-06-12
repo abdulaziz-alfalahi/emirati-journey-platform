@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Updated USER_ROLES to match the frontend UserRole type exactly
+// Updated USER_ROLES to match the frontend UserRole type exactly - this must be kept in sync
 const USER_ROLES = [
   'school_student',
   'national_service_participant', 
@@ -193,3 +193,13 @@ serve(async (req) => {
     )
   }
 })
+
+const sanitizeString = (input: string): string => {
+  if (typeof input !== 'string') return '';
+  return input.trim().slice(0, 255); // Limit length and trim whitespace
+};
+
+const isValidUUID = (uuid: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
