@@ -8,21 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { ContentItem, ContentCategory, ContentFilters, ContentType, ContentStatus } from '@/types/content';
+import { ContentItem, ContentCategory, ContentType, ContentStatus } from '@/types/content';
 import Layout from '@/components/layout/Layout';
-import { Plus, Search, FileText, Eye, Edit, Trash2, Filter } from 'lucide-react';
 import ContentEditor from '@/components/admin/content/ContentEditor';
 import ContentPreview from '@/components/admin/content/ContentPreview';
+import { Plus, Search, Filter, Eye, Edit, Trash2, FileText, Shield } from 'lucide-react';
 
 const ContentManagementPage: React.FC = () => {
   const { user, hasRole } = useAuth();
   const { toast } = useToast();
-  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [content, setContent] = useState<ContentItem[]>([]);
   const [categories, setCategories] = useState<ContentCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<ContentFilters>({});
-  const [currentView, setCurrentView] = useState<'list' | 'create' | 'edit' | 'preview'>('list');
+  const [currentView, setCurrentView] = useState<'list' | 'editor' | 'preview'>('list');
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
+  const [typeFilter, setTypeFilter] = useState<ContentType | 'all'>('all');
 
   // Check if user has admin permissions
   const isAuthorized = hasRole('administrator') || hasRole('super_user');
@@ -39,43 +41,25 @@ const ContentManagementPage: React.FC = () => {
       return;
     }
 
-    fetchContentItems();
+    fetchContent();
     fetchCategories();
   }, [user, isAuthorized]);
 
-  const fetchContentItems = async () => {
+  const fetchContent = async () => {
     try {
       setLoading(true);
-      
-      let query = supabase
+      const { data, error } = await supabase
         .from('content_items' as any)
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (filters.status) {
-        query = query.eq('status', filters.status);
-      }
-      if (filters.content_type) {
-        query = query.eq('content_type', filters.content_type);
-      }
-      if (filters.category) {
-        query = query.eq('category', filters.category);
-      }
-      if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      setContentItems((data || []) as ContentItem[]);
+      if (error) throw error;
+      setContent((data as unknown) as ContentItem[]);
     } catch (error) {
-      console.error('Error fetching content items:', error);
+      console.error('Error fetching content:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch content items. Please try again.",
+        description: "Failed to fetch content. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -88,66 +72,42 @@ const ContentManagementPage: React.FC = () => {
       const { data, error } = await supabase
         .from('content_categories' as any)
         .select('*')
-        .eq('is_active', true)
-        .order('name');
+        .eq('is_active', true);
 
-      if (error) {
-        throw error;
-      }
-
-      setCategories((data || []) as ContentCategory[]);
+      if (error) throw error;
+      setCategories((data as unknown) as ContentCategory[]);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch categories. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({ ...prev, search: searchTerm }));
-  };
-
-  const handleFilterChange = (key: keyof ContentFilters, value: string) => {
-    setFilters(prev => ({ 
-      ...prev, 
-      [key]: value === 'all' ? undefined : value 
-    }));
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this content item?')) {
-      return;
-    }
+  const handleDeleteContent = async (contentId: string) => {
+    if (!confirm('Are you sure you want to delete this content item?')) return;
 
     try {
       const { error } = await supabase
         .from('content_items' as any)
         .delete()
-        .eq('id', id);
+        .eq('id', contentId);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      setContentItems(prev => prev.filter(item => item.id !== id));
+      setContent(prev => prev.filter(item => item.id !== contentId));
       toast({
         title: "Success",
-        description: "Content item deleted successfully."
+        description: "Content deleted successfully."
       });
     } catch (error) {
-      console.error('Error deleting content item:', error);
+      console.error('Error deleting content:', error);
       toast({
         title: "Error",
-        description: "Failed to delete content item. Please try again.",
+        description: "Failed to delete content. Please try again.",
         variant: "destructive"
       });
     }
   };
 
-  const handleStatusUpdate = async (id: string, newStatus: ContentStatus) => {
+  const handleStatusChange = async (contentId: string, newStatus: ContentStatus) => {
     try {
       const updateData: any = { status: newStatus };
       if (newStatus === 'published') {
@@ -157,23 +117,19 @@ const ContentManagementPage: React.FC = () => {
       const { error } = await supabase
         .from('content_items' as any)
         .update(updateData)
-        .eq('id', id);
+        .eq('id', contentId);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      setContentItems(prev => 
-        prev.map(item => 
-          item.id === id 
-            ? { ...item, status: newStatus, published_date: updateData.published_date || item.published_date }
-            : item
-        )
-      );
+      setContent(prev => prev.map(item => 
+        item.id === contentId 
+          ? { ...item, status: newStatus, ...(newStatus === 'published' ? { published_date: updateData.published_date } : {}) }
+          : item
+      ));
 
       toast({
         title: "Success",
-        description: `Content ${newStatus} successfully.`
+        description: `Content status updated to ${newStatus}.`
       });
     } catch (error) {
       console.error('Error updating status:', error);
@@ -185,10 +141,29 @@ const ContentManagementPage: React.FC = () => {
     }
   };
 
-  // Apply filters whenever they change
-  useEffect(() => {
-    fetchContentItems();
-  }, [filters]);
+  const handleSaveContent = (savedContent: ContentItem) => {
+    if (selectedContent) {
+      // Update existing content
+      setContent(prev => prev.map(item => 
+        item.id === savedContent.id ? savedContent : item
+      ));
+    } else {
+      // Add new content
+      setContent(prev => [savedContent, ...prev]);
+    }
+    
+    setCurrentView('list');
+    setSelectedContent(null);
+  };
+
+  const filteredContent = content.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+    const matchesType = typeFilter === 'all' || item.content_type === typeFilter;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   const getStatusColor = (status: ContentStatus) => {
     switch (status) {
@@ -198,14 +173,6 @@ const ContentManagementPage: React.FC = () => {
       case 'archived': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
   };
 
   if (!user) {
@@ -223,7 +190,7 @@ const ContentManagementPage: React.FC = () => {
       <Layout>
         <div className="flex items-center justify-center min-h-64">
           <div className="text-center">
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Access Restricted</h2>
             <p className="text-muted-foreground">You don't have permission to access the content management panel.</p>
           </div>
@@ -232,22 +199,12 @@ const ContentManagementPage: React.FC = () => {
     );
   }
 
-  if (currentView === 'create' || currentView === 'edit') {
+  if (currentView === 'editor') {
     return (
       <ContentEditor
         content={selectedContent}
         categories={categories}
-        onSave={(savedContent) => {
-          if (currentView === 'edit') {
-            setContentItems(prev => prev.map(item => 
-              item.id === savedContent.id ? savedContent : item
-            ));
-          } else {
-            setContentItems(prev => [savedContent, ...prev]);
-          }
-          setCurrentView('list');
-          setSelectedContent(null);
-        }}
+        onSave={handleSaveContent}
         onCancel={() => {
           setCurrentView('list');
           setSelectedContent(null);
@@ -265,7 +222,7 @@ const ContentManagementPage: React.FC = () => {
           setSelectedContent(null);
         }}
         onEdit={() => {
-          setCurrentView('edit');
+          setCurrentView('editor');
         }}
       />
     );
@@ -277,29 +234,45 @@ const ContentManagementPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Content Management</h1>
-            <p className="text-muted-foreground">Create and manage dynamic content across the platform</p>
+            <p className="text-muted-foreground">Manage dynamic content across the platform</p>
           </div>
-          <Button onClick={() => setCurrentView('create')} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Content
-          </Button>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              {filteredContent.length} Items
+            </Badge>
+            <Button 
+              onClick={() => {
+                setSelectedContent(null);
+                setCurrentView('editor');
+              }}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create Content
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-4 items-center flex-wrap">
-              <div className="relative flex-1 min-w-64">
+          <CardHeader>
+            <CardTitle>Filters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search content..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
-                  onChange={(e) => handleSearch(e.target.value)}
                 />
               </div>
               
-              <Select onValueChange={(value) => handleFilterChange('status', value)}>
-                <SelectTrigger className="w-48">
+              <Select value={statusFilter} onValueChange={(value: ContentStatus | 'all') => setStatusFilter(value)}>
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -311,8 +284,8 @@ const ContentManagementPage: React.FC = () => {
                 </SelectContent>
               </Select>
 
-              <Select onValueChange={(value) => handleFilterChange('content_type', value)}>
-                <SelectTrigger className="w-48">
+              <Select value={typeFilter} onValueChange={(value: ContentType | 'all') => setTypeFilter(value)}>
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -323,124 +296,145 @@ const ContentManagementPage: React.FC = () => {
                   <SelectItem value="announcement">Announcement</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Button variant="outline" onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('all');
+                setTypeFilter('all');
+              }}>
+                <Filter className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Content List */}
-        {loading ? (
-          <div className="flex items-center justify-center min-h-64">
-            <p>Loading content...</p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {contentItems.map(content => (
-              <Card key={content.id}>
-                <CardHeader>
+        <div className="grid gap-4">
+          {loading ? (
+            <div className="flex items-center justify-center min-h-64">
+              <p>Loading content...</p>
+            </div>
+          ) : filteredContent.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Content Found</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+                    ? 'Try adjusting your search or filter criteria.' 
+                    : 'Get started by creating your first content item.'
+                  }
+                </p>
+                <Button onClick={() => {
+                  setSelectedContent(null);
+                  setCurrentView('editor');
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Content
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredContent.map(item => (
+              <Card key={item.id}>
+                <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg">{content.title}</CardTitle>
-                      <CardDescription>
-                        {content.excerpt || content.content.substring(0, 150) + '...'}
+                      <CardTitle className="text-lg">{item.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        {item.excerpt || item.content.substring(0, 150) + '...'}
                       </CardDescription>
                       <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                        <span>Category: {content.category}</span>
-                        <span>Type: {content.content_type.replace('_', ' ')}</span>
-                        <span>Created: {formatDate(content.created_at)}</span>
-                        {content.published_date && (
-                          <span>Published: {formatDate(content.published_date)}</span>
+                        <span>Category: {item.category}</span>
+                        <span>•</span>
+                        <span>Type: {item.content_type.replace('_', ' ')}</span>
+                        <span>•</span>
+                        <span>Created: {new Date(item.created_at).toLocaleDateString()}</span>
+                        {item.view_count > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{item.view_count} views</span>
+                          </>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
-                      <Badge className={getStatusColor(content.status)}>
-                        {content.status.replace('_', ' ')}
+                      <Badge className={getStatusColor(item.status)}>
+                        {item.status.replace('_', ' ')}
                       </Badge>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedContent(content);
-                        setCurrentView('preview');
-                      }}
-                      className="flex items-center gap-1"
-                    >
-                      <Eye className="h-3 w-3" />
-                      Preview
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedContent(content);
-                        setCurrentView('edit');
-                      }}
-                      className="flex items-center gap-1"
-                    >
-                      <Edit className="h-3 w-3" />
-                      Edit
-                    </Button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex gap-1">
+                          {item.tags.slice(0, 3).map(tag => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {item.tags.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{item.tags.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     
-                    {content.status === 'draft' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleStatusUpdate(content.id, 'published')}
-                        className="flex items-center gap-1"
-                      >
-                        Publish
-                      </Button>
-                    )}
-                    
-                    {content.status === 'published' && (
+                    <div className="flex items-center gap-2">
+                      <Select value={item.status} onValueChange={(value: ContentStatus) => handleStatusChange(item.id, value)}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="pending_review">Pending Review</SelectItem>
+                          <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleStatusUpdate(content.id, 'archived')}
-                        className="flex items-center gap-1"
+                        onClick={() => {
+                          setSelectedContent(item);
+                          setCurrentView('preview');
+                        }}
                       >
-                        Archive
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    )}
-                    
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(content.id)}
-                      className="flex items-center gap-1"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedContent(item);
+                          setCurrentView('editor');
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteContent(item.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-            
-            {contentItems.length === 0 && !loading && (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Content Found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {Object.keys(filters).length > 0 && Object.values(filters).some(v => v)
-                      ? 'Try adjusting your search or filter criteria.' 
-                      : 'Get started by creating your first content item.'
-                    }
-                  </p>
-                  <Button onClick={() => setCurrentView('create')} className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Content
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </Layout>
   );

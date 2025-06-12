@@ -101,7 +101,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
           .single();
 
         if (error) throw error;
-        savedContent = data as ContentItem;
+        savedContent = (data as unknown) as ContentItem;
       } else {
         const { data, error } = await supabase
           .from('content_items' as any)
@@ -110,7 +110,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
           .single();
 
         if (error) throw error;
-        savedContent = data as ContentItem;
+        savedContent = (data as unknown) as ContentItem;
       }
 
       toast({
