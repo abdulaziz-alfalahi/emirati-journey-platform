@@ -12,7 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
-import { sanitizeText, isValidUserRole, USER_ROLES } from '@/utils/validation';
+import { sanitizeText, USER_ROLES } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -126,8 +126,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       return;
     }
 
-    // Check if role is valid using validation utility
-    if (!isValidUserRole(role)) {
+    // Check if role is valid by checking if it exists in USER_ROLES
+    if (!USER_ROLES.includes(role)) {
       toast({
         title: "Error",
         description: "Invalid role specified.",
