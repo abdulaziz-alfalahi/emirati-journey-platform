@@ -59,7 +59,7 @@ const UserRolesAdminPage: React.FC = () => {
   ];
 
   // Check if user has admin permissions
-  const isAuthorized = hasRole('administrator' as any) || hasRole('super_user' as any);
+  const isAuthorized = hasRole('administrator') || hasRole('super_user');
 
   useEffect(() => {
     if (!user) return;
