@@ -12,7 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
-import { ValidatedUserRole, isValidUserRole, sanitizeText } from '@/utils/validation';
+import { sanitizeText } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -129,7 +129,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     }
   }, [toast]);
 
-  const assignRole = useCallback(async (userId: string, role: ValidatedUserRole) => {
+  const assignRole = useCallback(async (userId: string, role: UserRole) => {
     // Validate input
     if (!userId || typeof userId !== 'string') {
       toast({
@@ -140,7 +140,17 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       return;
     }
 
-    if (!isValidUserRole(role)) {
+    if (!role || typeof role !== 'string') {
+      toast({
+        title: "Error",
+        description: "Invalid role specified.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if role is valid
+    if (!allRoles.includes(role)) {
       toast({
         title: "Error",
         description: "Invalid role specified.",
@@ -163,7 +173,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       // Update local state
       setUsers(prev => prev.map(user => 
         user.id === userId 
-          ? { ...user, roles: [...user.roles, role as UserRole] }
+          ? { ...user, roles: [...user.roles, role] }
           : user
       ));
 
@@ -181,7 +191,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     } finally {
       setProcessingUserId(null);
     }
-  }, [toast]);
+  }, [toast, allRoles]);
 
   const removeRole = useCallback(async (userId: string, role: UserRole) => {
     // Validate input
