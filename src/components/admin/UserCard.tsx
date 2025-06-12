@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/types/auth';
 import { Plus, Minus, Loader2 } from 'lucide-react';
+import { isValidUserRole } from '@/utils/validation';
 
 interface User {
   id: string;
@@ -36,13 +37,13 @@ const UserCard: React.FC<UserCardProps> = React.memo(({
   );
 
   const handleAssignRole = useCallback((value: string) => {
-    // Check if the role is valid
-    if (allRoles.includes(value as UserRole)) {
+    // Validate the role before assignment
+    if (isValidUserRole(value)) {
       onAssignRole(user.id, value as UserRole);
     } else {
       console.error('Invalid role selected:', value);
     }
-  }, [onAssignRole, user.id, allRoles]);
+  }, [onAssignRole, user.id]);
 
   const handleRemoveRole = useCallback((role: UserRole) => {
     onRemoveRole(user.id, role);

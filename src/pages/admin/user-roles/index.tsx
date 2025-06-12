@@ -12,7 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
-import { sanitizeText } from '@/utils/validation';
+import { sanitizeText, isValidUserRole } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -149,8 +149,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
       return;
     }
 
-    // Check if role is valid
-    if (!allRoles.includes(role)) {
+    // Check if role is valid using validation utility
+    if (!isValidUserRole(role)) {
       toast({
         title: "Error",
         description: "Invalid role specified.",
@@ -191,7 +191,7 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
     } finally {
       setProcessingUserId(null);
     }
-  }, [toast, allRoles]);
+  }, [toast]);
 
   const removeRole = useCallback(async (userId: string, role: UserRole) => {
     // Validate input
