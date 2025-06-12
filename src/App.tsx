@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
-import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import HomePage from '@/pages/home';
 import DashboardPage from '@/pages/dashboard';
@@ -22,10 +21,10 @@ function App() {
         <AuthProvider>
           <RoleProvider>
             <div className="min-h-screen bg-background font-sans antialiased">
-              <AccessibilityToolbar />
               <SkipNavigation />
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/national-service" element={<NationalServicePage />} />
