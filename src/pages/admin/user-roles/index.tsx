@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,7 @@ import { UserRole } from '@/types/auth';
 import Layout from '@/components/layout/Layout';
 import { Users, Search, Shield, Plus, Minus, Loader2 } from 'lucide-react';
 import { UserCard } from '@/components/admin/UserCard';
-import { sanitizeText, isValidUserRole } from '@/utils/validation';
+import { sanitizeText, isValidUserRole, USER_ROLES } from '@/utils/validation';
 
 interface SupabaseUser {
   id: string;
@@ -33,31 +34,8 @@ const UserRolesAdminPage: React.FC = React.memo(() => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
 
-  const allRoles: UserRole[] = useMemo(() => [
-    'school_student',
-    'national_service_participant',
-    'university_student',
-    'intern',
-    'full_time_employee',
-    'part_time_employee',
-    'gig_worker',
-    'jobseeker',
-    'lifelong_learner',
-    'entrepreneur',
-    'retiree',
-    'educational_institution',
-    'parent',
-    'private_sector_recruiter',
-    'government_representative',
-    'retiree_advocate',
-    'training_center',
-    'assessment_center',
-    'mentor',
-    'career_advisor',
-    'platform_operator',
-    'administrator',
-    'super_user'
-  ], []);
+  // Use the USER_ROLES from validation utility to ensure consistency
+  const allRoles: UserRole[] = useMemo(() => [...USER_ROLES], []);
 
   // Check if user has admin permissions
   const isAuthorized = useMemo(() => 
