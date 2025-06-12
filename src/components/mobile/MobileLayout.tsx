@@ -2,7 +2,6 @@
 import React from 'react';
 import MobileBottomNav from './MobileBottomNav';
 import MobileMenu from '../layout/MobileMenu';
-import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 
 interface MobileLayoutProps {
@@ -50,9 +49,9 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
             </a>
           </div>
 
-          {/* Right: Accessibility */}
+          {/* Right: Empty space (AccessibilityToolbar removed to prevent duplication) */}
           <div className="flex items-center">
-            <AccessibilityToolbar />
+            {/* Accessibility toolbar removed - it's already in DubaiGovHeader */}
           </div>
         </div>
       </header>
