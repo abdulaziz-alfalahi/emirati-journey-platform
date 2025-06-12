@@ -6183,6 +6183,7 @@ export type Database = {
         | "career_advisor"
         | "administrator"
         | "super_user"
+        | "platform_operator"
       verification_status: "verified" | "pending" | "revoked"
     }
     CompositeTypes: {
@@ -6378,6 +6379,7 @@ export const Constants = {
         "career_advisor",
         "administrator",
         "super_user",
+        "platform_operator",
       ],
       verification_status: ["verified", "pending", "revoked"],
     },
