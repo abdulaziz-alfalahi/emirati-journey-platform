@@ -3,13 +3,14 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
-import { QueryProvider } from '@/context/QueryContext';
+import { QueryProvider } from '@/context/QueryProvider';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 
 // Lazy-loaded page components
 const HomePage = React.lazy(() => import('@/pages/home'));
 const DashboardPage = React.lazy(() => import('@/pages/dashboard'));
 const ProfilePage = React.lazy(() => import('@/pages/profile'));
+const AuthPage = React.lazy(() => import('@/pages/auth'));
 const NationalServicePage = React.lazy(() => import('@/pages/national-service'));
 const YouthDevelopmentPage = React.lazy(() => import('@/pages/youth-development'));
 const ProfessionalCertificationsPage = React.lazy(() => import('@/pages/professional-certifications'));
@@ -49,6 +50,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/home" element={<HomePage />} />
+                  <Route path="/auth" element={<AuthPage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
