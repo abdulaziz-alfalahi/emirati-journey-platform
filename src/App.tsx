@@ -38,6 +38,7 @@ const ResumeBuilderPage = React.lazy(() => import('@/pages/resume-builder'));
 const PortfolioPage = React.lazy(() => import('@/pages/portfolio'));
 const InterviewPreparationPage = React.lazy(() => import('@/pages/interview-preparation'));
 const JobMatchingPage = React.lazy(() => import('@/pages/job-matching'));
+const CareerComparisonPage = React.lazy(() => import('@/pages/career-comparison'));
 
 // Loading fallback component
 const LoadingFallback = () => (
