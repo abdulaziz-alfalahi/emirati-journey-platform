@@ -1,17 +1,19 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, Filter, X } from 'lucide-react';
 
 interface FilterState {
   search: string;
   university: string;
   degreeLevel: string;
   fieldOfStudy: string;
+  location: string;
+  language: string;
 }
 
 interface UniversityProgramsFilterProps {
@@ -27,31 +29,38 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
   onFilterChange,
   universities,
   degreeLevels,
-  fieldsOfStudy,
+  fieldsOfStudy
 }) => {
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    onFilterChange({
+      ...filters,
+      [key]: value
+    });
+  };
+
   const handleClearFilters = () => {
     onFilterChange({
       search: '',
       university: '',
       degreeLevel: '',
       fieldOfStudy: '',
+      location: '',
+      language: '',
     });
   };
 
-  const hasActiveFilters = filters.search || filters.university || filters.degreeLevel || filters.fieldOfStudy;
+  const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   return (
-    <Card>
+    <Card className="sticky top-4">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Filter Programs</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filter Programs
+          </CardTitle>
           {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearFilters}
-              className="h-8 px-2 lg:px-3"
-            >
+            <Button variant="ghost" size="sm" onClick={handleClearFilters}>
               <X className="h-4 w-4 mr-1" />
               Clear
             </Button>
@@ -59,75 +68,111 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="search" className="text-sm font-medium">
-            Search Programs
-          </Label>
-          <Input
-            id="search"
-            placeholder="Search by program name..."
-            value={filters.search}
-            onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-            className="mt-1"
-          />
+        {/* Search */}
+        <div className="space-y-2">
+          <Label htmlFor="search">Search Programs</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="search"
+              placeholder="Search by program or university..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
-        <div>
-          <Label className="text-sm font-medium">University</Label>
-          <Select
-            value={filters.university}
-            onValueChange={(value) => onFilterChange({ ...filters, university: value === 'all' ? '' : value })}
+        {/* University */}
+        <div className="space-y-2">
+          <Label>University</Label>
+          <Select 
+            value={filters.university} 
+            onValueChange={(value) => handleFilterChange('university', value)}
           >
-            <SelectTrigger className="mt-1">
+            <SelectTrigger>
               <SelectValue placeholder="All Universities" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-              <SelectItem value="all">All Universities</SelectItem>
-              {universities.map((university) => (
-                <SelectItem key={university} value={university}>
-                  {university}
-                </SelectItem>
+            <SelectContent>
+              <SelectItem value="">All Universities</SelectItem>
+              {universities.map(university => (
+                <SelectItem key={university} value={university}>{university}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div>
-          <Label className="text-sm font-medium">Degree Level</Label>
-          <Select
-            value={filters.degreeLevel}
-            onValueChange={(value) => onFilterChange({ ...filters, degreeLevel: value === 'all' ? '' : value })}
+        {/* Degree Level */}
+        <div className="space-y-2">
+          <Label>Degree Level</Label>
+          <Select 
+            value={filters.degreeLevel} 
+            onValueChange={(value) => handleFilterChange('degreeLevel', value)}
           >
-            <SelectTrigger className="mt-1">
+            <SelectTrigger>
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-              <SelectItem value="all">All Levels</SelectItem>
-              {degreeLevels.map((level) => (
-                <SelectItem key={level} value={level}>
-                  {level}
-                </SelectItem>
+            <SelectContent>
+              <SelectItem value="">All Levels</SelectItem>
+              {degreeLevels.map(level => (
+                <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div>
-          <Label className="text-sm font-medium">Field of Study</Label>
-          <Select
-            value={filters.fieldOfStudy}
-            onValueChange={(value) => onFilterChange({ ...filters, fieldOfStudy: value === 'all' ? '' : value })}
+        {/* Field of Study */}
+        <div className="space-y-2">
+          <Label>Field of Study</Label>
+          <Select 
+            value={filters.fieldOfStudy} 
+            onValueChange={(value) => handleFilterChange('fieldOfStudy', value)}
           >
-            <SelectTrigger className="mt-1">
+            <SelectTrigger>
               <SelectValue placeholder="All Fields" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-              <SelectItem value="all">All Fields</SelectItem>
-              {fieldsOfStudy.map((field) => (
-                <SelectItem key={field} value={field}>
-                  {field}
-                </SelectItem>
+            <SelectContent>
+              <SelectItem value="">All Fields</SelectItem>
+              {fieldsOfStudy.map(field => (
+                <SelectItem key={field} value={field}>{field}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label>Location</Label>
+          <Select 
+            value={filters.location} 
+            onValueChange={(value) => handleFilterChange('location', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All Locations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Locations</SelectItem>
+              <SelectItem value="uae">UAE</SelectItem>
+              <SelectItem value="international">International</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Language */}
+        <div className="space-y-2">
+          <Label>Language of Instruction</Label>
+          <Select 
+            value={filters.language} 
+            onValueChange={(value) => handleFilterChange('language', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All Languages" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Languages</SelectItem>
+              <SelectItem value="english">English</SelectItem>
+              <SelectItem value="arabic">Arabic</SelectItem>
+              <SelectItem value="bilingual">Bilingual</SelectItem>
             </SelectContent>
           </Select>
         </div>

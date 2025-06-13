@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, ExternalLink, GraduationCap, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, DollarSign, Star, Bookmark, ExternalLink } from 'lucide-react';
 
 interface UniversityProgram {
   id: string;
@@ -21,92 +21,129 @@ interface UniversityProgram {
 
 interface ProgramCardProps {
   program: UniversityProgram;
+  onSave?: (programId: string) => void;
+  onApply?: (programId: string) => void;
+  isSaved?: boolean;
 }
 
-const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
+const ProgramCard: React.FC<ProgramCardProps> = ({ 
+  program, 
+  onSave, 
+  onApply, 
+  isSaved = false 
+}) => {
+  const getDegreeLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'bachelor': return 'bg-blue-100 text-blue-800';
+      case 'master': return 'bg-green-100 text-green-800';
+      case 'phd': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getUniversityType = (universityName: string) => {
+    const internationalKeywords = ['Cambridge', 'MIT', 'Harvard', 'Oxford', 'Stanford'];
+    return internationalKeywords.some(keyword => universityName.includes(keyword)) 
+      ? 'International' 
+      : 'UAE';
+  };
+
   const formatDeadline = (deadline: string | null) => {
-    if (!deadline) return null;
-    return new Date(deadline).toLocaleDateString('en-AE', {
+    if (!deadline) return 'Rolling admissions';
+    return new Date(deadline).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
+      day: 'numeric'
     });
   };
 
-  const isDeadlineApproaching = (deadline: string | null) => {
-    if (!deadline) return false;
-    const deadlineDate = new Date(deadline);
-    const today = new Date();
-    const daysUntilDeadline = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-    return daysUntilDeadline <= 30 && daysUntilDeadline > 0;
-  };
+  const universityType = getUniversityType(program.university_name);
+  const isInternational = universityType === 'International';
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg line-clamp-2">{program.program_name}</CardTitle>
-            <CardDescription className="flex items-center mt-1">
-              <MapPin className="h-4 w-4 mr-1" />
-              {program.university_name}
-            </CardDescription>
-          </div>
-          <Badge variant="secondary" className="ml-2">
-            {program.degree_level}
-          </Badge>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Badge variant="outline" className="flex items-center">
-            <GraduationCap className="h-3 w-3 mr-1" />
-            {program.field_of_study}
-          </Badge>
-          {program.duration_years && (
-            <Badge variant="outline" className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {program.duration_years} year{program.duration_years > 1 ? 's' : ''}
+    <Card className="h-full hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+      <CardHeader className="pb-4">
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex gap-2">
+            <Badge className={getDegreeLevelColor(program.degree_level)}>
+              {program.degree_level}
             </Badge>
+            <Badge variant={isInternational ? "default" : "secondary"}>
+              {universityType}
+            </Badge>
+          </div>
+          {onSave && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSave(program.id)}
+              className={isSaved ? "text-yellow-600" : "text-gray-400"}
+            >
+              <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+            </Button>
           )}
         </div>
+        <CardTitle className="text-lg line-clamp-2 mb-2">{program.program_name}</CardTitle>
+        <p className="text-sm text-muted-foreground font-medium">{program.university_name}</p>
       </CardHeader>
-      
-      <CardContent>
-        {program.description && (
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-            {program.description}
-          </p>
-        )}
-        
-        {program.application_deadline && (
-          <div className="flex items-center text-sm mb-4">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span className="text-muted-foreground">Application Deadline: </span>
-            <span 
-              className={`ml-1 font-medium ${
-                isDeadlineApproaching(program.application_deadline) 
-                  ? 'text-orange-600' 
-                  : 'text-foreground'
-              }`}
-            >
-              {formatDeadline(program.application_deadline)}
-            </span>
-            {isDeadlineApproaching(program.application_deadline) && (
-              <Badge variant="outline" className="ml-2 text-orange-600 border-orange-200">
-                Deadline Soon
-              </Badge>
-            )}
+
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground line-clamp-3">
+          {program.description || `${program.degree_level} program in ${program.field_of_study}`}
+        </p>
+
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center text-muted-foreground">
+            <Star className="h-4 w-4 mr-2 text-blue-600" />
+            <span className="font-medium">{program.field_of_study}</span>
           </div>
-        )}
-        
-        {program.program_url && (
-          <Button variant="outline" size="sm" className="w-full" asChild>
-            <a href={program.program_url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Program Details
-            </a>
+          
+          {program.duration_years && (
+            <div className="flex items-center text-muted-foreground">
+              <Clock className="h-4 w-4 mr-2 text-green-600" />
+              <span>{program.duration_years} year{program.duration_years > 1 ? 's' : ''}</span>
+            </div>
+          )}
+
+          <div className="flex items-center text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-2 text-purple-600" />
+            <span>{universityType} University</span>
+          </div>
+
+          <div className="flex items-center text-muted-foreground">
+            <Calendar className="h-4 w-4 mr-2 text-orange-600" />
+            <span className="text-xs">Deadline: {formatDeadline(program.application_deadline)}</span>
+          </div>
+        </div>
+
+        {/* Estimated tuition placeholder */}
+        <div className="flex items-center text-sm">
+          <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+          <span className="font-medium text-green-700">
+            {isInternational ? 'From $25,000/year' : 'From AED 30,000/year'}
+          </span>
+        </div>
+
+        <div className="flex gap-2 pt-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex-1"
+            onClick={() => program.program_url && window.open(program.program_url, '_blank')}
+          >
+            <ExternalLink className="h-4 w-4 mr-1" />
+            Details
           </Button>
-        )}
+          {onApply && (
+            <Button 
+              size="sm"
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              onClick={() => onApply(program.id)}
+            >
+              Apply Now
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
