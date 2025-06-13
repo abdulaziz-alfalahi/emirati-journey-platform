@@ -6359,11 +6359,88 @@ export type Database = {
         Args: { group_id_param: string; days_back?: number }
         Returns: number
       }
+      get_advisors_with_session_counts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          user_id: string
+          specialization: string
+          bio: string
+          availability: Json
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          session_counts: Json
+        }[]
+      }
+      get_camps_with_counts: {
+        Args: { institution_id?: string }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          organizer: string
+          category: string
+          age_group: string
+          location: string
+          start_date: string
+          end_date: string
+          duration: string
+          price: number
+          capacity: number
+          enrolled: number
+          image_url: string
+          tags: string[]
+          created_at: string
+          updated_at: string
+          created_by: string
+          status: string
+          currency: string
+          max_participants: number
+          registration_deadline: string
+          rating: number
+          enrollment_counts: Json
+        }[]
+      }
+      get_scholarships_with_counts: {
+        Args: { provider_id?: string }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          provider: string
+          provider_type: string
+          eligibility_criteria: Json
+          amount: number
+          currency: string
+          application_deadline: string
+          requirements: string[]
+          contact_email: string
+          contact_phone: string
+          website_url: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string
+          application_counts: Json
+        }[]
+      }
       get_table_columns: {
         Args: { table_name: string }
         Returns: {
           column_name: string
           data_type: string
+        }[]
+      }
+      get_user_assessment_performance: {
+        Args: { target_user_id: string }
+        Returns: {
+          assessment_id: string
+          assessment_title: string
+          session_count: number
+          average_score: number
+          latest_session_date: string
+          coaching_recommended_count: number
         }[]
       }
       has_role: {

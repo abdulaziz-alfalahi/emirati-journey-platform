@@ -3,17 +3,29 @@ import { CareerAdvisor } from "@/types/careerAdvisory";
 
 export const getAdvisors = async (): Promise<CareerAdvisor[]> => {
   try {
-    const { data, error } = await supabase
-      .from('career_advisors')
-      .select('*, user_profiles:profiles(full_name, avatar_url)')
-      .eq('is_active', true);
+    // Try to use optimized function first for better performance
+    try {
+      const { getAdvisorsWithSessionCounts } = await import('./optimizedAdvisoryService');
+      const advisorsWithCounts = await getAdvisorsWithSessionCounts();
+      
+      // Transform to expected format (remove session_counts for backward compatibility)
+      return advisorsWithCounts.map(({ session_counts, ...advisor }) => advisor);
+    } catch (optimizedError) {
+      console.warn('Optimized advisor fetch failed, falling back to basic query:', optimizedError);
+      
+      // Fallback to original query
+      const { data, error } = await supabase
+        .from('career_advisors')
+        .select('*, user_profiles:profiles(full_name, avatar_url)')
+        .eq('is_active', true);
 
-    if (error) {
-      console.error("Error fetching advisors:", error);
-      throw error;
+      if (error) {
+        console.error("Error fetching advisors:", error);
+        throw error;
+      }
+
+      return data as unknown as CareerAdvisor[];
     }
-
-    return data as unknown as CareerAdvisor[];
   } catch (error) {
     console.error("Exception in getAdvisors:", error);
     throw error;

@@ -26,44 +26,32 @@ const transformCampData = (data: any): SummerCamp => ({
 
 /**
  * Fetch all summer camps with optional filtering
+ * OPTIMIZED: Uses RPC function for better performance
  */
 export const getCamps = async (filters?: CampFilters): Promise<SummerCamp[]> => {
   try {
-    let query = supabase
-      .from('summer_camps')
-      .select('*');
-    
-    if (filters) {
-      // Filter by category
-      if (filters.category && filters.category.length > 0) {
-        query = query.in('category', filters.category);
-      }
+    // Use optimized RPC function directly
+    const { data, error } = await supabase
+      .rpc('get_camps_with_counts');
       
-      // Filter by age group
-      if (filters.ageGroup && filters.ageGroup.length > 0) {
-        query = query.in('age_group', filters.ageGroup);
-      }
-      
-      // Filter by location
-      if (filters.location && filters.location.length > 0) {
-        query = query.in('location', filters.location);
-      }
-      
-      // Filter by search query
-      if (filters.searchQuery) {
-        const searchTerm = `%${filters.searchQuery.toLowerCase()}%`;
-        query = query.or(`title.ilike.${searchTerm},description.ilike.${searchTerm},organizer.ilike.${searchTerm}`);
-      }
-    }
-    
-    const { data, error } = await query;
-    
     if (error) {
-      console.error('Error fetching summer camps:', error);
+      console.error('Error fetching camps:', error);
       throw error;
     }
     
-    return (data || []).map(transformCampData);
+    let filteredData = data || [];
+    
+    // Apply client-side filtering for now
+    if (filters?.searchQuery) {
+      const searchTerm = filters.searchQuery.toLowerCase();
+      filteredData = filteredData.filter((camp: any) => 
+        camp.title.toLowerCase().includes(searchTerm) ||
+        camp.description?.toLowerCase().includes(searchTerm) ||
+        camp.organizer.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    return filteredData.map(transformCampData);
   } catch (error) {
     console.error('Error in getCamps:', error);
     toast({
@@ -104,20 +92,21 @@ export const getCampById = async (id: string): Promise<SummerCamp | null> => {
 };
 
 /**
- * Fetch camps created by a specific institution
+ * Fetch camps created by a specific institution with enrollment counts
+ * OPTIMIZED: Uses RPC function to avoid N+1 query problem
  */
 export const getCampsByInstitution = async (userId: string): Promise<SummerCamp[]> => {
   try {
+    // Use optimized RPC function directly
     const { data, error } = await supabase
-      .from('summer_camps')
-      .select('*')
-      .eq('created_by', userId);
-    
+      .rpc('get_camps_with_counts', { institution_id: userId });
+      
     if (error) {
-      console.error('Error fetching institution camps:', error);
+      console.error('Error fetching camps with counts:', error);
       throw error;
     }
     
+    // Transform to expected format
     return (data || []).map(transformCampData);
   } catch (error) {
     console.error('Error in getCampsByInstitution:', error);

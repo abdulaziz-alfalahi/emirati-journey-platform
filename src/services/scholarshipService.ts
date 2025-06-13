@@ -153,6 +153,7 @@ export const getUserApplications = async (userId: string): Promise<Application[]
 
 /**
  * Get scholarships created by a provider with application counts
+ * OPTIMIZED: Uses RPC function to avoid N+1 query problem
  */
 export const getScholarshipsWithApplicationCounts = async (providerId: string): Promise<ScholarshipWithApplications[]> => {
   if (USE_MOCK_DATA) {
@@ -169,48 +170,48 @@ export const getScholarshipsWithApplicationCounts = async (providerId: string): 
         }
       }));
   } else {
-    const { data: scholarships, error: scholarshipsError } = await supabase
-      .from('scholarships')
-      .select('*')
-      .eq('created_by', providerId);
-      
-    if (scholarshipsError) {
-      console.error('Error fetching scholarships:', scholarshipsError);
-      throw new Error('Failed to fetch provider scholarships');
-    }
-    
-    // For each scholarship, get application counts
-    const scholarshipsWithCounts: ScholarshipWithApplications[] = [];
-    
-    for (const scholarship of scholarships) {
-      const { data: counts, error: countsError } = await supabase
-        .from('scholarship_applications')
-        .select('status')
-        .eq('scholarship_id', scholarship.id);
+    try {
+      // Use optimized RPC function instead of N+1 queries
+      const { data, error } = await supabase
+        .rpc('get_scholarships_with_counts', { provider_id: providerId });
         
-      if (countsError) {
-        console.error('Error fetching application counts:', countsError);
-        scholarshipsWithCounts.push({
-          ...scholarship as unknown as Scholarship,
-          applications: { pending: 0, approved: 0, rejected: 0, total: 0 }
-        });
-        continue;
+      if (error) {
+        console.error('Error fetching scholarships with counts:', error);
+        throw new Error('Failed to fetch provider scholarships');
       }
       
-      const applications = {
-        pending: counts.filter((app: any) => app.status === 'pending').length,
-        approved: counts.filter((app: any) => app.status === 'approved').length,
-        rejected: counts.filter((app: any) => app.status === 'rejected').length,
-        total: counts.length
-      };
+      // Transform the data to match our expected format
+      const scholarshipsWithCounts: ScholarshipWithApplications[] = (data || []).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        provider: item.provider,
+        provider_type: item.provider_type,
+        eligibility_criteria: item.eligibility_criteria,
+        amount: item.amount,
+        currency: item.currency,
+        application_deadline: item.application_deadline,
+        requirements: item.requirements,
+        contact_email: item.contact_email,
+        contact_phone: item.contact_phone,
+        website_url: item.website_url,
+        is_active: item.is_active,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        created_by: item.created_by,
+        applications: {
+          pending: item.application_counts.pending,
+          approved: item.application_counts.approved,
+          rejected: item.application_counts.rejected,
+          total: item.application_counts.total
+        }
+      }));
       
-      scholarshipsWithCounts.push({
-        ...scholarship as unknown as Scholarship,
-        applications
-      });
+      return scholarshipsWithCounts;
+    } catch (error) {
+      console.error('Error in getScholarshipsWithApplicationCounts:', error);
+      throw error;
     }
-    
-    return scholarshipsWithCounts;
   }
 };
 
