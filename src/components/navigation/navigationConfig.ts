@@ -1,3 +1,4 @@
+
 import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
@@ -20,7 +21,8 @@ import {
   Shield,
   BarChart3,
   Compass,
-  GitCompare
+  GitCompare,
+  DollarSign
 } from 'lucide-react';
 
 export const navigationGroups: NavGroup[] = [
