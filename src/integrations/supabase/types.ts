@@ -4988,6 +4988,7 @@ export type Database = {
           category: string
           created_at: string
           created_by: string | null
+          currency: string | null
           description: string
           duration: string
           end_date: string
@@ -4995,9 +4996,13 @@ export type Database = {
           id: string
           image_url: string
           location: string
+          max_participants: number | null
           organizer: string
           price: number
+          rating: number | null
+          registration_deadline: string | null
           start_date: string
+          status: string | null
           tags: string[] | null
           title: string
           updated_at: string | null
@@ -5008,6 +5013,7 @@ export type Database = {
           category: string
           created_at?: string
           created_by?: string | null
+          currency?: string | null
           description: string
           duration: string
           end_date: string
@@ -5015,9 +5021,13 @@ export type Database = {
           id?: string
           image_url?: string
           location: string
+          max_participants?: number | null
           organizer: string
           price: number
+          rating?: number | null
+          registration_deadline?: string | null
           start_date: string
+          status?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
@@ -5028,6 +5038,7 @@ export type Database = {
           category?: string
           created_at?: string
           created_by?: string | null
+          currency?: string | null
           description?: string
           duration?: string
           end_date?: string
@@ -5035,9 +5046,13 @@ export type Database = {
           id?: string
           image_url?: string
           location?: string
+          max_participants?: number | null
           organizer?: string
           price?: number
+          rating?: number | null
+          registration_deadline?: string | null
           start_date?: string
+          status?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
