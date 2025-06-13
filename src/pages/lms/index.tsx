@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
-import { LMSHeader } from '@/components/lms/LMSHeader';
 import { LMSTabsWrapper } from '@/components/lms/LMSTabsWrapper';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lms';
 import { useToast } from '@/hooks/use-toast';
 import type { CourseEnrollment } from '@/types/lms';
-import { BookOpen, Users, Award, TrendingUp } from 'lucide-react';
+import { BookOpen, Users, Award, TrendingUp, GraduationCap, Globe } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const LMSPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -48,14 +48,6 @@ const LMSPage: React.FC = () => {
   // Get enrolled course IDs for quick lookup
   const enrolledCourseIds = enrollments.map(enrollment => enrollment.course_id);
 
-  // Mock stats data - in real app, this would come from API
-  const stats = [
-    { value: "150+", label: "Total Courses", icon: BookOpen },
-    { value: "5,200+", label: "Enrolled Students", icon: Users },
-    { value: "85%", label: "Completion Rate", icon: TrendingUp },
-    { value: "3,400+", label: "Certificates Issued", icon: Award }
-  ];
-
   console.log('LMSPage: Rendering with state:', {
     user: !!user,
     isInstructor,
@@ -67,60 +59,80 @@ const LMSPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-ehrdc-teal via-ehrdc-light-teal to-ehrdc-neutral-light">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-ehrdc-teal to-ehrdc-dark-teal text-white py-16 md:py-24 overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute top-3/4 right-1/4 w-24 h-24 bg-white rounded-full transform translate-x-1/2 translate-y-1/2"></div>
-            <div className="absolute top-1/2 left-3/4 w-20 h-20 bg-white rounded-full transform translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-1/4 left-1/6 w-16 h-16 bg-white rounded-full"></div>
-          </div>
-          
-          {/* Hero Content */}
-          <div className="container mx-auto px-4 max-w-7xl text-center relative z-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Learning Management System
-            </h1>
-            <p className="text-lg md:text-xl lg:text-2xl opacity-90 max-w-4xl mx-auto leading-relaxed">
+        <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 mb-8 text-white">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl font-bold mb-4">Learning Management System</h1>
+            <p className="text-xl opacity-90 mb-6">
               Advance your career with comprehensive courses, certifications, and skill development programs designed for the UAE's digital economy.
             </p>
-          </div>
-
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10"></div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="flex justify-center mb-4">
-                    <stat.icon className="h-8 w-8 text-ehrdc-teal" />
-                  </div>
-                  <div className="text-4xl font-bold text-ehrdc-teal mb-2">{stat.value}</div>
-                  <div className="text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <BookOpen className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">Professional Courses</h3>
+                <p className="text-sm opacity-90">Skill development and certification</p>
+              </div>
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <GraduationCap className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">Interactive Learning</h3>
+                <p className="text-sm opacity-90">Hands-on projects and assessments</p>
+              </div>
+              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                <Award className="h-8 w-8 mb-2" />
+                <h3 className="font-semibold mb-1">Digital Certificates</h3>
+                <p className="text-sm opacity-90">Blockchain-verified credentials</p>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+
+        {/* Stats Card */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="bg-blue-50 p-4 rounded-lg flex items-center">
+                <BookOpen className="h-10 w-10 text-blue-600 mr-4" />
+                <div>
+                  <h3 className="font-semibold">150+ Courses</h3>
+                  <p className="text-sm text-muted-foreground">Available for enrollment</p>
+                </div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg flex items-center">
+                <Users className="h-10 w-10 text-green-600 mr-4" />
+                <div>
+                  <h3 className="font-semibold">5,200+ Students</h3>
+                  <p className="text-sm text-muted-foreground">Active learners</p>
+                </div>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg flex items-center">
+                <TrendingUp className="h-10 w-10 text-purple-600 mr-4" />
+                <div>
+                  <h3 className="font-semibold">85% Completion</h3>
+                  <p className="text-sm text-muted-foreground">Course completion rate</p>
+                </div>
+              </div>
+              <div className="bg-amber-50 p-4 rounded-lg flex items-center">
+                <Award className="h-10 w-10 text-amber-600 mr-4" />
+                <div>
+                  <h3 className="font-semibold">3,400+ Certificates</h3>
+                  <p className="text-sm text-muted-foreground">Issued to graduates</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <LMSTabsWrapper
-            user={user}
-            isInstructor={isInstructor}
-            enrollments={enrollments}
-            enrolledCourseIds={enrolledCourseIds}
-            loading={loading}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-        </div>
+        <LMSTabsWrapper
+          user={user}
+          isInstructor={isInstructor}
+          enrollments={enrollments}
+          enrolledCourseIds={enrolledCourseIds}
+          loading={loading}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
       </div>
     </Layout>
   );
