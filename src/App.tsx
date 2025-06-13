@@ -18,6 +18,7 @@ const DigitalSkillsDevelopmentPage = React.lazy(() => import('@/pages/digital-sk
 const AssessmentsPage = React.lazy(() => import('@/pages/assessments'));
 const SummerCampsPage = React.lazy(() => import('@/pages/summer-camps'));
 const SchoolProgramsPage = React.lazy(() => import('@/pages/school-programs'));
+const ScholarshipsPage = React.lazy(() => import('@/pages/scholarships'));
 const MentorMatchingPage = React.lazy(() => import('@/pages/mentor-matching'));
 const InternshipsPage = React.lazy(() => import('@/pages/internships'));
 const BlockchainCredentialsPage = React.lazy(() => import('@/pages/blockchain-credentials'));
@@ -73,7 +74,7 @@ function App() {
                   {/* Education Pathway routes */}
                   <Route path="/summer-camps" element={<SummerCampsPage />} />
                   <Route path="/school-programs" element={<SchoolProgramsPage />} />
-                  <Route path="/scholarships" element={<div className="p-8"><h1 className="text-2xl font-bold">Scholarships - Coming Soon</h1></div>} />
+                  <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/lms" element={<div className="p-8"><h1 className="text-2xl font-bold">Learning Management System - Coming Soon</h1></div>} />
                   <Route path="/training" element={<div className="p-8"><h1 className="text-2xl font-bold">Vocational Training - Coming Soon</h1></div>} />
                   <Route path="/university-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">University Programs - Coming Soon</h1></div>} />
