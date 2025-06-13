@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
+import { SearchInput } from '@/components/ui/search-input';
+import { useDebouncedFilters } from '@/hooks/use-debounced-search';
+import { useSearchAnalytics } from '@/services/searchAnalytics';
 import CategoryFilter from './CategoryFilter';
 
 interface SearchAndFiltersProps {
@@ -34,18 +36,35 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   selectedTags = [],
   onTagToggle
 }) => {
+  const { trackSearch, trackFilter } = useSearchAnalytics('SearchAndFilters');
+  
+  const filters = { search: searchTerm, category: selectedCategory, tags: selectedTags };
+  const { debouncedFilters, batchUpdateFilters } = useDebouncedFilters(
+    filters,
+    400, // Slightly longer debounce for complex filters
+    (newFilters) => {
+      if (newFilters.search !== searchTerm) {
+        onSearchChange(newFilters.search || '');
+        trackSearch(newFilters.search || '', 0, 0, false);
+      }
+      if (newFilters.category !== selectedCategory) {
+        onCategoryChange(newFilters.category || 'all');
+        trackFilter(1, 1, 400);
+      }
+    }
+  );
+
   const hasActiveFilters = searchTerm || selectedCategory !== 'all' || selectedTags.length > 0;
 
   return (
     <div className="space-y-6">
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input
+      <div>
+        <SearchInput
           placeholder="Search stories by title, summary, or tags..."
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 pr-4"
+          onChange={(value) => batchUpdateFilters({ search: value })}
+          debounceDelay={400}
         />
       </div>
 

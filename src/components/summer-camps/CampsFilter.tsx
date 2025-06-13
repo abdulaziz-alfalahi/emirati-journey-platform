@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { SearchInput } from '@/components/ui/search-input';
+import { useDebouncedFilters } from '@/hooks/use-debounced-search';
+import { useSearchAnalytics } from '@/services/searchAnalytics';
 import { CampFilters } from '@/types/summerCamps';
 
 interface CampsFilterProps {
@@ -51,6 +52,25 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
   selectedFilters, 
   searchQuery 
 }) => {
+  const { trackSearch, trackFilter } = useSearchAnalytics('CampsFilter');
+  
+  const filters = { search: searchQuery, ...selectedFilters };
+  const { debouncedFilters, batchUpdateFilters } = useDebouncedFilters(
+    filters,
+    400,
+    (newFilters) => {
+      if (newFilters.search !== searchQuery) {
+        onSearchChange(newFilters.search || '');
+        trackSearch(newFilters.search || '', 0, 0, false);
+      }
+      
+      const { search, ...filterUpdates } = newFilters;
+      if (JSON.stringify(filterUpdates) !== JSON.stringify(selectedFilters)) {
+        onFilterChange(filterUpdates);
+        trackFilter(1, 1, 400);
+      }
+    }
+  );
   
   const handleCategoryChange = (category: string) => {
     const currentCategories = selectedFilters.category || [];
@@ -58,8 +78,7 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
       ? currentCategories.filter(c => c !== category)
       : [...currentCategories, category];
     
-    onFilterChange({
-      ...selectedFilters,
+    batchUpdateFilters({
       category: newCategories.length > 0 ? newCategories : undefined,
     });
   };
@@ -70,8 +89,7 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
       ? currentAgeGroups.filter(a => a !== ageGroup)
       : [...currentAgeGroups, ageGroup];
     
-    onFilterChange({
-      ...selectedFilters,
+    batchUpdateFilters({
       ageGroup: newAgeGroups.length > 0 ? newAgeGroups : undefined,
     });
   };
@@ -82,29 +100,28 @@ const CampsFilter: React.FC<CampsFilterProps> = ({
       ? currentLocations.filter(l => l !== location)
       : [...currentLocations, location];
     
-    onFilterChange({
-      ...selectedFilters,
+    batchUpdateFilters({
       location: newLocations.length > 0 ? newLocations : undefined,
     });
   };
   
   const handleReset = () => {
-    onFilterChange({});
-    onSearchChange('');
+    batchUpdateFilters({ 
+      search: '', 
+      category: undefined, 
+      ageGroup: undefined, 
+      location: undefined 
+    });
   };
   
   return (
     <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search camps..."
-          className="pl-8"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
+      <SearchInput
+        placeholder="Search camps..."
+        value={searchQuery}
+        onChange={(value) => batchUpdateFilters({ search: value })}
+        debounceDelay={400}
+      />
       
       <Card>
         <CardHeader className="pb-2">
