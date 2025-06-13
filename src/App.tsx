@@ -31,6 +31,7 @@ const NotificationsPage = React.lazy(() => import('@/pages/notifications'));
 const LMSPage = React.lazy(() => import('@/pages/lms'));
 const TrainingPage = React.lazy(() => import('@/pages/training'));
 const UniversityProgramsPage = React.lazy(() => import('@/pages/university-programs'));
+const CareerJourneyPage = React.lazy(() => import('@/pages/career-journey'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -83,7 +84,7 @@ function App() {
                   <Route path="/training" element={<TrainingPage />} />
                   
                   {/* Career Entry routes */}
-                  <Route path="/career-journey" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Journey Map - Coming Soon</h1></div>} />
+                  <Route path="/career-journey" element={<CareerJourneyPage />} />
                   <Route path="/career-advisory" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Advisory - Coming Soon</h1></div>} />
                   <Route path="/industry-exploration" element={<div className="p-8"><h1 className="text-2xl font-bold">Industry Exploration - Coming Soon</h1></div>} />
                   <Route path="/internships" element={<InternshipsPage />} />
