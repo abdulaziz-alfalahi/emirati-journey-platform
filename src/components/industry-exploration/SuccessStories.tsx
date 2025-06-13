@@ -1,261 +1,326 @@
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Play, Quote, MapPin, Briefcase, Star, Calendar } from 'lucide-react';
+import { Users, Quote, Award, Building, Clock, ChevronRight } from 'lucide-react';
+
+interface SuccessStory {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  industry: string;
+  avatar: string;
+  story: string;
+  achievements: string[];
+  careerPath: string[];
+  timeToSuccess: string;
+  advice: string;
+  skills: string[];
+}
 
 export const SuccessStories: React.FC = () => {
   const [selectedIndustry, setSelectedIndustry] = useState('all');
-  const [selectedFormat, setSelectedFormat] = useState('all');
+  const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
 
-  const stories = [
+  const successStories: SuccessStory[] = [
     {
-      id: 1,
-      name: 'Ahmed Al Mansoori',
-      title: 'Senior AI Engineer',
+      id: '1',
+      name: 'Ahmed Al Mansouri',
+      role: 'Chief Technology Officer',
+      company: 'Careem',
       industry: 'Technology',
-      company: 'Dubai Future Foundation',
-      image: '/api/placeholder/150/150',
-      quote: 'The transition from traditional engineering to AI was challenging but incredibly rewarding. The UAE\'s investment in future technologies opened doors I never imagined.',
-      journey: 'Mechanical Engineer → Software Developer → AI Specialist → Senior AI Engineer',
-      duration: '5 years',
-      keyTips: ['Continuous learning is essential', 'Embrace new technologies', 'Network within the tech community'],
-      format: 'text',
-      videoUrl: null,
-      achievements: ['Led 3 major AI projects', 'Certified in Machine Learning', 'Speaker at Dubai AI Summit'],
-      location: 'Dubai'
+      avatar: '/api/placeholder/150/150',
+      story: 'Started as a junior developer and worked my way up through dedication to learning new technologies and leading innovative projects. The UAE tech scene has incredible opportunities for growth.',
+      achievements: [
+        'Led digital transformation initiative',
+        'Built team of 50+ engineers',
+        'Launched 3 major products',
+        'Recognized as Tech Leader of the Year'
+      ],
+      careerPath: ['Junior Developer', 'Senior Developer', 'Team Lead', 'Engineering Manager', 'CTO'],
+      timeToSuccess: '8 years',
+      advice: 'Never stop learning and embrace new technologies. The UAE tech industry rewards innovation and hard work.',
+      skills: ['Leadership', 'Software Architecture', 'AI/ML', 'Team Building']
     },
     {
-      id: 2,
+      id: '2',
       name: 'Fatima Al Zahra',
-      title: 'Investment Director',
-      industry: 'Finance',
-      company: 'Abu Dhabi Investment Authority',
-      image: '/api/placeholder/150/150',
-      quote: 'Breaking into finance as an Emirati woman required determination, but the support systems in place helped me thrive and lead investment strategies.',
-      journey: 'Finance Graduate → Analyst → Portfolio Manager → Investment Director',
-      duration: '8 years',
-      keyTips: ['Build strong analytical skills', 'Develop cultural intelligence', 'Seek mentorship opportunities'],
-      format: 'video',
-      videoUrl: '/api/placeholder/video',
-      achievements: ['Managed $2B+ portfolio', 'CFA Certification', 'Forbes 30 Under 30'],
-      location: 'Abu Dhabi'
+      role: 'Senior Investment Manager',
+      company: 'Emirates NBD',
+      industry: 'Financial Services',
+      avatar: '/api/placeholder/150/150',
+      story: 'Joined as a graduate trainee and progressed through various roles in banking. The financial sector in UAE offers excellent career progression and learning opportunities.',
+      achievements: [
+        'Managed AED 500M+ portfolio',
+        'Led regional expansion project',
+        'Achieved 15% YoY growth',
+        'Mentored 20+ junior analysts'
+      ],
+      careerPath: ['Graduate Trainee', 'Analyst', 'Associate', 'Vice President', 'Senior Investment Manager'],
+      timeToSuccess: '6 years',
+      advice: 'Build strong relationships and always focus on delivering value to clients. The banking sector values integrity and results.',
+      skills: ['Financial Analysis', 'Risk Management', 'Client Relations', 'Strategic Planning']
     },
     {
-      id: 3,
-      name: 'Mohammed Al Rashid',
-      title: 'Renewable Energy Manager',
-      industry: 'Energy',
-      company: 'Masdar',
-      image: '/api/placeholder/150/150',
-      quote: 'Transitioning from oil & gas to renewable energy aligned with my values and UAE\'s vision. It\'s been an exciting journey in a rapidly evolving field.',
-      journey: 'Petroleum Engineer → Project Engineer → Energy Analyst → Renewable Energy Manager',
-      duration: '6 years',
-      keyTips: ['Stay updated with global trends', 'Develop project management skills', 'Understand sustainability principles'],
-      format: 'text',
-      videoUrl: null,
-      achievements: ['Led 10+ solar projects', 'LEED Green Associate', 'Published 15 research papers'],
-      location: 'Abu Dhabi'
-    },
-    {
-      id: 4,
-      name: 'Aisha Al Hamadi',
-      title: 'Head of Guest Experience',
-      industry: 'Tourism',
-      company: 'Atlantis, The Palm',
-      image: '/api/placeholder/150/150',
-      quote: 'Starting in hospitality taught me the value of service excellence. Every guest interaction shapes Dubai\'s reputation as a world-class destination.',
-      journey: 'Guest Services → Supervisor → Assistant Manager → Department Head',
-      duration: '7 years',
-      keyTips: ['Master multiple languages', 'Develop cultural sensitivity', 'Focus on problem-solving'],
-      format: 'video',
-      videoUrl: '/api/placeholder/video',
-      achievements: ['99% guest satisfaction', 'Hospitality Leadership Award', 'Team of 200+ staff'],
-      location: 'Dubai'
-    },
-    {
-      id: 5,
-      name: 'Dr. Khalid Al Marzouqi',
-      title: 'Chief Medical Officer',
-      industry: 'Healthcare',
+      id: '3',
+      name: 'Dr. Sarah Mohamed',
+      role: 'Department Head - Cardiology',
       company: 'Cleveland Clinic Abu Dhabi',
-      image: '/api/placeholder/150/150',
-      quote: 'Medicine in the UAE combines cutting-edge technology with compassionate care. Leading healthcare initiatives here impacts thousands of lives.',
-      journey: 'Medical Student → Resident → Specialist → Department Head → CMO',
-      duration: '15 years',
-      keyTips: ['Pursue continuous medical education', 'Develop leadership skills', 'Embrace medical technology'],
-      format: 'text',
-      videoUrl: null,
-      achievements: ['Board certified specialist', 'Medical innovation awards', 'Published 50+ papers'],
-      location: 'Abu Dhabi'
+      industry: 'Healthcare',
+      avatar: '/api/placeholder/150/150',
+      story: 'Completed medical training in UAE and specialized in cardiology. The healthcare sector here provides world-class facilities and opportunities for professional growth.',
+      achievements: [
+        'Performed 200+ cardiac procedures',
+        'Published 15 research papers',
+        'Led medical mission to Yemen',
+        'Received Excellence in Patient Care Award'
+      ],
+      careerPath: ['Medical Student', 'Resident', 'Fellow', 'Specialist', 'Department Head'],
+      timeToSuccess: '12 years',
+      advice: 'Medicine requires dedication and continuous learning. UAE healthcare system offers excellent opportunities for specialization.',
+      skills: ['Clinical Excellence', 'Research', 'Leadership', 'Patient Care']
     },
     {
-      id: 6,
-      name: 'Sara Al Blooshi',
-      title: 'Project Director',
-      industry: 'Construction',
+      id: '4',
+      name: 'Omar Al Rashid',
+      role: 'General Manager',
+      company: 'Jumeirah Beach Hotel',
+      industry: 'Tourism & Hospitality',
+      avatar: '/api/placeholder/150/150',
+      story: 'Started in front desk operations and worked through various departments. The hospitality industry in UAE is vibrant and offers diverse career paths.',
+      achievements: [
+        'Increased hotel revenue by 25%',
+        'Led team of 300+ staff',
+        'Achieved 5-star rating consistently',
+        'Launched sustainable tourism initiative'
+      ],
+      careerPath: ['Front Desk Associate', 'Supervisor', 'Assistant Manager', 'Department Manager', 'General Manager'],
+      timeToSuccess: '10 years',
+      advice: 'Customer service excellence and cultural sensitivity are key in hospitality. Learn multiple languages and understand diverse cultures.',
+      skills: ['Hospitality Management', 'Customer Service', 'Cultural Awareness', 'Team Leadership']
+    },
+    {
+      id: '5',
+      name: 'Khalid Al Suwaidi',
+      role: 'Project Director',
+      company: 'ADNOC',
+      industry: 'Oil & Gas',
+      avatar: '/api/placeholder/150/150',
+      story: 'Engineering graduate who joined ADNOC and progressed through technical and leadership roles. The energy sector offers stability and innovation opportunities.',
+      achievements: [
+        'Led $2B refinery project',
+        'Improved operational efficiency by 30%',
+        'Led sustainability initiatives',
+        'Received ADNOC Excellence Award'
+      ],
+      careerPath: ['Graduate Engineer', 'Process Engineer', 'Senior Engineer', 'Project Manager', 'Project Director'],
+      timeToSuccess: '9 years',
+      advice: 'Combine technical excellence with business acumen. The energy sector is evolving towards sustainability - be part of that change.',
+      skills: ['Project Management', 'Engineering', 'Leadership', 'Sustainability']
+    },
+    {
+      id: '6',
+      name: 'Mariam Al Blooshi',
+      role: 'Development Director',
       company: 'Emaar Properties',
-      image: '/api/placeholder/150/150',
-      quote: 'Every building project contributes to UAE\'s skyline and future. Managing mega-projects requires precision, teamwork, and vision.',
-      journey: 'Civil Engineer → Site Engineer → Project Manager → Project Director',
-      duration: '9 years',
-      keyTips: ['Master project management tools', 'Build strong team relationships', 'Focus on safety first'],
-      format: 'video',
-      videoUrl: '/api/placeholder/video',
-      achievements: ['Delivered $5B+ projects', 'PMP Certification', 'Zero safety incidents record'],
-      location: 'Dubai'
+      industry: 'Real Estate',
+      avatar: '/api/placeholder/150/150',
+      story: 'Architecture graduate who transitioned into real estate development. UAE real estate sector offers opportunities to work on iconic projects.',
+      achievements: [
+        'Led development of landmark project',
+        'Managed AED 800M+ projects',
+        'Won Young Professional Award',
+        'Pioneered sustainable building practices'
+      ],
+      careerPath: ['Junior Architect', 'Project Architect', 'Development Manager', 'Senior Manager', 'Development Director'],
+      timeToSuccess: '7 years',
+      advice: 'Understand both design and business aspects of real estate. The UAE market is dynamic and rewards innovation.',
+      skills: ['Project Development', 'Architecture', 'Business Strategy', 'Sustainability']
     }
   ];
 
-  const filteredStories = stories.filter(story => {
-    const matchesIndustry = selectedIndustry === 'all' || story.industry === selectedIndustry;
-    const matchesFormat = selectedFormat === 'all' || story.format === selectedFormat;
-    return matchesIndustry && matchesFormat;
-  });
+  const industries = ['all', 'Technology', 'Financial Services', 'Healthcare', 'Tourism & Hospitality', 'Oil & Gas', 'Real Estate'];
+
+  const filteredStories = selectedIndustry === 'all' 
+    ? successStories 
+    : successStories.filter(story => story.industry === selectedIndustry);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <Card>
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-ehrdc-teal mb-2">Success Stories</h2>
-          <p className="text-ehrdc-neutral-dark/70 mb-4">
-            Learn from Emiratis who have built successful careers across different industries
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-ehrdc-teal" />
+            Success Stories
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-6">
+            Learn from professionals who have built successful careers across UAE's major industries.
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          {/* Industry Filter */}
+          <div className="mb-6">
             <Select value={selectedIndustry} onValueChange={setSelectedIndustry}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by industry" />
+              <SelectTrigger className="w-full md:w-64">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Energy">Energy</SelectItem>
-                <SelectItem value="Tourism">Tourism</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Construction">Construction</SelectItem>
+                {industries.map(industry => (
+                  <SelectItem key={industry} value={industry}>
+                    {industry === 'all' ? 'All Industries' : industry}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+          </div>
 
-            <Select value={selectedFormat} onValueChange={setSelectedFormat}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Format" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Formats</SelectItem>
-                <SelectItem value="text">Text Stories</SelectItem>
-                <SelectItem value="video">Video Interviews</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Success Stories Grid */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {filteredStories.map((story) => (
+              <Card key={story.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={story.avatar} alt={story.name} />
+                      <AvatarFallback>{story.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{story.name}</h3>
+                      <p className="text-sm text-muted-foreground">{story.role}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Building className="h-3 w-3 text-ehrdc-teal" />
+                        <span className="text-sm">{story.company}</span>
+                        <Badge variant="outline" className="text-xs">{story.industry}</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                    <Quote className="h-4 w-4 text-ehrdc-teal mb-2" />
+                    <p className="text-sm italic">{story.story}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-ehrdc-teal" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Time to Success</p>
+                        <p className="font-medium">{story.timeToSuccess}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Award className="h-4 w-4 text-ehrdc-teal" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Key Achievements</p>
+                        <p className="font-medium">{story.achievements.length} milestones</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-xs text-muted-foreground mb-2">Career Path:</p>
+                    <div className="flex items-center gap-1 text-xs">
+                      {story.careerPath.slice(0, 3).map((step, index) => (
+                        <React.Fragment key={index}>
+                          <span className="bg-ehrdc-teal/10 text-ehrdc-teal px-2 py-1 rounded">
+                            {step}
+                          </span>
+                          {index < 2 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+                        </React.Fragment>
+                      ))}
+                      {story.careerPath.length > 3 && (
+                        <span className="text-muted-foreground">+{story.careerPath.length - 3} more</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setSelectedStory(story)}
+                  >
+                    Read Full Story
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Success Stories Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredStories.map((story) => (
-          <Card key={story.id} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              {/* Profile Header */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                  {story.name.split(' ').map(n => n[0]).join('')}
+      {/* Detailed Story Modal */}
+      {selectedStory && (
+        <Card className="border-ehrdc-teal">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={selectedStory.avatar} alt={selectedStory.name} />
+                  <AvatarFallback>{selectedStory.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-xl font-bold">{selectedStory.name}</h3>
+                  <p className="text-muted-foreground">{selectedStory.role} at {selectedStory.company}</p>
+                  <Badge className="mt-1 bg-ehrdc-teal text-white">{selectedStory.industry}</Badge>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-ehrdc-teal">{story.name}</h3>
-                  <p className="text-sm text-ehrdc-neutral-dark/70">{story.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs">{story.industry}</Badge>
-                    <div className="flex items-center gap-1 text-xs text-ehrdc-neutral-dark/70">
-                      <MapPin className="h-3 w-3" />
-                      {story.location}
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedStory(null)}
+                className="text-ehrdc-teal border-ehrdc-teal"
+              >
+                Close
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold mb-3">Career Journey</h4>
+                <div className="space-y-3">
+                  {selectedStory.careerPath.map((step, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-ehrdc-teal/10 text-ehrdc-teal rounded-full flex items-center justify-center text-sm font-medium">
+                        {index + 1}
+                      </div>
+                      <span className="text-sm">{step}</span>
                     </div>
-                  </div>
+                  ))}
                 </div>
-                {story.format === 'video' && (
-                  <Button size="sm" variant="outline" className="flex items-center gap-2">
-                    <Play className="h-4 w-4" />
-                    Watch
-                  </Button>
-                )}
-              </div>
 
-              {/* Quote */}
-              <div className="mb-4 p-4 bg-ehrdc-neutral-light/20 rounded-lg relative">
-                <Quote className="absolute top-2 left-2 h-4 w-4 text-ehrdc-teal/50" />
-                <p className="text-sm italic text-ehrdc-neutral-dark/80 pl-6">{story.quote}</p>
-              </div>
-
-              {/* Career Journey */}
-              <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Briefcase className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium">Career Journey ({story.duration})</span>
-                </div>
-                <div className="text-xs text-ehrdc-neutral-dark/70 bg-purple-50 p-2 rounded">
-                  {story.journey}
+                <h4 className="font-semibold mb-3 mt-6">Key Skills</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedStory.skills.map((skill, index) => (
+                    <Badge key={index} variant="outline">{skill}</Badge>
+                  ))}
                 </div>
               </div>
 
-              {/* Key Achievements */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  Key Achievements
-                </h4>
-                <div className="space-y-1">
-                  {story.achievements.map((achievement, index) => (
-                    <div key={index} className="text-xs text-ehrdc-neutral-dark/70 flex items-center gap-2">
-                      <div className="w-1 h-1 bg-ehrdc-teal rounded-full"></div>
+              <div>
+                <h4 className="font-semibold mb-3">Major Achievements</h4>
+                <ul className="space-y-2 mb-6">
+                  {selectedStory.achievements.map((achievement, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm">
+                      <Award className="h-4 w-4 text-ehrdc-teal mt-0.5 flex-shrink-0" />
                       {achievement}
-                    </div>
+                    </li>
                   ))}
+                </ul>
+
+                <h4 className="font-semibold mb-3">Advice for Aspiring Professionals</h4>
+                <div className="bg-ehrdc-teal/5 p-4 rounded-lg">
+                  <Quote className="h-5 w-5 text-ehrdc-teal mb-2" />
+                  <p className="text-sm italic">{selectedStory.advice}</p>
                 </div>
               </div>
-
-              {/* Key Tips */}
-              <div className="mb-4">
-                <h4 className="text-sm font-medium mb-2">Career Tips</h4>
-                <div className="space-y-1">
-                  {story.keyTips.map((tip, index) => (
-                    <div key={index} className="text-xs text-ehrdc-neutral-dark/70 flex items-center gap-2">
-                      <div className="w-1 h-1 bg-green-600 rounded-full"></div>
-                      {tip}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-3 border-t border-ehrdc-neutral-light/50">
-                <Button size="sm" className="flex-1 bg-ehrdc-teal hover:bg-ehrdc-dark-teal">
-                  Read Full Story
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1">
-                  Connect on LinkedIn
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Call to Action */}
-      <Card className="bg-gradient-to-r from-ehrdc-teal to-ehrdc-dark-teal text-white">
-        <CardContent className="p-6 text-center">
-          <h3 className="text-xl font-semibold mb-2">Share Your Success Story</h3>
-          <p className="mb-4 opacity-90">
-            Inspire other Emiratis by sharing your career journey and insights
-          </p>
-          <Button className="bg-white text-ehrdc-teal hover:bg-ehrdc-neutral-light">
-            Submit Your Story
-          </Button>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
