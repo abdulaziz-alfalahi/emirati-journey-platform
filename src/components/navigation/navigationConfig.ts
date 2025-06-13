@@ -1,3 +1,4 @@
+
 import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
@@ -53,12 +54,6 @@ export const navigationGroups: NavGroup[] = [
         icon: GraduationCap
       },
       {
-        name: 'Graduate Programs',
-        href: '/graduate-programs',
-        description: 'Master\'s, PhD, and advanced degree programs',
-        icon: GraduationCap
-      },
-      {
         name: 'Learning Management System',
         href: '/lms',
         description: 'Online learning platform',
@@ -82,6 +77,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/industry-exploration',
         description: 'Discover UAE industry opportunities',
         icon: Compass
+      },
+      {
+        name: 'Graduate Programs',
+        href: '/graduate-programs',
+        description: 'Master\'s, PhD, and advanced degree programs',
+        icon: GraduationCap
       },
       {
         name: 'Internships',
