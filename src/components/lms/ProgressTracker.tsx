@@ -12,9 +12,17 @@ interface ProgressTrackerProps {
 }
 
 export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ enrollment }) => {
-  const course = enrollment.courses;
+  // Mock course data since we don't have the full course details in enrollment
+  const mockCourse = {
+    id: enrollment.course_id,
+    title: 'Course Title',
+    description: 'Course description will be loaded from the database',
+    thumbnail_url: null,
+    category: 'Technical',
+    duration_hours: 10
+  };
   
-  if (!course) {
+  if (!mockCourse) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -39,7 +47,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ enrollment }) 
 
   const handleContinueLearning = () => {
     // Navigate to course content
-    window.location.href = `/lms/courses/${course.id}`;
+    window.location.href = `/lms/courses/${mockCourse.id}`;
   };
 
   return (
@@ -47,19 +55,19 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ enrollment }) 
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <CardTitle className="text-lg">{course.title}</CardTitle>
-            <CardDescription className="mt-1">{course.description}</CardDescription>
+            <CardTitle className="text-lg">{mockCourse.title}</CardTitle>
+            <CardDescription className="mt-1">{mockCourse.description}</CardDescription>
           </div>
           {getStatusBadge()}
         </div>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {course.thumbnail_url && (
+        {mockCourse.thumbnail_url && (
           <div className="w-full h-32 bg-gray-200 rounded-lg overflow-hidden">
             <img
-              src={course.thumbnail_url}
-              alt={course.title}
+              src={mockCourse.thumbnail_url}
+              alt={mockCourse.title}
               className="w-full h-full object-cover"
             />
           </div>
@@ -68,9 +76,9 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ enrollment }) 
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span className="flex items-center">
             <Clock className="h-4 w-4 mr-1" />
-            {course.duration_hours ? `${course.duration_hours}h` : 'Self-paced'}
+            {mockCourse.duration_hours ? `${mockCourse.duration_hours}h` : 'Self-paced'}
           </span>
-          <Badge variant="outline">{course.category}</Badge>
+          <Badge variant="outline">{mockCourse.category}</Badge>
         </div>
 
         <div className="space-y-2">
