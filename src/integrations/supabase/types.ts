@@ -6450,9 +6450,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: {
+        Args: { target_user_id?: string }
+        Returns: boolean
+      }
+      is_training_center_staff: {
+        Args: { target_user_id?: string }
+        Returns: boolean
+      }
       update_daily_group_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      verify_rls_configuration: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          rls_enabled: boolean
+          policy_count: number
+        }[]
       }
     }
     Enums: {
