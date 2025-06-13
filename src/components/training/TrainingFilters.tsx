@@ -7,11 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Search, Filter, X } from 'lucide-react';
-import type { TrainingFilters } from '@/types/training';
+import type { TrainingFilters as TrainingFiltersType } from '@/types/training';
 
 interface TrainingFiltersProps {
-  filters: TrainingFilters;
-  onFiltersChange: (filters: TrainingFilters) => void;
+  filters: TrainingFiltersType;
+  onFiltersChange: (filters: TrainingFiltersType) => void;
   onClearFilters: () => void;
 }
 
@@ -20,7 +20,7 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
   onFiltersChange,
   onClearFilters
 }) => {
-  const handleFilterChange = (key: keyof TrainingFilters, value: any) => {
+  const handleFilterChange = (key: keyof TrainingFiltersType, value: any) => {
     onFiltersChange({
       ...filters,
       [key]: value
