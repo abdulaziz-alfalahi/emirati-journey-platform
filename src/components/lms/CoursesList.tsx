@@ -24,8 +24,8 @@ export const CoursesList: React.FC<CoursesListProps> = ({
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
 
   useEffect(() => {
     loadCourses();
@@ -60,11 +60,11 @@ export const CoursesList: React.FC<CoursesListProps> = ({
       );
     }
 
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all') {
       filtered = filtered.filter(course => course.category === categoryFilter);
     }
 
-    if (difficultyFilter) {
+    if (difficultyFilter && difficultyFilter !== 'all') {
       filtered = filtered.filter(course => course.difficulty_level === difficultyFilter);
     }
 
@@ -139,7 +139,7 @@ export const CoursesList: React.FC<CoursesListProps> = ({
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category} value={category}>
                     {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -153,7 +153,7 @@ export const CoursesList: React.FC<CoursesListProps> = ({
                 <SelectValue placeholder="All Levels" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Levels</SelectItem>
+                <SelectItem value="all">All Levels</SelectItem>
                 <SelectItem value="beginner">Beginner</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
                 <SelectItem value="advanced">Advanced</SelectItem>
