@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { CareerPageLayout } from '@/components/career/CareerPageLayout';
+import { CareerEntryLayout } from '@/components/layouts/CareerEntryLayout';
 import { JobMatchingDashboard } from '@/components/job-matching/JobMatchingDashboard';
 import JobRecommendations from '@/components/job-matching/JobRecommendations';
 import { SavedJobsManager } from '@/components/job-matching/SavedJobsManager';
@@ -8,18 +7,16 @@ import { ApplicationTracker } from '@/components/job-matching/ApplicationTracker
 import JobSearchFilters from '@/components/job-matching/JobSearchFilters';
 import { CareerInsights } from '@/components/job-matching/CareerInsights';
 import { MatchingPreferences } from '@/components/job-matching/MatchingPreferences';
-import { Search, Briefcase, Target, Heart, Settings, BarChart, Filter, Eye } from 'lucide-react';
+import { Search, Briefcase, Target, Heart, Settings, BarChart, TrendingUp, Users } from 'lucide-react';
 
 const JobMatchingPage: React.FC = () => {
-  const handlePrimaryAction = () => {
-    console.log('Start job matching');
-  };
+  const stats = [
+    { value: "500+", label: "Active Jobs", icon: Briefcase },
+    { value: "95%", label: "Match Accuracy", icon: Target },
+    { value: "1,200+", label: "Successful Placements", icon: TrendingUp },
+    { value: "300+", label: "Partner Companies", icon: Users }
+  ];
 
-  const handleSecondaryAction = () => {
-    console.log('Browse all jobs');
-  };
-
-  // Define tabs for the Career Entry layout
   const tabs = [
     {
       id: 'dashboard',
@@ -29,15 +26,14 @@ const JobMatchingPage: React.FC = () => {
     },
     {
       id: 'recommendations',
-      label: 'Recommendations',
-      icon: <Briefcase className="h-4 w-4" />,
-      content: <JobRecommendations />
-    },
-    {
-      id: 'search',
-      label: 'Search',
+      label: 'Job Matches',
       icon: <Search className="h-4 w-4" />,
-      content: <JobSearchFilters />
+      content: (
+        <div className="space-y-6">
+          <JobSearchFilters />
+          <JobRecommendations />
+        </div>
+      )
     },
     {
       id: 'saved',
@@ -48,12 +44,12 @@ const JobMatchingPage: React.FC = () => {
     {
       id: 'applications',
       label: 'Applications',
-      icon: <Eye className="h-4 w-4" />,
+      icon: <Briefcase className="h-4 w-4" />,
       content: <ApplicationTracker />
     },
     {
       id: 'insights',
-      label: 'Insights',
+      label: 'Career Insights',
       icon: <BarChart className="h-4 w-4" />,
       content: <CareerInsights />
     },
@@ -66,34 +62,17 @@ const JobMatchingPage: React.FC = () => {
   ];
 
   return (
-    <CareerPageLayout
-      // Hero props
-      title="Intelligent Job Matching"
-      description="Discover your perfect career opportunity with AI-powered job matching. Connect with employers based on your skills, experience, and career aspirations in the UAE job market."
-      heroIcon={<Target className="h-12 w-12" />}
-      primaryActionLabel="Find My Match"
-      primaryActionIcon={<Search className="h-5 w-5" />}
-      primaryActionOnClick={handlePrimaryAction}
-      secondaryActionLabel="Browse Jobs"
-      secondaryActionIcon={<Briefcase className="h-5 w-5" />}
-      secondaryActionOnClick={handleSecondaryAction}
-      
-      // Stats props
-      stats={[
-        { value: "10,000+", label: "Active Job Listings" },
-        { value: "95%", label: "Match Accuracy" },
-        { value: "500+", label: "UAE Companies" },
-        { value: "24/7", label: "Real-time Updates" }
-      ]}
-      
-      // Quote props
-      quote="Your next career opportunity is just one smart match away—let our AI find the perfect fit for your skills and ambitions."
-      attribution="EHRDC Career Intelligence Team"
-      quoteIcon={<Target className="h-12 w-12" />}
-      
-      // Tabs props
+    <CareerEntryLayout
+      title="Smart Job Matching"
+      description="Discover your perfect career match with our AI-powered job matching system. Find opportunities that align with your skills, experience, and career aspirations in the UAE job market."
+      icon={<Search className="h-8 w-8 text-white" />}
+      stats={stats}
       tabs={tabs}
       defaultTab="dashboard"
+      primaryActionText="Find My Matches"
+      primaryActionHref="#recommendations"
+      secondaryActionText="Browse All Jobs"
+      secondaryActionHref="#recommendations"
     />
   );
 };
