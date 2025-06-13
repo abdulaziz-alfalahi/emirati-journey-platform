@@ -8,6 +8,7 @@ import AdvisoryDashboard from '@/components/career-advisory/AdvisoryDashboard';
 import AdvisorPortfolio from '@/components/career-advisory/AdvisorPortfolio';
 import AdvisorScheduling from '@/components/career-advisory/AdvisorScheduling';
 import InterviewPrep from '@/components/career-advisory/InterviewPrep';
+import ResourceLibrary from '@/components/career-advisory/ResourceLibrary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, UserCheck, Calendar, MessageCircle, BookOpen } from 'lucide-react';
 import { AdvisorySession } from '@/types/careerAdvisory';
@@ -121,11 +122,7 @@ const CareerAdvisoryPage: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="resources">
-            <div className="text-center py-12">
-              <BookOpen className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold mb-2">Career Resources</h3>
-              <p className="text-gray-600">Access comprehensive career development resources and guides.</p>
-            </div>
+            <ResourceLibrary />
           </TabsContent>
         </Tabs>
       </div>
