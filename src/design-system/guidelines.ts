@@ -1,267 +1,337 @@
+/**
+ * Design System Guidelines
+ * Comprehensive usage guidelines for the unified Dubai Government design system
+ */
 
-// EHRDC Design System Guidelines
-// Implementation guidelines for consistent component usage
+import { designTokens } from './tokens';
 
-export const componentGuidelines = {
-  buttons: {
+// ============= Color Usage Guidelines =============
+export const colorGuidelines = {
+  primary: {
+    description: 'Primary EHRDC colors should be used for government services, official content, and primary actions',
     usage: {
-      primary: 'Use for the main action on a page. Only one primary button per section.',
-      secondary: 'Use for secondary actions that support the primary action.',
-      outline: 'Use for alternative actions or when button needs less visual weight.',
-      ghost: 'Use for subtle actions or in toolbars and navigation.',
-      destructive: 'Use for delete, remove, or other destructive actions.',
+      backgrounds: 'Use ehrdc-teal for primary backgrounds, ehrdc-light-teal for subtle backgrounds',
+      text: 'Use ehrdc-neutral-dark for primary text, ehrdc-teal for accent text',
+      actions: 'Use ehrdc-teal for primary buttons and interactive elements'
     },
-    
-    sizing: {
-      sm: 'Use in compact spaces like table cells or secondary areas.',
-      default: 'Standard size for most use cases.',
-      lg: 'Use for prominent actions or call-to-action buttons.',
-      xl: 'Use for hero sections or very prominent actions.',
-    },
-    
-    accessibility: [
-      'Always provide descriptive text or aria-label',
-      'Ensure minimum 44px touch target on mobile',
-      'Use loading state to provide feedback during processing',
-      'Disable button and show loading spinner for async actions',
-    ],
+    examples: [
+      'Government service cards',
+      'Primary navigation',
+      'Call-to-action buttons',
+      'Official badges and indicators'
+    ]
   },
 
-  forms: {
-    layout: {
-      spacing: 'Use 24px (space-6) between form fields',
-      grouping: 'Group related fields with additional spacing (32px)',
-      labels: 'Always place labels above input fields',
-      helpText: 'Use description prop for additional context',
+  secondary: {
+    description: 'Secondary colors for modern, innovation-focused content and tech initiatives',
+    usage: {
+      backgrounds: 'Use blue-600 to indigo-700 gradients for modern interfaces',
+      text: 'Use white text on dark backgrounds, blue-700 on light backgrounds',
+      actions: 'Use blue-600 for secondary actions and modern interfaces'
     },
-    
-    validation: {
-      realTime: 'Validate on blur for better UX',
-      errorMessages: 'Be specific and actionable in error messages',
-      successStates: 'Show success confirmation for important actions',
-      required: 'Mark required fields with red asterisk',
+    examples: [
+      'Innovation programs',
+      'Technology showcases',
+      'Future-focused content',
+      'Educational technology'
+    ]
+  },
+
+  semantic: {
+    description: 'Use semantic colors consistently across all components',
+    usage: {
+      success: 'Green for successful actions, confirmations, and positive states',
+      warning: 'Orange for warnings, cautions, and attention-required states',
+      error: 'Red for errors, destructive actions, and critical states',
+      info: 'Blue for informational messages and neutral states'
+    }
+  }
+} as const;
+
+// ============= Typography Guidelines =============
+export const typographyGuidelines = {
+  hierarchy: {
+    display: {
+      usage: 'Hero sections, landing page headlines',
+      sizes: ['text-6xl', 'text-7xl'],
+      weight: 'font-bold',
+      spacing: 'tracking-tight'
     },
-    
+    h1: {
+      usage: 'Page titles, section headers',
+      sizes: ['text-3xl', 'text-4xl', 'text-5xl'],
+      weight: 'font-bold',
+      spacing: 'tracking-tight'
+    },
+    h2: {
+      usage: 'Subsection headers, card titles',
+      sizes: ['text-2xl', 'text-3xl', 'text-4xl'],
+      weight: 'font-semibold',
+      spacing: 'tracking-tight'
+    },
+    h3: {
+      usage: 'Component headers, small section titles',
+      sizes: ['text-xl', 'text-2xl', 'text-3xl'],
+      weight: 'font-semibold',
+      spacing: 'tracking-tight'
+    },
+    body: {
+      usage: 'Paragraph text, descriptions',
+      sizes: ['text-base', 'text-lg'],
+      weight: 'font-normal',
+      spacing: 'leading-relaxed'
+    },
+    caption: {
+      usage: 'Metadata, labels, supplementary text',
+      sizes: ['text-sm', 'text-base'],
+      weight: 'font-normal',
+      color: 'text-muted-foreground'
+    }
+  },
+
+  rules: [
+    'Always maintain proper heading hierarchy (h1 > h2 > h3)',
+    'Use consistent font weights across similar elements',
+    'Maintain adequate line height for readability',
+    'Use appropriate text contrast ratios (4.5:1 minimum)',
+    'Limit line length to 60-80 characters for optimal readability'
+  ]
+} as const;
+
+// ============= Spacing Guidelines =============
+export const spacingGuidelines = {
+  principles: [
+    'Use consistent spacing scale based on 4px/8px grid system',
+    'Maintain visual rhythm through consistent spacing',
+    'Increase spacing proportionally for larger components',
+    'Use adequate white space to improve readability'
+  ],
+
+  components: {
+    buttons: {
+      padding: 'Use component tokens for consistent button sizing',
+      margin: 'Minimum 8px between buttons in groups'
+    },
+    cards: {
+      padding: 'Internal padding should be proportional to card size',
+      margin: 'Maintain consistent gaps in card grids'
+    },
+    sections: {
+      padding: 'Use section spacing tokens for consistent layout',
+      margin: 'Separate major sections with adequate spacing'
+    }
+  }
+} as const;
+
+// ============= Component Guidelines =============
+export const componentGuidelines = {
+  buttons: {
+    variants: {
+      primary: {
+        usage: 'Main actions, form submissions, primary CTAs',
+        style: 'ehrdc-primary colors with medium font weight',
+        states: 'Hover, focus, disabled, and loading states required'
+      },
+      secondary: {
+        usage: 'Secondary actions, cancel buttons, alternative options',
+        style: 'Outline or subtle background with primary text color',
+        states: 'All interactive states must be defined'
+      },
+      destructive: {
+        usage: 'Delete, remove, dangerous actions',
+        style: 'Error color background with white text',
+        states: 'Require confirmation for destructive actions'
+      }
+    },
     accessibility: [
-      'Associate labels with form controls using htmlFor',
-      'Use aria-describedby for error and help text',
-      'Provide clear error messages with aria-invalid',
-      'Ensure proper focus management and keyboard navigation',
-    ],
+      'Minimum 44px touch target size',
+      'Clear focus indicators',
+      'Descriptive aria-labels',
+      'Keyboard navigation support'
+    ]
   },
 
   cards: {
-    content: {
-      hierarchy: 'Use consistent heading levels within cards',
-      density: 'Balance content density - avoid overcrowding',
-      actions: 'Place primary actions in footer or prominently in content',
-      imagery: 'Use consistent aspect ratios for card images',
+    structure: {
+      header: 'Optional header with title and actions',
+      content: 'Main content area with appropriate padding',
+      footer: 'Optional footer for actions or metadata'
     },
-    
-    interaction: {
-      clickable: 'Make entire card clickable for navigation cards',
-      hover: 'Use subtle hover effects to indicate interactivity',
-      focus: 'Ensure keyboard focus is visible and logical',
-    },
-    
     variants: {
-      default: 'For general content organization',
-      service: 'For presenting government services',
-      information: 'For displaying important data or metrics',
-      profile: 'For user or entity profiles',
-    },
+      default: 'Standard card with subtle shadow and border',
+      elevated: 'Enhanced shadow for important content',
+      interactive: 'Hover effects for clickable cards'
+    }
   },
 
-  typography: {
-    hierarchy: {
-      h1: 'Page titles - one per page',
-      h2: 'Section headings',
-      h3: 'Subsection headings',
-      h4: 'Component headings',
-      h5: 'Small component headings',
-      h6: 'Labels and captions',
-    },
-    
-    content: {
-      bodyLarge: 'Important introductory text',
-      body: 'Standard body text',
-      caption: 'Secondary information, metadata',
-    },
-    
-    rules: [
-      'Use semantic heading levels (don\'t skip levels)',
-      'Limit line length to 60-70 characters for readability',
-      'Use adequate white space around text blocks',
-      'Ensure sufficient color contrast (4.5:1 minimum)',
+  forms: {
+    layout: [
+      'Group related fields together',
+      'Use clear labels and helpful descriptions',
+      'Provide immediate validation feedback',
+      'Maintain consistent field spacing'
     ],
+    validation: [
+      'Show validation state clearly',
+      'Use semantic colors for different states',
+      'Provide helpful error messages',
+      'Support both inline and summary validation'
+    ]
+  }
+} as const;
+
+// ============= Layout Guidelines =============
+export const layoutGuidelines = {
+  grids: {
+    responsive: [
+      'Use mobile-first approach',
+      'Implement consistent breakpoints',
+      'Ensure touch-friendly sizing on mobile',
+      'Optimize for common screen sizes'
+    ],
+    spacing: [
+      'Maintain consistent gaps between grid items',
+      'Use responsive spacing that scales appropriately',
+      'Ensure adequate margins on mobile devices'
+    ]
   },
 
-  colors: {
-    primary: {
-      usage: 'Use EHRDC teal for primary actions, links, and brand elements',
-      contrast: 'Ensure white text on teal backgrounds meets contrast requirements',
-      variations: 'Use dark teal for hover states, light teal for accents',
-    },
-    
-    semantic: {
-      success: 'Green for positive actions, confirmations, success states',
-      error: 'Red for errors, warnings, destructive actions',
-      warning: 'Orange for cautions, important notices',
-      info: 'Blue for informational content, neutral states',
-    },
-    
-    neutral: {
-      text: 'Use neutral dark for primary text content',
-      background: 'Use neutral light for page backgrounds',
-      borders: 'Use neutral light for subtle borders and dividers',
-    },
+  containers: {
+    maxWidth: 'Use standard container widths for consistency',
+    padding: 'Maintain adequate padding on all screen sizes',
+    centering: 'Center content containers for optimal readability'
   },
 
-  spacing: {
-    principles: [
-      'Use 4px base unit for all spacing decisions',
-      'Maintain consistent spacing between related elements',
-      'Use more space to separate unrelated content sections',
-      'Follow the spacing scale to ensure consistency',
+  sections: {
+    structure: [
+      'Clear visual separation between sections',
+      'Consistent section padding and margins',
+      'Logical content hierarchy within sections'
+    ]
+  }
+} as const;
+
+// ============= Design Pattern Selection Guidelines =============
+export const patternSelectionGuidelines = {
+  group1_ehrdc: {
+    when: [
+      'Government service interfaces',
+      'Official documentation and forms',
+      'Administrative dashboards',
+      'Public-facing government content',
+      'Policy and regulation pages'
     ],
-    
-    sections: {
-      sm: 'For compact content areas (32-48px)',
-      md: 'For standard content sections (48-64px)',
-      lg: 'For major page sections (64-80px)',
-      xl: 'For hero sections and major breaks (80px+)',
-    },
-    
-    components: {
-      internal: 'Use smaller spacing within components (4-16px)',
-      between: 'Use medium spacing between components (16-24px)',
-      sections: 'Use larger spacing between sections (32px+)',
-    },
+    characteristics: [
+      'Formal and trustworthy appearance',
+      'High contrast and accessibility',
+      'Traditional government branding',
+      'Professional and authoritative tone'
+    ]
   },
 
-  responsive: {
-    approach: 'Mobile-first design with progressive enhancement',
-    
-    breakpoints: {
-      mobile: '0-767px - Single column, larger touch targets',
-      tablet: '768-1023px - Two columns, medium density',
-      desktop: '1024px+ - Multi-column, higher density',
-    },
-    
-    principles: [
-      'Design for mobile first, enhance for larger screens',
-      'Ensure minimum 44px touch targets on mobile',
-      'Use appropriate font sizes for each breakpoint',
-      'Test on actual devices, not just browser resize',
+  group2_innovation: {
+    when: [
+      'Innovation and technology programs',
+      'Future-focused initiatives',
+      'Educational technology platforms',
+      'Digital transformation content',
+      'Modern service interfaces'
     ],
+    characteristics: [
+      'Modern and progressive appearance',
+      'Vibrant and engaging colors',
+      'Tech-forward branding',
+      'Dynamic and inspiring tone'
+    ]
   },
 
-  accessibility: {
-    requirements: [
-      'Meet WCAG 2.1 AA standards',
-      'Ensure keyboard navigation works for all interactive elements',
-      'Provide alternative text for images and icons',
-      'Use semantic HTML elements',
-      'Maintain focus management in dynamic content',
+  hybridApproach: {
+    when: [
+      'Complex applications with multiple user types',
+      'Platforms serving both traditional and modern needs',
+      'Transitional interfaces between old and new systems'
     ],
-    
-    testing: [
-      'Test with screen readers (NVDA, JAWS, VoiceOver)',
-      'Verify keyboard-only navigation',
-      'Check color contrast ratios',
-      'Test with users who have disabilities',
-    ],
-    
     implementation: [
-      'Use aria-labels for icon buttons',
-      'Implement skip navigation links',
-      'Provide live regions for dynamic content updates',
-      'Ensure error messages are announced to screen readers',
-    ],
-  },
+      'Use Group 1 for primary navigation and core functions',
+      'Apply Group 2 for feature highlights and modern sections',
+      'Maintain consistent component structure across patterns',
+      'Ensure smooth visual transitions between patterns'
+    ]
+  }
+} as const;
 
-  performance: {
-    images: [
-      'Use appropriate image formats (WebP when supported)',
-      'Implement lazy loading for images',
-      'Provide multiple image sizes for responsive images',
-      'Optimize image file sizes',
-    ],
-    
-    animations: [
-      'Respect user motion preferences',
-      'Use transform and opacity for smooth animations',
-      'Limit animation duration to 300ms or less',
-      'Provide reduced motion alternatives',
-    ],
-    
-    code: [
-      'Tree-shake unused code',
-      'Use code splitting for large applications',
-      'Optimize bundle sizes',
-      'Implement proper caching strategies',
-    ],
-  },
-};
+// ============= Accessibility Guidelines =============
+export const accessibilityGuidelines = {
+  colorContrast: [
+    'Maintain minimum 4.5:1 contrast ratio for normal text',
+    'Use 3:1 minimum for large text and UI components',
+    'Provide high contrast mode support',
+    'Never rely solely on color to convey information'
+  ],
 
-export const usageExamples = {
-  buttons: `
-// Primary action
-<Button variant="default">Submit Application</Button>
+  keyboard: [
+    'All interactive elements must be keyboard accessible',
+    'Provide clear focus indicators',
+    'Implement logical tab order',
+    'Support standard keyboard shortcuts'
+  ],
 
-// Secondary action
-<Button variant="secondary">Save Draft</Button>
+  screenReaders: [
+    'Use semantic HTML elements',
+    'Provide descriptive alt text for images',
+    'Include proper ARIA labels and descriptions',
+    'Ensure content is properly structured'
+  ],
 
-// Destructive action
-<Button variant="destructive">Delete Account</Button>
+  motor: [
+    'Minimum 44px touch targets on mobile',
+    'Adequate spacing between interactive elements',
+    'Support for various input methods',
+    'Avoid time-sensitive interactions'
+  ]
+} as const;
 
-// With loading state
-<Button loading={isSubmitting}>
-  {isSubmitting ? 'Submitting...' : 'Submit'}
-</Button>
-  `,
-  
-  forms: `
-// Proper form field with validation
-<FormField 
-  label="Email Address" 
-  description="Enter your work email"
-  error={errors.email}
-  required
->
-  <Input 
-    type="email" 
-    placeholder="john.doe@company.ae"
-    {...register('email', { required: 'Email is required' })}
-  />
-</FormField>
-  `,
-  
-  cards: `
-// Service card with proper structure
-<DubaiCard variant="service" interactive>
-  <DubaiCardHeader>
-    <DubaiCardTitle>Career Development</DubaiCardTitle>
-    <DubaiCardDescription>
-      Enhance your skills and advance your career
-    </DubaiCardDescription>
-  </DubaiCardHeader>
-  <DubaiCardContent>
-    <p>Access training programs and mentorship opportunities.</p>
-  </DubaiCardContent>
-</DubaiCard>
-  `,
-  
-  typography: `
-// Proper heading hierarchy
-<DubaiHeading 
-  level={2}
-  subtitle="Supporting text for the main heading"
-  badge="Section Label"
->
-  Main Section Title
-</DubaiHeading>
-  `,
-};
+// ============= Best Practices =============
+export const bestPractices = {
+  consistency: [
+    'Use design tokens instead of hard-coded values',
+    'Follow established patterns and conventions',
+    'Maintain consistent spacing and sizing',
+    'Apply semantic color usage consistently'
+  ],
 
-export default componentGuidelines;
+  performance: [
+    'Optimize component rendering',
+    'Use appropriate image formats and sizes',
+    'Minimize animation complexity',
+    'Implement lazy loading where appropriate'
+  ],
+
+  maintenance: [
+    'Document component usage and variations',
+    'Create reusable component patterns',
+    'Version control design system changes',
+    'Regular accessibility audits'
+  ],
+
+  testing: [
+    'Test across different browsers and devices',
+    'Validate accessibility compliance',
+    'User testing for usability',
+    'Performance testing on various connections'
+  ]
+} as const;
+
+// Export comprehensive guidelines
+export const designGuidelines = {
+  colors: colorGuidelines,
+  typography: typographyGuidelines,
+  spacing: spacingGuidelines,
+  components: componentGuidelines,
+  layout: layoutGuidelines,
+  patterns: patternSelectionGuidelines,
+  accessibility: accessibilityGuidelines,
+  bestPractices
+} as const;
+
+export default designGuidelines;
