@@ -19,7 +19,8 @@ import {
   Search,
   Shield,
   BarChart3,
-  Compass
+  Compass,
+  GitCompare
 } from 'lucide-react';
 
 export const navigationGroups: NavGroup[] = [
@@ -76,6 +77,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/industry-exploration',
         description: 'Discover UAE industry opportunities',
         icon: Compass
+      },
+      {
+        name: 'Career Comparison',
+        href: '/career-comparison',
+        description: 'Compare different career paths and opportunities',
+        icon: GitCompare
       },
       {
         name: 'Graduate Programs',
