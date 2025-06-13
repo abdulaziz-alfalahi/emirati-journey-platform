@@ -32,9 +32,11 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
   fieldsOfStudy
 }) => {
   const handleFilterChange = (key: keyof FilterState, value: string) => {
+    // Convert "all" back to empty string for filtering logic
+    const filterValue = value === 'all' ? '' : value;
     onFilterChange({
       ...filters,
-      [key]: value
+      [key]: filterValue
     });
   };
 
@@ -87,14 +89,14 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         <div className="space-y-2">
           <Label>University</Label>
           <Select 
-            value={filters.university} 
+            value={filters.university || 'all'} 
             onValueChange={(value) => handleFilterChange('university', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Universities" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Universities</SelectItem>
+              <SelectItem value="all">All Universities</SelectItem>
               {universities.map(university => (
                 <SelectItem key={university} value={university}>{university}</SelectItem>
               ))}
@@ -106,14 +108,14 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         <div className="space-y-2">
           <Label>Degree Level</Label>
           <Select 
-            value={filters.degreeLevel} 
+            value={filters.degreeLevel || 'all'} 
             onValueChange={(value) => handleFilterChange('degreeLevel', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Levels" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all">All Levels</SelectItem>
               {degreeLevels.map(level => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}
@@ -125,14 +127,14 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         <div className="space-y-2">
           <Label>Field of Study</Label>
           <Select 
-            value={filters.fieldOfStudy} 
+            value={filters.fieldOfStudy || 'all'} 
             onValueChange={(value) => handleFilterChange('fieldOfStudy', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Fields" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Fields</SelectItem>
+              <SelectItem value="all">All Fields</SelectItem>
               {fieldsOfStudy.map(field => (
                 <SelectItem key={field} value={field}>{field}</SelectItem>
               ))}
@@ -144,14 +146,14 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         <div className="space-y-2">
           <Label>Location</Label>
           <Select 
-            value={filters.location} 
+            value={filters.location || 'all'} 
             onValueChange={(value) => handleFilterChange('location', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Locations" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Locations</SelectItem>
+              <SelectItem value="all">All Locations</SelectItem>
               <SelectItem value="uae">UAE</SelectItem>
               <SelectItem value="international">International</SelectItem>
             </SelectContent>
@@ -162,14 +164,14 @@ const UniversityProgramsFilter: React.FC<UniversityProgramsFilterProps> = ({
         <div className="space-y-2">
           <Label>Language of Instruction</Label>
           <Select 
-            value={filters.language} 
+            value={filters.language || 'all'} 
             onValueChange={(value) => handleFilterChange('language', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Languages" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Languages</SelectItem>
+              <SelectItem value="all">All Languages</SelectItem>
               <SelectItem value="english">English</SelectItem>
               <SelectItem value="arabic">Arabic</SelectItem>
               <SelectItem value="bilingual">Bilingual</SelectItem>
