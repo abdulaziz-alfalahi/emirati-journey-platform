@@ -16,11 +16,11 @@ export const trainingService = {
       .order('created_at', { ascending: false });
 
     if (filters.category) {
-      query = query.eq('category', filters.category);
+      query = query.eq('category', filters.category as any);
     }
 
     if (filters.training_mode) {
-      query = query.eq('training_mode', filters.training_mode);
+      query = query.eq('training_mode', filters.training_mode as any);
     }
 
     if (filters.certification_offered !== undefined) {
@@ -103,7 +103,10 @@ export const trainingService = {
       throw error;
     }
 
-    return data;
+    return {
+      ...data,
+      application_data: data.application_data as Record<string, any>
+    };
   },
 
   // Get user's applications
@@ -131,7 +134,10 @@ export const trainingService = {
       throw error;
     }
 
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      application_data: item.application_data as Record<string, any>
+    }));
   },
 
   // Get user's enrollments
