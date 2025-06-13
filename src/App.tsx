@@ -28,6 +28,7 @@ const UserRolesAdminPage = React.lazy(() => import('@/pages/admin/user-roles'));
 const ContentManagementPage = React.lazy(() => import('@/pages/admin/content-management'));
 const NotificationsPage = React.lazy(() => import('@/pages/notifications'));
 const LMSPage = React.lazy(() => import('@/pages/lms'));
+const TrainingPage = React.lazy(() => import('@/pages/training'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -76,7 +77,7 @@ function App() {
                   <Route path="/school-programs" element={<SchoolProgramsPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/lms" element={<LMSPage />} />
-                  <Route path="/training" element={<div className="p-8"><h1 className="text-2xl font-bold">Vocational Training - Coming Soon</h1></div>} />
+                  <Route path="/training" element={<TrainingPage />} />
                   
                   {/* Career Entry routes */}
                   <Route path="/career-journey" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Journey Map - Coming Soon</h1></div>} />

@@ -5110,6 +5110,116 @@ export type Database = {
         }
         Relationships: []
       }
+      training_applications: {
+        Row: {
+          application_data: Json | null
+          created_at: string | null
+          id: string
+          program_id: string | null
+          reviewed_at: string | null
+          reviewer_notes: string | null
+          status: string | null
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_data?: Json | null
+          created_at?: string | null
+          id?: string
+          program_id?: string | null
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_data?: Json | null
+          created_at?: string | null
+          id?: string
+          program_id?: string | null
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_applications_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "training_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_enrollments: {
+        Row: {
+          application_id: string | null
+          certificate_issued: boolean | null
+          certificate_url: string | null
+          completion_date: string | null
+          created_at: string | null
+          enrollment_date: string | null
+          final_grade: string | null
+          id: string
+          program_id: string | null
+          progress_percentage: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_id?: string | null
+          certificate_issued?: boolean | null
+          certificate_url?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          enrollment_date?: string | null
+          final_grade?: string | null
+          id?: string
+          program_id?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_id?: string | null
+          certificate_issued?: boolean | null
+          certificate_url?: string | null
+          completion_date?: string | null
+          created_at?: string | null
+          enrollment_date?: string | null
+          final_grade?: string | null
+          id?: string
+          program_id?: string | null
+          progress_percentage?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_enrollments_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "training_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "training_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       training_materials: {
         Row: {
           category: string
@@ -5158,6 +5268,149 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      training_programs: {
+        Row: {
+          application_deadline: string | null
+          category: Database["public"]["Enums"]["training_category"]
+          certification_name: string | null
+          certification_offered: boolean | null
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          duration_weeks: number | null
+          end_date: string | null
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          job_placement_assistance: boolean | null
+          learning_outcomes: string[] | null
+          location: string | null
+          max_participants: number | null
+          prerequisites: string[] | null
+          price_amount: number | null
+          price_currency: string | null
+          provider_id: string | null
+          schedule_details: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["training_status"] | null
+          subcategory: string | null
+          title: string
+          training_mode: Database["public"]["Enums"]["training_mode"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          category: Database["public"]["Enums"]["training_category"]
+          certification_name?: string | null
+          certification_offered?: boolean | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          duration_weeks?: number | null
+          end_date?: string | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          job_placement_assistance?: boolean | null
+          learning_outcomes?: string[] | null
+          location?: string | null
+          max_participants?: number | null
+          prerequisites?: string[] | null
+          price_amount?: number | null
+          price_currency?: string | null
+          provider_id?: string | null
+          schedule_details?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["training_status"] | null
+          subcategory?: string | null
+          title: string
+          training_mode?: Database["public"]["Enums"]["training_mode"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_deadline?: string | null
+          category?: Database["public"]["Enums"]["training_category"]
+          certification_name?: string | null
+          certification_offered?: boolean | null
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          duration_weeks?: number | null
+          end_date?: string | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          job_placement_assistance?: boolean | null
+          learning_outcomes?: string[] | null
+          location?: string | null
+          max_participants?: number | null
+          prerequisites?: string[] | null
+          price_amount?: number | null
+          price_currency?: string | null
+          provider_id?: string | null
+          schedule_details?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["training_status"] | null
+          subcategory?: string | null
+          title?: string
+          training_mode?: Database["public"]["Enums"]["training_mode"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_programs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "training_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_providers: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_verified: boolean | null
+          logo_url: string | null
+          name: string
+          partnership_level: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          name: string
+          partnership_level?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          name?: string
+          partnership_level?: string | null
+          updated_at?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -6160,6 +6413,13 @@ export type Database = {
         | "no_show"
         | "cancelled"
       skill_level: "beginner" | "intermediate" | "advanced" | "expert"
+      training_category:
+        | "technical_skills"
+        | "trade_skills"
+        | "service_skills"
+        | "entrepreneurship_business"
+      training_mode: "in_person" | "online" | "hybrid"
+      training_status: "draft" | "active" | "full" | "completed" | "cancelled"
       user_role:
         | "school_student"
         | "national_service_participant"
@@ -6356,6 +6616,14 @@ export const Constants = {
         "cancelled",
       ],
       skill_level: ["beginner", "intermediate", "advanced", "expert"],
+      training_category: [
+        "technical_skills",
+        "trade_skills",
+        "service_skills",
+        "entrepreneurship_business",
+      ],
+      training_mode: ["in_person", "online", "hybrid"],
+      training_status: ["draft", "active", "full", "completed", "cancelled"],
       user_role: [
         "school_student",
         "national_service_participant",
