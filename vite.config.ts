@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'es2015',
-    minify: 'terser',
+    minify: 'esbuild', // Changed from 'terser' to 'esbuild' (built-in)
     rollupOptions: {
       output: {
         manualChunks: {

@@ -1,4 +1,7 @@
 
+/* Dyslexia-Friendly Font - Must be imported first */
+@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
+
 /* Accessibility CSS for Dubai Government Standards */
 
 /* High Contrast Mode */
@@ -40,8 +43,7 @@
   border: 2px solid black !important;
 }
 
-/* Dyslexia-Friendly Font */
-@import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
+/* Dyslexia-Friendly Font - Font already imported at top */
 
 .dyslexia-font * {
   font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
