@@ -1,4 +1,3 @@
-
 import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
@@ -19,7 +18,8 @@ import {
   UserCheck,
   Search,
   Shield,
-  BarChart3
+  BarChart3,
+  Compass
 } from 'lucide-react';
 
 export const navigationGroups: NavGroup[] = [
@@ -70,6 +70,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/career-journey',
         description: 'Map your career path',
         icon: MapPin
+      },
+      {
+        name: 'Industry Exploration',
+        href: '/industry-exploration',
+        description: 'Discover UAE industry opportunities',
+        icon: Compass
       },
       {
         name: 'Internships',
