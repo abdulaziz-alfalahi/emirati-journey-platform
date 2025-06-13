@@ -53,6 +53,12 @@ export const navigationGroups: NavGroup[] = [
         icon: GraduationCap
       },
       {
+        name: 'Graduate Programs',
+        href: '/graduate-programs',
+        description: 'Master\'s, PhD, and advanced degree programs',
+        icon: GraduationCap
+      },
+      {
         name: 'Learning Management System',
         href: '/lms',
         description: 'Online learning platform',

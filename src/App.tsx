@@ -33,6 +33,7 @@ const UniversityProgramsPage = React.lazy(() => import('@/pages/university-progr
 const CareerJourneyPage = React.lazy(() => import('@/pages/career-journey'));
 const CareerAdvisoryPage = React.lazy(() => import('@/pages/career-advisory'));
 const IndustryExplorationPage = React.lazy(() => import('@/pages/industry-exploration'));
+const GraduateProgramsPage = React.lazy(() => import('@/pages/graduate-programs'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -81,6 +82,7 @@ function App() {
                   <Route path="/school-programs" element={<SchoolProgramsPage />} />
                   <Route path="/scholarships" element={<ScholarshipsPage />} />
                   <Route path="/university-programs" element={<UniversityProgramsPage />} />
+                  <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
                   <Route path="/lms" element={<LMSPage />} />
                   <Route path="/training" element={<TrainingPage />} />
                   
@@ -89,7 +91,6 @@ function App() {
                   <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
                   <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />
-                  <Route path="/graduate-programs" element={<div className="p-8"><h1 className="text-2xl font-bold">Graduate Programs - Coming Soon</h1></div>} />
                   <Route path="/resume-builder" element={<div className="p-8"><h1 className="text-2xl font-bold">CV Builder - Coming Soon</h1></div>} />
                   <Route path="/portfolio" element={<div className="p-8"><h1 className="text-2xl font-bold">Portfolio - Coming Soon</h1></div>} />
                   <Route path="/interview-preparation" element={<div className="p-8"><h1 className="text-2xl font-bold">Interview Preparation - Coming Soon</h1></div>} />
