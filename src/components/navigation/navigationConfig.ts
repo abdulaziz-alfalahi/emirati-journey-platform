@@ -1,4 +1,3 @@
-
 import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
@@ -107,6 +106,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/resume-builder',
         description: 'Build your professional resume',
         icon: FileText
+      },
+      {
+        name: 'Portfolio',
+        href: '/portfolio',
+        description: 'Create stunning digital portfolios to showcase your work',
+        icon: User
       },
       {
         name: 'Interview Preparation',
