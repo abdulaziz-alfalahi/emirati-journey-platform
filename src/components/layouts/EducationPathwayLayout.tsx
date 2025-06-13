@@ -47,10 +47,10 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
   const { isMobile, isCapacitor } = useMobileDetection();
 
   const content = (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-ehrdc-teal/5 via-ehrdc-light-teal/10 to-ehrdc-neutral-light">
       {/* Hero Section */}
       <section className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ehrdc-teal/10 to-ehrdc-dark-teal/10" />
         <div className="absolute inset-0 pattern-dots opacity-20" />
         
         <div className="relative dubai-container">
@@ -61,7 +61,7 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
               </div>
             </div>
             
-            <Badge className="mb-6 bg-blue-100 text-blue-800 hover:bg-blue-200">
+            <Badge className="mb-6 bg-ehrdc-teal/10 text-ehrdc-teal hover:bg-ehrdc-teal/20">
               <GraduationCap className="h-4 w-4 mr-2" />
               Education Pathway
             </Badge>
@@ -84,10 +84,10 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
                   {actionButtonText}
                 </a>
               </Button>
-              <Button 
+              <Button
                 variant="outline" 
                 size="lg"
-                className="px-8 py-3"
+                className="px-8 py-3 border-ehrdc-teal/20 hover:bg-ehrdc-teal/10"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Browse Resources
@@ -105,8 +105,8 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
               <Card key={index} className="text-center border-0 shadow-sm bg-white/80 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="flex justify-center mb-3">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <stat.icon className="h-6 w-6 text-blue-600" />
+                    <div className="p-3 bg-ehrdc-teal/10 rounded-lg">
+                      <stat.icon className="h-6 w-6 text-ehrdc-teal" />
                     </div>
                   </div>
                   <div className="text-2xl font-bold text-ehrdc-neutral-dark mb-1">
@@ -127,12 +127,12 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
         <div className="dubai-container">
           <Tabs defaultValue={defaultTab} className="w-full">
             <div className="flex justify-center mb-8">
-              <TabsList className="grid w-full max-w-2xl grid-cols-2 lg:grid-cols-4 bg-white/80 backdrop-blur-sm shadow-sm">
+              <TabsList className="grid w-full max-w-2xl grid-cols-2 lg:grid-cols-4 bg-white/80 backdrop-blur-sm shadow-sm border border-ehrdc-teal/10">
                 {tabs.map((tab) => (
                   <TabsTrigger 
                     key={tab.id} 
                     value={tab.id}
-                    className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800"
+                    className="flex items-center gap-2 data-[state=active]:bg-ehrdc-teal/10 data-[state=active]:text-ehrdc-teal"
                   >
                     {tab.icon}
                     <span className="hidden sm:inline">{tab.label}</span>
@@ -143,7 +143,7 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
 
             {tabs.map((tab) => (
               <TabsContent key={tab.id} value={tab.id} className="mt-8">
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 lg:p-8 shadow-sm">
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 lg:p-8 shadow-sm border border-ehrdc-teal/10">
                   {tab.content}
                 </div>
               </TabsContent>
@@ -153,12 +153,12 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
       </section>
 
       {/* Community Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600/5 to-indigo-600/5">
+      <section className="py-16 bg-gradient-to-r from-ehrdc-teal/5 to-ehrdc-dark-teal/5">
         <div className="dubai-container">
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex justify-center mb-6">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Users className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-ehrdc-teal/10 rounded-lg">
+                <Users className="h-8 w-8 text-ehrdc-teal" />
               </div>
             </div>
             
@@ -173,19 +173,19 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className="text-center border-0 bg-white/80">
                 <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-blue-600 mb-2">15K+</div>
+                  <div className="text-2xl font-bold text-ehrdc-teal mb-2">15K+</div>
                   <div className="text-sm text-ehrdc-neutral-dark/70">Active Learners</div>
                 </CardContent>
               </Card>
               <Card className="text-center border-0 bg-white/80">
                 <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-indigo-600 mb-2">500+</div>
+                  <div className="text-2xl font-bold text-ehrdc-dark-teal mb-2">500+</div>
                   <div className="text-sm text-ehrdc-neutral-dark/70">Expert Instructors</div>
                 </CardContent>
               </Card>
               <Card className="text-center border-0 bg-white/80">
                 <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-purple-600 mb-2">95%</div>
+                  <div className="text-2xl font-bold text-ehrdc-light-teal mb-2">95%</div>
                   <div className="text-sm text-ehrdc-neutral-dark/70">Success Rate</div>
                 </CardContent>
               </Card>
@@ -194,7 +194,7 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
             <Button 
               size="lg" 
               variant="outline"
-              className="px-8 py-3 border-blue-200 hover:bg-blue-50"
+              className="px-8 py-3 border-ehrdc-teal/20 hover:bg-ehrdc-teal/10"
             >
               <Users className="h-4 w-4 mr-2" />
               Join Community
