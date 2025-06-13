@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScholarshipsList } from '@/components/scholarships/ScholarshipsList';
-import { ScholarshipsFilter } from '@/components/scholarships/ScholarshipsFilter';
+import ScholarshipsList from '@/components/scholarships/ScholarshipsList';
+import ScholarshipsFilter from '@/components/scholarships/ScholarshipsFilter';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, School, GraduationCap, Award, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { ScholarshipsCreate } from '@/components/scholarships/ScholarshipsCreate';
-import { ScholarshipsApplied } from '@/components/scholarships/ScholarshipsApplied';
-import { ScholarshipsManage } from '@/components/scholarships/ScholarshipsManage';
+import ScholarshipsCreate from '@/components/scholarships/ScholarshipsCreate';
+import ScholarshipsApplied from '@/components/scholarships/ScholarshipsApplied';
+import ScholarshipsManage from '@/components/scholarships/ScholarshipsManage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { IconButton } from '@/components/ui/icon-button';
 
