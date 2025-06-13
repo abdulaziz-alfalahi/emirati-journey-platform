@@ -103,19 +103,19 @@ const ResumeBuilderPage: React.FC = () => {
       id: 'suggestions',
       label: 'Smart Suggestions',
       icon: <Lightbulb className="h-4 w-4" />,
-      content: <SmartSuggestions />
+      content: <SmartSuggestions resumeData={mockResumeData} />
     },
     {
       id: 'ats',
       label: 'ATS Optimizer',
       icon: <Target className="h-4 w-4" />,
-      content: <ATSOptimizer />
+      content: <ATSOptimizer resumeData={mockResumeData} />
     },
     {
       id: 'analytics',
       label: 'Analytics',
       icon: <BarChart3 className="h-4 w-4" />,
-      content: <ResumeAnalytics />
+      content: <ResumeAnalytics resumeData={mockResumeData} />
     },
     {
       id: 'export',
@@ -123,6 +123,7 @@ const ResumeBuilderPage: React.FC = () => {
       icon: <Download className="h-4 w-4" />,
       content: (
         <ExportCenter 
+          resumeData={mockResumeData}
           onExport={handleExport}
         />
       )
