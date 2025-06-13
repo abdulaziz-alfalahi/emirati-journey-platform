@@ -1,18 +1,30 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Users, Building, Calendar, Award, BookOpen, Search, Filter, FileText, Microscope } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import GraduateProgramCard from '@/components/graduate-programs/GraduateProgramCard';
 import GraduateProgramsFilter from '@/components/graduate-programs/GraduateProgramsFilter';
-import GraduateProgramsList from '@/components/graduate-programs/GraduateProgramsList';
-import ApplicationTracker from '@/components/graduate-programs/ApplicationTracker';
-import ProgramExplorer from '@/components/graduate-programs/ProgramExplorer';
-import AlumniInsights from '@/components/graduate-programs/AlumniInsights';
-import ProgramCalendar from '@/components/graduate-programs/ProgramCalendar';
+import { ApplicationTracker } from '@/components/graduate-programs/ApplicationTracker';
+import { ProgramExplorer } from '@/components/graduate-programs/ProgramExplorer';
+import { AlumniInsights } from '@/components/graduate-programs/AlumniInsights';
+import { ProgramCalendar } from '@/components/graduate-programs/ProgramCalendar';
+import { 
+  GraduationCap, 
+  Search, 
+  Filter, 
+  Calendar,
+  Users,
+  Award,
+  BookOpen,
+  TrendingUp,
+  Target,
+  Globe
+} from 'lucide-react';
 
 interface FilterState {
   search: string;
@@ -24,285 +36,212 @@ interface FilterState {
 }
 
 const GraduateProgramsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('programs');
+  const [activeTab, setActiveTab] = useState('browse');
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     university: '',
     degreeLevel: '',
     fieldOfStudy: '',
     programFormat: '',
-    fundingType: '',
+    fundingType: ''
   });
 
-  // Fetch filter options
-  const { data: filterOptions } = useQuery({
-    queryKey: ['graduate-programs-filter-options'],
-    queryFn: async () => {
-      const { data: programs, error } = await supabase
-        .from('graduate_programs')
-        .select('university_name, degree_level, field_of_study')
-        .eq('is_active', true);
-      
-      if (error) throw error;
-
-      const universities = [...new Set(programs.map(p => p.university_name))].sort();
-      const degreeLevels = [...new Set(programs.map(p => p.degree_level))].sort();
-      const fieldsOfStudy = [...new Set(programs.map(p => p.field_of_study))].sort();
-
-      return { universities, degreeLevels, fieldsOfStudy };
+  // Mock data for programs
+  const programs = [
+    {
+      id: '1',
+      university_name: 'American University of Sharjah',
+      program_name: 'Master of Science in Computer Science',
+      degree_level: 'Master\'s',
+      field_of_study: 'Computer Science',
+      description: 'Advanced computer science program focusing on AI, machine learning, and software engineering.',
+      duration_years: 2,
+      application_deadline: '2024-03-15',
+      program_url: 'https://aus.edu/cs-masters',
+      is_active: true,
+      created_at: '2024-01-01'
+    },
+    {
+      id: '2',
+      university_name: 'United Arab Emirates University',
+      program_name: 'PhD in Engineering',
+      degree_level: 'PhD',
+      field_of_study: 'Engineering',
+      description: 'Research-focused doctoral program in various engineering disciplines.',
+      duration_years: 4,
+      application_deadline: '2024-04-30',
+      program_url: 'https://uaeu.ac.ae/phd-engineering',
+      is_active: true,
+      created_at: '2024-01-01'
     }
-  });
+  ];
 
-  // Fetch stats
-  const { data: stats } = useQuery({
-    queryKey: ['graduate-programs-stats'],
-    queryFn: async () => {
-      const { data: programs, error } = await supabase
-        .from('graduate_programs')
-        .select('*')
-        .eq('is_active', true);
-      
-      if (error) throw error;
+  const universities = Array.from(new Set(programs.map(p => p.university_name)));
+  const degreeLevels = Array.from(new Set(programs.map(p => p.degree_level)));
+  const fieldsOfStudy = Array.from(new Set(programs.map(p => p.field_of_study)));
 
-      const totalPrograms = programs.length;
-      const universities = new Set(programs.map(p => p.university_name)).size;
-      const fields = new Set(programs.map(p => p.field_of_study)).size;
-      const researchOpportunities = programs.filter(p => p.degree_level === 'PhD').length;
-
-      return { totalPrograms, universities, fields, researchOpportunities };
-    }
+  const filteredPrograms = programs.filter(program => {
+    return (
+      (!filters.search || program.program_name.toLowerCase().includes(filters.search.toLowerCase()) ||
+       program.university_name.toLowerCase().includes(filters.search.toLowerCase())) &&
+      (!filters.university || program.university_name === filters.university) &&
+      (!filters.degreeLevel || program.degree_level === filters.degreeLevel) &&
+      (!filters.fieldOfStudy || program.field_of_study === filters.fieldOfStudy)
+    );
   });
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        {/* Group 2 Hero Section - Blue to Indigo Gradient */}
-        <section className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="bg-white/20 rounded-full p-4">
-                  <GraduationCap className="h-12 w-12" />
-                </div>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-                Graduate Programs
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-                Advance your expertise with world-class graduate education opportunities, cutting-edge research programs, and professional development for Emirati scholars
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                  <Search className="h-5 w-5 mr-2" />
-                  Explore Programs
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                  <FileText className="h-5 w-5 mr-2" />
-                  Application Guide
-                </Button>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30L15 15v30l15-15zm15 0L30 15v30l15-15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="bg-white/20 rounded-full p-4">
+                <GraduationCap className="h-12 w-12" />
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
-          <div className="grid gap-4 md:grid-cols-4 mb-8">
-            <div className="bg-blue-50 p-6 rounded-lg flex items-center border border-blue-100 shadow-sm">
-              <GraduationCap className="h-10 w-10 text-blue-600 mr-4" />
-              <div>
-                <h3 className="font-semibold text-lg">{stats?.totalPrograms || 0} Programs</h3>
-                <p className="text-sm text-muted-foreground">Available graduate programs</p>
-              </div>
-            </div>
-            <div className="bg-indigo-50 p-6 rounded-lg flex items-center border border-indigo-100 shadow-sm">
-              <Building className="h-10 w-10 text-indigo-600 mr-4" />
-              <div>
-                <h3 className="font-semibold text-lg">{stats?.universities || 0} Universities</h3>
-                <p className="text-sm text-muted-foreground">Partner institutions</p>
-              </div>
-            </div>
-            <div className="bg-purple-50 p-6 rounded-lg flex items-center border border-purple-100 shadow-sm">
-              <Users className="h-10 w-10 text-purple-600 mr-4" />
-              <div>
-                <h3 className="font-semibold text-lg">{stats?.fields || 0} Fields</h3>
-                <p className="text-sm text-muted-foreground">Different fields of study</p>
-              </div>
-            </div>
-            <div className="bg-amber-50 p-6 rounded-lg flex items-center border border-amber-100 shadow-sm">
-              <Microscope className="h-10 w-10 text-amber-600 mr-4" />
-              <div>
-                <h3 className="font-semibold text-lg">{stats?.researchOpportunities || 0} Research</h3>
-                <p className="text-sm text-muted-foreground">PhD & research opportunities</p>
-              </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+              Graduate Programs
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto opacity-90">
+              Advance your career with master's, doctoral, and professional programs from top universities
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button 
+                size="lg" 
+                className="bg-white text-blue-700 hover:bg-gray-50 font-semibold"
+              >
+                <Search className="mr-2 h-5 w-5" />
+                Explore Programs
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-blue-700"
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                Application Calendar
+              </Button>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="grid gap-8 lg:grid-cols-4">
-            {/* Filter Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-4 mb-6">
-                <h3 className="font-medium text-lg mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    <Search className="h-4 w-4 mr-2" />
-                    Find Programs
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Track Applications
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    View Deadlines
-                  </Button>
-                </div>
+      {/* Stats Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <GraduationCap className="h-8 w-8 text-blue-600" />
               </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">150+</div>
+              <div className="text-gray-600">Graduate Programs</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">25</div>
+              <div className="text-gray-600">Partner Universities</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Award className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">85%</div>
+              <div className="text-gray-600">Scholarship Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Globe className="h-8 w-8 text-orange-600" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">30+</div>
+              <div className="text-gray-600">Countries Represented</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {filterOptions && (
-                <GraduateProgramsFilter
-                  filters={filters}
-                  onFilterChange={setFilters}
-                  universities={filterOptions.universities}
-                  degreeLevels={filterOptions.degreeLevels}
-                  fieldsOfStudy={filterOptions.fieldsOfStudy}
-                />
-              )}
+      {/* Main Content */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar */}
+            <div className="lg:w-80 flex-shrink-0">
+              <GraduateProgramsFilter
+                filters={filters}
+                onFilterChange={setFilters}
+                universities={universities}
+                degreeLevels={degreeLevels}
+                fieldsOfStudy={fieldsOfStudy}
+              />
             </div>
 
-            {/* Main Content Area */}
-            <div className="lg:col-span-3">
+            {/* Main Content */}
+            <div className="flex-1">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-6 bg-white border">
-                  <TabsTrigger value="programs" className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4" />
-                    All Programs
-                  </TabsTrigger>
-                  <TabsTrigger value="research" className="flex items-center gap-2">
-                    <Microscope className="h-4 w-4" />
-                    Research
-                  </TabsTrigger>
-                  <TabsTrigger value="applications" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Applications
-                  </TabsTrigger>
-                  <TabsTrigger value="explorer" className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    Explorer
-                  </TabsTrigger>
-                  <TabsTrigger value="insights" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Alumni
-                  </TabsTrigger>
-                  <TabsTrigger value="calendar" className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Calendar
-                  </TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="browse">Browse Programs</TabsTrigger>
+                  <TabsTrigger value="explorer">Program Explorer</TabsTrigger>
+                  <TabsTrigger value="tracker">Application Tracker</TabsTrigger>
+                  <TabsTrigger value="alumni">Alumni Insights</TabsTrigger>
+                  <TabsTrigger value="calendar">Calendar & Events</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="programs">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Graduate Programs</h2>
-                        <Button variant="outline" size="sm">
-                          <Filter className="h-4 w-4 mr-2" />
-                          Advanced Filters
-                        </Button>
-                      </div>
-                      <GraduateProgramsList filters={filters} />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="browse" className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {filteredPrograms.length} Programs Found
+                    </h2>
+                    <div className="flex gap-2">
+                      <Select defaultValue="deadline">
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="deadline">Application Deadline</SelectItem>
+                          <SelectItem value="name">Program Name</SelectItem>
+                          <SelectItem value="university">University</SelectItem>
+                          <SelectItem value="level">Degree Level</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-6">
+                    {filteredPrograms.map((program) => (
+                      <GraduateProgramCard key={program.id} program={program} />
+                    ))}
+                  </div>
                 </TabsContent>
 
-                <TabsContent value="research">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Research Opportunities</h2>
-                        <Button variant="outline" size="sm">
-                          <Microscope className="h-4 w-4 mr-2" />
-                          Research Areas
-                        </Button>
-                      </div>
-                      <GraduateProgramsList 
-                        filters={{
-                          ...filters,
-                          degreeLevel: 'PhD'
-                        }} 
-                      />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="explorer" className="space-y-6">
+                  <ProgramExplorer />
                 </TabsContent>
 
-                <TabsContent value="applications">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Application Tracker</h2>
-                        <Button variant="outline" size="sm">
-                          <FileText className="h-4 w-4 mr-2" />
-                          New Application
-                        </Button>
-                      </div>
-                      <ApplicationTracker />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="tracker" className="space-y-6">
+                  <ApplicationTracker />
                 </TabsContent>
 
-                <TabsContent value="explorer">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Program Explorer</h2>
-                        <Button variant="outline" size="sm">
-                          <Search className="h-4 w-4 mr-2" />
-                          Advanced Search
-                        </Button>
-                      </div>
-                      <ProgramExplorer />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="alumni" className="space-y-6">
+                  <AlumniInsights />
                 </TabsContent>
 
-                <TabsContent value="insights">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Alumni Insights</h2>
-                        <Button variant="outline" size="sm">
-                          <Users className="h-4 w-4 mr-2" />
-                          Connect
-                        </Button>
-                      </div>
-                      <AlumniInsights />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="calendar">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Academic Calendar</h2>
-                        <Button variant="outline" size="sm">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Export Calendar
-                        </Button>
-                      </div>
-                      <ProgramCalendar />
-                    </CardContent>
-                  </Card>
+                <TabsContent value="calendar" className="space-y-6">
+                  <ProgramCalendar />
                 </TabsContent>
               </Tabs>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </Layout>
   );
 };
