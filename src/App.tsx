@@ -99,7 +99,7 @@ function App() {
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
                   <Route path="/job-matching" element={<JobMatchingPage />} />
-                  <Route path="/career-comparison" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Path Comparison - Coming Soon</h1></div>} />
+                  <Route path="/career-comparison" element={<CareerComparisonPage />} />
                   <Route path="/salary-explorer" element={<div className="p-8"><h1 className="text-2xl font-bold">Salary Explorer - Coming Soon</h1></div>} />
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
                 </Routes>

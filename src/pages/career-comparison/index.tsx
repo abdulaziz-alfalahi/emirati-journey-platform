@@ -13,7 +13,15 @@ import {
 } from 'lucide-react';
 
 const CareerComparisonPage: React.FC = () => {
-  // Define tabs for the Career Entry layout - standardized to 6 tabs
+  const handlePrimaryAction = () => {
+    console.log('Start career comparison');
+  };
+
+  const handleSecondaryAction = () => {
+    console.log('View market data');
+  };
+
+  // Define tabs for the Career Entry layout
   const tabs = [
     {
       id: 'comparison',
@@ -61,8 +69,10 @@ const CareerComparisonPage: React.FC = () => {
       heroIcon={<GitCompare className="h-12 w-12" />}
       primaryActionLabel="Start Comparison"
       primaryActionIcon={<GitCompare className="h-5 w-5" />}
+      primaryActionOnClick={handlePrimaryAction}
       secondaryActionLabel="View Market Data"
       secondaryActionIcon={<BarChart3 className="h-5 w-5" />}
+      secondaryActionOnClick={handleSecondaryAction}
       
       // Stats props
       stats={[
