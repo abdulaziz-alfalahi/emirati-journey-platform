@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import { Lightbulb, FileText, Video, Users } from 'lucide-react';
 import { ArticlesTab } from '@/components/thought-leadership/ArticlesTab';
 import { ResearchPapersTab } from '@/components/thought-leadership/ResearchPapersTab';
@@ -43,7 +43,7 @@ const ThoughtLeadershipPage: React.FC = () => {
   ];
 
   return (
-    <ProfessionalGrowthLayout
+    <LifelongEngagementLayout
       title="Thought Leadership"
       description="Explore insights, research, and perspectives from industry leaders and experts in the UAE. Access cutting-edge articles, research papers, and multimedia content that shapes the future of work and career development."
       icon={<Lightbulb className="h-8 w-8" />}

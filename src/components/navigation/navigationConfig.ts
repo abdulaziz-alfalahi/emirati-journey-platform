@@ -213,6 +213,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/financial-planning',
         description: 'Comprehensive financial wellness and planning tools',
         icon: DollarSign
+      },
+      {
+        name: 'Thought Leadership',
+        href: '/thought-leadership',
+        description: 'Industry insights and expert perspectives',
+        icon: Lightbulb
       }
     ]
   }
