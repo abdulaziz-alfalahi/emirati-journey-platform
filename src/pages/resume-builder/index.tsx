@@ -23,7 +23,7 @@ import ATSOptimizer from '@/components/resume/ATSOptimizer';
 import SmartSuggestions from '@/components/resume/SmartSuggestions';
 import ResumeAnalytics from '@/components/resume/ResumeAnalytics';
 import ExportCenter from '@/components/resume/ExportCenter';
-import { ResumeTemplate } from '@/components/resume/types/advanced';
+import { ResumeTemplate } from '@/components/resume/types';
 
 const ResumeBuilderPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('templates');
@@ -75,27 +75,12 @@ const ResumeBuilderPage: React.FC = () => {
     // Implementation for export logic
   };
 
-  // Mock template for builder
+  // Mock template for builder - using the correct type structure
   const mockTemplate: ResumeTemplate = {
     id: selectedTemplate || 'corporate-classic',
     name: 'Corporate Classic',
     description: 'Professional template for corporate roles',
-    category: 'corporate',
-    preview: '/template-preview.png',
-    sections: [],
-    colors: {
-      primary: '#0891b2',
-      secondary: '#64748b',
-      accent: '#f59e0b',
-      text: '#1f2937',
-      background: '#ffffff'
-    },
-    layout: {
-      columns: 1,
-      headerStyle: 'centered',
-      sectionSpacing: 'normal',
-      typography: 'sans-serif'
-    }
+    sections: ['personal', 'summary', 'experience', 'education', 'skills'] // Changed from ResumeSection[] to string[]
   };
 
   if (isBuilding && selectedTemplate) {
@@ -125,7 +110,7 @@ const ResumeBuilderPage: React.FC = () => {
                 <FileText className="h-12 w-12" />
               </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+            <h1 className="text-5xl md:text-6xl font-bol mb-6 animate-fade-in">
               Resume Builder
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto opacity-90">
