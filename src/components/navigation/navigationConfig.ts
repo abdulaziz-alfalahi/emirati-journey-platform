@@ -207,6 +207,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/analytics',
         description: 'View insights and analytics',
         icon: BarChart3
+      },
+      {
+        name: 'Financial Planning',
+        href: '/financial-planning',
+        description: 'Comprehensive financial wellness and planning tools',
+        icon: DollarSign
       }
     ]
   }

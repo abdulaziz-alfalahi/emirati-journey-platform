@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { FinancialResource } from './types';
 
 interface FinancialPlanningContentProps {
-  category: 'budgeting' | 'investments' | 'retirement' | 'tools';
+  category: 'budgeting' | 'investments' | 'retirement' | 'tools' | 'insurance' | 'education' | 'advisory';
 }
 
 export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> = ({ category }) => {
@@ -86,6 +86,12 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
         return 'Explore investment opportunities including stocks, real estate, Islamic finance, and more in the UAE market.';
       case 'retirement':
         return 'Plan for your future with retirement guides, pension information, and long-term financial strategies.';
+      case 'insurance':
+        return 'Protect your financial future with comprehensive insurance coverage and risk management strategies.';
+      case 'education':
+        return 'Build financial literacy with courses, webinars, and educational resources covering UAE-specific regulations and Islamic finance.';
+      case 'advisory':
+        return 'Connect with certified financial planners and access professional advisory services for personalized financial guidance.';
       case 'tools':
         return 'Access interactive calculators, apps, and worksheets to help manage your financial planning effectively.';
       default:
