@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
@@ -38,6 +37,7 @@ const GraduateProgramsPage = React.lazy(() => import('@/pages/graduate-programs'
 const ResumeBuilderPage = React.lazy(() => import('@/pages/resume-builder'));
 const PortfolioPage = React.lazy(() => import('@/pages/portfolio'));
 const InterviewPreparationPage = React.lazy(() => import('@/pages/interview-preparation'));
+const JobMatchingPage = React.lazy(() => import('@/pages/job-matching'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -98,7 +98,7 @@ function App() {
                   <Route path="/resume-builder" element={<ResumeBuilderPage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
-                  <Route path="/job-matching" element={<div className="p-8"><h1 className="text-2xl font-bold">Job Matching - Coming Soon</h1></div>} />
+                  <Route path="/job-matching" element={<JobMatchingPage />} />
                   <Route path="/career-comparison" element={<div className="p-8"><h1 className="text-2xl font-bold">Career Path Comparison - Coming Soon</h1></div>} />
                   <Route path="/salary-explorer" element={<div className="p-8"><h1 className="text-2xl font-bold">Salary Explorer - Coming Soon</h1></div>} />
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
