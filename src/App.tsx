@@ -42,6 +42,7 @@ const CareerComparisonPage = React.lazy(() => import('@/pages/career-comparison'
 const SalaryExplorerPage = React.lazy(() => import('@/pages/salary-explorer'));
 const FinancialPlanningPage = React.lazy(() => import('@/pages/financial-planning'));
 const ThoughtLeadershipPage = React.lazy(() => import('@/pages/thought-leadership'));
+const RetireeServicesPage = React.lazy(() => import('@/pages/retiree'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -107,6 +108,7 @@ function App() {
                   <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
                   <Route path="/financial-planning" element={<FinancialPlanningPage />} />
                   <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                  <Route path="/retiree" element={<RetireeServicesPage />} />
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
                 </Routes>
               </Suspense>

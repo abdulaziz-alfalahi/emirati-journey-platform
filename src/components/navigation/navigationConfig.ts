@@ -219,6 +219,12 @@ export const navigationGroups: NavGroup[] = [
         href: '/thought-leadership',
         description: 'Industry insights and expert perspectives',
         icon: Lightbulb
+      },
+      {
+        name: 'Retiree Services',
+        href: '/retiree',
+        description: 'Post-career opportunities and retirement benefits',
+        icon: Users
       }
     ]
   }
