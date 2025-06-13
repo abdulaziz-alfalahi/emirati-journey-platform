@@ -1,284 +1,309 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, Minus } from 'lucide-react';
 import { createScholarship } from '@/services/scholarshipService';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-
-// Create schema for form validation
-const formSchema = z.object({
-  title: z.string().min(5, { message: "Title must be at least 5 characters" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-  provider: z.string().min(2, { message: "Provider name is required" }),
-  provider_type: z.string(),
-  amount: z.string().transform((val) => val ? parseFloat(val) : undefined),
-  currency: z.string().default("AED"),
-  application_deadline: z.date().optional(),
-  contact_email: z.string().email({ message: "Invalid email address" }).optional().or(z.literal('')),
-  contact_phone: z.string().optional(),
-  website_url: z.string().url({ message: "Invalid URL" }).optional().or(z.literal('')),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface ScholarshipsCreateProps {
   onSuccess: () => void;
 }
 
-export const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSuccess }) => {
-  const { toast } = useToast();
-  const { user } = useAuth();
-  
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      provider: '',
-      provider_type: 'university',
-      currency: 'AED',
-    },
+const ScholarshipsCreate: React.FC<ScholarshipsCreateProps> = ({ onSuccess }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    provider: '',
+    provider_type: 'university',
+    amount: '',
+    currency: 'AED',
+    application_deadline: '',
+    contact_email: '',
+    contact_phone: '',
+    website_url: '',
+    requirements: ['']
   });
-  
-  const onSubmit = async (values: FormValues) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleRequirementChange = (index: number, value: string) => {
+    const newRequirements = [...formData.requirements];
+    newRequirements[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      requirements: newRequirements
+    }));
+  };
+
+  const addRequirement = () => {
+    setFormData(prev => ({
+      ...prev,
+      requirements: [...prev.requirements, '']
+    }));
+  };
+
+  const removeRequirement = (index: number) => {
+    if (formData.requirements.length > 1) {
+      const newRequirements = formData.requirements.filter((_, i) => i !== index);
+      setFormData(prev => ({
+        ...prev,
+        requirements: newRequirements
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "You must be logged in to create a scholarship",
+        title: "Authentication Required",
+        description: "Please sign in to create a scholarship.",
         variant: "destructive"
       });
       return;
     }
-    
+
     try {
-      // Ensure all required fields are present
+      setIsSubmitting(true);
+      
       const scholarshipData = {
-        title: values.title,
-        description: values.description,
-        provider: values.provider,
-        provider_type: values.provider_type,
-        amount: values.amount,
-        currency: values.currency,
-        application_deadline: values.application_deadline ? values.application_deadline.toISOString() : undefined,
-        contact_email: values.contact_email || undefined,
-        contact_phone: values.contact_phone,
-        website_url: values.website_url || undefined,
-        is_active: true,
+        ...formData,
+        amount: formData.amount ? parseFloat(formData.amount) : undefined,
+        application_deadline: formData.application_deadline || undefined,
+        requirements: formData.requirements.filter(req => req.trim() !== ''),
         created_by: user.id
       };
-      
+
       await createScholarship(scholarshipData);
       
       toast({
-        title: "Scholarship created",
-        description: "Your scholarship has been successfully created",
+        title: "Scholarship Created",
+        description: "Your scholarship has been created successfully!",
       });
       
       onSuccess();
     } catch (error) {
       console.error('Error creating scholarship:', error);
       toast({
-        title: "Error",
+        title: "Creation Failed",
         description: "Failed to create scholarship. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Scholarship Title</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Engineering Excellence Scholarship" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="provider"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Provider Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Ministry of Education" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="provider_type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Provider Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select provider type" />
-                  </SelectTrigger>
-                </FormControl>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>
+              Provide the essential details about your scholarship program.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="title">Scholarship Title *</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="e.g., UAE Future Leaders Scholarship"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="provider">Provider Organization *</Label>
+              <Input
+                id="provider"
+                value={formData.provider}
+                onChange={(e) => handleInputChange('provider', e.target.value)}
+                placeholder="e.g., UAE Ministry of Education"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="provider_type">Provider Type *</Label>
+              <Select value={formData.provider_type} onValueChange={(value) => handleInputChange('provider_type', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Provider Types</SelectLabel>
-                    <SelectItem value="government">Government</SelectItem>
-                    <SelectItem value="private_sector">Private Sector</SelectItem>
-                    <SelectItem value="university">University</SelectItem>
-                  </SelectGroup>
+                  <SelectItem value="government">Government</SelectItem>
+                  <SelectItem value="university">University</SelectItem>
+                  <SelectItem value="private_sector">Private Sector</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Amount</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="50000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="currency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Currency</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                  </FormControl>
+            </div>
+            
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Describe the scholarship program, its objectives, and what it offers..."
+                rows={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Financial & Contact Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Financial & Contact Details</CardTitle>
+            <CardDescription>
+              Specify the financial aspects and how applicants can reach you.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="amount">Scholarship Amount</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) => handleInputChange('amount', e.target.value)}
+                  placeholder="50000"
+                />
+              </div>
+              <div>
+                <Label htmlFor="currency">Currency</Label>
+                <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="AED">AED</SelectItem>
                     <SelectItem value="USD">USD</SelectItem>
                     <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
-          name="application_deadline"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Application Deadline</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full pl-3 text-left font-normal"
-                    >
-                      <span className="flex items-center justify-between w-full">
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          "Pick a date"
-                        )}
-                        <CalendarIcon className="h-4 w-4 opacity-50" />
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Provide a description of the scholarship, eligibility criteria, and other important details..."
-                  className="min-h-[100px]"
-                  {...field}
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="application_deadline">Application Deadline</Label>
+              <Input
+                id="application_deadline"
+                type="datetime-local"
+                value={formData.application_deadline}
+                onChange={(e) => handleInputChange('application_deadline', e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="contact_email">Contact Email</Label>
+              <Input
+                id="contact_email"
+                type="email"
+                value={formData.contact_email}
+                onChange={(e) => handleInputChange('contact_email', e.target.value)}
+                placeholder="scholarships@organization.ae"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="contact_phone">Contact Phone</Label>
+              <Input
+                id="contact_phone"
+                value={formData.contact_phone}
+                onChange={(e) => handleInputChange('contact_phone', e.target.value)}
+                placeholder="+971 2 123 4567"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="website_url">Website URL</Label>
+              <Input
+                id="website_url"
+                type="url"
+                value={formData.website_url}
+                onChange={(e) => handleInputChange('website_url', e.target.value)}
+                placeholder="https://www.organization.ae/scholarships"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Requirements */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Application Requirements</CardTitle>
+          <CardDescription>
+            List the requirements that applicants must meet or submit.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {formData.requirements.map((requirement, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  value={requirement}
+                  onChange={(e) => handleRequirementChange(index, e.target.value)}
+                  placeholder={`Requirement ${index + 1}`}
+                  className="flex-1"
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="website_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website URL (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/scholarship" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="contact_email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact Email (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="scholarships@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button type="submit">Create Scholarship</Button>
-        </div>
-      </form>
-    </Form>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeRequirement(index)}
+                  disabled={formData.requirements.length === 1}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addRequirement}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Requirement
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Submit Button */}
+      <div className="flex justify-end gap-4">
+        <Button type="button" variant="outline" onClick={onSuccess}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting} className="ehrdc-button-primary">
+          {isSubmitting ? 'Creating...' : 'Create Scholarship'}
+        </Button>
+      </div>
+    </form>
   );
 };
+
+export default ScholarshipsCreate;

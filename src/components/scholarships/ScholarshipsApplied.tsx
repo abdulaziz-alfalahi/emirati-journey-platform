@@ -1,14 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, ExternalLink, Bookmark, Download, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Calendar, DollarSign, Building, Users, FileText } from 'lucide-react';
+import { getApplicationsByUser } from '@/services/scholarshipService';
 import { Application } from '@/types/scholarships';
-import { getUserApplications } from '@/services/scholarshipService';
 import { useAuth } from '@/context/AuthContext';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ScholarshipsAppliedProps {
   filters: {
@@ -18,53 +17,41 @@ interface ScholarshipsAppliedProps {
   searchQuery: string;
 }
 
-export const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({ 
-  filters, 
-  searchQuery 
+const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({
+  filters,
+  searchQuery
 }) => {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   useEffect(() => {
     const fetchApplications = async () => {
-      if (!user) return;
-      
-      setIsLoading(true);
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Changed from getApplicationsByUser to getUserApplications
-        const data = await getUserApplications(user.id);
+        setLoading(true);
+        const data = await getApplicationsByUser(user.id);
         
-        // Apply filters
+        // Apply filters to applications
         let filtered = data;
         
-        // Filter by provider type
-        if (filters.providerType && filters.providerType.length > 0) {
-          filtered = filtered.filter(a => 
-            a.scholarship && filters.providerType.includes(a.scholarship.provider_type)
+        if (filters.providerType.length > 0) {
+          filtered = filtered.filter(app => 
+            app.scholarship && filters.providerType.includes(app.scholarship.provider_type)
           );
         }
         
-        // Filter by amount range
-        if (filters.amount && (filters.amount[0] !== null || filters.amount[1] !== null)) {
-          filtered = filtered.filter(a => {
-            if (!a.scholarship || a.scholarship.amount === undefined) return false;
-            
-            const min = filters.amount[0] ?? 0;
-            const max = filters.amount[1] ?? Infinity;
-            return a.scholarship.amount >= min && a.scholarship.amount <= max;
-          });
-        }
-        
-        // Filter by search query
         if (searchQuery) {
-          const searchLower = searchQuery.toLowerCase();
-          filtered = filtered.filter(a => 
-            a.scholarship && (
-              a.scholarship.title.toLowerCase().includes(searchLower) || 
-              (a.scholarship.description && a.scholarship.description.toLowerCase().includes(searchLower)) ||
-              a.scholarship.provider.toLowerCase().includes(searchLower)
+          const query = searchQuery.toLowerCase();
+          filtered = filtered.filter(app =>
+            app.scholarship && (
+              app.scholarship.title.toLowerCase().includes(query) ||
+              app.scholarship.provider.toLowerCase().includes(query)
             )
           );
         }
@@ -73,133 +60,172 @@ export const ScholarshipsApplied: React.FC<ScholarshipsAppliedProps> = ({
       } catch (error) {
         console.error('Error fetching applications:', error);
         toast({
-          title: "Failed to load applications",
-          description: "Please try again later",
+          title: "Error",
+          description: "Failed to fetch your applications. Please try again.",
           variant: "destructive"
         });
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
-    
+
     fetchApplications();
   }, [user, filters, searchQuery, toast]);
 
-  const getStatusBadgeColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
       case 'approved':
         return 'bg-green-100 text-green-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
+      case 'pending':
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-yellow-100 text-yellow-800';
     }
   };
 
-  if (isLoading) {
+  const formatAmount = (amount?: number, currency?: string) => {
+    if (!amount) return 'Amount not specified';
+    return `${currency || 'AED'} ${amount.toLocaleString()}`;
+  };
+
+  if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2].map((i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-20 w-full" />
+        {[...Array(3)].map((_, index) => (
+          <Card key={index} className="animate-pulse">
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-3 bg-muted rounded w-1/2"></div>
+                <div className="h-20 bg-muted rounded"></div>
+              </div>
             </CardContent>
-            <CardFooter>
-              <Skeleton className="h-10 w-full" />
-            </CardFooter>
           </Card>
         ))}
       </div>
     );
   }
 
+  if (!user) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Sign In Required</h3>
+          <p className="text-muted-foreground">
+            Please sign in to view your scholarship applications.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (applications.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Bookmark className="h-12 w-12 mx-auto text-gray-400" />
-        <h3 className="mt-4 text-xl font-medium">No applications found</h3>
-        <p className="mt-2 text-gray-500">
-          You haven't applied for any scholarships yet that match your filters
-        </p>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Applications Found</h3>
+          <p className="text-muted-foreground">
+            {searchQuery || filters.providerType.length > 0
+              ? 'No applications match your current filters.'
+              : 'You haven\'t applied for any scholarships yet.'
+            }
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {applications.map((application) => (
-        application.scholarship && (
-          <Card key={application.id}>
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <CardTitle>{application.scholarship.title}</CardTitle>
-                  <CardDescription>{application.scholarship.provider}</CardDescription>
-                </div>
-                <Badge className={getStatusBadgeColor(application.status)}>
-                  {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+        <Card key={application.id} className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <CardTitle className="text-xl mb-2">
+                  {application.scholarship?.title || 'Scholarship Title Not Available'}
+                </CardTitle>
+                <CardDescription className="text-base">
+                  {application.scholarship?.description || 'Description not available'}
+                </CardDescription>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Badge className={getStatusColor(application.status)}>
+                  {application.status.toUpperCase()}
                 </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Applied: {new Date(application.submitted_at).toLocaleDateString()}
+                </span>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Applied: {format(new Date(application.submitted_at), 'MMMM d, yyyy')}</span>
-              </div>
-              
-              {application.scholarship.application_deadline && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarIcon className="h-4 w-4" />
-                  <span>Deadline: {format(new Date(application.scholarship.application_deadline), 'MMMM d, yyyy')}</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {application.scholarship && (
+              <>
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Provider:</span> {application.scholarship.provider}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Amount:</span> {formatAmount(application.scholarship.amount, application.scholarship.currency)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Deadline:</span> {
+                          application.scholarship.application_deadline
+                            ? new Date(application.scholarship.application_deadline).toLocaleDateString()
+                            : 'Not specified'
+                        }
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Application ID:</span> {application.id.slice(0, 8)}...
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              )}
-              
-              {application.status === 'pending' && (
-                <p className="text-sm font-medium text-yellow-600">
-                  Your application is being reviewed
-                </p>
-              )}
-              
-              {application.status === 'approved' && (
-                <p className="text-sm font-medium text-green-600">
-                  Congratulations! Your application has been approved
-                </p>
-              )}
-              
-              {application.status === 'rejected' && (
-                <p className="text-sm font-medium text-red-600">
-                  Unfortunately, your application was not selected
-                </p>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex gap-2">
-                {application.scholarship.website_url && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={application.scholarship.website_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-1" />
-                      Details
-                    </a>
-                  </Button>
-                )}
-              </div>
-              
-              {application.status === 'approved' && (
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-1" />
-                  Download Certificate
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-        )
+
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">
+                    {application.status === 'pending' && 'Your application is being reviewed.'}
+                    {application.status === 'approved' && 'Congratulations! Your application has been approved.'}
+                    {application.status === 'rejected' && 'Your application was not successful this time.'}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
+                    {application.scholarship.contact_email && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={`mailto:${application.scholarship.contact_email}`}>
+                          Contact Provider
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
 };
+
+export default ScholarshipsApplied;

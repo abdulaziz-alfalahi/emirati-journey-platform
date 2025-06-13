@@ -1,18 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, School, Bookmark, BookmarkCheck, ExternalLink } from 'lucide-react';
-import { format } from 'date-fns';
-import { useToast } from '@/components/ui/use-toast';
-import { Scholarship } from '@/types/scholarships';
+import { Calendar, DollarSign, Building, Users, Clock } from 'lucide-react';
 import { getScholarships, applyForScholarship } from '@/services/scholarshipService';
+import { Scholarship } from '@/types/scholarships';
 import { useAuth } from '@/context/AuthContext';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 interface ScholarshipsListProps {
-  type: 'available' | 'applied' | 'managed';
+  type: 'available' | 'applied' | 'awarded';
   filters: {
     providerType: string[];
     amount: [number | null, number | null];
@@ -21,22 +19,22 @@ interface ScholarshipsListProps {
   canApply?: boolean;
 }
 
-export const ScholarshipsList: React.FC<ScholarshipsListProps> = ({ 
-  type, 
-  filters, 
+const ScholarshipsList: React.FC<ScholarshipsListProps> = ({
+  type,
+  filters,
   searchQuery,
-  canApply = true
+  canApply = false
 }) => {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [appliedScholarships, setAppliedScholarships] = useState<string[]>([]);
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [applying, setApplying] = useState<string | null>(null);
   const { user } = useAuth();
-  
+  const { toast } = useToast();
+
   useEffect(() => {
     const fetchScholarships = async () => {
-      setIsLoading(true);
       try {
+        setLoading(true);
         const data = await getScholarships({
           providerType: filters.providerType,
           amount: filters.amount,
@@ -46,87 +44,86 @@ export const ScholarshipsList: React.FC<ScholarshipsListProps> = ({
       } catch (error) {
         console.error('Error fetching scholarships:', error);
         toast({
-          title: "Failed to load scholarships",
-          description: "Please try again later",
+          title: "Error",
+          description: "Failed to fetch scholarships. Please try again.",
           variant: "destructive"
         });
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
-    
+
     fetchScholarships();
   }, [filters, searchQuery, toast]);
 
   const handleApply = async (scholarshipId: string) => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please log in to apply for scholarships",
+        title: "Authentication Required",
+        description: "Please sign in to apply for scholarships.",
         variant: "destructive"
       });
       return;
     }
-    
+
     try {
+      setApplying(scholarshipId);
       await applyForScholarship(scholarshipId, user.id);
-      setAppliedScholarships([...appliedScholarships, scholarshipId]);
       toast({
-        title: "Application submitted",
-        description: "Your scholarship application has been submitted successfully",
-        variant: "default"
+        title: "Application Submitted",
+        description: "Your scholarship application has been submitted successfully!",
       });
     } catch (error) {
       console.error('Error applying for scholarship:', error);
       toast({
-        title: "Application failed",
-        description: "There was an error submitting your application",
+        title: "Application Failed",
+        description: "Failed to submit your application. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setApplying(null);
     }
   };
 
-  const formatCurrency = (amount?: number, currency: string = 'AED') => {
-    if (amount === undefined) return 'Variable';
-    return new Intl.NumberFormat('en-AE', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0
-    }).format(amount);
+  const formatAmount = (amount?: number, currency?: string) => {
+    if (!amount) return 'Amount not specified';
+    return `${currency || 'AED'} ${amount.toLocaleString()}`;
+  };
+
+  const formatDeadline = (deadline?: string) => {
+    if (!deadline) return 'No deadline specified';
+    return new Date(deadline).toLocaleDateString('en-AE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   const getProviderTypeColor = (type: string) => {
     switch (type) {
       case 'government':
         return 'bg-green-100 text-green-800';
-      case 'private_sector':
-        return 'bg-blue-100 text-blue-800';
       case 'university':
+        return 'bg-blue-100 text-blue-800';
+      case 'private_sector':
         return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="overflow-hidden">
-            <CardHeader className="pb-2">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-20 w-full" />
-              <div className="flex gap-2 mt-4">
-                <Skeleton className="h-6 w-20" />
-                <Skeleton className="h-6 w-20" />
+        {[...Array(3)].map((_, index) => (
+          <Card key={index} className="animate-pulse">
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-3 bg-muted rounded w-1/2"></div>
+                <div className="h-20 bg-muted rounded"></div>
               </div>
             </CardContent>
-            <CardFooter>
-              <Skeleton className="h-10 w-full" />
-            </CardFooter>
           </Card>
         ))}
       </div>
@@ -135,77 +132,116 @@ export const ScholarshipsList: React.FC<ScholarshipsListProps> = ({
 
   if (scholarships.length === 0) {
     return (
-      <div className="text-center py-12">
-        <School className="h-12 w-12 mx-auto text-gray-400" />
-        <h3 className="mt-4 text-xl font-medium">No scholarships found</h3>
-        <p className="mt-2 text-gray-500">
-          Try adjusting your filters or search criteria
-        </p>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Scholarships Found</h3>
+          <p className="text-muted-foreground">
+            {searchQuery || filters.providerType.length > 0
+              ? 'Try adjusting your search or filter criteria.'
+              : 'No scholarships are currently available.'
+            }
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {scholarships.map((scholarship) => (
-        <Card key={scholarship.id}>
+        <Card key={scholarship.id} className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <CardTitle>{scholarship.title}</CardTitle>
-                <CardDescription>{scholarship.provider}</CardDescription>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <CardTitle className="text-xl mb-2">{scholarship.title}</CardTitle>
+                <CardDescription className="text-base">
+                  {scholarship.description}
+                </CardDescription>
               </div>
               <Badge className={getProviderTypeColor(scholarship.provider_type)}>
-                {scholarship.provider_type.replace('_', ' ')}
+                {scholarship.provider_type.replace('_', ' ').toUpperCase()}
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm">{scholarship.description}</p>
-            
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center">
-                <span className="font-semibold text-lg">
-                  {formatCurrency(scholarship.amount, scholarship.currency)}
-                </span>
-              </div>
-              
-              {scholarship.application_deadline && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <CalendarIcon className="h-4 w-4" />
-                  <span>Deadline: {format(new Date(scholarship.application_deadline), 'MMMM d, yyyy')}</span>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    <span className="font-medium">Provider:</span> {scholarship.provider}
+                  </span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    <span className="font-medium">Amount:</span> {formatAmount(scholarship.amount, scholarship.currency)}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    <span className="font-medium">Deadline:</span> {formatDeadline(scholarship.application_deadline)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    <span className="font-medium">Posted:</span> {new Date(scholarship.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {scholarship.requirements && scholarship.requirements.length > 0 && (
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">Requirements:</h4>
+                <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+                  {scholarship.requirements.slice(0, 3).map((requirement, index) => (
+                    <li key={index}>{requirement}</li>
+                  ))}
+                  {scholarship.requirements.length > 3 && (
+                    <li className="text-primary">+ {scholarship.requirements.length - 3} more requirements</li>
+                  )}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2">
+                {scholarship.contact_email && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`mailto:${scholarship.contact_email}`}>
+                      Contact Provider
+                    </a>
+                  </Button>
+                )}
+                {scholarship.website_url && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={scholarship.website_url} target="_blank" rel="noopener noreferrer">
+                      Learn More
+                    </a>
+                  </Button>
+                )}
+              </div>
+              {canApply && (
+                <Button
+                  onClick={() => handleApply(scholarship.id)}
+                  disabled={applying === scholarship.id}
+                  className="ehrdc-button-primary"
+                >
+                  {applying === scholarship.id ? 'Applying...' : 'Apply Now'}
+                </Button>
               )}
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <div className="flex gap-2">
-              {scholarship.website_url && (
-                <Button variant="outline" size="sm" asChild>
-                  <a href={scholarship.website_url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Details
-                  </a>
-                </Button>
-              )}
-            </div>
-            
-            {canApply && (
-              appliedScholarships.includes(scholarship.id) ? (
-                <Button disabled className="gap-2">
-                  <BookmarkCheck className="h-4 w-4" />
-                  Applied
-                </Button>
-              ) : (
-                <Button onClick={() => handleApply(scholarship.id)} className="gap-2">
-                  <Bookmark className="h-4 w-4" />
-                  Apply Now
-                </Button>
-              )
-            )}
-          </CardFooter>
         </Card>
       ))}
     </div>
   );
 };
+
+export default ScholarshipsList;
