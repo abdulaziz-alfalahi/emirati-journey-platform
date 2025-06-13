@@ -4,7 +4,10 @@ import { CareerPageLayout } from '@/components/career/CareerPageLayout';
 import PortfolioEditor from '@/components/portfolio/PortfolioEditor';
 import PortfolioViewer from '@/components/portfolio/PortfolioViewer';
 import PortfolioVisibility from '@/components/portfolio/PortfolioVisibility';
-import { Folder, Edit, Eye, Settings, Share, Heart } from 'lucide-react';
+import PortfolioBuilder from '@/components/portfolio/PortfolioBuilder';
+import PortfolioAnalytics from '@/components/portfolio/PortfolioAnalytics';
+import PortfolioTemplates from '@/components/portfolio/PortfolioTemplates';
+import { Folder, Edit, Eye, Settings, Share, Heart, Palette, BarChart, Upload } from 'lucide-react';
 
 const PortfolioPage: React.FC = () => {
   // Mock portfolio data
@@ -23,21 +26,35 @@ const PortfolioPage: React.FC = () => {
     console.log('Portfolio updated');
   };
 
+  const handlePrimaryAction = () => {
+    console.log('Start building portfolio');
+  };
+
+  const handleSecondaryAction = () => {
+    console.log('View portfolio examples');
+  };
+
   // Define tabs for the Career Entry layout
   const tabs = [
     {
-      id: 'editor',
-      label: 'Editor',
+      id: 'builder',
+      label: 'Builder',
       icon: <Edit className="h-4 w-4" />,
       content: (
-        <PortfolioEditor 
+        <PortfolioBuilder 
           portfolio={mockPortfolio}
           onUpdate={handlePortfolioUpdate}
         />
       )
     },
     {
-      id: 'viewer',
+      id: 'templates',
+      label: 'Templates',
+      icon: <Palette className="h-4 w-4" />,
+      content: <PortfolioTemplates />
+    },
+    {
+      id: 'preview',
       label: 'Preview',
       icon: <Eye className="h-4 w-4" />,
       content: (
@@ -48,45 +65,26 @@ const PortfolioPage: React.FC = () => {
       )
     },
     {
-      id: 'settings',
-      label: 'Settings',
-      icon: <Settings className="h-4 w-4" />,
-      content: <PortfolioVisibility portfolio={mockPortfolio} />
+      id: 'analytics',
+      label: 'Analytics',
+      icon: <BarChart className="h-4 w-4" />,
+      content: <PortfolioAnalytics portfolio={mockPortfolio} />
     },
     {
       id: 'share',
       label: 'Share',
       icon: <Share className="h-4 w-4" />,
-      content: (
-        <div className="text-center py-12">
-          <Share className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-          <h3 className="text-2xl font-semibold mb-2">Share Your Portfolio</h3>
-          <p className="text-muted-foreground">Generate shareable links and manage portfolio access permissions.</p>
-        </div>
-      )
+      content: <PortfolioVisibility portfolio={mockPortfolio} />
     },
     {
-      id: 'templates',
-      label: 'Templates',
-      icon: <Folder className="h-4 w-4" />,
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings className="h-4 w-4" />,
       content: (
-        <div className="text-center py-12">
-          <Folder className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-          <h3 className="text-2xl font-semibold mb-2">Portfolio Templates</h3>
-          <p className="text-muted-foreground">Choose from professional portfolio templates designed to showcase your work.</p>
-        </div>
-      )
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: <Eye className="h-4 w-4" />,
-      content: (
-        <div className="text-center py-12">
-          <Eye className="h-16 w-16 text-ehrdc-teal mx-auto mb-4" />
-          <h3 className="text-2xl font-semibold mb-2">Portfolio Analytics</h3>
-          <p className="text-muted-foreground">Track views and engagement with your professional portfolio.</p>
-        </div>
+        <PortfolioEditor 
+          portfolio={mockPortfolio}
+          onUpdate={handlePortfolioUpdate}
+        />
       )
     }
   ];
@@ -95,29 +93,31 @@ const PortfolioPage: React.FC = () => {
     <CareerPageLayout
       // Hero props
       title="Professional Portfolio"
-      description="Showcase your achievements, projects, and professional journey with a comprehensive digital portfolio that impresses employers"
+      description="Create stunning digital portfolios that showcase your work, projects, and achievements. Stand out to employers with visual storytelling and professional presentation."
       heroIcon={<Folder className="h-12 w-12" />}
-      primaryActionLabel="Build Portfolio"
+      primaryActionLabel="Start Building"
       primaryActionIcon={<Edit className="h-5 w-5" />}
-      secondaryActionLabel="View Examples"
+      primaryActionOnClick={handlePrimaryAction}
+      secondaryActionLabel="View Templates"
       secondaryActionIcon={<Eye className="h-5 w-5" />}
+      secondaryActionOnClick={handleSecondaryAction}
       
       // Stats props
       stats={[
-        { value: "10+", label: "Portfolio Templates" },
-        { value: "Unlimited", label: "Projects & Achievements" },
-        { value: "Secure", label: "Privacy Controls" },
-        { value: "Mobile", label: "Optimized Viewing" }
+        { value: "15+", label: "Portfolio Templates" },
+        { value: "Unlimited", label: "Projects & Media" },
+        { value: "Advanced", label: "Customization" },
+        { value: "Real-time", label: "Analytics" }
       ]}
       
       // Quote props
-      quote="Your portfolio is a visual story of your professional journey—a powerful testament to your skills, creativity, and accomplishments."
-      attribution="UAE Career Excellence Initiative"
+      quote="Your portfolio is your professional story told through compelling visuals and achievements—make every project count."
+      attribution="EHRDC Creative Excellence Team"
       quoteIcon={<Heart className="h-12 w-12" />}
       
       // Tabs props
       tabs={tabs}
-      defaultTab="editor"
+      defaultTab="builder"
     />
   );
 };
