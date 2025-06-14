@@ -6,6 +6,7 @@ import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/compon
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { createInternship } from '@/services/internshipService';
 import { 
   BasicInfoFields,
@@ -27,6 +28,7 @@ interface InternshipsCreateProps {
 export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess }) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation(['common', 'pages']);
   
   const methods = useForm<InternshipFormValues>({
     resolver: zodResolver(internshipFormSchema),
@@ -36,8 +38,8 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
   const onSubmit = async (values: InternshipFormValues) => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "You must be logged in to create an internship listing",
+        title: t('common:forms.errors.authRequired', 'Authentication required'),
+        description: t('common:forms.errors.mustBeLoggedIn', 'You must be logged in to create an internship listing'),
         variant: "destructive"
       });
       return;
@@ -72,16 +74,16 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
       await createInternship(internshipData);
       
       toast({
-        title: "Internship created",
-        description: "Your internship listing has been successfully created",
+        title: t('common:forms.success.internshipCreated', 'Internship created'),
+        description: t('common:forms.success.internshipCreatedDesc', 'Your internship listing has been successfully created'),
       });
       
       onSuccess();
     } catch (error) {
       console.error('Error creating internship:', error);
       toast({
-        title: "Error",
-        description: "Failed to create internship listing. Please try again.",
+        title: t('common:forms.errors.error', 'Error'),
+        description: t('common:forms.errors.createFailed', 'Failed to create internship listing. Please try again.'),
         variant: "destructive"
       });
     }
@@ -90,7 +92,7 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
   return (
     <DialogContent className="max-w-4xl">
       <DialogHeader>
-        <DialogTitle>Post New Internship</DialogTitle>
+        <DialogTitle>{t('common:forms.titles.postNewInternship', 'Post New Internship')}</DialogTitle>
       </DialogHeader>
       
       <FormProvider {...methods}>
@@ -102,7 +104,7 @@ export const InternshipsCreate: React.FC<InternshipsCreateProps> = ({ onSuccess 
           <SkillsAndContactFields />
           
           <DialogFooter>
-            <Button type="submit">Post Internship</Button>
+            <Button type="submit">{t('common:buttons.postInternship', 'Post Internship')}</Button>
           </DialogFooter>
         </form>
       </FormProvider>

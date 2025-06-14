@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Briefcase, MapPin, Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getInternships } from '@/services/internshipService';
 
 // Define unique industries based on mockInternships
@@ -50,6 +51,7 @@ interface InternshipsFilterProps {
 }
 
 export const InternshipsFilter: React.FC<InternshipsFilterProps> = ({ onFilterChange }) => {
+  const { t } = useTranslation('common');
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [isPaid, setIsPaid] = useState<boolean | undefined>(undefined);
@@ -106,7 +108,7 @@ export const InternshipsFilter: React.FC<InternshipsFilterProps> = ({ onFilterCh
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Search internships..."
+              placeholder={t('forms.placeholders.searchInternships')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"

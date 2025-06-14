@@ -17,9 +17,11 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BasicInfoFields = () => {
   const form = useFormContext();
+  const { t } = useTranslation('common');
   
   return (
     <>
@@ -29,9 +31,9 @@ export const BasicInfoFields = () => {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Internship Title</FormLabel>
+              <FormLabel>{t('forms.labels.internshipTitle')}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Software Development Intern" {...field} />
+                <Input placeholder={t('forms.placeholders.internshipTitle')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -43,9 +45,9 @@ export const BasicInfoFields = () => {
           name="company"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Name</FormLabel>
+              <FormLabel>{t('forms.labels.company')}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Tech Innovations LLC" {...field} />
+                <Input placeholder={t('forms.placeholders.companyName')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -58,13 +60,13 @@ export const BasicInfoFields = () => {
           control={form.control}
           name="location"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Dubai, Business Bay" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          <FormItem>
+            <FormLabel>{t('forms.labels.location')}</FormLabel>
+            <FormControl>
+              <Input placeholder={t('forms.placeholders.location')} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
           )}
         />
 
@@ -72,23 +74,34 @@ export const BasicInfoFields = () => {
           control={form.control}
           name="industry"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Industry</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {['Technology', 'Marketing', 'Banking', 'Healthcare', 'Education', 
-                    'Retail', 'Manufacturing', 'Media', 'Hospitality'].map((industry) => (
-                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+          <FormItem>
+            <FormLabel>{t('forms.labels.industry')}</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('forms.placeholders.selectIndustry')} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {[
+                  { key: 'technology', value: 'Technology' },
+                  { key: 'marketing', value: 'Marketing' },
+                  { key: 'banking', value: 'Banking' },
+                  { key: 'healthcare', value: 'Healthcare' },
+                  { key: 'education', value: 'Education' },
+                  { key: 'retail', value: 'Retail' },
+                  { key: 'manufacturing', value: 'Manufacturing' },
+                  { key: 'media', value: 'Media' },
+                  { key: 'hospitality', value: 'Hospitality' }
+                ].map((industry) => (
+                  <SelectItem key={industry.value} value={industry.value}>
+                    {t(`forms.industries.${industry.key}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
           )}
         />
       </div>
@@ -99,9 +112,9 @@ export const BasicInfoFields = () => {
           name="department"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department (Optional)</FormLabel>
+              <FormLabel>{t('forms.labels.department')}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Engineering, Marketing" {...field} />
+                <Input placeholder={t('forms.placeholders.department')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,18 +126,18 @@ export const BasicInfoFields = () => {
           name="education_level"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Required Education Level</FormLabel>
+              <FormLabel>{t('forms.labels.educationLevel')}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select education level" />
+                    <SelectValue placeholder={t('forms.placeholders.selectEducationLevel')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="High School">High School</SelectItem>
-                  <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                  <SelectItem value="Graduate">Graduate</SelectItem>
-                  <SelectItem value="Any">Any Level</SelectItem>
+                  <SelectItem value="High School">{t('forms.educationLevels.highSchool')}</SelectItem>
+                  <SelectItem value="Undergraduate">{t('forms.educationLevels.undergraduate')}</SelectItem>
+                  <SelectItem value="Graduate">{t('forms.educationLevels.graduate')}</SelectItem>
+                  <SelectItem value="Any">{t('forms.educationLevels.any')}</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -138,6 +151,7 @@ export const BasicInfoFields = () => {
 
 export const DateFields = () => {
   const form = useFormContext();
+  const { t } = useTranslation('common');
   
   return (
     <>
@@ -146,8 +160,8 @@ export const DateFields = () => {
           control={form.control}
           name="start_date"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Start Date (Optional)</FormLabel>
+          <FormItem className="flex flex-col">
+            <FormLabel>{t('forms.labels.startDate')}</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -158,7 +172,7 @@ export const DateFields = () => {
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t('forms.placeholders.pickDate')}</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -182,8 +196,8 @@ export const DateFields = () => {
           control={form.control}
           name="end_date"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>End Date (Optional)</FormLabel>
+          <FormItem className="flex flex-col">
+            <FormLabel>{t('forms.labels.endDate')}</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -194,7 +208,7 @@ export const DateFields = () => {
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t('forms.placeholders.pickDate')}</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -215,12 +229,12 @@ export const DateFields = () => {
         />
       </div>
 
-      <FormField
-        control={form.control}
-        name="application_deadline"
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>Application Deadline</FormLabel>
+        <FormField
+          control={form.control}
+          name="application_deadline"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>{t('forms.labels.applicationDeadline')}</FormLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -231,7 +245,7 @@ export const DateFields = () => {
                     {field.value ? (
                       format(field.value, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>{t('forms.placeholders.pickDate')}</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
@@ -256,6 +270,7 @@ export const DateFields = () => {
 
 export const CompensationFields = () => {
   const form = useFormContext();
+  const { t } = useTranslation('common');
   const isPaid = form.watch('is_paid');
   
   return (
@@ -267,7 +282,7 @@ export const CompensationFields = () => {
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
               <div className="space-y-0.5">
-                <FormLabel>Paid Internship</FormLabel>
+                <FormLabel>{t('forms.labels.paidInternship')}</FormLabel>
               </div>
               <FormControl>
                 <Switch
@@ -287,9 +302,9 @@ export const CompensationFields = () => {
             name="stipend_amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Stipend Amount</FormLabel>
+                <FormLabel>{t('forms.labels.stipendAmount')}</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g. 3000" {...field} />
+                  <Input type="number" placeholder={t('forms.placeholders.stipendAmount')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -301,11 +316,11 @@ export const CompensationFields = () => {
             name="currency"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Currency</FormLabel>
+                <FormLabel>{t('forms.labels.currency')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select currency" />
+                      <SelectValue placeholder={t('forms.placeholders.selectCurrency')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -326,112 +341,112 @@ export const CompensationFields = () => {
 
 export const DescriptionFields = () => {
   const form = useFormContext();
+  const { t } = useTranslation('common');
   
   return (
     <>
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Provide a detailed description of the internship, responsibilities, and learning opportunities..."
-                className="min-h-[100px]"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('forms.labels.description')}</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t('forms.placeholders.description')}
+                  className="min-h-[100px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="requirements"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Requirements (One per line)</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="e.g. Currently enrolled in Computer Science or related field
-Must have basic programming knowledge
-Good communication skills"
-                className="min-h-[80px]"
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="requirements"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t('forms.labels.requirements')}</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t('forms.placeholders.requirements')}
+                  className="min-h-[80px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
     </>
   );
 };
 
 export const SkillsAndContactFields = () => {
   const form = useFormContext();
+  const { t } = useTranslation('common');
   
   return (
     <>
-      <FormField
-        control={form.control}
-        name="skills_required"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Required Skills (Comma separated)</FormLabel>
-            <FormControl>
-              <Input placeholder="e.g. JavaScript, HTML/CSS, React" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="contact_email"
+          name="skills_required"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Email (Optional)</FormLabel>
+              <FormLabel>{t('forms.labels.requiredSkills')}</FormLabel>
               <FormControl>
-                <Input placeholder="internships@company.com" {...field} />
+                <Input placeholder={t('forms.placeholders.requiredSkills')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="contact_email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('forms.labels.contactEmail')}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t('forms.placeholders.contactEmail')} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="contact_phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('forms.labels.contactPhone')}</FormLabel>
+                <FormControl>
+                  <Input placeholder={t('forms.placeholders.contactPhone')} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
-          name="contact_phone"
+          name="website_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Phone (Optional)</FormLabel>
+              <FormLabel>{t('forms.labels.websiteUrl')}</FormLabel>
               <FormControl>
-                <Input placeholder="+971XXXXXXXXX" {...field} />
+                <Input placeholder={t('forms.placeholders.websiteUrl')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="website_url"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Website URL (Optional)</FormLabel>
-            <FormControl>
-              <Input placeholder="https://example.com/careers/internships" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </>
   );
 };
