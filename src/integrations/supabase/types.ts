@@ -649,6 +649,48 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          category: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          resource: string
+          resource_id: string | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          category?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource: string
+          resource_id?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          category?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource?: string
+          resource_id?: string | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bizdev_resources: {
         Row: {
           created_at: string
@@ -4613,6 +4655,42 @@ export type Database = {
           title?: string
           updated_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      security_alerts: {
+        Row: {
+          alerts: Json
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          risk_level: string
+          user_id: string | null
+        }
+        Insert: {
+          alerts?: Json
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_level: string
+          user_id?: string | null
+        }
+        Update: {
+          alerts?: Json
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          risk_level?: string
+          user_id?: string | null
         }
         Relationships: []
       }
