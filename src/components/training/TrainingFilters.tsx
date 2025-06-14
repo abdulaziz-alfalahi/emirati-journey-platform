@@ -61,14 +61,13 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
         <div className="space-y-2">
           <Label>Category</Label>
           <Select 
-            value={filters.category || ''} 
+            value={filters.category || undefined} 
             onValueChange={(value) => handleFilterChange('category', value || undefined)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
               <SelectItem value="technical_skills">Technical Skills</SelectItem>
               <SelectItem value="trade_skills">Trade Skills</SelectItem>
               <SelectItem value="service_skills">Service Skills</SelectItem>
@@ -81,14 +80,13 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
         <div className="space-y-2">
           <Label>Training Mode</Label>
           <Select 
-            value={filters.training_mode || ''} 
+            value={filters.training_mode || undefined} 
             onValueChange={(value) => handleFilterChange('training_mode', value || undefined)}
           >
             <SelectTrigger>
               <SelectValue placeholder="All Modes" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Modes</SelectItem>
               <SelectItem value="in_person">In-Person</SelectItem>
               <SelectItem value="online">Online</SelectItem>
               <SelectItem value="hybrid">Hybrid</SelectItem>
