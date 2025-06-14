@@ -6,6 +6,19 @@ import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { QueryProvider } from './context/QueryContext'
 import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
+import { initializePerformanceMonitoring } from './lib/performance'
+import { initializeSentry } from './lib/sentry'
+
+// Initialize monitoring in production
+if (process.env.NODE_ENV === 'production') {
+  initializeSentry();
+}
+
+// Initialize performance monitoring
+initializePerformanceMonitoring({
+  enableLogging: process.env.NODE_ENV === 'development',
+  enableAnalytics: process.env.NODE_ENV === 'production',
+});
 
 // Ensure we have a root element
 const rootElement = document.getElementById("root");
