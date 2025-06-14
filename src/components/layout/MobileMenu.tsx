@@ -28,6 +28,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageToggle } from '@/components/language-toggle';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface MobileMenuProps {
@@ -36,6 +37,7 @@ interface MobileMenuProps {
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
   const { user } = useAuth();
+  const { t } = useTranslation('common');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const closeMenu = () => {
@@ -43,19 +45,19 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
   };
 
   const mainNavItems = [
-    { icon: Home, label: 'Home', path: '/' },
-    { icon: Briefcase, label: 'Job Matching', path: '/job-matching' },
-    { icon: FileText, label: 'CV Builder', path: '/cv-builder' },
-    { icon: GraduationCap, label: 'Scholarships', path: '/scholarships' },
-    { icon: MapPin, label: 'Career Journey', path: '/career-journey' },
-    { icon: Users, label: 'Communities', path: '/communities' },
-    { icon: Award, label: 'Training', path: '/training' },
-    { icon: BarChart3, label: 'Analytics', path: '/analytics' }
+    { icon: Home, labelKey: 'nav.home', path: '/' },
+    { icon: Briefcase, labelKey: 'nav.jobMatching', path: '/job-matching' },
+    { icon: FileText, labelKey: 'nav.cvBuilder', path: '/cv-builder' },
+    { icon: GraduationCap, labelKey: 'nav.scholarships', path: '/scholarships' },
+    { icon: MapPin, labelKey: 'nav.careerJourney', path: '/career-journey' },
+    { icon: Users, labelKey: 'nav.communities', path: '/communities' },
+    { icon: Award, labelKey: 'nav.training', path: '/training' },
+    { icon: BarChart3, labelKey: 'nav.analytics', path: '/analytics' }
   ];
 
   const secondaryNavItems = [
-    { icon: Settings, label: 'Settings', path: '/settings' },
-    { icon: HelpCircle, label: 'Help Center', path: '/help' }
+    { icon: Settings, labelKey: 'nav.settings', path: '/settings' },
+    { icon: HelpCircle, labelKey: 'nav.helpCenter', path: '/help' }
   ];
 
   return (
@@ -90,9 +92,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
               />
               <div>
                 <SheetTitle className="text-white text-lg font-bold">
-                  Emirati Gateway
+                  {t('menu.emiratiGateway')}
                 </SheetTitle>
-                <p className="text-ehrdc-light-teal text-xs">EHRDC Platform</p>
+                <p className="text-ehrdc-light-teal text-xs">{t('menu.ehrdcPlatform')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -129,7 +131,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
           <div className="flex-1 overflow-y-auto">
             <div className="px-4 py-4">
               <h3 className="px-2 mb-3 text-xs font-semibold text-ehrdc-neutral-dark/70 uppercase tracking-wide">
-                Main Menu
+                {t('menu.mainMenu')}
               </h3>
               <nav className="space-y-1">
                 {mainNavItems.map((item) => {
@@ -148,7 +150,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
                     >
                       <div className="flex items-center space-x-3">
                         <IconComponent className="h-5 w-5" />
-                        <span>{item.label}</span>
+                        <span>{t(item.labelKey)}</span>
                       </div>
                       <ChevronRight className="h-4 w-4 text-ehrdc-neutral-dark/40" />
                     </Link>
@@ -160,7 +162,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
             {/* Secondary Navigation */}
             <div className="px-4 py-4 border-t border-ehrdc-neutral-light">
               <h3 className="px-2 mb-3 text-xs font-semibold text-ehrdc-neutral-dark/70 uppercase tracking-wide">
-                Support
+                {t('menu.support')}
               </h3>
               <nav className="space-y-1">
                 {secondaryNavItems.map((item) => {
@@ -179,7 +181,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
                     >
                       <div className="flex items-center space-x-3">
                         <IconComponent className="h-5 w-5" />
-                        <span>{item.label}</span>
+                        <span>{t(item.labelKey)}</span>
                       </div>
                       <ChevronRight className="h-4 w-4 text-ehrdc-neutral-dark/40" />
                     </Link>
@@ -196,19 +198,19 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
                 <Link to="/auth?tab=sign-in" onClick={closeMenu}>
                   <Button variant="outline" className="w-full justify-center border-ehrdc-teal text-ehrdc-teal hover:bg-ehrdc-teal hover:text-white">
                     <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
+                    {t('buttons.signIn')}
                   </Button>
                 </Link>
                 <Link to="/auth?tab=sign-up" onClick={closeMenu}>
                   <Button className="w-full justify-center ehrdc-button-primary">
-                    Join Now
+                    {t('buttons.joinNow')}
                   </Button>
                 </Link>
               </div>
             ) : (
               <Link to="/dashboard" onClick={closeMenu}>
                 <Button className="w-full justify-center ehrdc-button-primary">
-                  Go to Dashboard
+                  {t('buttons.goToDashboard')}
                 </Button>
               </Link>
             )}

@@ -4,19 +4,37 @@
     "dashboard": "لوحة التحكم", 
     "profile": "الملف الشخصي",
     "training": "التدريب",
-    "jobMatching": "مطابقة الوظائف"
+    "jobMatching": "مطابقة الوظائف",
+    "cvBuilder": "بناء السيرة الذاتية",
+    "scholarships": "المنح الدراسية",
+    "careerJourney": "رحلة المهنة",
+    "communities": "المجتمعات",
+    "analytics": "التحليلات",
+    "messages": "الرسائل",
+    "jobs": "الوظائف",
+    "settings": "الإعدادات",
+    "helpCenter": "مركز المساعدة"
   },
   "buttons": {
     "submit": "إرسال",
     "cancel": "إلغاء",
     "save": "حفظ",
     "signIn": "تسجيل الدخول",
-    "clear": "مسح"
+    "clear": "مسح",
+    "joinNow": "انضم الآن",
+    "goToDashboard": "انتقل إلى لوحة التحكم"
   },
   "common": {
     "loading": "جاري التحميل...",
     "search": "بحث",
     "filter": "تصفية"
   },
-  "toggleLanguage": "تبديل اللغة"
+  "toggleLanguage": "تبديل اللغة",
+  "menu": {
+    "mainMenu": "القائمة الرئيسية",
+    "support": "الدعم",
+    "application": "التطبيق",
+    "emiratiGateway": "البوابة الإماراتية",
+    "ehrdcPlatform": "منصة مجلس تنمية الموارد البشرية الإماراتية"
+  }
 }

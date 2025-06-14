@@ -4,19 +4,37 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "training": "Training",
-    "jobMatching": "Job Matching"
+    "jobMatching": "Job Matching",
+    "cvBuilder": "CV Builder",
+    "scholarships": "Scholarships",
+    "careerJourney": "Career Journey",
+    "communities": "Communities",
+    "analytics": "Analytics",
+    "messages": "Messages",
+    "jobs": "Jobs",
+    "settings": "Settings",
+    "helpCenter": "Help Center"
   },
   "buttons": {
     "submit": "Submit",
     "cancel": "Cancel",
     "save": "Save",
     "signIn": "Sign In",
-    "clear": "Clear"
+    "clear": "Clear",
+    "joinNow": "Join Now",
+    "goToDashboard": "Go to Dashboard"
   },
   "common": {
     "loading": "Loading...",
     "search": "Search",
     "filter": "Filter"
   },
-  "toggleLanguage": "Toggle language"
+  "toggleLanguage": "Toggle language",
+  "menu": {
+    "mainMenu": "Main Menu",
+    "support": "Support",
+    "application": "Application",
+    "emiratiGateway": "Emirati Gateway",
+    "ehrdcPlatform": "EHRDC Platform"
+  }
 }

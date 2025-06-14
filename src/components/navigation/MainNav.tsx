@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { NavGroup } from '@/components/layout/types';
+import { useTranslation } from 'react-i18next';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -19,13 +20,14 @@ interface MainNavProps {
 
 const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
   const { user } = useAuth();
+  const { t } = useTranslation('common');
   const location = useLocation();
 
   return (
     <div className="flex items-center space-x-6">
       {/* Logo */}
       <Link to="/" className="flex items-center space-x-2">
-        <div className="font-bold text-xl text-ehrdc-teal">Emirati Gateway</div>
+        <div className="font-bold text-xl text-ehrdc-teal">{t('menu.emiratiGateway')}</div>
       </Link>
 
       {/* Navigation Menu */}
@@ -85,7 +87,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
               location.pathname === '/dashboard' ? 'text-ehrdc-teal' : 'text-ehrdc-neutral-dark'
             }`}
           >
-            Dashboard
+            {t('nav.dashboard')}
           </Link>
         )}
       </div>
