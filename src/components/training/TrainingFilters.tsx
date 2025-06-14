@@ -5,10 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Filter, X } from 'lucide-react';
-import { SearchInput } from '@/components/ui/search-input';
-import { useDebouncedFilters } from '@/hooks/use-debounced-search';
-import { useSearchAnalytics } from '@/services/searchAnalytics';
 import type { TrainingFilters as TrainingFiltersType } from '@/types/training';
 
 interface TrainingFiltersProps {
@@ -22,31 +20,9 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
   onFiltersChange,
   onClearFilters
 }) => {
-  const { trackSearch, trackFilter } = useSearchAnalytics('TrainingFilters');
-  
-  const { debouncedFilters, isUpdating, batchUpdateFilters } = useDebouncedFilters(
-    filters,
-    350,
-    (newFilters) => {
-      onFiltersChange(newFilters);
-      
-      // Track analytics
-      const changedKeys = Object.keys(newFilters).filter(key => 
-        newFilters[key as keyof TrainingFiltersType] !== filters[key as keyof TrainingFiltersType]
-      );
-      
-      if (changedKeys.includes('search')) {
-        trackSearch(newFilters.search || '', 0, 0, false);
-      }
-      
-      if (changedKeys.length > 0) {
-        trackFilter(changedKeys.length, changedKeys.length, 350);
-      }
-    }
-  );
-
   const handleFilterChange = (key: keyof TrainingFiltersType, value: any) => {
-    batchUpdateFilters({ [key]: value });
+    const newFilters = { ...filters, [key]: value };
+    onFiltersChange(newFilters);
   };
 
   const hasActiveFilters = Object.values(filters).some(value => 
@@ -73,11 +49,11 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
         {/* Search */}
         <div className="space-y-2">
           <Label htmlFor="search">Search Programs</Label>
-          <SearchInput
+          <Input
+            id="search"
             placeholder="Search by title or description..."
             value={filters.search || ''}
-            onChange={(value) => handleFilterChange('search', value)}
-            debounceDelay={350}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
           />
         </div>
 
