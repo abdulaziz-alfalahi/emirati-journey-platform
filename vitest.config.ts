@@ -22,6 +22,9 @@ export default defineConfig({
         '**/dist/**',
       ],
     },
+    typecheck: {
+      exclude: ['e2e']
+    }
   },
   resolve: {
     alias: {
