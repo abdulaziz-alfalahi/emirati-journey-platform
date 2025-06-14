@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@/test/utils/test-utils';
 import { AuthProvider } from '@/context/AuthContext';
-import { RoleSelector } from '@/components/auth/RoleSelector';
+import RoleSelector from '@/components/auth/RoleSelector';
 import { mockSupabaseClient } from '@/test/utils/mock-data';
 
 // Mock Supabase
@@ -17,7 +17,10 @@ describe('Authentication Flow Integration', () => {
   it('should handle complete role selection flow', async () => {
     const TestComponent = () => (
       <AuthProvider>
-        <RoleSelector />
+        <RoleSelector 
+          selectedRoles={[]} 
+          onRolesChange={() => {}} 
+        />
       </AuthProvider>
     );
 
@@ -25,7 +28,7 @@ describe('Authentication Flow Integration', () => {
 
     // Wait for component to load
     await waitFor(() => {
-      expect(screen.getByText(/choose your role/i)).toBeInTheDocument();
+      expect(screen.getByText(/choose your role/i)).toBeDefined();
     });
 
     // Test role selection
@@ -54,7 +57,7 @@ describe('Authentication Flow Integration', () => {
     render(<TestComponent />);
 
     // Error should be handled without breaking the component
-    expect(screen.getByTestId('auth-error')).toBeInTheDocument();
+    expect(screen.getByTestId('auth-error')).toBeDefined();
   });
 
   it('should manage authentication state correctly', async () => {
@@ -67,7 +70,7 @@ describe('Authentication Flow Integration', () => {
     render(<TestComponent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('auth-state')).toBeInTheDocument();
+      expect(screen.getByTestId('auth-state')).toBeDefined();
     });
 
     // Verify that authentication state is properly initialized
@@ -78,8 +81,15 @@ describe('Authentication Flow Integration', () => {
     // Test with admin role
     mockSupabaseClient.from.mockReturnValueOnce({
       select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({
+        data: { role: 'administrator' },
+        error: null,
+      }),
+      maybeSingle: vi.fn().mockResolvedValue({
         data: { role: 'administrator' },
         error: null,
       }),
@@ -94,7 +104,7 @@ describe('Authentication Flow Integration', () => {
     render(<TestComponent />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('role-content')).toBeInTheDocument();
+      expect(screen.getByTestId('role-content')).toBeDefined();
     });
   });
 });

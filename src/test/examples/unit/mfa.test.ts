@@ -68,14 +68,14 @@ describe('useMFA Hook', () => {
     const mockChallenge = {
       data: { id: 'challenge-id' },
       error: null,
-    };
+    } as any;
 
     const { supabase } = await import('@/integrations/supabase/client');
     vi.mocked(supabase.auth.mfa.challenge).mockResolvedValue(mockChallenge);
     vi.mocked(supabase.auth.mfa.listFactors).mockResolvedValue({
-      data: { all: [mockMFAFactor] },
+      data: { all: [mockMFAFactor], totp: [mockMFAFactor], phone: [] },
       error: null,
-    });
+    } as any);
 
     const { result } = renderHook(() => useMFA(), {
       wrapper: MockAuthProvider,
@@ -95,7 +95,7 @@ describe('useMFA Hook', () => {
     const mockVerification = {
       data: { access_token: 'token' },
       error: null,
-    };
+    } as any;
 
     const { supabase } = await import('@/integrations/supabase/client');
     vi.mocked(supabase.auth.mfa.verify).mockResolvedValue(mockVerification);

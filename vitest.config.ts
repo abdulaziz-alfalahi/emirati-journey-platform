@@ -23,7 +23,8 @@ export default defineConfig({
       ],
     },
     typecheck: {
-      enabled: false
+      enabled: false,
+      ignoreSourceErrors: true
     }
   },
   resolve: {

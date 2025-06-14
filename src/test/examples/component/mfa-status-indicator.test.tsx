@@ -20,8 +20,8 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} />);
     
-    expect(screen.getByText('MFA Setup Required')).toBeInTheDocument();
-    expect(screen.getByText('Multi-factor authentication must be configured')).toBeInTheDocument();
+    expect(screen.getByText('MFA Setup Required')).toBeDefined();
+    expect(screen.getByText('Multi-factor authentication must be configured')).toBeDefined();
   });
 
   it('shows active MFA status with verified factors', () => {
@@ -41,8 +41,8 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} />);
     
-    expect(screen.getByText('MFA Active (1 method)')).toBeInTheDocument();
-    expect(screen.getByText('Protected with: Authenticator')).toBeInTheDocument();
+    expect(screen.getByText('MFA Active (1 method)')).toBeDefined();
+    expect(screen.getByText('Protected with: Authenticator')).toBeDefined();
   });
 
   it('shows required status when MFA is mandatory', () => {
@@ -53,8 +53,8 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} />);
     
-    expect(screen.getByText('MFA Required')).toBeInTheDocument();
-    expect(screen.getByText('Your role requires multi-factor authentication')).toBeInTheDocument();
+    expect(screen.getByText('MFA Required')).toBeDefined();
+    expect(screen.getByText('Your role requires multi-factor authentication')).toBeDefined();
   });
 
   it('shows grace period information', () => {
@@ -66,7 +66,7 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} />);
     
-    expect(screen.getByText('Setup Required (12h remaining)')).toBeInTheDocument();
+    expect(screen.getByText('Setup Required (12h remaining)')).toBeDefined();
   });
 
   it('renders without text when showText is false', () => {
@@ -77,9 +77,9 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} showText={false} />);
     
-    expect(screen.queryByText('MFA Active')).not.toBeInTheDocument();
+    expect(screen.queryByText('MFA Active')).toBeNull();
     // Icon should still be present
-    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+    expect(screen.getByRole('img', { hidden: true })).toBeDefined();
   });
 
   it('applies different sizes correctly', () => {
@@ -89,10 +89,11 @@ describe('MFAStatusIndicator Component', () => {
     };
 
     const { rerender } = render(<MFAStatusIndicator status={status} size="sm" />);
-    expect(screen.getByText('MFA Optional')).toHaveClass('text-xs');
+    const smallText = screen.getByText('MFA Optional');
+    expect(smallText.className).toContain('text-xs');
 
     rerender(<MFAStatusIndicator status={status} size="lg" />);
-    expect(screen.getByText('Additional security available')).toBeInTheDocument();
+    expect(screen.getByText('Additional security available')).toBeDefined();
   });
 
   it('shows multiple verified factors correctly', () => {
@@ -119,7 +120,7 @@ describe('MFAStatusIndicator Component', () => {
 
     render(<MFAStatusIndicator status={status} size="lg" />);
     
-    expect(screen.getByText('MFA Active (2 methods)')).toBeInTheDocument();
-    expect(screen.getByText('Protected with: Authenticator, SMS')).toBeInTheDocument();
+    expect(screen.getByText('MFA Active (2 methods)')).toBeDefined();
+    expect(screen.getByText('Protected with: Authenticator, SMS')).toBeDefined();
   });
 });

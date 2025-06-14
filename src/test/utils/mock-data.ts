@@ -26,7 +26,6 @@ export const mockUser: User = {
   action_link: null,
   email_change_sent_at: null,
   new_phone: null,
-  phone_change_sent_at: null,
 };
 
 export const mockAdminUser: User = {
