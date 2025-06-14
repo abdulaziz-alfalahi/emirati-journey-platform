@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client'
 import React from 'react'; // Add React import
 import App from './App.tsx'
 import './index.css'
+import './lib/i18n' // Initialize i18n
 import { AuthProvider } from './context/AuthContext'
 import { QueryProvider } from './context/QueryContext'
 import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
+import { LanguageProvider } from './context/LanguageContext' // Import LanguageProvider
 import { initializePerformanceMonitoring } from './lib/performance'
 import { initializeSentry } from './lib/sentry'
 
@@ -33,13 +35,15 @@ if (!rootElement) {
 const root = document.getElementById("root");
 createRoot(root!).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="light">
-      <AuthProvider>
-        <QueryProvider>
-          <App />
-        </QueryProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider defaultTheme="light">
+        <AuthProvider>
+          <QueryProvider>
+            <App />
+          </QueryProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   </React.StrictMode>
 );
 

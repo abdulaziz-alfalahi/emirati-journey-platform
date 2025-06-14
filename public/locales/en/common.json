@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "training": "Training",
+    "jobMatching": "Job Matching"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "signIn": "Sign In",
+    "clear": "Clear"
+  },
+  "common": {
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter"
+  },
+  "toggleLanguage": "Toggle language"
+}

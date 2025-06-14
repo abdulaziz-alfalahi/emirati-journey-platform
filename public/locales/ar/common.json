@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم", 
+    "profile": "الملف الشخصي",
+    "training": "التدريب",
+    "jobMatching": "مطابقة الوظائف"
+  },
+  "buttons": {
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "signIn": "تسجيل الدخول",
+    "clear": "مسح"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "search": "بحث",
+    "filter": "تصفية"
+  },
+  "toggleLanguage": "تبديل اللغة"
+}

@@ -1,5 +1,6 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap");
 @import url("./components/accessibility/accessibility.css");
 @import url("./components/ui/animations.css");
 @tailwind base;
@@ -486,4 +487,116 @@
     min-height: 44px !important;
     min-width: 44px !important;
   }
+}
+
+/* RTL (Right-to-Left) Language Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] body {
+  font-family: 'Noto Sans Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* RTL layout adjustments */
+[dir="rtl"] .rtl\\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] .rtl\\:flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+/* RTL margin and padding utilities */
+[dir="rtl"] .rtl\\:ml-auto {
+  margin-left: auto;
+}
+
+[dir="rtl"] .rtl\\:mr-0 {
+  margin-right: 0;
+}
+
+[dir="rtl"] .rtl\\:pl-4 {
+  padding-left: 1rem;
+}
+
+[dir="rtl"] .rtl\\:pr-0 {
+  padding-right: 0;
+}
+
+/* RTL border radius adjustments */
+[dir="rtl"] .rtl\\:rounded-r-lg {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+[dir="rtl"] .rtl\\:rounded-l-none {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* RTL text alignment */
+[dir="rtl"] .rtl\\:text-right {
+  text-align: right;
+}
+
+[dir="rtl"] .rtl\\:text-left {
+  text-align: left;
+}
+
+/* RTL transform adjustments for icons */
+[dir="rtl"] .rtl\\:rotate-180 {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .rtl\\:scale-x-[-1] {
+  transform: scaleX(-1);
+}
+
+/* RTL dropdown and menu positioning */
+[dir="rtl"] .rtl\\:origin-top-right {
+  transform-origin: top right;
+}
+
+[dir="rtl"] .rtl\\:origin-top-left {
+  transform-origin: top left;
+}
+
+/* RTL navigation and layout */
+[dir="rtl"] .navigation-rtl {
+  direction: rtl;
+}
+
+[dir="rtl"] .sidebar-rtl {
+  right: 0;
+  left: auto;
+}
+
+/* RTL-specific utilities */
+.rtl-aware {
+  /* This class can be used for elements that need RTL-specific behavior */
+}
+
+[dir="rtl"] .rtl-aware {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL form adjustments */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* RTL chart and data visualization adjustments */
+[dir="rtl"] .chart-rtl {
+  direction: ltr; /* Keep charts LTR for data consistency */
+}
+
+[dir="rtl"] .chart-rtl .chart-legend {
+  direction: rtl;
+  text-align: right;
 }

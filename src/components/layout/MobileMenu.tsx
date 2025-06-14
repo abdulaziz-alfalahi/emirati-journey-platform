@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { LanguageToggle } from '@/components/language-toggle';
 import { cn } from '@/lib/utils';
 
 interface MobileMenuProps {
@@ -94,6 +96,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <LanguageToggle />
+              <ThemeToggle />
               <AccessibilityToolbar />
             </div>
           </div>

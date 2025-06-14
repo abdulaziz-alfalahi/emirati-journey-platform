@@ -3,11 +3,11 @@ import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from 'react-i18next';
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
+  const { t } = useTranslation('pages');
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -17,32 +17,32 @@ const Hero: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/40 backdrop-blur-sm shadow-subtle border border-emirati-teal/10">
             <p className={`text-emirati-navy font-medium transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-              The Complete Platform for Emirati Career Development
+              {t('hero.badge')}
             </p>
           </div>
           
           <h1 className={`text-4xl md:text-6xl lg:text-7xl font-display font-semibold leading-tight mb-6 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            Your <span className="text-emirati-teal">Lifelong</span> Journey from Education to Retirement
+            {t('hero.title.part1')} <span className="text-emirati-teal">{t('hero.title.highlight')}</span> {t('hero.title.part2')}
           </h1>
           
           <p className={`text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl mx-auto transition-all duration-1000 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            A unified platform supporting Emiratis through every stage of their professional development, connecting education, employment, and lifelong learning.
+            {t('hero.description')}
           </p>
           
           <div className={`flex flex-col sm:flex-row justify-center gap-4 transition-all duration-1000 delay-400 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {user ? <Link to="/dashboard">
                 <Button size="lg" className="bg-emirati-teal hover:bg-emirati-teal/90 text-white px-8 py-3 text-lg">
-                  Go to Dashboard
+                  {t('hero.buttons.dashboard')}
                 </Button>
               </Link> : <>
                 <Link to="/auth">
                   <Button size="lg" className="bg-emirati-teal hover:bg-emirati-teal/90 text-white px-8 py-3 text-lg">
-                    Sign In
+                    {t('hero.buttons.signIn')}
                   </Button>
                 </Link>
                 <Link to="/auth">
                   <Button size="lg" variant="outline" className="border-emirati-teal text-emirati-teal hover:bg-emirati-teal hover:text-white px-8 py-3 text-lg">
-                    Get Started
+                    {t('hero.buttons.getStarted')}
                   </Button>
                 </Link>
               </>}
