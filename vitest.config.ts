@@ -23,7 +23,7 @@ export default defineConfig({
       ],
     },
     typecheck: {
-      exclude: ['e2e']
+      enabled: false
     }
   },
   resolve: {

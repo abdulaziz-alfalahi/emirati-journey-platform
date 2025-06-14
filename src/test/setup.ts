@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/vitest';
+// Mock utilities for testing
 import { vi } from 'vitest';
 
 // Mock matchMedia
