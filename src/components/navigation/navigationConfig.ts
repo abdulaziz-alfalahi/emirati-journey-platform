@@ -71,26 +71,14 @@ export const navigationGroups: NavGroup[] = [
       {
         name: 'Career Planning Hub',
         href: '/career-planning-hub',
-        description: 'Comprehensive career development platform',
+        description: 'Comprehensive career development platform with journey planning, path comparison, and market intelligence',
         icon: Compass
-      },
-      {
-        name: 'Career Journey',
-        href: '/career-journey',
-        description: 'Map your career path',
-        icon: MapPin
       },
       {
         name: 'Industry Exploration',
         href: '/industry-exploration',
         description: 'Discover UAE industry opportunities',
         icon: Compass
-      },
-      {
-        name: 'Career Comparison',
-        href: '/career-comparison',
-        description: 'Compare different career paths and opportunities',
-        icon: GitCompare
       },
       {
         name: 'Graduate Programs',

@@ -97,7 +97,6 @@ function App() {
                   <Route path="/training" element={<TrainingPage />} />
                   
                   {/* Career Entry routes */}
-                  <Route path="/career-journey" element={<CareerJourneyPage />} />
                   <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
                   <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
                   <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
@@ -106,7 +105,10 @@ function App() {
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
                   <Route path="/job-matching" element={<JobMatchingPage />} />
-                  <Route path="/career-comparison" element={<CareerComparisonPage />} />
+                  
+                  {/* Legacy redirects to unified Career Planning Hub */}
+                  <Route path="/career-journey" element={<Navigate to="/career-planning-hub" replace />} />
+                  <Route path="/career-comparison" element={<Navigate to="/career-planning-hub" replace />} />
                   <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
                   <Route path="/financial-planning" element={<FinancialPlanningPage />} />
                   <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
