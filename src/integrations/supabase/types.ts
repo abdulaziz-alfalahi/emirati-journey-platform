@@ -1193,6 +1193,45 @@ export type Database = {
           },
         ]
       }
+      citizen_journey_profiles: {
+        Row: {
+          achievements: Json
+          created_at: string
+          current_phase: string
+          id: string
+          interests_and_goals: Json
+          profile_data: Json
+          progress_metrics: Json
+          skills_portfolio: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json
+          created_at?: string
+          current_phase?: string
+          id?: string
+          interests_and_goals?: Json
+          profile_data?: Json
+          progress_metrics?: Json
+          skills_portfolio?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements?: Json
+          created_at?: string
+          current_phase?: string
+          id?: string
+          interests_and_goals?: Json
+          profile_data?: Json
+          progress_metrics?: Json
+          skills_portfolio?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coaching_recommendations: {
         Row: {
           coach_id: string | null
@@ -1629,6 +1668,78 @@ export type Database = {
           user_id?: string
           verification_type?: string
           verified_at?: string | null
+        }
+        Relationships: []
+      }
+      cross_phase_recommendations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          priority_score: number
+          recommendation_data: Json
+          recommendation_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          priority_score?: number
+          recommendation_data?: Json
+          recommendation_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          priority_score?: number
+          recommendation_data?: Json
+          recommendation_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_integration_requests: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          processed_at: string | null
+          request_data: Json
+          source_phase: string
+          status: string
+          target_phase: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          processed_at?: string | null
+          request_data?: Json
+          source_phase: string
+          status?: string
+          target_phase: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          processed_at?: string | null
+          request_data?: Json
+          source_phase?: string
+          status?: string
+          target_phase?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3872,6 +3983,42 @@ export type Database = {
           title?: string
           type?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      phase_transitions: {
+        Row: {
+          created_at: string
+          from_phase: string
+          id: string
+          notes: string | null
+          readiness_score: number | null
+          to_phase: string
+          transition_data: Json
+          transition_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_phase: string
+          id?: string
+          notes?: string | null
+          readiness_score?: number | null
+          to_phase: string
+          transition_data?: Json
+          transition_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_phase?: string
+          id?: string
+          notes?: string | null
+          readiness_score?: number | null
+          to_phase?: string
+          transition_data?: Json
+          transition_date?: string
+          user_id?: string
         }
         Relationships: []
       }
