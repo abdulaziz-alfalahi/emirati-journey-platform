@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ABTestExperiment {
@@ -285,13 +286,23 @@ export const getRecommendationConfig = (experimentId: string, variant: 'A' | 'B'
     return {
       algorithm: 'collaborative_filtering',
       weightPersonalization: 0.7,
-      weightPopularity: 0.3
+      weightPopularity: 0.3,
+      skillsWeight: 0.4,
+      educationWeight: 0.2,
+      experienceWeight: 0.3,
+      locationWeight: 0.1,
+      freshnessWeight: 0.1
     };
   } else {
     return {
       algorithm: 'content_based',
       weightPersonalization: 0.5,
-      weightPopularity: 0.5
+      weightPopularity: 0.5,
+      skillsWeight: 0.3,
+      educationWeight: 0.3,
+      experienceWeight: 0.2,
+      locationWeight: 0.1,
+      freshnessWeight: 0.1
     };
   }
 };
