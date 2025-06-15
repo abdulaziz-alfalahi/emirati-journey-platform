@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
+import { PhaseProvider } from '@/context/PhaseContext';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 
 // Lazy-loaded page components
@@ -62,7 +63,8 @@ function App() {
       <QueryProvider>
         <AuthProvider>
           <RoleProvider>
-            <div className="min-h-screen bg-background font-sans antialiased">
+            <PhaseProvider>
+              <div className="min-h-screen bg-background font-sans antialiased">
               <SkipNavigation />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
@@ -118,7 +120,8 @@ function App() {
                   <Route path="/design-system" element={<DesignSystemPage />} />
                 </Routes>
               </Suspense>
-            </div>
+              </div>
+            </PhaseProvider>
           </RoleProvider>
         </AuthProvider>
       </QueryProvider>
