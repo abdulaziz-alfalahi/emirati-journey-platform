@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
@@ -28,6 +29,7 @@ const ShareSuccessStoriesPage = React.lazy(() => import('@/pages/share-success-s
 const UserRolesAdminPage = React.lazy(() => import('@/pages/admin/user-roles'));
 const ContentManagementPage = React.lazy(() => import('@/pages/admin/content-management'));
 const NotificationsPage = React.lazy(() => import('@/pages/notifications'));
+const MessagesPage = React.lazy(() => import('@/pages/messages'));
 const LMSPage = React.lazy(() => import('@/pages/lms'));
 const TrainingPage = React.lazy(() => import('@/pages/training'));
 const UniversityProgramsPage = React.lazy(() => import('@/pages/university-programs'));
@@ -74,6 +76,7 @@ function App() {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/messages" element={<MessagesPage />} />
                   <Route path="/national-service" element={<NationalServicePage />} />
                   <Route path="/youth-development" element={<YouthDevelopmentPage />} />
                   <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />

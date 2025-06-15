@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -13,15 +12,20 @@ import {
   Info, 
   AlertTriangle, 
   CheckCircle,
-  Filter
+  Filter,
+  Settings,
+  Megaphone,
+  MessageSquare
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Notification } from '@/types/notifications';
 import { formatDistanceToNow } from 'date-fns';
+import { IntelligentNotificationSystem } from '@/components/notifications/IntelligentNotificationSystem';
+import { CrossPhaseAnnouncements } from '@/components/notifications/CrossPhaseAnnouncements';
 
 const NotificationsPage: React.FC = () => {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('intelligent');
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -88,22 +92,42 @@ const NotificationsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Bell className="h-8 w-8" />
-              Notifications
+              Notification Center
             </h1>
             <p className="text-muted-foreground">
-              Stay updated with your applications, opportunities, and platform updates
+              Stay updated with personalized notifications, announcements, and communications
             </p>
           </div>
-          {unreadCount > 0 && (
-            <Button onClick={markAllAsRead} className="flex items-center gap-2">
-              <CheckCheck className="h-4 w-4" />
-              Mark all as read ({unreadCount})
+          <div className="flex items-center gap-2">
+            <Link to="/messages">
+              <Button variant="outline" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Messages
+              </Button>
+            </Link>
+            {unreadCount > 0 && (
+              <Button onClick={markAllAsRead} className="flex items-center gap-2">
+                <CheckCheck className="h-4 w-4" />
+                Mark all as read ({unreadCount})
+              </Button>
+            )}
+            <Button variant="outline" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Preferences
             </Button>
-          )}
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="intelligent" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Smart Notifications
+            </TabsTrigger>
+            <TabsTrigger value="announcements" className="flex items-center gap-2">
+              <Megaphone className="h-4 w-4" />
+              Announcements
+            </TabsTrigger>
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
               All ({notifications.length})
@@ -116,13 +140,18 @@ const NotificationsPage: React.FC = () => {
               <AlertCircle className="h-4 w-4" />
               Urgent ({notifications.filter(n => n.type === 'urgent').length})
             </TabsTrigger>
-            <TabsTrigger value="read" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              Read ({notifications.filter(n => n.is_read).length})
-            </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="intelligent">
+            <IntelligentNotificationSystem />
+          </TabsContent>
+
+          <TabsContent value="announcements">
+            <CrossPhaseAnnouncements />
+          </TabsContent>
+
           <TabsContent value={activeTab} className="space-y-4">
+            
             {filteredNotifications.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
@@ -132,7 +161,6 @@ const NotificationsPage: React.FC = () => {
                     {activeTab === 'all' && 'You have no notifications yet.'}
                     {activeTab === 'unread' && 'All notifications have been read.'}
                     {activeTab === 'urgent' && 'No urgent notifications.'}
-                    {activeTab === 'read' && 'No read notifications.'}
                   </p>
                 </CardContent>
               </Card>
