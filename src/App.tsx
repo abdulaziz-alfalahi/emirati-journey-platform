@@ -31,6 +31,7 @@ const LMSPage = React.lazy(() => import('@/pages/lms'));
 const TrainingPage = React.lazy(() => import('@/pages/training'));
 const UniversityProgramsPage = React.lazy(() => import('@/pages/university-programs'));
 const CareerJourneyPage = React.lazy(() => import('@/pages/career-journey'));
+const CareerPlanningHubPage = React.lazy(() => import('@/pages/career-planning-hub'));
 const CareerAdvisoryPage = React.lazy(() => import('@/pages/career-advisory'));
 const IndustryExplorationPage = React.lazy(() => import('@/pages/industry-exploration'));
 const GraduateProgramsPage = React.lazy(() => import('@/pages/graduate-programs'));
@@ -97,6 +98,7 @@ function App() {
                   
                   {/* Career Entry routes */}
                   <Route path="/career-journey" element={<CareerJourneyPage />} />
+                  <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
                   <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
                   <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
                   <Route path="/internships" element={<InternshipsPage />} />

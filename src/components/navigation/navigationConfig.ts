@@ -69,6 +69,12 @@ export const navigationGroups: NavGroup[] = [
     description: 'Professional growth and career opportunities',
     items: [
       {
+        name: 'Career Planning Hub',
+        href: '/career-planning-hub',
+        description: 'Comprehensive career development platform',
+        icon: Compass
+      },
+      {
         name: 'Career Journey',
         href: '/career-journey',
         description: 'Map your career path',
