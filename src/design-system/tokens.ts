@@ -1,263 +1,300 @@
 /**
  * Design System Tokens
- * Comprehensive design tokens for the unified Dubai Government design system
+ * Comprehensive token system for the Dubai Government EHRDC platform
+ * Supporting all four citizen journey phases with unified standards
  */
 
-// ============= Color Tokens =============
+// ============= Core Color System =============
 export const colorTokens = {
-  // Primary EHRDC Palette (Government Standard)
+  // EHRDC Brand Colors (Primary System)
   primary: {
     teal: '#006E6D',
     darkTeal: '#005A59',
     lightTeal: '#4A9B9A',
-    neutralDark: '#1A1A1A',
-    neutralLight: '#F5F5F5',
-    white: '#FFFFFF',
     gold: '#C3992A'
   },
-
-  // Secondary Dubai Design System
-  secondary: {
-    blue: '#0079C1',
-    darkBlue: '#005A92',
-    lightBlue: '#4DA6D9',
-    indigo: '#6366F1',
-    purple: '#8B5CF6'
-  },
-
-  // Semantic Colors
-  semantic: {
-    success: '#00A651',
-    warning: '#F57C00',
-    error: '#D32F2F',
-    info: '#0079C1'
-  },
-
+  
   // Neutral Palette
   neutral: {
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#EEEEEE',
-    300: '#E0E0E0',
-    400: '#BDBDBD',
-    500: '#9E9E9E',
-    600: '#757575',
-    700: '#616161',
-    800: '#424242',
-    900: '#212121'
+    white: '#FFFFFF',
+    light: '#F5F5F5',
+    medium: '#CCCCCC',
+    dark: '#1A1A1A',
+    black: '#000000'
   },
-
-  // Background Gradients
-  gradients: {
-    primary: 'linear-gradient(135deg, #006E6D 0%, #4A9B9A 100%)',
-    secondary: 'linear-gradient(135deg, #0079C1 0%, #6366F1 100%)',
-    subtle: 'linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%)',
-    accent: 'linear-gradient(135deg, #C3992A 0%, #F57C00 100%)'
+  
+  // Semantic Colors
+  semantic: {
+    success: '#16A34A',
+    error: '#EF4444',
+    warning: '#F97316',
+    info: '#3B82F6'
+  },
+  
+  // Phase-Specific Color Extensions
+  phases: {
+    education: {
+      primary: '#006E6D',      // EHRDC Teal
+      secondary: '#B3DEDD',    // Light Teal
+      accent: '#00A651',       // Green
+      background: 'rgba(179, 222, 221, 0.1)',
+      text: '#1A1A1A'
+    },
+    career: {
+      primary: '#0079C1',      // Dubai Blue
+      secondary: '#B3E0FF',    // Light Blue
+      accent: '#00ABB3',       // Teal
+      background: 'rgba(0, 121, 193, 0.05)',
+      text: '#1A1A1A'
+    },
+    professional: {
+      primary: '#7B1FA2',      // Purple
+      secondary: '#E1BEE7',    // Light Purple
+      accent: '#F57C00',       // Orange
+      background: 'rgba(123, 31, 162, 0.05)',
+      text: '#1A1A1A'
+    },
+    lifelong: {
+      primary: '#D32F2F',      // Red
+      secondary: '#FFCDD2',    // Light Red
+      accent: '#00A651',       // Green
+      background: 'rgba(211, 47, 47, 0.05)',
+      text: '#1A1A1A'
+    }
   }
-} as const;
+};
 
-// ============= Typography Tokens =============
+// ============= Typography System =============
 export const typographyTokens = {
   fontFamily: {
-    primary: ['Inter', 'system-ui', 'sans-serif'],
+    primary: ['Inter', 'sans-serif'],
+    arabic: ['Noto Sans Arabic', 'Inter', 'sans-serif'],
     display: ['SF Pro Display', 'Inter', 'sans-serif'],
-    mono: ['SF Mono', 'Monaco', 'monospace']
+    government: ['Dubai', 'Arial', 'sans-serif']
   },
-
+  
   fontSize: {
-    xs: '0.75rem',      // 12px
-    sm: '0.875rem',     // 14px
-    base: '1rem',       // 16px
-    lg: '1.125rem',     // 18px
-    xl: '1.25rem',      // 20px
-    '2xl': '1.5rem',    // 24px
-    '3xl': '1.875rem',  // 30px
-    '4xl': '2.25rem',   // 36px
-    '5xl': '3rem',      // 48px
-    '6xl': '3.75rem',   // 60px
-    '7xl': '4.5rem'     // 72px
+    xs: '0.75rem',    // 12px
+    sm: '0.875rem',   // 14px
+    base: '1rem',     // 16px
+    lg: '1.125rem',   // 18px
+    xl: '1.25rem',    // 20px
+    '2xl': '1.5rem',  // 24px
+    '3xl': '1.875rem', // 30px
+    '4xl': '2.25rem', // 36px
+    '5xl': '3rem',    // 48px
+    '6xl': '3.75rem', // 60px
+    '7xl': '4.5rem',  // 72px
+    '8xl': '6rem',    // 96px
+    '9xl': '8rem'     // 128px
   },
-
+  
   fontWeight: {
-    light: '300',
     normal: '400',
     medium: '500',
     semibold: '600',
-    bold: '700',
-    extrabold: '800'
+    bold: '700'
   },
-
+  
   lineHeight: {
-    tight: '1.25',
-    normal: '1.5',
-    relaxed: '1.75'
+    tight: '1.1',
+    snug: '1.2',
+    normal: '1.4',
+    relaxed: '1.6',
+    loose: '1.8'
   },
-
+  
   letterSpacing: {
     tight: '-0.025em',
-    normal: '0',
+    normal: '0em',
     wide: '0.025em'
   }
-} as const;
+};
 
-// ============= Spacing Tokens =============
+// ============= Spacing System =============
 export const spacingTokens = {
-  xs: '0.25rem',    // 4px
-  sm: '0.5rem',     // 8px
-  md: '1rem',       // 16px
-  lg: '1.5rem',     // 24px
-  xl: '2rem',       // 32px
-  '2xl': '3rem',    // 48px
-  '3xl': '4rem',    // 64px
-  '4xl': '6rem',    // 96px
-  '5xl': '8rem'     // 128px
-} as const;
+  // Base scale (4px)
+  '0': '0',
+  '1': '0.25rem',   // 4px
+  '2': '0.5rem',    // 8px
+  '3': '0.75rem',   // 12px
+  '4': '1rem',      // 16px
+  '5': '1.25rem',   // 20px
+  '6': '1.5rem',    // 24px
+  '8': '2rem',      // 32px
+  '10': '2.5rem',   // 40px
+  '12': '3rem',     // 48px
+  '16': '4rem',     // 64px
+  '20': '5rem',     // 80px
+  '24': '6rem',     // 96px
+  '32': '8rem',     // 128px
+  '40': '10rem',    // 160px
+  '48': '12rem',    // 192px
+  '56': '14rem',    // 224px
+  '64': '16rem',    // 256px
+  
+  // Semantic spacing
+  section: {
+    xs: '2rem',     // 32px
+    sm: '3rem',     // 48px
+    md: '4rem',     // 64px
+    lg: '5rem',     // 80px
+    xl: '6rem'      // 96px
+  }
+};
 
-// ============= Border Radius Tokens =============
+// ============= Border Radius System =============
 export const borderRadiusTokens = {
   none: '0',
   sm: '0.125rem',   // 2px
-  md: '0.25rem',    // 4px
+  md: '0.375rem',   // 6px
   lg: '0.5rem',     // 8px
   xl: '0.75rem',    // 12px
   '2xl': '1rem',    // 16px
   '3xl': '1.5rem',  // 24px
   full: '9999px'
-} as const;
+};
 
-// ============= Shadow Tokens =============
+// ============= Shadow System =============
 export const shadowTokens = {
-  none: 'none',
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  xs: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+  sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
   md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
   lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
   xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
   inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-  // Dubai-specific shadows
-  dubai: '0 2px 8px rgba(0, 121, 193, 0.1)',
-  dubaiStrong: '0 8px 24px rgba(0, 121, 193, 0.15)',
-  ehrdc: '0 4px 20px rgba(0, 110, 109, 0.1)',
-  ehrdcStrong: '0 8px 40px rgba(0, 110, 109, 0.15)'
-} as const;
+  
+  // Branded shadows
+  dubai: '0 4px 20px rgba(0, 110, 109, 0.1)',
+  dubaiLg: '0 8px 40px rgba(0, 110, 109, 0.15)',
+  dubaiXl: '0 12px 60px rgba(0, 110, 109, 0.2)'
+};
 
-// ============= Animation Tokens =============
+// ============= Animation System =============
 export const animationTokens = {
   duration: {
     fast: '150ms',
-    normal: '300ms',
-    slow: '500ms'
+    normal: '200ms',
+    slow: '300ms',
+    slower: '500ms'
   },
-
+  
   easing: {
     linear: 'linear',
-    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-    easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
-    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)'
-  },
-
-  keyframes: {
-    fadeIn: 'fade-in 0.3s ease-out',
-    fadeOut: 'fade-out 0.3s ease-out',
-    slideUp: 'slide-up 0.3s ease-out',
-    slideDown: 'slide-down 0.3s ease-out',
-    scaleIn: 'scale-in 0.2s ease-out',
-    scaleOut: 'scale-out 0.2s ease-out'
+    ease: 'ease',
+    easeIn: 'ease-in',
+    easeOut: 'ease-out',
+    easeInOut: 'ease-in-out',
+    bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    elastic: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
   }
-} as const;
+};
 
-// ============= Breakpoint Tokens =============
+// ============= Breakpoint System =============
 export const breakpointTokens = {
+  xs: '475px',
   sm: '640px',
   md: '768px',
   lg: '1024px',
   xl: '1280px',
   '2xl': '1536px'
-} as const;
+};
 
 // ============= Component Tokens =============
 export const componentTokens = {
   button: {
     height: {
-      sm: '2rem',       // 32px
-      md: '2.5rem',     // 40px
-      lg: '3rem'        // 48px
+      sm: '2rem',      // 32px
+      md: '2.5rem',    // 40px
+      lg: '3rem',      // 48px
+      xl: '3.5rem'     // 56px
     },
     padding: {
-      sm: '0.5rem 1rem',
-      md: '0.75rem 1.5rem',
-      lg: '1rem 2rem'
+      sm: '0.5rem 0.75rem',
+      md: '0.625rem 1rem',
+      lg: '0.75rem 1.5rem',
+      xl: '1rem 2rem'
     },
-    borderRadius: borderRadiusTokens.lg
+    minWidth: '44px' // Accessibility requirement
   },
-
+  
   input: {
-    height: {
-      sm: '2rem',
-      md: '2.5rem',
-      lg: '3rem'
-    },
+    height: '3rem',   // 48px
     padding: '0.75rem 1rem',
-    borderRadius: borderRadiusTokens.lg
+    borderWidth: '1px'
   },
-
+  
   card: {
     padding: {
       sm: '1rem',
       md: '1.5rem',
       lg: '2rem'
     },
-    borderRadius: borderRadiusTokens.xl,
-    shadow: shadowTokens.md
+    borderWidth: '1px'
   }
-} as const;
+};
 
 // ============= Layout Tokens =============
 export const layoutTokens = {
   container: {
     maxWidth: '1280px',
-    padding: '1rem'
-  },
-
-  section: {
     padding: {
-      sm: '2rem 0',
-      md: '4rem 0',
-      lg: '6rem 0'
+      mobile: '1rem',
+      tablet: '1.5rem',
+      desktop: '2rem'
     }
   },
-
+  
   grid: {
+    columns: {
+      mobile: 1,
+      tablet: 2,
+      desktop: 3,
+      wide: 4
+    },
     gap: {
       sm: '1rem',
       md: '1.5rem',
       lg: '2rem'
     }
-  }
-} as const;
-
-// ============= Design Pattern Definitions =============
-export const designPatterns = {
-  group1: {
-    name: 'EHRDC Government Standard',
-    description: 'Primary pattern for government services and official content',
-    gradient: 'bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal',
-    textColor: 'text-ehrdc-neutral-dark',
-    accentColor: 'ehrdc-teal',
-    useCases: ['Government services', 'Official documentation', 'Administrative interfaces']
   },
-
-  group2: {
-    name: 'Dubai Innovation',
-    description: 'Secondary pattern for modern, tech-forward initiatives',
-    gradient: 'bg-gradient-to-r from-blue-600 to-indigo-700',
-    textColor: 'text-white',
-    accentColor: 'blue-600',
-    useCases: ['Innovation programs', 'Technology initiatives', 'Future-focused content']
+  
+  navigation: {
+    height: '4rem',   // 64px
+    zIndex: 1000
+  },
+  
+  sidebar: {
+    width: '16rem',   // 256px
+    collapsedWidth: '4rem' // 64px
   }
-} as const;
+};
 
-// Export all tokens as a single object for easier consumption
+// ============= Design Patterns =============
+export const designPatterns = {
+  // Pattern Group 1: Government/Administrative (Education, some Career)
+  group1: {
+    colorScheme: 'teal-focused',
+    primaryColor: colorTokens.primary.teal,
+    accentColor: colorTokens.primary.lightTeal,
+    style: 'formal',
+    interactionLevel: 'standard',
+    visualComplexity: 'minimal'
+  },
+  
+  // Pattern Group 2: Innovation/Exploration (Career, Professional, Lifelong)
+  group2: {
+    colorScheme: 'multi-color',
+    primaryColor: colorTokens.phases.career.primary,
+    accentColor: colorTokens.phases.career.accent,
+    style: 'modern',
+    interactionLevel: 'enhanced',
+    visualComplexity: 'moderate'
+  }
+};
+
+// ============= Main Design Tokens Export =============
 export const designTokens = {
   colors: colorTokens,
   typography: typographyTokens,
@@ -269,6 +306,6 @@ export const designTokens = {
   components: componentTokens,
   layout: layoutTokens,
   patterns: designPatterns
-} as const;
+};
 
-export default designTokens;
+// Individual token categories are already exported above

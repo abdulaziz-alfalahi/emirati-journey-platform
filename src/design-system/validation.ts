@@ -33,7 +33,6 @@ export interface ValidationWarning {
 class ColorValidator {
   private validColors = new Set([
     ...Object.values(designTokens.colors.primary),
-    ...Object.values(designTokens.colors.secondary),
     ...Object.values(designTokens.colors.semantic),
     ...Object.values(designTokens.colors.neutral)
   ]);
