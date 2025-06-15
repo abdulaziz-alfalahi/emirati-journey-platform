@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import Layout from '@/components/layout/Layout';
+import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { LMSTabsWrapper } from '@/components/lms/LMSTabsWrapper';
 import { useAuth } from '@/context/AuthContext';
 import { lmsService } from '@/services/lms';
 import { useToast } from '@/hooks/use-toast';
 import type { CourseEnrollment } from '@/types/lms';
-import { BookOpen, Users, Award, TrendingUp, GraduationCap, Globe } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import type { EducationStat, EducationTab, AcademicProgress, AcademicAnnouncement, Achievement } from '@/components/layouts/EducationPathwayLayout';
+import { BookOpen, Users, Award, TrendingUp, GraduationCap, Globe, Target, Calendar } from 'lucide-react';
 
 const LMSPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -48,6 +48,148 @@ const LMSPage: React.FC = () => {
   // Get enrolled course IDs for quick lookup
   const enrolledCourseIds = enrollments.map(enrollment => enrollment.course_id);
 
+  // Transform enrollments to academic progress format
+  const academicProgress: AcademicProgress[] = enrollments.map(enrollment => ({
+    courseId: enrollment.course_id,
+    courseName: (enrollment as any).courses?.title || 'Course',
+    progress: enrollment.progress_percentage,
+    totalModules: 10, // Mock data - would come from actual course data
+    completedModules: Math.floor((enrollment.progress_percentage / 100) * 10),
+    status: enrollment.status === 'completed' ? 'completed' : 
+            enrollment.status === 'active' ? 'active' : 'pending',
+    nextDeadline: enrollment.status === 'active' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : undefined
+  }));
+
+  // Education stats for the layout
+  const stats: EducationStat[] = [
+    {
+      value: "150+",
+      label: "Available Courses",
+      icon: BookOpen
+    },
+    {
+      value: "5,200+",
+      label: "Active Learners",
+      icon: Users
+    },
+    {
+      value: "85%",
+      label: "Completion Rate",
+      icon: TrendingUp
+    },
+    {
+      value: "3,400+",
+      label: "Certificates Issued",
+      icon: Award
+    }
+  ];
+
+  // Education tabs with LMS content
+  const tabs: EducationTab[] = [
+    {
+      id: "browse",
+      label: "Course Catalog",
+      icon: <BookOpen className="h-4 w-4" />,
+      content: (
+        <LMSTabsWrapper
+          user={user}
+          isInstructor={isInstructor}
+          enrollments={enrollments}
+          enrolledCourseIds={enrolledCourseIds}
+          loading={loading}
+          activeTab="browse"
+          setActiveTab={setActiveTab}
+        />
+      )
+    },
+    {
+      id: "my-courses",
+      label: "My Courses",
+      icon: <Target className="h-4 w-4" />,
+      content: (
+        <LMSTabsWrapper
+          user={user}
+          isInstructor={isInstructor}
+          enrollments={enrollments}
+          enrolledCourseIds={enrolledCourseIds}
+          loading={loading}
+          activeTab="my-courses"
+          setActiveTab={setActiveTab}
+        />
+      )
+    },
+    {
+      id: "certificates",
+      label: "Certificates",
+      icon: <Award className="h-4 w-4" />,
+      content: (
+        <LMSTabsWrapper
+          user={user}
+          isInstructor={isInstructor}
+          enrollments={enrollments}
+          enrolledCourseIds={enrolledCourseIds}
+          loading={loading}
+          activeTab="certificates"
+          setActiveTab={setActiveTab}
+        />
+      )
+    },
+    {
+      id: "progress",
+      label: "Progress",
+      icon: <TrendingUp className="h-4 w-4" />,
+      content: (
+        <LMSTabsWrapper
+          user={user}
+          isInstructor={isInstructor}
+          enrollments={enrollments}
+          enrolledCourseIds={enrolledCourseIds}
+          loading={loading}
+          activeTab="progress"
+          setActiveTab={setActiveTab}
+        />
+      )
+    }
+  ];
+
+  // Sample academic announcements
+  const announcements: AcademicAnnouncement[] = [
+    {
+      id: "1",
+      title: "New AI & Machine Learning Course Available",
+      message: "Enroll in our latest course covering advanced AI concepts and practical applications.",
+      type: "info",
+      date: new Date(),
+      urgent: false
+    },
+    {
+      id: "2", 
+      title: "System Maintenance Scheduled",
+      message: "Platform will be unavailable for maintenance on Sunday, 2-4 AM GST.",
+      type: "warning",
+      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      urgent: true
+    }
+  ];
+
+  // Sample achievements
+  const achievements: Achievement[] = [
+    {
+      id: "1",
+      title: "First Course Completed",
+      description: "Successfully completed your first course on the platform!",
+      icon: GraduationCap,
+      dateEarned: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      category: "academic"
+    }
+  ];
+
+  // Calculate current GPA based on completed courses
+  const completedCourses = academicProgress.filter(p => p.status === 'completed');
+  const currentGPA = completedCourses.length > 0 ? 
+    completedCourses.reduce((sum, course) => sum + (course.progress / 25), 0) / completedCourses.length : 
+    undefined;
+
   console.log('LMSPage: Rendering with state:', {
     user: !!user,
     isInstructor,
@@ -58,83 +200,26 @@ const LMSPage: React.FC = () => {
   });
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 mb-8 text-white">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl font-bold mb-4">Learning Management System</h1>
-            <p className="text-xl opacity-90 mb-6">
-              Advance your career with comprehensive courses, certifications, and skill development programs designed for the UAE's digital economy.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <BookOpen className="h-8 w-8 mb-2" />
-                <h3 className="font-semibold mb-1">Professional Courses</h3>
-                <p className="text-sm opacity-90">Skill development and certification</p>
-              </div>
-              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <GraduationCap className="h-8 w-8 mb-2" />
-                <h3 className="font-semibold mb-1">Interactive Learning</h3>
-                <p className="text-sm opacity-90">Hands-on projects and assessments</p>
-              </div>
-              <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
-                <Award className="h-8 w-8 mb-2" />
-                <h3 className="font-semibold mb-1">Digital Certificates</h3>
-                <p className="text-sm opacity-90">Blockchain-verified credentials</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Card */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-                <BookOpen className="h-10 w-10 text-blue-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">150+ Courses</h3>
-                  <p className="text-sm text-muted-foreground">Available for enrollment</p>
-                </div>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg flex items-center">
-                <Users className="h-10 w-10 text-green-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">5,200+ Students</h3>
-                  <p className="text-sm text-muted-foreground">Active learners</p>
-                </div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-                <TrendingUp className="h-10 w-10 text-purple-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">85% Completion</h3>
-                  <p className="text-sm text-muted-foreground">Course completion rate</p>
-                </div>
-              </div>
-              <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-                <Award className="h-10 w-10 text-amber-600 mr-4" />
-                <div>
-                  <h3 className="font-semibold">3,400+ Certificates</h3>
-                  <p className="text-sm text-muted-foreground">Issued to graduates</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content */}
-        <LMSTabsWrapper
-          user={user}
-          isInstructor={isInstructor}
-          enrollments={enrollments}
-          enrolledCourseIds={enrolledCourseIds}
-          loading={loading}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-      </div>
-    </Layout>
+    <EducationPathwayLayout
+      title="Learning Management System"
+      description="Advance your career with comprehensive courses, certifications, and skill development programs designed for the UAE's digital economy."
+      icon={<GraduationCap className="h-12 w-12 text-blue-600" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="browse"
+      actionButtonText="Browse Courses"
+      actionButtonHref="#browse"
+      academicProgress={academicProgress}
+      announcements={announcements}
+      achievements={achievements.length > 0 ? achievements : undefined}
+      currentGPA={currentGPA}
+      academicYear="2024-2025"
+      institutionalBranding={{
+        institutionName: "EHRDC Learning Platform",
+        primaryColor: "#1e3a8a",
+        secondaryColor: "#059669"
+      }}
+    />
   );
 };
 
