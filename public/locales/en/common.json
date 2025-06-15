@@ -110,6 +110,40 @@
     "goToDashboard": "Go to Dashboard",
     "postInternship": "Post Internship"
   },
+  "training": {
+    "filters": {
+      "title": "Filter Programs",
+      "clear": "Clear",
+      "search": "Search Programs",
+      "searchPlaceholder": "Search by title or description...",
+      "category": "Category",
+      "allCategories": "All Categories",
+      "trainingMode": "Training Mode",
+      "allModes": "All Modes",
+      "certificationOffered": "Certificate upon completion",
+      "jobPlacementAssistance": "Job placement assistance"
+    },
+    "categories": {
+      "technicalSkills": "Technical Skills",
+      "tradeSkills": "Trade Skills",
+      "serviceSkills": "Service Skills",
+      "entrepreneurshipBusiness": "Business & Entrepreneurship"
+    },
+    "modes": {
+      "inPerson": "In-Person",
+      "online": "Online",
+      "hybrid": "Hybrid"
+    },
+    "card": {
+      "featured": "Featured",
+      "weeks": "weeks",
+      "participants": "participants",
+      "certificate": "Certificate",
+      "jobPlacement": "Job Placement",
+      "viewDetails": "View Details",
+      "applyNow": "Apply Now"
+    }
+  },
   "toggleLanguage": "Toggle language",
   "menu": {
     "mainMenu": "Main Menu",

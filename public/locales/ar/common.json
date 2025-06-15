@@ -110,6 +110,40 @@
     "goToDashboard": "انتقل إلى لوحة التحكم",
     "postInternship": "نشر التدريب"
   },
+  "training": {
+    "filters": {
+      "title": "فلترة البرامج",
+      "clear": "مسح",
+      "search": "البحث في البرامج",
+      "searchPlaceholder": "البحث بالعنوان أو الوصف...",
+      "category": "الفئة",
+      "allCategories": "جميع الفئات",
+      "trainingMode": "نمط التدريب",
+      "allModes": "جميع الأنماط",
+      "certificationOffered": "شهادة عند الإتمام",
+      "jobPlacementAssistance": "مساعدة في الحصول على وظيفة"
+    },
+    "categories": {
+      "technicalSkills": "المهارات التقنية",
+      "tradeSkills": "المهارات الحرفية",
+      "serviceSkills": "مهارات الخدمة",
+      "entrepreneurshipBusiness": "الأعمال وريادة الأعمال"
+    },
+    "modes": {
+      "inPerson": "حضوري",
+      "online": "عبر الإنترنت",
+      "hybrid": "مختلط"
+    },
+    "card": {
+      "featured": "مميز",
+      "weeks": "أسابيع",
+      "participants": "مشاركين",
+      "certificate": "شهادة",
+      "jobPlacement": "توظيف",
+      "viewDetails": "عرض التفاصيل",
+      "applyNow": "تقدم الآن"
+    }
+  },
   "toggleLanguage": "تبديل اللغة",
   "menu": {
     "mainMenu": "القائمة الرئيسية",

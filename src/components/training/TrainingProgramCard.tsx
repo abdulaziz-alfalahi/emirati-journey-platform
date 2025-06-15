@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, Users, Award, Briefcase, DollarSign } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingProgram } from '@/types/training';
 
 interface TrainingProgramCardProps {
@@ -19,21 +20,23 @@ export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
   onViewDetails,
   showApplyButton = true
 }) => {
+  const { t } = useTranslation('common');
+  
   const getCategoryLabel = (category: string) => {
     switch (category) {
-      case 'technical_skills': return 'Technical Skills';
-      case 'trade_skills': return 'Trade Skills';
-      case 'service_skills': return 'Service Skills';
-      case 'entrepreneurship_business': return 'Business & Entrepreneurship';
+      case 'technical_skills': return t('training.categories.technicalSkills');
+      case 'trade_skills': return t('training.categories.tradeSkills');
+      case 'service_skills': return t('training.categories.serviceSkills');
+      case 'entrepreneurship_business': return t('training.categories.entrepreneurshipBusiness');
       default: return category;
     }
   };
 
   const getModeLabel = (mode: string) => {
     switch (mode) {
-      case 'in_person': return 'In-Person';
-      case 'online': return 'Online';
-      case 'hybrid': return 'Hybrid';
+      case 'in_person': return t('training.modes.inPerson');
+      case 'online': return t('training.modes.online');
+      case 'hybrid': return t('training.modes.hybrid');
       default: return mode;
     }
   };
@@ -63,7 +66,7 @@ export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
         <div className="flex justify-between items-start mb-2">
           <Badge variant="outline">{getCategoryLabel(program.category)}</Badge>
           {program.featured && (
-            <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
+            <Badge className="bg-yellow-100 text-yellow-800">{t('training.card.featured')}</Badge>
           )}
         </div>
         <CardTitle className="text-lg line-clamp-2">{program.title}</CardTitle>
@@ -79,13 +82,13 @@ export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
           {program.duration_weeks && (
             <div className="flex items-center text-muted-foreground">
               <Clock className="h-4 w-4 mr-1" />
-              {program.duration_weeks} weeks
+              {program.duration_weeks} {t('training.card.weeks')}
             </div>
           )}
           
           <div className="flex items-center text-muted-foreground">
             <Users className="h-4 w-4 mr-1" />
-            {program.current_participants}/{program.max_participants || '∞'}
+            {program.current_participants}/{program.max_participants || '∞'} {t('training.card.participants')}
           </div>
 
           {program.location && (
@@ -111,14 +114,14 @@ export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
           {program.certification_offered && (
             <Badge variant="outline" className="text-green-700">
               <Award className="h-3 w-3 mr-1" />
-              Certificate
+              {t('training.card.certificate')}
             </Badge>
           )}
           
           {program.job_placement_assistance && (
             <Badge variant="outline" className="text-blue-700">
               <Briefcase className="h-3 w-3 mr-1" />
-              Job Placement
+              {t('training.card.jobPlacement')}
             </Badge>
           )}
         </div>
@@ -132,11 +135,11 @@ export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
 
         <div className="flex gap-2 pt-2">
           <Button variant="outline" onClick={() => onViewDetails(program.id)} className="flex-1">
-            View Details
+            {t('training.card.viewDetails')}
           </Button>
           {showApplyButton && (
             <Button onClick={() => onApply(program.id)} className="flex-1 bg-ehrdc-teal hover:bg-ehrdc-teal/90">
-              Apply Now
+              {t('training.card.applyNow')}
             </Button>
           )}
         </div>
