@@ -1,211 +1,235 @@
 
-export interface ABTestVariant {
+import { supabase } from '@/integrations/supabase/client';
+
+export interface ABTestExperiment {
   id: string;
-  name: string;
-  description: string;
-  weight: number; // Percentage of users who should see this variant (0-100)
-  config: Record<string, any>;
+  experiment_name: string;
+  feature_name: string;
+  hypothesis: string;
+  variant_a_config: Record<string, any>;
+  variant_b_config: Record<string, any>;
+  success_metric: string;
+  start_date: string;
+  end_date?: string;
+  status: 'draft' | 'active' | 'paused' | 'completed';
+  created_by: string;
 }
 
-export interface ABTest {
-  id: string;
-  name: string;
-  description: string;
-  isActive: boolean;
-  startDate: string;
-  endDate?: string;
-  variants: ABTestVariant[];
-  targetMetric: string;
+export interface ABTestResults {
+  experiment_id: string;
+  variant_a_metrics: {
+    participants: number;
+    conversions: number;
+    conversion_rate: number;
+    confidence_interval: [number, number];
+  };
+  variant_b_metrics: {
+    participants: number;
+    conversions: number;
+    conversion_rate: number;
+    confidence_interval: [number, number];
+  };
+  statistical_significance: boolean;
+  confidence_level: number;
+  winner?: 'A' | 'B' | 'no_difference';
 }
 
-export interface ABTestAssignment {
-  userId: string;
-  testId: string;
-  variantId: string;
-  assignedAt: string;
-}
+class ABTestingService {
+  async createExperiment(experiment: Omit<ABTestExperiment, 'id' | 'created_by'>): Promise<ABTestExperiment | null> {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
 
-export interface ABTestEvent {
-  id: string;
-  userId: string;
-  testId: string;
-  variantId: string;
-  eventType: string;
-  eventData?: Record<string, any>;
-  timestamp: string;
-}
+      const { data, error } = await supabase
+        .from('ab_testing_experiments')
+        .insert({
+          ...experiment,
+          created_by: user.user.id
+        })
+        .select()
+        .single();
 
-// Mock A/B test configurations for recommendation algorithms
-const recommendationTests: ABTest[] = [
-  {
-    id: 'rec-algorithm-v1',
-    name: 'Recommendation Algorithm Comparison',
-    description: 'Testing different weighting algorithms for recommendations',
-    isActive: true,
-    startDate: '2024-01-01T00:00:00Z',
-    targetMetric: 'click_through_rate',
-    variants: [
-      {
-        id: 'control',
-        name: 'Current Algorithm',
-        description: 'Existing weighted scoring system',
-        weight: 50,
-        config: {
-          skillsWeight: 0.4,
-          experienceWeight: 0.25,
-          educationWeight: 0.2,
-          locationWeight: 0.1,
-          freshnessWeight: 0.05
-        }
-      },
-      {
-        id: 'skills-focused',
-        name: 'Skills-Focused Algorithm',
-        description: 'Higher weight on skills matching',
-        weight: 50,
-        config: {
-          skillsWeight: 0.6,
-          experienceWeight: 0.2,
-          educationWeight: 0.1,
-          locationWeight: 0.05,
-          freshnessWeight: 0.05
-        }
-      }
-    ]
-  }
-];
-
-// Mock storage
-let assignments: ABTestAssignment[] = [];
-let events: ABTestEvent[] = [];
-
-export const getActiveTests = (): ABTest[] => {
-  return recommendationTests.filter(test => test.isActive);
-};
-
-export const getUserTestAssignment = (userId: string, testId: string): ABTestAssignment | null => {
-  return assignments.find(a => a.userId === userId && a.testId === testId) || null;
-};
-
-export const assignUserToTest = (userId: string, testId: string): ABTestAssignment => {
-  // Check if user is already assigned
-  const existing = getUserTestAssignment(userId, testId);
-  if (existing) return existing;
-
-  // Find the test
-  const test = recommendationTests.find(t => t.id === testId);
-  if (!test || !test.isActive) {
-    throw new Error('Test not found or inactive');
-  }
-
-  // Assign to variant based on weights
-  const random = Math.random() * 100;
-  let cumulativeWeight = 0;
-  let selectedVariant = test.variants[0]; // Default to first variant
-
-  for (const variant of test.variants) {
-    cumulativeWeight += variant.weight;
-    if (random <= cumulativeWeight) {
-      selectedVariant = variant;
-      break;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Failed to create A/B test experiment:', error);
+      return null;
     }
   }
 
-  const assignment: ABTestAssignment = {
-    userId,
-    testId,
-    variantId: selectedVariant.id,
-    assignedAt: new Date().toISOString()
-  };
+  async getActiveExperiments(): Promise<ABTestExperiment[]> {
+    try {
+      const { data, error } = await supabase
+        .from('ab_testing_experiments')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
 
-  assignments.push(assignment);
-  console.log('A/B Test Assignment:', assignment);
-  return assignment;
-};
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to get active experiments:', error);
+      return [];
+    }
+  }
 
-export const trackTestEvent = (
-  userId: string, 
-  testId: string, 
-  eventType: string, 
-  eventData?: Record<string, any>
-): void => {
-  const assignment = getUserTestAssignment(userId, testId);
-  if (!assignment) return;
+  async getAllExperiments(): Promise<ABTestExperiment[]> {
+    try {
+      const { data, error } = await supabase
+        .from('ab_testing_experiments')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const event: ABTestEvent = {
-    id: `event-${Date.now()}`,
-    userId,
-    testId,
-    variantId: assignment.variantId,
-    eventType,
-    eventData,
-    timestamp: new Date().toISOString()
-  };
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to get all experiments:', error);
+      return [];
+    }
+  }
 
-  events.push(event);
-  console.log('A/B Test Event:', event);
-};
+  async getUserAssignment(experimentId: string): Promise<'A' | 'B' | null> {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return 'A'; // Default for unauthenticated users
 
-export const getTestResults = (testId: string) => {
-  const testEvents = events.filter(e => e.testId === testId);
-  const testAssignments = assignments.filter(a => a.testId === testId);
+      const { data, error } = await supabase
+        .from('ab_testing_assignments')
+        .select('variant')
+        .eq('experiment_id', experimentId)
+        .eq('user_id', user.user.id)
+        .single();
 
-  const variantStats = testAssignments.reduce((stats, assignment) => {
-    const variantId = assignment.variantId;
-    if (!stats[variantId]) {
-      stats[variantId] = {
-        assignments: 0,
-        clicks: 0,
-        conversions: 0,
-        feedback: 0
+      if (error || !data) {
+        // Assign user to a variant if not already assigned
+        const variant = Math.random() < 0.5 ? 'A' : 'B';
+        await this.assignUserToVariant(experimentId, variant);
+        return variant;
+      }
+
+      return data.variant as 'A' | 'B';
+    } catch (error) {
+      console.error('Failed to get user assignment:', error);
+      return 'A'; // Default to variant A
+    }
+  }
+
+  private async assignUserToVariant(experimentId: string, variant: 'A' | 'B'): Promise<void> {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      await supabase.from('ab_testing_assignments').insert({
+        experiment_id: experimentId,
+        user_id: user.user.id,
+        variant
+      });
+    } catch (error) {
+      console.error('Failed to assign user to variant:', error);
+    }
+  }
+
+  async getExperimentResults(experimentId: string): Promise<ABTestResults | null> {
+    try {
+      // Get all assignments for this experiment
+      const { data: assignments, error } = await supabase
+        .from('ab_testing_assignments')
+        .select('variant, user_id')
+        .eq('experiment_id', experimentId);
+
+      if (error || !assignments) throw error;
+
+      // For now, we'll simulate conversion data
+      // In a real implementation, you'd track actual conversion events
+      const variantA = assignments.filter(a => a.variant === 'A');
+      const variantB = assignments.filter(a => a.variant === 'B');
+
+      // Simulate conversion rates (replace with actual conversion tracking)
+      const aConversions = Math.floor(variantA.length * (0.15 + Math.random() * 0.1));
+      const bConversions = Math.floor(variantB.length * (0.18 + Math.random() * 0.1));
+
+      const aConversionRate = variantA.length > 0 ? aConversions / variantA.length : 0;
+      const bConversionRate = variantB.length > 0 ? bConversions / variantB.length : 0;
+
+      // Simple statistical significance calculation (chi-square test approximation)
+      const totalA = variantA.length;
+      const totalB = variantB.length;
+      const pooledRate = (aConversions + bConversions) / (totalA + totalB);
+      
+      const seA = Math.sqrt(pooledRate * (1 - pooledRate) / totalA);
+      const seB = Math.sqrt(pooledRate * (1 - pooledRate) / totalB);
+      const seDiff = Math.sqrt(seA * seA + seB * seB);
+      
+      const zScore = Math.abs(aConversionRate - bConversionRate) / seDiff;
+      const isSignificant = zScore > 1.96; // 95% confidence level
+
+      // Determine winner
+      let winner: 'A' | 'B' | 'no_difference' = 'no_difference';
+      if (isSignificant) {
+        winner = aConversionRate > bConversionRate ? 'A' : 'B';
+      }
+
+      return {
+        experiment_id: experimentId,
+        variant_a_metrics: {
+          participants: totalA,
+          conversions: aConversions,
+          conversion_rate: aConversionRate,
+          confidence_interval: [
+            Math.max(0, aConversionRate - 1.96 * seA),
+            Math.min(1, aConversionRate + 1.96 * seA)
+          ]
+        },
+        variant_b_metrics: {
+          participants: totalB,
+          conversions: bConversions,
+          conversion_rate: bConversionRate,
+          confidence_interval: [
+            Math.max(0, bConversionRate - 1.96 * seB),
+            Math.min(1, bConversionRate + 1.96 * seB)
+          ]
+        },
+        statistical_significance: isSignificant,
+        confidence_level: 0.95,
+        winner
       };
+    } catch (error) {
+      console.error('Failed to get experiment results:', error);
+      return null;
     }
-    stats[variantId].assignments++;
-    return stats;
-  }, {} as Record<string, any>);
-
-  // Count events per variant
-  testEvents.forEach(event => {
-    const variantId = event.variantId;
-    if (variantStats[variantId]) {
-      switch (event.eventType) {
-        case 'click':
-          variantStats[variantId].clicks++;
-          break;
-        case 'conversion':
-          variantStats[variantId].conversions++;
-          break;
-        case 'feedback':
-          variantStats[variantId].feedback++;
-          break;
-      }
-    }
-  });
-
-  // Calculate rates
-  Object.keys(variantStats).forEach(variantId => {
-    const stats = variantStats[variantId];
-    stats.clickThroughRate = stats.assignments > 0 ? (stats.clicks / stats.assignments) * 100 : 0;
-    stats.conversionRate = stats.assignments > 0 ? (stats.conversions / stats.assignments) * 100 : 0;
-    stats.feedbackRate = stats.assignments > 0 ? (stats.feedback / stats.assignments) * 100 : 0;
-  });
-
-  return variantStats;
-};
-
-export const getRecommendationConfig = (userId: string): Record<string, number> => {
-  // Get user's assignment for the recommendation algorithm test
-  const assignment = getUserTestAssignment(userId, 'rec-algorithm-v1');
-  
-  if (!assignment) {
-    // Assign user to test
-    const newAssignment = assignUserToTest(userId, 'rec-algorithm-v1');
-    const test = recommendationTests.find(t => t.id === 'rec-algorithm-v1');
-    const variant = test?.variants.find(v => v.id === newAssignment.variantId);
-    return variant?.config || {};
   }
 
-  const test = recommendationTests.find(t => t.id === assignment.testId);
-  const variant = test?.variants.find(v => v.id === assignment.variantId);
-  return variant?.config || {};
+  async updateExperimentStatus(experimentId: string, status: ABTestExperiment['status']): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('ab_testing_experiments')
+        .update({ status })
+        .eq('id', experimentId);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Failed to update experiment status:', error);
+      return false;
+    }
+  }
+}
+
+export const abTestingService = new ABTestingService();
+
+// Helper functions for components
+export const getActiveTests = (): ABTestExperiment[] => {
+  // This would typically come from a cache or state management
+  return [];
+};
+
+export const getTestResults = (testId: string): ABTestResults | null => {
+  // This would typically come from a cache or state management
+  return null;
+};
+
+export const getUserTestAssignment = (userId: string, testId: string): 'A' | 'B' => {
+  // Simple hash-based assignment for demo purposes
+  const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return hash % 2 === 0 ? 'A' : 'B';
 };

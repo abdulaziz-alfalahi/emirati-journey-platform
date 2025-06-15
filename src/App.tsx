@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
@@ -48,6 +47,7 @@ const FinancialPlanningPage = React.lazy(() => import('@/pages/financial-plannin
 const ThoughtLeadershipPage = React.lazy(() => import('@/pages/thought-leadership'));
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree'));
 const DesignSystemPage = React.lazy(() => import('@/pages/DesignSystem'));
+const AnalyticsPage = React.lazy(() => import('@/pages/analytics'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -121,6 +121,7 @@ function App() {
                   <Route path="/retiree" element={<RetireeServicesPage />} />
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
                   <Route path="/design-system" element={<DesignSystemPage />} />
+                  <Route path="/analytics" element={<AnalyticsPage />} />
                 </Routes>
               </Suspense>
               </div>

@@ -9,6 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ab_testing_assignments: {
+        Row: {
+          assigned_at: string
+          experiment_id: string
+          id: string
+          user_id: string
+          variant: string
+        }
+        Insert: {
+          assigned_at?: string
+          experiment_id: string
+          id?: string
+          user_id: string
+          variant: string
+        }
+        Update: {
+          assigned_at?: string
+          experiment_id?: string
+          id?: string
+          user_id?: string
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_testing_assignments_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "ab_testing_experiments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ab_testing_experiments: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_date: string | null
+          experiment_name: string
+          feature_name: string
+          hypothesis: string | null
+          id: string
+          start_date: string
+          status: string
+          success_metric: string
+          variant_a_config: Json
+          variant_b_config: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          end_date?: string | null
+          experiment_name: string
+          feature_name: string
+          hypothesis?: string | null
+          id?: string
+          start_date: string
+          status?: string
+          success_metric: string
+          variant_a_config: Json
+          variant_b_config: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          end_date?: string | null
+          experiment_name?: string
+          feature_name?: string
+          hypothesis?: string | null
+          id?: string
+          start_date?: string
+          status?: string
+          success_metric?: string
+          variant_a_config?: Json
+          variant_b_config?: Json
+        }
+        Relationships: []
+      }
       advisory_applications: {
         Row: {
           additional_documents: string[] | null
@@ -174,6 +251,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      analytics_consent: {
+        Row: {
+          consent_given_at: string
+          consent_updated_at: string
+          essential_analytics: boolean
+          id: string
+          ip_address: unknown | null
+          marketing_analytics: boolean
+          performance_analytics: boolean
+          personalization_analytics: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_given_at?: string
+          consent_updated_at?: string
+          essential_analytics?: boolean
+          id?: string
+          ip_address?: unknown | null
+          marketing_analytics?: boolean
+          performance_analytics?: boolean
+          personalization_analytics?: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_given_at?: string
+          consent_updated_at?: string
+          essential_analytics?: boolean
+          id?: string
+          ip_address?: unknown | null
+          marketing_analytics?: boolean
+          performance_analytics?: boolean
+          personalization_analytics?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       api_keys: {
         Row: {
@@ -2091,6 +2207,45 @@ export type Database = {
           rate_limit_per_minute?: number | null
           timeout_seconds?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      feature_usage_analytics: {
+        Row: {
+          action_type: string
+          created_at: string
+          duration_seconds: number | null
+          error_data: Json | null
+          feature_name: string
+          id: string
+          phase: string
+          success_rate: number | null
+          usage_context: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          duration_seconds?: number | null
+          error_data?: Json | null
+          feature_name: string
+          id?: string
+          phase: string
+          success_rate?: number | null
+          usage_context?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          duration_seconds?: number | null
+          error_data?: Json | null
+          feature_name?: string
+          id?: string
+          phase?: string
+          success_rate?: number | null
+          usage_context?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -5931,6 +6086,75 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      user_journey_analytics: {
+        Row: {
+          created_at: string
+          event_data: Json
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          phase: string
+          session_id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          phase: string
+          session_id: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          phase?: string
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_journey_milestones: {
+        Row: {
+          achieved_at: string
+          id: string
+          milestone_data: Json | null
+          milestone_name: string
+          milestone_type: string
+          phase: string
+          points_earned: number | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          id?: string
+          milestone_data?: Json | null
+          milestone_name: string
+          milestone_type: string
+          phase: string
+          points_earned?: number | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          id?: string
+          milestone_data?: Json | null
+          milestone_name?: string
+          milestone_type?: string
+          phase?: string
+          points_earned?: number | null
+          user_id?: string
         }
         Relationships: []
       }
