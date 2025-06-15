@@ -15,10 +15,10 @@ import RecommendationAnalytics from '@/components/dashboard/RecommendationAnalyt
 
 const AnalyticsPage: React.FC = () => {
   const { user } = useAuth();
-  const { currentRole } = useRole();
+  const { activeRole } = useRole();
   const [activeTab, setActiveTab] = useState('journey');
 
-  const isAdmin = currentRole === 'administrator' || currentRole === 'super_user';
+  const isAdmin = activeRole === 'administrator' || activeRole === 'super_user';
 
   if (!user) {
     return (

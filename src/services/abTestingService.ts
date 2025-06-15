@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ABTestExperiment {
@@ -50,7 +49,21 @@ class ABTestingService {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Transform the data to match our interface
+      return {
+        id: data.id,
+        experiment_name: data.experiment_name,
+        feature_name: data.feature_name,
+        hypothesis: data.hypothesis,
+        variant_a_config: data.variant_a_config as Record<string, any>,
+        variant_b_config: data.variant_b_config as Record<string, any>,
+        success_metric: data.success_metric,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        status: data.status as ABTestExperiment['status'],
+        created_by: data.created_by
+      };
     } catch (error) {
       console.error('Failed to create A/B test experiment:', error);
       return null;
@@ -66,7 +79,20 @@ class ABTestingService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      return (data || []).map(item => ({
+        id: item.id,
+        experiment_name: item.experiment_name,
+        feature_name: item.feature_name,
+        hypothesis: item.hypothesis,
+        variant_a_config: item.variant_a_config as Record<string, any>,
+        variant_b_config: item.variant_b_config as Record<string, any>,
+        success_metric: item.success_metric,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        status: item.status as ABTestExperiment['status'],
+        created_by: item.created_by
+      }));
     } catch (error) {
       console.error('Failed to get active experiments:', error);
       return [];
@@ -81,7 +107,20 @@ class ABTestingService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      return (data || []).map(item => ({
+        id: item.id,
+        experiment_name: item.experiment_name,
+        feature_name: item.feature_name,
+        hypothesis: item.hypothesis,
+        variant_a_config: item.variant_a_config as Record<string, any>,
+        variant_b_config: item.variant_b_config as Record<string, any>,
+        success_metric: item.success_metric,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        status: item.status as ABTestExperiment['status'],
+        created_by: item.created_by
+      }));
     } catch (error) {
       console.error('Failed to get all experiments:', error);
       return [];
@@ -232,4 +271,27 @@ export const getUserTestAssignment = (userId: string, testId: string): 'A' | 'B'
   // Simple hash-based assignment for demo purposes
   const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return hash % 2 === 0 ? 'A' : 'B';
+};
+
+// Export the missing functions
+export const trackTestEvent = (userId: string, experimentId: string, eventType: string, eventData: Record<string, any> = {}) => {
+  console.log('Tracking test event:', { userId, experimentId, eventType, eventData });
+  // Implementation would track user interactions for A/B test analysis
+};
+
+export const getRecommendationConfig = (experimentId: string, variant: 'A' | 'B') => {
+  // Return configuration for recommendation algorithm based on A/B test variant
+  if (variant === 'A') {
+    return {
+      algorithm: 'collaborative_filtering',
+      weightPersonalization: 0.7,
+      weightPopularity: 0.3
+    };
+  } else {
+    return {
+      algorithm: 'content_based',
+      weightPersonalization: 0.5,
+      weightPopularity: 0.5
+    };
+  }
 };

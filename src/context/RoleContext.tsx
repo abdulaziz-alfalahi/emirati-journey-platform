@@ -8,6 +8,8 @@ interface RoleContextType {
   activeRole: UserRole | null;
   setActiveRole: (role: UserRole) => void;
   availableRoles: UserRole[];
+  // Add currentRole as an alias for backward compatibility
+  currentRole: UserRole | null;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -44,7 +46,8 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         activeRole,
         setActiveRole,
-        availableRoles: roles
+        availableRoles: roles,
+        currentRole: activeRole // Alias for backward compatibility
       }}
     >
       {children}
