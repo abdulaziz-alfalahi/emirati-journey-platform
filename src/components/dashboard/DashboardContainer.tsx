@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Overview } from '@/components/dashboard/Overview';
-import { AIRecommendations } from '@/components/dashboard/AIRecommendations';
+import AIRecommendations from '@/components/dashboard/AIRecommendations';
 import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { SettingsDashboard } from '@/components/dashboard/SettingsDashboard';
 import { useAuth } from '@/context/AuthContext';
@@ -14,8 +15,9 @@ interface DashboardContainerProps {
   activeTab: string;
 }
 
-const DashboardContainer: React.FC<DashboardContainerProps> = ({ user, roles, activeTab }) => {
+const DashboardContainer: React.FC<DashboardContainerProps> = ({ user, roles, activeTab: initialActiveTab }) => {
   const [activeRole, setActiveRole] = useState(roles[0]);
+  const [activeTab, setActiveTab] = useState(initialActiveTab);
 
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setActiveRole(event.target.value);
