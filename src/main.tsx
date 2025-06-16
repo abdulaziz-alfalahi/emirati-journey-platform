@@ -6,8 +6,8 @@ import './index.css';
 import './lib/i18n'; // Initialize i18n
 import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './context/QueryContext';
-import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
-import { LanguageProvider } from './context/LanguageContext'; // Import LanguageProvider
+import { ThemeProvider } from './components/theme-provider';
+import { LanguageProvider } from './context/LanguageContext';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
@@ -72,18 +72,15 @@ const initializePWAFeatures = async () => {
   }
 };
 
-// Ensure we have a root element
+// Get the root element and ensure it exists
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  // If root element is missing, create one
-  const newRoot = document.createElement("div");
-  newRoot.id = "root";
-  document.body.appendChild(newRoot);
-  console.warn("Root element was missing and has been created dynamically");
+  throw new Error("Root element not found. Make sure there is an element with id 'root' in your HTML.");
 }
 
-const root = document.getElementById("root");
-createRoot(root!).render(
+// Create and render the React app
+const root = createRoot(rootElement);
+root.render(
   <React.StrictMode>
     <LanguageProvider>
       <ThemeProvider defaultTheme="light">
