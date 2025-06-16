@@ -16,10 +16,11 @@ import WalletLoadingState from './wallet/WalletLoadingState';
 import BatchOperationsHeader from './wallet/BatchOperationsHeader';
 import CredentialsGrid from './wallet/CredentialsGrid';
 import CredentialsList from './wallet/CredentialsList';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 const DigitalWallet: React.FC = () => {
   const { user, roles } = useAuth();
+  const { toast } = useToast();
   const [credentials, setCredentials] = useState<BlockchainCredential[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCredentials, setSelectedCredentials] = useState<string[]>([]);
@@ -43,7 +44,11 @@ const DigitalWallet: React.FC = () => {
       setCredentials(userCredentials);
     } catch (error) {
       console.error('Failed to load credentials:', error);
-      toast.error('Failed to load credentials');
+      toast({
+        title: "Error",
+        description: "Failed to load credentials",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +120,10 @@ const DigitalWallet: React.FC = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success('Credential downloaded successfully');
+      toast({
+        title: "Success",
+        description: "Credential downloaded successfully"
+      });
     } catch (error) {
       await auditLogger.logOperation({
         user_id: user!.id,
@@ -129,7 +137,11 @@ const DigitalWallet: React.FC = () => {
       });
 
       console.error('Download failed:', error);
-      toast.error('Failed to download credential');
+      toast({
+        title: "Error",
+        description: "Failed to download credential",
+        variant: "destructive"
+      });
     }
   };
 
@@ -145,7 +157,10 @@ const DigitalWallet: React.FC = () => {
         });
       } else {
         await navigator.clipboard.writeText(shareUrl);
-        toast.success('Verification link copied to clipboard');
+        toast({
+          title: "Success",
+          description: "Verification link copied to clipboard"
+        });
       }
 
       // Log share action
@@ -175,7 +190,11 @@ const DigitalWallet: React.FC = () => {
       });
 
       console.error('Share failed:', error);
-      toast.error('Failed to share credential');
+      toast({
+        title: "Error",
+        description: "Failed to share credential",
+        variant: "destructive"
+      });
     }
   };
 
