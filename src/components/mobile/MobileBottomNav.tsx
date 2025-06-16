@@ -1,94 +1,95 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { 
   Home, 
   Briefcase, 
   FileText, 
-  MessageCircle, 
-  User,
-  Menu,
-  Bell
+  User, 
+  WifiOff 
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useOfflineStorage } from '@/hooks/use-offline-storage';
 
 const MobileBottomNav: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
-  const { t } = useTranslation('common');
-  
+  const { isOnline } = useOfflineStorage();
+
   const navItems = [
     {
       icon: Home,
-      labelKey: 'nav.home',
+      label: 'Home',
       path: '/',
-      color: 'text-ehrdc-teal'
+      id: 'home'
     },
     {
       icon: Briefcase,
-      labelKey: 'nav.jobs',
+      label: 'Jobs',
       path: '/job-matching',
-      color: 'text-ehrdc-teal'
+      id: 'jobs'
     },
     {
       icon: FileText,
-      labelKey: 'nav.cvBuilder',
+      label: 'CV',
       path: '/cv-builder',
-      color: 'text-ehrdc-teal'
+      id: 'cv'
     },
     {
-      icon: MessageCircle,
-      labelKey: 'nav.messages',
-      path: '/messages',
-      color: 'text-ehrdc-teal'
+      icon: WifiOff,
+      label: 'Offline',
+      path: '/mobile-offline',
+      id: 'offline'
     },
     {
       icon: User,
-      labelKey: 'nav.profile',
-      path: user ? '/dashboard' : '/auth',
-      color: 'text-ehrdc-teal'
+      label: 'Profile',
+      path: '/dashboard',
+      id: 'profile'
     }
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-ehrdc-neutral-light shadow-lg z-50 safe-area-pb">
-      <nav className="grid grid-cols-5 h-16">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
+      <div className="flex items-center justify-around">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-                          (item.path === '/dashboard' && location.pathname.startsWith('/dashboard'));
-          const Icon = item.icon;
+          const IconComponent = item.icon;
+          const isActive = location.pathname === item.path;
+          const isOfflineTab = item.id === 'offline';
           
           return (
             <Link
-              key={item.path}
+              key={item.id}
               to={item.path}
               className={cn(
-                "flex flex-col items-center justify-center space-y-1 text-xs font-medium transition-all duration-200",
-                "min-h-[44px] min-w-[44px] px-2 py-2", // Ensure 44px touch targets
-                "active:scale-95 touch-manipulation", // Better touch feedback
-                isActive
-                  ? "text-ehrdc-teal bg-ehrdc-teal/10 border-t-2 border-ehrdc-teal"
-                  : "text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:bg-ehrdc-teal/5"
+                "flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200",
+                "min-h-[60px] min-w-[60px] touch-manipulation", // Ensure 44px+ touch targets
+                "active:scale-95",
+                isActive 
+                  ? "text-blue-600 bg-blue-50" 
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
               )}
-              aria-label={t(item.labelKey)}
+              aria-label={item.label}
             >
-              <Icon className={cn(
-                "h-5 w-5 transition-all duration-200", 
-                isActive ? "text-ehrdc-teal scale-110" : ""
-              )} />
+              <div className="relative">
+                <IconComponent className={cn(
+                  "h-5 w-5 mb-1",
+                  isOfflineTab && !isOnline && "text-orange-500"
+                )} />
+                {isOfflineTab && !isOnline && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></div>
+                )}
+              </div>
               <span className={cn(
-                "leading-none text-[10px] font-medium",
-                isActive ? "text-ehrdc-teal" : ""
+                "text-xs font-medium",
+                isActive && "text-blue-600"
               )}>
-                {t(item.labelKey)}
+                {item.label}
               </span>
             </Link>
           );
         })}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
 

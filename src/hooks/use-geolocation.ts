@@ -1,70 +1,28 @@
 
 import { useState, useCallback } from 'react';
-import { Geolocation } from '@capacitor/geolocation';
 import { useMobileDetection } from './use-mobile-detection';
-import { toast } from 'sonner';
 
-export interface LocationCoordinates {
+export interface LocationData {
   latitude: number;
   longitude: number;
   accuracy?: number;
   altitude?: number;
-  speed?: number;
   heading?: number;
+  speed?: number;
 }
 
 export const useGeolocation = () => {
   const { isCapacitor } = useMobileDetection();
+  const [location, setLocation] = useState<LocationData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [location, setLocation] = useState<LocationCoordinates | null>(null);
-
-  const getCurrentPosition = useCallback(async (): Promise<LocationCoordinates | null> => {
-    setIsLoading(true);
-    try {
-      let position;
-      
-      if (isCapacitor) {
-        position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        });
-      } else {
-        // Fallback to web geolocation
-        position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000
-          });
-        });
-      }
-
-      const coords: LocationCoordinates = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-        altitude: position.coords.altitude || undefined,
-        speed: position.coords.speed || undefined,
-        heading: position.coords.heading || undefined
-      };
-
-      setLocation(coords);
-      return coords;
-    } catch (error) {
-      console.error('Geolocation error:', error);
-      toast.error('Failed to get location');
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isCapacitor]);
 
   const requestPermissions = useCallback(async () => {
     if (!isCapacitor) {
-      // For web, permissions are handled by the browser
-      return true;
+      return 'geolocation' in navigator;
     }
 
     try {
+      const { Geolocation } = await import('@capacitor/geolocation');
       const permissions = await Geolocation.requestPermissions();
       return permissions.location === 'granted';
     } catch (error) {
@@ -73,60 +31,69 @@ export const useGeolocation = () => {
     }
   }, [isCapacitor]);
 
-  const watchPosition = useCallback((callback: (position: LocationCoordinates) => void) => {
+  const getCurrentPosition = useCallback(async () => {
     if (!isCapacitor) {
-      // Fallback to web geolocation
-      const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          const coords: LocationCoordinates = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
-          };
-          callback(coords);
-        },
-        (error) => console.error('Watch position error:', error),
-        { enableHighAccuracy: true }
-      );
-      return () => navigator.geolocation.clearWatch(watchId);
+      setIsLoading(true);
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+          });
+        });
+
+        const locationData: LocationData = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          altitude: position.coords.altitude || undefined,
+          heading: position.coords.heading || undefined,
+          speed: position.coords.speed || undefined
+        };
+
+        setLocation(locationData);
+        setIsLoading(false);
+        return locationData;
+      } catch (error) {
+        console.error('Geolocation error:', error);
+        setIsLoading(false);
+        return null;
+      }
     }
 
-    let watchId: string | undefined;
-    
-    const startWatch = async () => {
-      try {
-        watchId = await Geolocation.watchPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        }, (position) => {
-          if (position) {
-            const coords: LocationCoordinates = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy
-            };
-            callback(coords);
-          }
-        });
-      } catch (error) {
-        console.error('Watch position error:', error);
-      }
-    };
+    try {
+      setIsLoading(true);
+      const { Geolocation } = await import('@capacitor/geolocation');
+      
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000
+      });
 
-    startWatch();
+      const locationData: LocationData = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        altitude: position.coords.altitude || undefined,
+        heading: position.coords.heading || undefined,
+        speed: position.coords.speed || undefined
+      };
 
-    return () => {
-      if (watchId) {
-        Geolocation.clearWatch({ id: watchId });
-      }
-    };
+      setLocation(locationData);
+      setIsLoading(false);
+      return locationData;
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      setIsLoading(false);
+      return null;
+    }
   }, [isCapacitor]);
 
   return {
+    location,
     getCurrentPosition,
     requestPermissions,
-    watchPosition,
-    location,
     isLoading,
     isAvailable: isCapacitor || 'geolocation' in navigator
   };

@@ -1,48 +1,23 @@
 
 import { useState, useCallback } from 'react';
 import { useMobileDetection } from './use-mobile-detection';
-import { toast } from 'sonner';
-
-export interface CameraOptions {
-  quality?: number;
-  allowEditing?: boolean;
-  source?: any;
-  resultType?: any;
-}
 
 export const useCamera = () => {
   const { isCapacitor } = useMobileDetection();
   const [isCapturing, setIsCapturing] = useState(false);
 
-  const takePicture = useCallback(async (options: CameraOptions = {}) => {
-    if (!isCapacitor) {
-      toast.error('Camera not available in web browser');
-      return null;
-    }
-
-    setIsCapturing(true);
-    try {
-      const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
-      
-      const image = await Camera.getPhoto({
-        quality: options.quality || 90,
-        allowEditing: options.allowEditing || true,
-        resultType: options.resultType || CameraResultType.DataUrl,
-        source: options.source || CameraSource.Prompt,
-      });
-
-      return image.dataUrl || image.webPath;
-    } catch (error) {
-      console.error('Camera error:', error);
-      toast.error('Failed to capture image');
-      return null;
-    } finally {
-      setIsCapturing(false);
-    }
-  }, [isCapacitor]);
-
   const requestPermissions = useCallback(async () => {
-    if (!isCapacitor) return false;
+    if (!isCapacitor) {
+      // Web camera permissions
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+      } catch (error) {
+        console.error('Camera permission denied:', error);
+        return false;
+      }
+    }
 
     try {
       const { Camera } = await import('@capacitor/camera');
@@ -54,10 +29,65 @@ export const useCamera = () => {
     }
   }, [isCapacitor]);
 
+  const takePicture = useCallback(async () => {
+    if (!isCapacitor) {
+      // Web implementation
+      try {
+        setIsCapturing(true);
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        
+        // Create video element to capture frame
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+        
+        return new Promise<string>((resolve) => {
+          video.onloadedmetadata = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            stream.getTracks().forEach(track => track.stop());
+            setIsCapturing(false);
+            resolve(imageData);
+          };
+        });
+      } catch (error) {
+        console.error('Camera capture error:', error);
+        setIsCapturing(false);
+        return null;
+      }
+    }
+
+    try {
+      setIsCapturing(true);
+      const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+      
+      const image = await Camera.getPhoto({
+        quality: 80,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera
+      });
+
+      setIsCapturing(false);
+      return image.dataUrl || null;
+    } catch (error) {
+      console.error('Camera capture error:', error);
+      setIsCapturing(false);
+      return null;
+    }
+  }, [isCapacitor]);
+
   return {
     takePicture,
     requestPermissions,
     isCapturing,
-    isAvailable: isCapacitor
+    isAvailable: isCapacitor || !!navigator.mediaDevices?.getUserMedia
   };
 };

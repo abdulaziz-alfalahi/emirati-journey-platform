@@ -4,70 +4,73 @@ import { useMobileDetection } from './use-mobile-detection';
 
 export interface DeviceInfo {
   platform: string;
-  model: string;
+  model?: string;
+  manufacturer?: string;
   operatingSystem: string;
-  osVersion: string;
-  manufacturer: string;
-  isVirtual: boolean;
-  webViewVersion?: string;
-  memUsed?: number;
+  osVersion?: string;
   batteryLevel?: number;
   isCharging?: boolean;
+  networkStatus?: string;
 }
 
 export const useDeviceInfo = () => {
   const { isCapacitor } = useMobileDetection();
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getDeviceInfo = async () => {
       if (!isCapacitor) {
-        // Fallback for web
-        setDeviceInfo({
+        // Web implementation with limited info
+        const info: DeviceInfo = {
           platform: 'web',
-          model: 'Unknown',
           operatingSystem: navigator.platform,
-          osVersion: 'Unknown',
-          manufacturer: 'Unknown',
-          isVirtual: false
-        });
-        setIsLoading(false);
+          networkStatus: navigator.onLine ? 'online' : 'offline'
+        };
+
+        // Try to get battery info if available
+        if ('getBattery' in navigator) {
+          try {
+            const battery = await (navigator as any).getBattery();
+            info.batteryLevel = battery.level;
+            info.isCharging = battery.charging;
+          } catch (error) {
+            console.log('Battery API not available');
+          }
+        }
+
+        setDeviceInfo(info);
         return;
       }
 
       try {
         const { Device } = await import('@capacitor/device');
-        const [info, batteryInfo] = await Promise.all([
-          Device.getInfo(),
-          Device.getBatteryInfo().catch(() => null)
-        ]);
+        const deviceData = await Device.getInfo();
+        
+        const info: DeviceInfo = {
+          platform: deviceData.platform,
+          model: deviceData.model,
+          manufacturer: deviceData.manufacturer,
+          operatingSystem: deviceData.operatingSystem,
+          osVersion: deviceData.osVersion
+        };
 
-        setDeviceInfo({
-          platform: info.platform,
-          model: info.model,
-          operatingSystem: info.operatingSystem,
-          osVersion: info.osVersion,
-          manufacturer: info.manufacturer,
-          isVirtual: info.isVirtual,
-          webViewVersion: info.webViewVersion,
-          memUsed: info.memUsed,
-          batteryLevel: batteryInfo?.batteryLevel,
-          isCharging: batteryInfo?.isCharging
-        });
+        // Get battery info if available
+        try {
+          const batteryInfo = await Device.getBatteryInfo();
+          info.batteryLevel = batteryInfo.batteryLevel;
+          info.isCharging = batteryInfo.isCharging;
+        } catch (error) {
+          console.log('Battery info not available');
+        }
+
+        setDeviceInfo(info);
       } catch (error) {
         console.error('Error getting device info:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     getDeviceInfo();
   }, [isCapacitor]);
 
-  return {
-    deviceInfo,
-    isLoading,
-    isAvailable: isCapacitor
-  };
+  return { deviceInfo };
 };
