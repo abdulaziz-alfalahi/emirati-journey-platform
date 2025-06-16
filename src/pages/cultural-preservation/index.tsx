@@ -1,15 +1,15 @@
 
 import React from 'react';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
-import { Palette, Archive, Music, Camera } from 'lucide-react';
+import { Palette, Archive, Music, Camera, Calendar, Users, FileText, Video } from 'lucide-react';
 import { CulturalPreservationContent } from '@/components/cultural-preservation/CulturalPreservationContent';
 
 const CulturalPreservationPage: React.FC = () => {
   const stats = [
-    { value: "500+", label: "Cultural Artifacts", icon: Archive },
-    { value: "200+", label: "Oral Histories", icon: Music },
-    { value: "300+", label: "Digital Archives", icon: Camera },
-    { value: "80+", label: "Active Preservationists", icon: Palette }
+    { value: "2,847+", label: "Cultural Stories", icon: FileText },
+    { value: "156+", label: "Traditional Skills", icon: Archive },
+    { value: "1,234+", label: "Historical Photos", icon: Camera },
+    { value: "89+", label: "Video Documents", icon: Video }
   ];
 
   const tabs = [
@@ -22,7 +22,7 @@ const CulturalPreservationPage: React.FC = () => {
     {
       id: 'contribute',
       label: 'Contribute Stories',
-      icon: <Music className="h-4 w-4" />,
+      icon: <FileText className="h-4 w-4" />,
       content: <CulturalPreservationContent activeTab="contribute" />
     },
     {
@@ -33,8 +33,8 @@ const CulturalPreservationPage: React.FC = () => {
     },
     {
       id: 'projects',
-      label: 'Preservation Projects',
-      icon: <Palette className="h-4 w-4" />,
+      label: 'Cultural Events',
+      icon: <Calendar className="h-4 w-4" />,
       content: <CulturalPreservationContent activeTab="projects" />
     }
   ];
@@ -42,7 +42,7 @@ const CulturalPreservationPage: React.FC = () => {
   return (
     <LifelongEngagementLayout
       title="Cultural Preservation: Safeguarding Our Heritage for Tomorrow"
-      description="Preserve and celebrate Emirati culture and heritage through digital archives, oral history projects, and community initiatives that ensure our rich traditions continue to inspire future generations."
+      description="Preserve and celebrate Emirati culture and heritage through digital archives, storytelling, traditional skills documentation, and community events that ensure our rich traditions continue to inspire future generations."
       icon={<Palette className="h-8 w-8" />}
       stats={stats}
       tabs={tabs}
