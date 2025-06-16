@@ -23,7 +23,7 @@ export interface SmartContractInteraction {
   input_data: any;
   output_data?: any;
   gas_used?: number;
-  gas_price?: bigint;
+  gas_price?: string; // Changed from bigint to string to match database
   transaction_fee?: number;
   status: 'pending' | 'confirmed' | 'failed';
   block_number?: number;
@@ -107,7 +107,7 @@ class SmartContractService {
           function_name: functionName,
           input_data: inputData,
           gas_used: gasUsed,
-          gas_price: gasPrice.toString(),
+          gas_price: gasPrice.toString(), // Convert bigint to string for database
           transaction_fee: Number(gasPrice * BigInt(gasUsed)) / 1e18,
           status: 'pending',
           initiated_by: userId
@@ -117,7 +117,7 @@ class SmartContractService {
 
       if (error) throw error;
 
-      const interaction = data as SmartContractInteraction;
+      const interaction = data as unknown as SmartContractInteraction;
 
       // Simulate transaction confirmation after a delay
       setTimeout(async () => {
@@ -162,7 +162,7 @@ class SmartContractService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []) as SmartContractInteraction[];
+    return (data || []) as unknown as SmartContractInteraction[];
   }
 }
 
