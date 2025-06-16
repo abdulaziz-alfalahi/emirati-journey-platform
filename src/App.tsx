@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
-import { QueryProvider } from '@/context/QueryProvider';
+import { QueryProvider } from '@/context/QueryContext';
 import { PhaseProvider } from '@/context/PhaseContext';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { PersonalizationProvider } from '@/context/PersonalizationContext';
