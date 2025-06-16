@@ -5,6 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LucideIcon } from 'lucide-react';
 import { getStatColor } from '@/lib/colors';
+import { 
+  ProfessionalGrowthBreadcrumbs, 
+  RelatedPagesSection, 
+  QuickAccessNavigation,
+  ProfessionalGrowthProgress,
+  ProfessionalGrowthCTA
+} from './ProfessionalGrowthNavigation';
 
 export interface StatItem {
   value: string;
@@ -28,6 +35,15 @@ interface ProfessionalGrowthLayoutProps {
   tabs: TabItem[];
   defaultTab?: string;
   children?: ReactNode;
+  showProgress?: boolean;
+  progressStep?: number;
+  totalSteps?: number;
+  stepLabel?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaActionLabel?: string;
+  ctaActionHref?: string;
+  showQuickAccess?: boolean;
 }
 
 export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> = ({
@@ -37,7 +53,16 @@ export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> =
   stats,
   tabs,
   defaultTab,
-  children
+  children,
+  showProgress = false,
+  progressStep = 1,
+  totalSteps = 1,
+  stepLabel = '',
+  ctaTitle,
+  ctaDescription,
+  ctaActionLabel,
+  ctaActionHref,
+  showQuickAccess = true
 }) => {
   return (
     <Layout>
@@ -85,6 +110,18 @@ export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> =
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumbs */}
+          <ProfessionalGrowthBreadcrumbs />
+
+          {/* Progress Indicator */}
+          {showProgress && (
+            <ProfessionalGrowthProgress 
+              currentStep={progressStep}
+              totalSteps={totalSteps}
+              stepLabel={stepLabel}
+            />
+          )}
+
           {children ? (
             children
           ) : (
@@ -105,7 +142,23 @@ export const ProfessionalGrowthLayout: React.FC<ProfessionalGrowthLayoutProps> =
               ))}
             </Tabs>
           )}
+
+          {/* Call-to-Action Section */}
+          {ctaTitle && ctaDescription && ctaActionLabel && ctaActionHref && (
+            <ProfessionalGrowthCTA
+              title={ctaTitle}
+              description={ctaDescription}
+              actionLabel={ctaActionLabel}
+              actionHref={ctaActionHref}
+            />
+          )}
+
+          {/* Related Pages */}
+          <RelatedPagesSection />
         </div>
+
+        {/* Quick Access Navigation */}
+        {showQuickAccess && <QuickAccessNavigation />}
       </div>
     </Layout>
   );

@@ -94,6 +94,14 @@ const ProfessionalCertificationsPage: React.FC = () => {
       stats={stats}
       tabs={tabs}
       defaultTab="browse"
+      showProgress={true}
+      progressStep={3}
+      totalSteps={5}
+      stepLabel="Professional Credential Advancement"
+      ctaTitle="Accelerate Your Leadership Journey"
+      ctaDescription="Build on your certifications with comprehensive leadership development programs"
+      ctaActionLabel="Explore Leadership Development"
+      ctaActionHref="/leadership"
     />
   );
 };

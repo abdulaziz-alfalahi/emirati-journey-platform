@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
@@ -59,6 +60,7 @@ const SkillsMarketplacePage: React.FC = () => {
         description="Connect, collaborate, and exchange skills with professionals worldwide"
         icon={<Briefcase className="h-8 w-8 text-white" />}
         tabs={[]}
+        showQuickAccess={false}
       >
         <AuthenticationRequired 
           message="Please log in to access the skills marketplace and start collaborating with other professionals" 
@@ -75,6 +77,7 @@ const SkillsMarketplacePage: React.FC = () => {
         description="Connect, collaborate, and exchange skills with professionals worldwide"
         icon={<Briefcase className="h-8 w-8 text-white" />}
         tabs={[]}
+        showQuickAccess={false}
       >
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -195,11 +198,19 @@ const SkillsMarketplacePage: React.FC = () => {
   return (
     <ProfessionalGrowthLayout
       title="Skills Marketplace"
-      description="Connect, collaborate, and exchange skills with professionals worldwide"
+      description="Connect, collaborate, and exchange skills with professionals worldwide. Build your professional network and accelerate your career growth through meaningful collaborations."
       icon={<Briefcase className="h-8 w-8 text-white" />}
       stats={statsItems}
       tabs={tabs}
       defaultTab="dashboard"
+      showProgress={true}
+      progressStep={2}
+      totalSteps={5}
+      stepLabel="Skills Assessment & Profile Setup"
+      ctaTitle="Ready to Take the Next Step?"
+      ctaDescription="Complete your skills assessment and start connecting with professionals in your field"
+      ctaActionLabel="Get Professional Certification"
+      ctaActionHref="/professional-certifications"
     />
   );
 };

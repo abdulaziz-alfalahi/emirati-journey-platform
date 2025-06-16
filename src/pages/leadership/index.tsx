@@ -128,6 +128,14 @@ const LeadershipDevelopmentPage: React.FC = () => {
       stats={stats}
       tabs={tabs}
       defaultTab="programs"
+      showProgress={true}
+      progressStep={4}
+      totalSteps={5}
+      stepLabel="Leadership Skill Development"
+      ctaTitle="Scale Your Impact Through Innovation"
+      ctaDescription="Apply your leadership skills to drive innovation and create meaningful change"
+      ctaActionLabel="Join Innovation Hub"
+      ctaActionHref="/innovation"
     />
   );
 };
