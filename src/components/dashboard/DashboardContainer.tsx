@@ -1,65 +1,86 @@
 
-import React from 'react';
-import { User } from '@supabase/supabase-js';
-import { UserRole } from '@/types/auth';
-import { useRole } from '@/context/RoleContext';
-import NoRoleAlert from './NoRoleAlert';
-import RoleSelector from './RoleSelector';
-import RoleOnboardingTooltip from './RoleOnboardingTooltip';
-import { StudentDashboard } from './role-dashboards';
-import { getDashboardComponentByUserProfile } from '@/utils/dashboard-utils';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Overview } from '@/components/dashboard/Overview';
+import AIRecommendations from '@/components/dashboard/AIRecommendations';
+import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
+import { SettingsDashboard } from '@/components/dashboard/SettingsDashboard';
+import { useAuth } from '@/context/AuthContext';
+import PersonalizedDashboard from '@/components/personalization/PersonalizedDashboard';
+import { PersonalizationProvider } from '@/context/PersonalizationContext';
 
 interface DashboardContainerProps {
-  user: User | null;
-  roles: UserRole[];
+  user: any;
+  roles: string[];
   activeTab: string;
 }
 
-const DashboardContainer: React.FC<DashboardContainerProps> = ({ user, roles, activeTab }) => {
-  const { activeRole, setActiveRole, availableRoles } = useRole();
+const DashboardContainer: React.FC<DashboardContainerProps> = ({ user, roles, activeTab: initialActiveTab }) => {
+  const [activeRole, setActiveRole] = useState(roles[0]);
+  const [activeTab, setActiveTab] = useState(initialActiveTab);
 
-  const shouldShowNoRoleAlert = 
-    roles.length === 0 && 
-    !user?.email?.includes('training-center') && 
-    !user?.email?.includes('training_center') && 
-    !user?.email?.includes('assessment-center') && 
-    !user?.email?.includes('assessment_center') &&
-    !user?.email?.includes('career-advisor') &&
-    !user?.email?.includes('career_advisor');
-
-  // Use activeRole from context instead of all roles
-  const currentRole = activeRole || (roles.length > 0 ? roles[0] : null);
+  const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setActiveRole(event.target.value);
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {user?.user_metadata?.full_name || 'User'}</p>
-        </div>
+    <PersonalizationProvider>
+      <div className="min-h-screen bg-background">
+        <header className="py-4 bg-secondary border-b">
+          <div className="container mx-auto px-4">
+            <h1 className="text-2xl font-semibold">
+              Welcome to Your Dashboard
+            </h1>
+          </div>
+        </header>
         
-        {availableRoles.length > 0 && currentRole && (
-          <RoleOnboardingTooltip role={currentRole}>
-            <RoleSelector
-              availableRoles={availableRoles}
-              currentRole={currentRole}
-              onRoleChange={setActiveRole}
-            />
-          </RoleOnboardingTooltip>
-        )}
+        <nav className="bg-muted/50 border-b">
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+            <div>
+              <select
+                value={activeRole}
+                onChange={handleRoleChange}
+                className="p-2 border rounded"
+              >
+                {roles.map((role) => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              {/* Add any additional navigation or user info here */}
+            </div>
+          </div>
+        </nav>
+        
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="personalized">AI Personalized</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <Overview activeRole={activeRole} />
+            </TabsContent>
+
+            <TabsContent value="personalized">
+              <PersonalizedDashboard />
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <AnalyticsDashboard />
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <SettingsDashboard />
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
-      
-      {shouldShowNoRoleAlert ? (
-        <>
-          <NoRoleAlert />
-          <StudentDashboard activeTab={activeTab} />
-        </>
-      ) : currentRole ? (
-        getDashboardComponentByUserProfile(user, [currentRole], activeTab)
-      ) : (
-        <StudentDashboard activeTab={activeTab} />
-      )}
-    </div>
+    </PersonalizationProvider>
   );
 };
 

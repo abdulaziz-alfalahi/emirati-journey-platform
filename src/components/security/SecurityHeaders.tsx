@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { SECURITY_HEADERS } from '@/lib/security';
 

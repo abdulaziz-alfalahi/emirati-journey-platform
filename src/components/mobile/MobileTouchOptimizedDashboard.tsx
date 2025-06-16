@@ -1,302 +1,208 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { useTouchInteractions } from '@/hooks/use-touch-interactions';
-import { useOfflineStorage } from '@/hooks/use-offline-storage';
-import { useDeviceInfo } from '@/hooks/use-device-info';
-import MobilePullToRefresh from './MobilePullToRefresh';
-import MobileSwipeableCard from './MobileSwipeableCard';
+import { User } from '@supabase/supabase-js';
+import { UserRole } from '@/types/auth';
+import MobileNotifications from './MobileNotifications';
 import MobileOfflineIndicator from './MobileOfflineIndicator';
 import { 
   Briefcase, 
-  GraduationCap, 
   FileText, 
-  MessageSquare,
-  User,
+  GraduationCap, 
+  Award,
   TrendingUp,
-  Calendar,
-  Heart,
-  BookmarkPlus,
-  Share,
-  Trash2,
-  WifiOff,
-  Smartphone,
-  Camera,
   Bell,
-  MapPin
+  Settings,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 interface MobileTouchOptimizedDashboardProps {
-  user: any;
-  roles: string[];
+  user: User | null;
+  roles: UserRole[];
 }
 
 const MobileTouchOptimizedDashboard: React.FC<MobileTouchOptimizedDashboardProps> = ({ 
   user, 
   roles 
 }) => {
-  const navigate = useNavigate();
-  const { triggerHaptic } = useTouchInteractions();
-  const { isOnline } = useOfflineStorage();
-  const { deviceInfo } = useDeviceInfo();
+  const [activeSection, setActiveSection] = useState<string>('overview');
 
-  const handleRefresh = async () => {
-    // Simulate data refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    triggerHaptic('light');
-  };
-
-  const handleQuickAction = (path: string) => {
-    triggerHaptic('light');
-    navigate(path);
-  };
-
-  // Update quick actions based on offline status
   const quickActions = [
-    { 
-      icon: FileText, 
-      label: 'CV Builder', 
-      path: '/cv-builder',
+    {
+      id: 'job-search',
+      icon: Briefcase,
+      title: 'Find Jobs',
+      description: 'Search for opportunities',
       color: 'bg-blue-500',
-      offline: true // Available offline
+      path: '/job-matching'
     },
-    { 
-      icon: Briefcase, 
-      label: isOnline ? 'Jobs' : 'Saved Jobs', 
-      path: isOnline ? '/job-matching' : '/mobile-offline',
+    {
+      id: 'cv-builder',
+      icon: FileText,
+      title: 'Build CV',
+      description: 'Create your CV',
       color: 'bg-green-500',
-      offline: false // Limited offline functionality
+      path: '/cv-builder'
     },
-    { 
-      icon: GraduationCap, 
-      label: 'Training', 
-      path: '/training',
+    {
+      id: 'training',
+      icon: GraduationCap,
+      title: 'Training',
+      description: 'Skill development',
       color: 'bg-purple-500',
-      offline: false
+      path: '/training'
     },
-    { 
-      icon: MessageSquare, 
-      label: 'Messages', 
-      path: '/messages',
+    {
+      id: 'achievements',
+      icon: Award,
+      title: 'Achievements',
+      description: 'Track progress',
       color: 'bg-orange-500',
-      offline: false
-    },
-  ];
-
-  const stats = [
-    { label: 'Profile Complete', value: '85%', icon: User },
-    { label: 'Job Matches', value: isOnline ? '12' : 'Offline', icon: TrendingUp },
-    { label: 'Next Session', value: 'Tomorrow', icon: Calendar },
-  ];
-
-  const mockNotifications = [
-    {
-      id: '1',
-      title: isOnline ? 'New Job Match' : 'Offline Mode Active',
-      message: isOnline ? 'Software Developer at Emirates Group' : 'Your data is saved locally',
-      time: '2h ago'
-    },
-    {
-      id: '2',
-      title: 'Training Reminder',
-      message: 'AWS Certification course starts tomorrow',
-      time: '4h ago'
+      path: '/achievements'
     }
   ];
 
+  const stats = [
+    { label: 'Applications', value: '12', change: '+3' },
+    { label: 'Profile Views', value: '48', change: '+15%' },
+    { label: 'Skills Completed', value: '8', change: '+2' },
+    { label: 'Opportunities', value: '24', change: '+5' }
+  ];
+
   return (
-    <MobilePullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-6 p-4">
-        {/* Offline Indicator */}
-        <MobileOfflineIndicator />
+    <div className="space-y-6 p-4">
+      {/* Connection Status */}
+      <MobileOfflineIndicator />
 
-        {/* Welcome Section */}
-        <Card className="bg-gradient-to-r from-emirati-teal to-emirati-navy text-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold">
-                Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || 'User'}
+      {/* Welcome Section */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-none">
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">
+                {user?.user_metadata?.full_name?.charAt(0) || 'U'}
+              </span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-gray-900">
+                Welcome back, {user?.user_metadata?.full_name || 'User'}!
               </h2>
-              {!isOnline && (
-                <WifiOff className="h-5 w-5 text-white/80" />
-              )}
+              <p className="text-sm text-gray-600">
+                Continue your journey to success
+              </p>
             </div>
-            <p className="text-white/80">
-              {isOnline ? 'Your Emirati Journey continues' : 'Working offline - data saved locally'}
-            </p>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {roles.slice(0, 2).map((role) => (
-                <Badge key={role} variant="secondary" className="bg-white/20 text-white">
-                  {role.replace('_', ' ')}
-                </Badge>
-              ))}
-              {deviceInfo && deviceInfo.platform !== 'web' && (
-                <Badge variant="secondary" className="bg-white/20 text-white">
-                  <Smartphone className="h-3 w-3 mr-1" />
-                  Native
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            <Button size="sm" variant="ghost">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Touch-Optimized Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              {quickActions.map((action) => (
-                <Button
-                  key={action.path}
-                  variant="outline"
-                  className="h-24 flex-col space-y-2 touch-manipulation relative"
-                  style={{ minHeight: '48px' }}
-                  onClick={() => handleQuickAction(action.path)}
-                  disabled={!isOnline && !action.offline}
-                >
-                  <div className={`p-3 rounded-full ${action.color} ${!isOnline && !action.offline ? 'opacity-50' : ''}`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-sm font-medium">{action.label}</span>
-                  {!isOnline && !action.offline && (
-                    <WifiOff className="h-3 w-3 absolute top-2 right-2 text-gray-400" />
-                  )}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Native Features Quick Access */}
-        {deviceInfo && deviceInfo.platform !== 'web' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
-                <Smartphone className="h-5 w-5" />
-                <span>Device Features</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickAction('/native-features')}
-                  className="flex-col space-y-1 h-16"
-                >
-                  <Camera className="h-4 w-4" />
-                  <span className="text-xs">Camera</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickAction('/native-features')}
-                  className="flex-col space-y-1 h-16"
-                >
-                  <Bell className="h-4 w-4" />
-                  <span className="text-xs">Notify</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickAction('/native-features')}
-                  className="flex-col space-y-1 h-16"
-                >
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-xs">Location</span>
-                </Button>
-              </div>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-3">
+        {stats.map((stat, index) => (
+          <Card key={index}>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-xs text-green-600 font-medium">{stat.change}</div>
             </CardContent>
           </Card>
-        )}
-
-        {/* Swipeable Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Your Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats.map((stat) => (
-                <MobileSwipeableCard
-                  key={stat.label}
-                  rightActions={[
-                    {
-                      icon: Share,
-                      label: 'Share',
-                      color: 'blue',
-                      action: () => triggerHaptic('light')
-                    }
-                  ]}
-                >
-                  <div className="flex items-center justify-between p-4">
-                    <div className="flex items-center space-x-3">
-                      <stat.icon className="h-5 w-5 text-emirati-teal" />
-                      <span className="text-sm font-medium">{stat.label}</span>
-                    </div>
-                    <span className="text-sm font-bold text-emirati-navy">{stat.value}</span>
-                  </div>
-                </MobileSwipeableCard>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Swipeable Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Notifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {mockNotifications.map((notification) => (
-                <MobileSwipeableCard
-                  key={notification.id}
-                  leftActions={[
-                    {
-                      icon: Heart,
-                      label: 'Like',
-                      color: 'green',
-                      action: () => triggerHaptic('medium')
-                    },
-                    {
-                      icon: BookmarkPlus,
-                      label: 'Save',
-                      color: 'blue',
-                      action: () => triggerHaptic('medium')
-                    }
-                  ]}
-                  rightActions={[
-                    {
-                      icon: Trash2,
-                      label: 'Delete',
-                      color: 'red',
-                      action: () => triggerHaptic('heavy')
-                    }
-                  ]}
-                >
-                  <div className="p-4">
-                    <h4 className="font-medium text-sm">{notification.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {notification.message}
-                    </p>
-                    <span className="text-xs text-muted-foreground mt-2 block">
-                      {notification.time}
-                    </span>
-                  </div>
-                </MobileSwipeableCard>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        ))}
       </div>
-    </MobilePullToRefresh>
+
+      {/* Quick Actions Grid */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Sparkles className="h-5 w-5" />
+            <span>Quick Actions</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            {quickActions.map((action) => {
+              const IconComponent = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  className="p-4 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 active:scale-95 transition-all duration-200 text-left"
+                  onClick={() => window.location.href = action.path}
+                >
+                  <div className={`w-10 h-10 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
+                    <IconComponent className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="font-medium text-sm text-gray-900 mb-1">
+                    {action.title}
+                  </h3>
+                  <p className="text-xs text-gray-600">
+                    {action.description}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-5 w-5" />
+              <span>Recent Activity</span>
+            </div>
+            <Button size="sm" variant="ghost">
+              View All
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <Briefcase className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Applied to Software Developer role</p>
+                <p className="text-xs text-gray-500">2 hours ago</p>
+              </div>
+              <Badge variant="outline" className="text-xs">New</Badge>
+            </div>
+            
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <Award className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Completed React Fundamentals course</p>
+                <p className="text-xs text-gray-500">1 day ago</p>
+              </div>
+              <Badge variant="secondary" className="text-xs">Completed</Badge>
+            </div>
+            
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <FileText className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Updated CV with new skills</p>
+                <p className="text-xs text-gray-500">3 days ago</p>
+              </div>
+              <Badge variant="outline" className="text-xs">Updated</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notifications */}
+      <MobileNotifications />
+    </div>
   );
 };
 

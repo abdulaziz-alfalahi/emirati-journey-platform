@@ -36,8 +36,23 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
   tabs,
   defaultTab
 }) => {
-  const { isMobile, isCapacitor } = useMobileDetection();
   const [activeTab, setActiveTab] = useState(defaultTab);
+  
+  // Use mobile detection with error boundary
+  let isMobile = false;
+  let isCapacitor = false;
+  
+  try {
+    const mobileDetection = useMobileDetection();
+    isMobile = mobileDetection.isMobile;
+    isCapacitor = mobileDetection.isCapacitor;
+  } catch (error) {
+    console.warn('Mobile detection failed, using defaults:', error);
+    // Fallback to basic detection
+    if (typeof window !== 'undefined') {
+      isMobile = window.innerWidth < 768;
+    }
+  }
 
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-ehrdc-teal via-ehrdc-light-teal to-ehrdc-neutral-light">

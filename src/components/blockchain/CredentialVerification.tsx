@@ -3,98 +3,113 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Shield, 
-  Search, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle,
-  Calendar,
-  Hash,
-  Building2,
-  Award
-} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { blockchainCredentialService } from '@/services/blockchain/blockchainCredentialService';
-import { auditLogger } from '@/services/blockchain/auditLogger';
-import { VerificationResult } from '@/types/blockchainCredentials';
-import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { privacyControlService } from '@/services/blockchain/privacyControlService';
+import { VerificationResult, BlockchainCredential } from '@/types/blockchainCredentials';
+import { Shield, CheckCircle, XCircle, AlertTriangle, Calendar, Hash, ExternalLink } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 const CredentialVerification: React.FC = () => {
-  const { user } = useAuth();
+  const { toast } = useToast();
   const [credentialId, setCredentialId] = useState('');
+  const [sharingToken, setSharingToken] = useState('');
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
+  const [sharedCredential, setSharedCredential] = useState<BlockchainCredential | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationMethod, setVerificationMethod] = useState<'id' | 'token'>('id');
 
   const handleVerification = async () => {
-    if (!credentialId.trim()) {
-      toast.error('Please enter a credential ID');
+    if (verificationMethod === 'id' && !credentialId) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter a credential ID",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (verificationMethod === 'token' && !sharingToken) {
+      toast({
+        title: "Missing Information", 
+        description: "Please enter a sharing token",
+        variant: "destructive"
+      });
       return;
     }
 
     setIsVerifying(true);
-    setVerificationResult(null);
-
     try {
-      const result = await blockchainCredentialService.verifyCredential(
-        credentialId.trim(),
-        user?.id
-      );
-      
-      setVerificationResult(result);
-      
-      if (result.isValid) {
-        toast.success('Credential verified successfully');
+      if (verificationMethod === 'id') {
+        const result = await blockchainCredentialService.verifyCredential(credentialId);
+        setVerificationResult(result);
+        setSharedCredential(null);
       } else {
-        toast.error('Credential verification failed');
+        // Verify shared credential via token
+        const accessResult = await privacyControlService.validateSharingAccess(
+          sharingToken, 
+          ['title', 'issuer_id', 'issued_date', 'verification_status']
+        );
+        
+        if (accessResult.hasAccess && accessResult.permission) {
+          const result = await blockchainCredentialService.verifyCredential(
+            accessResult.permission.credential_id
+          );
+          setVerificationResult(result);
+          setSharedCredential(result.credential || null);
+        } else {
+          setVerificationResult({
+            isValid: false,
+            status: 'invalid',
+            message: 'Invalid sharing token or access denied'
+          });
+          setSharedCredential(null);
+        }
       }
     } catch (error) {
+      setVerificationResult({
+        isValid: false,
+        status: 'error',
+        message: 'Verification failed due to system error'
+      });
       console.error('Verification error:', error);
-      toast.error('Verification failed due to system error');
-      
-      if (user) {
-        await auditLogger.logOperation({
-          user_id: user.id,
-          credential_id: credentialId.trim(),
-          operation_type: 'verify',
-          operation_details: {
-            action: 'Verification failed due to system error',
-            result: 'failure',
-            error_message: error instanceof Error ? error.message : 'Unknown error'
-          }
-        });
-      }
     } finally {
       setIsVerifying(false);
     }
   };
 
-  const getVerificationIcon = (result: VerificationResult) => {
-    if (result.isValid) {
-      return <CheckCircle className="h-6 w-6 text-green-600" />;
-    } else if (result.status === 'not_found') {
-      return <AlertTriangle className="h-6 w-6 text-yellow-600" />;
-    } else {
-      return <XCircle className="h-6 w-6 text-red-600" />;
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'verified': return <CheckCircle className="h-6 w-6 text-green-600" />;
+      case 'invalid': return <XCircle className="h-6 w-6 text-red-600" />;
+      case 'not_found': return <AlertTriangle className="h-6 w-6 text-yellow-600" />;
+      case 'revoked': return <XCircle className="h-6 w-6 text-red-600" />;
+      case 'error': return <AlertTriangle className="h-6 w-6 text-red-600" />;
+      default: return <Shield className="h-6 w-6 text-gray-600" />;
     }
   };
 
-  const getVerificationColor = (result: VerificationResult) => {
-    if (result.isValid) return 'border-green-200 bg-green-50';
-    if (result.status === 'not_found') return 'border-yellow-200 bg-yellow-50';
-    return 'border-red-200 bg-red-50';
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'verified': return 'bg-green-600';
+      case 'invalid': return 'bg-red-600';
+      case 'not_found': return 'bg-yellow-600';
+      case 'revoked': return 'bg-red-600';
+      case 'error': return 'bg-red-600';
+      default: return 'bg-gray-600';
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-AE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const generateVerificationUrl = () => {
+    if (verificationMethod === 'id' && credentialId) {
+      return `${window.location.origin}/blockchain-credentials/verify?id=${credentialId}`;
+    }
+    if (verificationMethod === 'token' && sharingToken) {
+      return `${window.location.origin}/blockchain-credentials/shared/${sharingToken}`;
+    }
+    return '';
   };
 
   return (
@@ -103,171 +118,152 @@ const CredentialVerification: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Shield className="mr-2 h-5 w-5" />
-            Verify Blockchain Credential
+            Credential Verification
           </CardTitle>
           <CardDescription>
-            Enter a credential ID to verify its authenticity on the blockchain
+            Verify the authenticity of blockchain credentials using credential ID or sharing token
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Enter credential ID (e.g., 123e4567-e89b-12d3-a456-426614174000)"
-              value={credentialId}
-              onChange={(e) => setCredentialId(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleVerification()}
-            />
-            <Button 
-              onClick={handleVerification} 
-              disabled={isVerifying || !credentialId.trim()}
-            >
-              {isVerifying ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-              ) : (
-                <Search className="h-4 w-4 mr-2" />
-              )}
-              Verify
-            </Button>
+        <CardContent className="space-y-6">
+          {/* Verification Method Selection */}
+          <div className="space-y-2">
+            <Label>Verification Method</Label>
+            <div className="flex space-x-4">
+              <Button
+                variant={verificationMethod === 'id' ? 'default' : 'outline'}
+                onClick={() => setVerificationMethod('id')}
+                size="sm"
+              >
+                Credential ID
+              </Button>
+              <Button
+                variant={verificationMethod === 'token' ? 'default' : 'outline'}
+                onClick={() => setVerificationMethod('token')}
+                size="sm"
+              >
+                Sharing Token
+              </Button>
+            </div>
           </div>
 
-          {isVerifying && (
-            <Alert>
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
-                Verifying credential on the blockchain...
-              </AlertDescription>
-            </Alert>
+          {/* Input Fields */}
+          {verificationMethod === 'id' ? (
+            <div className="space-y-2">
+              <Label htmlFor="credentialId">Credential ID</Label>
+              <Input
+                id="credentialId"
+                placeholder="Enter the credential ID to verify"
+                value={credentialId}
+                onChange={(e) => setCredentialId(e.target.value)}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="sharingToken">Sharing Token</Label>
+              <Input
+                id="sharingToken"
+                placeholder="Enter the sharing token"
+                value={sharingToken}
+                onChange={(e) => setSharingToken(e.target.value)}
+              />
+            </div>
           )}
 
-          {verificationResult && (
-            <Card className={`border-2 ${getVerificationColor(verificationResult)}`}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center space-x-3">
-                  {getVerificationIcon(verificationResult)}
-                  <div>
-                    <h3 className="font-semibold text-lg">
-                      {verificationResult.isValid ? 'Credential Verified' : 'Verification Failed'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {verificationResult.message}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              {verificationResult.credential && (
-                <CardContent className="pt-0">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Credential Title</h4>
-                        <p className="font-semibold">{verificationResult.credential.title}</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Type</h4>
-                        <Badge variant="outline">
-                          <Award className="h-3 w-3 mr-1" />
-                          {verificationResult.credential.credential_type.replace('_', ' ').toUpperCase()}
-                        </Badge>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Issued Date</h4>
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
-                          {formatDate(verificationResult.credential.issued_date)}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Status</h4>
-                        <Badge 
-                          variant="outline" 
-                          className={
-                            verificationResult.credential.verification_status === 'verified' 
-                              ? 'text-green-600 border-green-600' 
-                              : 'text-red-600 border-red-600'
-                          }
-                        >
-                          {verificationResult.credential.verification_status}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {verificationResult.credential.description && (
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-1">Description</h4>
-                        <p className="text-sm">{verificationResult.credential.description}</p>
-                      </div>
-                    )}
-
-                    {verificationResult.credential.skills && verificationResult.credential.skills.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Skills Certified</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {verificationResult.credential.skills.map((skill, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {verificationResult.verificationDetails && (
-                      <div className="border-t pt-4">
-                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Blockchain Details</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          <div className="flex items-center">
-                            <Hash className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span className="text-muted-foreground mr-2">Block:</span>
-                            <code className="bg-muted px-1 rounded text-xs">
-                              #{verificationResult.verificationDetails.blockNumber}
-                            </code>
-                          </div>
-                          
-                          <div className="flex items-center">
-                            <Hash className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span className="text-muted-foreground mr-2">Transaction:</span>
-                            <code className="bg-muted px-1 rounded text-xs">
-                              {verificationResult.verificationDetails.transactionHash.substring(0, 16)}...
-                            </code>
-                          </div>
-                          
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span className="text-muted-foreground mr-2">Verified At:</span>
-                            <span className="text-xs">
-                              {formatDate(verificationResult.verificationDetails.verifiedAt)}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center">
-                            <Shield className="h-3 w-3 mr-1 text-muted-foreground" />
-                            <span className="text-muted-foreground mr-2">Merkle Proof:</span>
-                            <span className="text-xs">
-                              {verificationResult.verificationDetails.merkleProof.length} nodes
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          )}
-
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Credential verification is performed using blockchain technology to ensure authenticity and prevent tampering.
-              All verification attempts are logged for audit purposes.
-            </AlertDescription>
-          </Alert>
+          <Button 
+            onClick={handleVerification} 
+            disabled={isVerifying}
+            className="w-full"
+          >
+            {isVerifying ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2" />
+                Verifying...
+              </>
+            ) : (
+              <>
+                <Shield className="h-4 w-4 mr-2" />
+                Verify Credential
+              </>
+            )}
+          </Button>
         </CardContent>
       </Card>
+
+      {/* Verification Result */}
+      {verificationResult && (
+        <Card className={`border-l-4 ${
+          verificationResult.isValid ? 'border-l-green-500' : 'border-l-red-500'
+        }`}>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              {getStatusIcon(verificationResult.status)}
+              <span className="ml-2">Verification Result</span>
+              <Badge className={`ml-auto ${getStatusColor(verificationResult.status)}`}>
+                {verificationResult.status.toUpperCase()}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {verificationResult.message}
+            </p>
+
+            {verificationResult.credential && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2">Credential Details</h4>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Title:</strong> {verificationResult.credential.title}</p>
+                      <p><strong>Type:</strong> {verificationResult.credential.credential_type}</p>
+                      <p><strong>Issued:</strong> {new Date(verificationResult.credential.issued_date).toLocaleDateString()}</p>
+                      {verificationResult.credential.skills && verificationResult.credential.skills.length > 0 && (
+                        <p><strong>Skills:</strong> {verificationResult.credential.skills.join(', ')}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2">Blockchain Details</h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex items-center">
+                        <Hash className="mr-1 h-3 w-3" />
+                        <strong>Block:</strong> #{verificationResult.credential.block_number}
+                      </p>
+                      <p className="flex items-center">
+                        <ExternalLink className="mr-1 h-3 w-3" />
+                        <strong>Tx:</strong> {verificationResult.credential.transaction_hash.substring(0, 10)}...
+                      </p>
+                      {verificationResult.verificationDetails && (
+                        <p className="flex items-center">
+                          <Calendar className="mr-1 h-3 w-3" />
+                          <strong>Verified:</strong> {new Date(verificationResult.verificationDetails.verifiedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* QR Code for Verification */}
+                {generateVerificationUrl() && (
+                  <div className="flex justify-center">
+                    <div className="text-center">
+                      <QRCodeSVG 
+                        value={generateVerificationUrl()} 
+                        size={128}
+                        className="mx-auto mb-2"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Scan to verify this credential
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -1,85 +1,68 @@
 
-import { useCallback, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOfflineStorage } from './use-offline-storage';
 
-export interface OfflineJob {
+export interface SavedJob {
   id: string;
   title: string;
   company: string;
-  description: string;
   location: string;
-  salary?: string;
-  type: string;
+  description: string;
   requirements: string[];
   savedAt: number;
+  synced: boolean;
 }
 
 export const useOfflineJobs = () => {
-  const { 
-    isOnline, 
-    saveToOfflineStorage, 
-    getFromOfflineStorage 
-  } = useOfflineStorage();
-  
-  const [savedJobs, setSavedJobs] = useState<OfflineJob[]>([]);
+  const { saveToOfflineStorage, addToSyncQueue } = useOfflineStorage();
+  const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
 
   useEffect(() => {
     loadSavedJobs();
   }, []);
 
   const loadSavedJobs = useCallback(() => {
-    try {
-      const stored = localStorage.getItem('offline_jobs');
-      if (stored) {
-        setSavedJobs(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.error('Error loading saved jobs:', error);
+    const stored = localStorage.getItem('saved_jobs');
+    if (stored) {
+      setSavedJobs(JSON.parse(stored));
     }
   }, []);
 
-  const saveJobOffline = useCallback((job: Omit<OfflineJob, 'savedAt'>) => {
-    const offlineJob: OfflineJob = {
-      ...job,
-      savedAt: Date.now()
+  const saveJob = useCallback((jobData: Omit<SavedJob, 'savedAt' | 'synced'>) => {
+    const job: SavedJob = {
+      ...jobData,
+      savedAt: Date.now(),
+      synced: false
     };
 
-    const updatedJobs = [...savedJobs, offlineJob];
-    setSavedJobs(updatedJobs);
-    localStorage.setItem('offline_jobs', JSON.stringify(updatedJobs));
+    const updated = [...savedJobs, job];
+    setSavedJobs(updated);
+    localStorage.setItem('saved_jobs', JSON.stringify(updated));
     
-    saveToOfflineStorage(`job_${job.id}`, offlineJob);
-  }, [savedJobs, saveToOfflineStorage]);
+    saveToOfflineStorage(`job_${job.id}`, job);
+    addToSyncQueue({
+      type: 'create',
+      table: 'saved_jobs',
+      data: job
+    });
+  }, [savedJobs, saveToOfflineStorage, addToSyncQueue]);
 
-  const removeJobOffline = useCallback((jobId: string) => {
-    const updatedJobs = savedJobs.filter(job => job.id !== jobId);
-    setSavedJobs(updatedJobs);
-    localStorage.setItem('offline_jobs', JSON.stringify(updatedJobs));
-  }, [savedJobs]);
+  const removeJob = useCallback((jobId: string) => {
+    const updated = savedJobs.filter(job => job.id !== jobId);
+    setSavedJobs(updated);
+    localStorage.setItem('saved_jobs', JSON.stringify(updated));
 
-  const getJobOffline = useCallback((jobId: string) => {
-    return savedJobs.find(job => job.id === jobId) || null;
-  }, [savedJobs]);
-
-  const searchOfflineJobs = useCallback((query: string) => {
-    if (!query.trim()) return savedJobs;
-    
-    const lowerQuery = query.toLowerCase();
-    return savedJobs.filter(job => 
-      job.title.toLowerCase().includes(lowerQuery) ||
-      job.company.toLowerCase().includes(lowerQuery) ||
-      job.description.toLowerCase().includes(lowerQuery) ||
-      job.location.toLowerCase().includes(lowerQuery)
-    );
-  }, [savedJobs]);
+    addToSyncQueue({
+      type: 'delete',
+      table: 'saved_jobs',
+      data: { id: jobId }
+    });
+  }, [savedJobs, addToSyncQueue]);
 
   return {
-    isOnline,
     savedJobs,
-    saveJobOffline,
-    removeJobOffline,
-    getJobOffline,
-    searchOfflineJobs,
-    hasSavedJobs: savedJobs.length > 0
+    saveJob,
+    removeJob,
+    loadSavedJobs
   };
 };
