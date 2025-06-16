@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
@@ -13,6 +12,8 @@ import CredentialIssuer from '@/components/blockchain/CredentialIssuer';
 import CredentialVerification from '@/components/blockchain/CredentialVerification';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle } from 'lucide-react';
+import DisputeResolutionCenter from '@/components/blockchain/DisputeResolutionCenter';
 
 const BlockchainCredentialsPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -146,6 +147,37 @@ const BlockchainCredentialsPage: React.FC = () => {
         </ProfessionalGrowthTabContent>
       )
     },
+    {
+      id: "privacy",
+      label: "Privacy Controls",
+      icon: <Lock className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Privacy & Sharing Controls"
+          icon={<Lock className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Manage credential sharing permissions and privacy settings"
+        >
+          <div className="text-center py-8">
+            <Lock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-muted-foreground mb-4">Select a credential from your wallet to manage its privacy settings</p>
+          </div>
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "disputes",
+      label: "Dispute Resolution",
+      icon: <AlertTriangle className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Dispute Resolution Center"
+          icon={<AlertTriangle className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="File and manage credential disputes"
+        >
+          <DisputeResolutionCenter />
+        </ProfessionalGrowthTabContent>
+      )
+    },
     ...(canIssueCredentials ? [{
       id: "issue",
       label: "Issue Credential",
@@ -161,18 +193,18 @@ const BlockchainCredentialsPage: React.FC = () => {
       )
     }] : []),
     {
-      id: "about",
-      label: "About Blockchain",
+      id: "api",
+      label: "API Integration",
       icon: <Database className="h-4 w-4" />,
       content: (
         <EmptyTabContent
           icon={Database}
-          title="Blockchain Technology"
-          description="Learn about the security benefits and technical aspects of blockchain-based credentials."
-          actionLabel="Learn More"
+          title="Institutional API Integration"
+          description="Connect your institution's systems to issue and verify credentials programmatically."
+          actionLabel="View API Documentation"
           onAction={() => toast({ 
-            title: "Information", 
-            description: "Blockchain credentials provide tamper-proof, verifiable digital certificates." 
+            title: "API Information", 
+            description: "Contact your administrator for API access and documentation." 
           })}
         />
       )

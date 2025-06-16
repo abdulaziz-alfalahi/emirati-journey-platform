@@ -1745,6 +1745,258 @@ export type Database = {
         }
         Relationships: []
       }
+      credential_disputes: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          credential_id: string
+          dispute_reason: string
+          dispute_type: string
+          disputed_by: string
+          evidence: Json | null
+          id: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          smart_contract_dispute_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          credential_id: string
+          dispute_reason: string
+          dispute_type: string
+          disputed_by: string
+          evidence?: Json | null
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          smart_contract_dispute_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          credential_id?: string
+          dispute_reason?: string
+          dispute_type?: string
+          disputed_by?: string
+          evidence?: Json | null
+          id?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          smart_contract_dispute_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_disputes_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "blockchain_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credential_export_formats: {
+        Row: {
+          created_at: string
+          file_extension: string
+          format_name: string
+          format_version: string
+          id: string
+          is_active: boolean
+          mime_type: string
+          schema_definition: Json
+        }
+        Insert: {
+          created_at?: string
+          file_extension: string
+          format_name: string
+          format_version: string
+          id?: string
+          is_active?: boolean
+          mime_type: string
+          schema_definition: Json
+        }
+        Update: {
+          created_at?: string
+          file_extension?: string
+          format_name?: string
+          format_version?: string
+          id?: string
+          is_active?: boolean
+          mime_type?: string
+          schema_definition?: Json
+        }
+        Relationships: []
+      }
+      credential_exports: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          credential_id: string
+          downloaded_count: number
+          expires_at: string | null
+          export_format_id: string
+          exported_data: Json
+          file_url: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          credential_id: string
+          downloaded_count?: number
+          expires_at?: string | null
+          export_format_id: string
+          exported_data: Json
+          file_url?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          credential_id?: string
+          downloaded_count?: number
+          expires_at?: string | null
+          export_format_id?: string
+          exported_data?: Json
+          file_url?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_exports_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "blockchain_credentials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credential_exports_export_format_id_fkey"
+            columns: ["export_format_id"]
+            isOneToOne: false
+            referencedRelation: "credential_export_formats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credential_sharing_permissions: {
+        Row: {
+          access_count: number
+          created_at: string
+          credential_id: string
+          expires_at: string | null
+          fields_accessible: string[]
+          id: string
+          is_active: boolean
+          max_access_count: number | null
+          owner_id: string
+          permission_level: string
+          shared_with_id: string | null
+          shared_with_type: string
+          sharing_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_count?: number
+          created_at?: string
+          credential_id: string
+          expires_at?: string | null
+          fields_accessible?: string[]
+          id?: string
+          is_active?: boolean
+          max_access_count?: number | null
+          owner_id: string
+          permission_level?: string
+          shared_with_id?: string | null
+          shared_with_type: string
+          sharing_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_count?: number
+          created_at?: string
+          credential_id?: string
+          expires_at?: string | null
+          fields_accessible?: string[]
+          id?: string
+          is_active?: boolean
+          max_access_count?: number | null
+          owner_id?: string
+          permission_level?: string
+          shared_with_id?: string | null
+          shared_with_type?: string
+          sharing_token?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_sharing_permissions_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "blockchain_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credential_verification_logs: {
+        Row: {
+          created_at: string
+          credential_id: string
+          id: string
+          ip_address: unknown | null
+          location_data: Json | null
+          user_agent: string | null
+          verification_details: Json | null
+          verification_method: string
+          verification_result: boolean
+          verification_token: string | null
+          verifier_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          credential_id: string
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          user_agent?: string | null
+          verification_details?: Json | null
+          verification_method: string
+          verification_result: boolean
+          verification_token?: string | null
+          verifier_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          credential_id?: string
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          user_agent?: string | null
+          verification_details?: Json | null
+          verification_method?: string
+          verification_result?: boolean
+          verification_token?: string | null
+          verifier_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_verification_logs_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "blockchain_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credential_verification_requests: {
         Row: {
           created_at: string
@@ -2994,6 +3246,54 @@ export type Database = {
           tags?: string[] | null
           title?: string
           type?: string
+        }
+        Relationships: []
+      }
+      institutional_api_configs: {
+        Row: {
+          api_endpoint: string | null
+          api_key_hash: string
+          created_at: string
+          id: string
+          institution_id: string
+          institution_name: string
+          institution_type: string
+          is_active: boolean
+          last_sync_at: string | null
+          rate_limit_per_hour: number
+          supported_credential_types: string[]
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_endpoint?: string | null
+          api_key_hash: string
+          created_at?: string
+          id?: string
+          institution_id: string
+          institution_name: string
+          institution_type: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          rate_limit_per_hour?: number
+          supported_credential_types?: string[]
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_endpoint?: string | null
+          api_key_hash?: string
+          created_at?: string
+          id?: string
+          institution_id?: string
+          institution_name?: string
+          institution_type?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          rate_limit_per_hour?: number
+          supported_credential_types?: string[]
+          updated_at?: string
+          webhook_url?: string | null
         }
         Relationships: []
       }
@@ -5276,6 +5576,110 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      smart_contract_interactions: {
+        Row: {
+          block_number: number | null
+          confirmation_count: number | null
+          confirmed_at: string | null
+          contract_id: string
+          created_at: string
+          error_message: string | null
+          function_name: string
+          gas_price: number | null
+          gas_used: number | null
+          id: string
+          initiated_by: string
+          input_data: Json
+          output_data: Json | null
+          status: string
+          transaction_fee: number | null
+          transaction_hash: string
+        }
+        Insert: {
+          block_number?: number | null
+          confirmation_count?: number | null
+          confirmed_at?: string | null
+          contract_id: string
+          created_at?: string
+          error_message?: string | null
+          function_name: string
+          gas_price?: number | null
+          gas_used?: number | null
+          id?: string
+          initiated_by: string
+          input_data: Json
+          output_data?: Json | null
+          status: string
+          transaction_fee?: number | null
+          transaction_hash: string
+        }
+        Update: {
+          block_number?: number | null
+          confirmation_count?: number | null
+          confirmed_at?: string | null
+          contract_id?: string
+          created_at?: string
+          error_message?: string | null
+          function_name?: string
+          gas_price?: number | null
+          gas_used?: number | null
+          id?: string
+          initiated_by?: string
+          input_data?: Json
+          output_data?: Json | null
+          status?: string
+          transaction_fee?: number | null
+          transaction_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_contract_interactions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "smart_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smart_contracts: {
+        Row: {
+          abi: Json
+          contract_address: string
+          contract_type: string
+          created_at: string
+          deployment_block_number: number
+          deployment_transaction_hash: string
+          id: string
+          is_active: boolean
+          network: string
+          updated_at: string
+        }
+        Insert: {
+          abi: Json
+          contract_address: string
+          contract_type: string
+          created_at?: string
+          deployment_block_number: number
+          deployment_transaction_hash: string
+          id?: string
+          is_active?: boolean
+          network?: string
+          updated_at?: string
+        }
+        Update: {
+          abi?: Json
+          contract_address?: string
+          contract_type?: string
+          created_at?: string
+          deployment_block_number?: number
+          deployment_transaction_hash?: string
+          id?: string
+          is_active?: boolean
+          network?: string
           updated_at?: string
         }
         Relationships: []
