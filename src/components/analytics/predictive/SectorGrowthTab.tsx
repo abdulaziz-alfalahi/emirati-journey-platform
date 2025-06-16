@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MarketTrendsChart } from '@/components/analytics/MarketTrendsChart';
+import MarketTrendsChart from '@/components/analytics/MarketTrendsChart';
 
 export const SectorGrowthTab: React.FC = () => {
   return (

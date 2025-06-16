@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SkillGapAnalysis } from '@/components/analytics/SkillGapAnalysis';
+import SkillGapAnalysis from '@/components/analytics/SkillGapAnalysis';
 
 export const SkillsDemandTab: React.FC = () => {
   return (

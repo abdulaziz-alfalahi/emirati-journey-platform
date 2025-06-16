@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { WorkforceAnalytics } from '@/components/analytics/WorkforceAnalytics';
+import WorkforceAnalytics from '@/components/analytics/WorkforceAnalytics';
 
 export const WorkforceForecastTab: React.FC = () => {
   return (
