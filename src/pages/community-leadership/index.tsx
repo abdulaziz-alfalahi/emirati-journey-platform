@@ -1,18 +1,24 @@
 
 import React from 'react';
-import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { Users, Award, BookOpen, Target } from 'lucide-react';
+import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
+import { Crown, Users, Award, BookOpen } from 'lucide-react';
 import { CommunityLeadershipContent } from '@/components/community-leadership/CommunityLeadershipContent';
 
 const CommunityLeadershipPage: React.FC = () => {
   const stats = [
-    { value: "50+", label: "Training Programs", icon: BookOpen },
-    { value: "200+", label: "Leadership Opportunities", icon: Target },
-    { value: "1,500+", label: "Community Leaders", icon: Users },
-    { value: "100+", label: "Success Stories", icon: Award }
+    { value: "30+", label: "Leadership Opportunities", icon: Crown },
+    { value: "500+", label: "Community Leaders", icon: Users },
+    { value: "100+", label: "Leadership Programs", icon: BookOpen },
+    { value: "2000+", label: "Lives Impacted", icon: Award }
   ];
 
   const tabs = [
+    {
+      id: 'opportunities',
+      label: 'Leadership Opportunities',
+      icon: <Crown className="h-4 w-4" />,
+      content: <CommunityLeadershipContent activeTab="opportunities" />
+    },
     {
       id: 'training',
       label: 'Training & Workshops',
@@ -20,27 +26,27 @@ const CommunityLeadershipPage: React.FC = () => {
       content: <CommunityLeadershipContent activeTab="training" />
     },
     {
-      id: 'opportunities',
-      label: 'Leadership Opportunities',
-      icon: <Target className="h-4 w-4" />,
-      content: <CommunityLeadershipContent activeTab="opportunities" />
-    },
-    {
-      id: 'stories',
+      id: 'success-stories',
       label: 'Success Stories',
       icon: <Award className="h-4 w-4" />,
-      content: <CommunityLeadershipContent activeTab="stories" />
+      content: <CommunityLeadershipContent activeTab="success-stories" />
+    },
+    {
+      id: 'resources',
+      label: 'Leadership Resources',
+      icon: <Users className="h-4 w-4" />,
+      content: <CommunityLeadershipContent activeTab="resources" />
     }
   ];
 
   return (
-    <ProfessionalGrowthLayout
-      title="Community Leadership"
-      description="Develop and exercise leadership skills within your community. Access training programs, discover leadership opportunities, and get inspired by success stories from community leaders across the UAE."
-      icon={<Users className="h-8 w-8" />}
+    <LifelongEngagementLayout
+      title="Community Leadership: Empowering Voices, Shaping Tomorrow"
+      description="Develop your leadership potential and make a meaningful impact in your community through leadership opportunities, training programs, and collaborative initiatives that create lasting change."
+      icon={<Crown className="h-8 w-8" />}
       stats={stats}
       tabs={tabs}
-      defaultTab="training"
+      defaultTab="opportunities"
     />
   );
 };

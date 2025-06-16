@@ -10,6 +10,18 @@ const DashboardPage = React.lazy(() => import('@/pages/dashboard/index'));
 const AuthPage = React.lazy(() => import('@/pages/auth/index'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFound'));
 
+// Lifelong Engagement pages
+const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
+const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
+const CommunityLeadershipPage = React.lazy(() => import('@/pages/community-leadership/index'));
+const LegacyProjectsPage = React.lazy(() => import('@/pages/legacy-projects/index'));
+const VolunteerProgramsPage = React.lazy(() => import('@/pages/volunteer-programs/index'));
+const CivicEngagementPage = React.lazy(() => import('@/pages/civic-engagement/index'));
+const WisdomSharingPage = React.lazy(() => import('@/pages/wisdom-sharing/index'));
+const IntergenerationalProgramsPage = React.lazy(() => import('@/pages/intergenerational-programs/index'));
+const CulturalPreservationPage = React.lazy(() => import('@/pages/cultural-preservation/index'));
+const NationalServicePage = React.lazy(() => import('@/pages/national-service/index'));
+
 function App() {
   return (
     <Router>
@@ -25,6 +37,19 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Lifelong Engagement Routes */}
+            <Route path="/retiree" element={<RetireeServicesPage />} />
+            <Route path="/communities" element={<CommunitiesPage />} />
+            <Route path="/community-leadership" element={<CommunityLeadershipPage />} />
+            <Route path="/legacy-projects" element={<LegacyProjectsPage />} />
+            <Route path="/volunteer-programs" element={<VolunteerProgramsPage />} />
+            <Route path="/civic-engagement" element={<CivicEngagementPage />} />
+            <Route path="/wisdom-sharing" element={<WisdomSharingPage />} />
+            <Route path="/intergenerational-programs" element={<IntergenerationalProgramsPage />} />
+            <Route path="/cultural-preservation" element={<CulturalPreservationPage />} />
+            <Route path="/national-service" element={<NationalServicePage />} />
+            
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </React.Suspense>

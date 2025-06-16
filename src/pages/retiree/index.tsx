@@ -45,7 +45,7 @@ const RetireeServicesPage: React.FC = () => {
   return (
     <LifelongEngagementLayout
       title="Emirati Retiree Journey: A New Chapter of Purpose and Prosperity"
-      description="Supporting UAE citizens during their retirement journey with specialized services, opportunities, and comprehensive benefits to ensure a fulfilling post-career life."
+      description="Supporting UAE citizens during their retirement journey with specialized services, opportunities, and comprehensive benefits to ensure a fulfilling post-career life focused on community contribution and lifelong value."
       icon={<Clock className="h-8 w-8" />}
       stats={stats}
       tabs={tabs}
