@@ -24,18 +24,26 @@ initializePerformanceMonitoring({
 
 // PWA Features Initialization
 const initializePWAFeatures = async () => {
-  // Register for background sync
-  if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+  // Register for background sync with proper type checking
+  if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.ready;
-      console.log('Background sync is supported');
+      console.log('Service Worker is ready');
       
-      // Register sync event for offline data
-      window.addEventListener('online', () => {
-        registration.sync.register('sync-offline-data');
-      });
+      // Check if Background Sync is supported with proper type checking
+      if ('sync' in window.ServiceWorkerRegistration.prototype) {
+        console.log('Background sync is supported');
+        
+        // Register sync event for offline data
+        window.addEventListener('online', () => {
+          // Use type assertion for the sync property
+          (registration as any).sync?.register('sync-offline-data');
+        });
+      } else {
+        console.log('Background sync is not supported');
+      }
     } catch (error) {
-      console.error('Background sync registration failed:', error);
+      console.error('Service Worker registration failed:', error);
     }
   }
 
