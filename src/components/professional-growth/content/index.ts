@@ -8,9 +8,11 @@ export { SuccessStoryPresentation } from './SuccessStoryPresentation';
 export { LeadershipModuleInterface } from './LeadershipModuleInterface';
 
 export type {
-  ProfessionalDevelopmentCard as ProfessionalDevelopmentCardProps,
+  ProfessionalDevelopmentCard as ProfessionalDevelopmentCardProps
+} from './ProfessionalDevelopmentCard';
+
+export type {
   SkillAssessmentComponent,
-  MentorshipInterface as MentorshipInterfaceProps,
   AssessmentQuestion,
   ProgressMetrics,
   Resource,
