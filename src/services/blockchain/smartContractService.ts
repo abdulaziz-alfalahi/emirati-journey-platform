@@ -23,7 +23,7 @@ export interface SmartContractInteraction {
   input_data: any;
   output_data?: any;
   gas_used?: number;
-  gas_price?: string; // Changed from bigint to string to match database
+  gas_price?: number; // Changed to number to match database schema
   transaction_fee?: number;
   status: 'pending' | 'confirmed' | 'failed';
   block_number?: number;
@@ -63,7 +63,7 @@ class SmartContractService {
 
       if (error) throw error;
 
-      const contract = data as SmartContract;
+      const contract = data as unknown as SmartContract;
 
       await auditLogger.logOperation({
         user_id: userId,
@@ -97,7 +97,7 @@ class SmartContractService {
     try {
       const transactionHash = `0x${crypto.randomUUID().replace(/-/g, '')}`;
       const gasUsed = Math.floor(Math.random() * 200000) + 21000;
-      const gasPrice = BigInt(Math.floor(Math.random() * 100) + 20) * BigInt(1000000000); // Gwei
+      const gasPrice = Math.floor(Math.random() * 100) + 20; // Use number instead of BigInt
 
       const { data, error } = await supabase
         .from('smart_contract_interactions')
@@ -107,8 +107,8 @@ class SmartContractService {
           function_name: functionName,
           input_data: inputData,
           gas_used: gasUsed,
-          gas_price: gasPrice.toString(), // Convert bigint to string for database
-          transaction_fee: Number(gasPrice * BigInt(gasUsed)) / 1e18,
+          gas_price: gasPrice, // Now passing as number
+          transaction_fee: (gasPrice * gasUsed) / 1e9, // Simplified calculation
           status: 'pending',
           initiated_by: userId
         })
@@ -151,7 +151,7 @@ class SmartContractService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data || []) as SmartContract[];
+    return (data || []) as unknown as SmartContract[];
   }
 
   async getContractInteractions(contractId: string): Promise<SmartContractInteraction[]> {
