@@ -5,6 +5,8 @@ import { RoleProvider } from '@/context/RoleContext';
 import { QueryProvider } from '@/context/QueryContext';
 import { PhaseProvider } from '@/context/PhaseContext';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
+import { PersonalizationProvider } from '@/context/PersonalizationContext';
+import BusinessIntelligencePage from '@/pages/business-intelligence';
 
 // Lazy-loaded page components
 const HomePage = React.lazy(() => import('@/pages/home'));
@@ -61,14 +63,12 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <Router>
-      <QueryProvider>
-        <AuthProvider>
-          <RoleProvider>
-            <PhaseProvider>
-              <div className="min-h-screen bg-background font-sans antialiased">
-              <SkipNavigation />
-              <Suspense fallback={<LoadingFallback />}>
+    <AuthProvider>
+      <RoleProvider>
+        <PhaseProvider>
+          <PersonalizationProvider>
+            <div className="min-h-screen bg-background">
+              <Router>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/home" element={<HomePage />} />
@@ -122,14 +122,14 @@ function App() {
                   <Route path="/mentor-matching" element={<MentorMatchingPage />} />
                   <Route path="/design-system" element={<DesignSystemPage />} />
                   <Route path="/analytics" element={<AnalyticsPage />} />
+                  <Route path="/business-intelligence" element={<BusinessIntelligencePage />} />
                 </Routes>
-              </Suspense>
-              </div>
-            </PhaseProvider>
-          </RoleProvider>
-        </AuthProvider>
-      </QueryProvider>
-    </Router>
+              </Router>
+            </div>
+          </PersonalizationProvider>
+        </PhaseProvider>
+      </RoleProvider>
+    </AuthProvider>
   );
 }
 

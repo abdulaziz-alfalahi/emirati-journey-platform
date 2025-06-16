@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Brain } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, Brain } from 'lucide-react';
 
 interface PredictiveAnalyticsHeaderProps {
   selectedTimeHorizon: string;
@@ -19,46 +20,50 @@ export const PredictiveAnalyticsHeader: React.FC<PredictiveAnalyticsHeaderProps>
 }) => {
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              Predictive Analytics & Forecasting
-            </CardTitle>
-            <CardDescription>AI-powered workforce trend predictions and scenario modeling</CardDescription>
+      <CardContent className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="h-5 w-5" />
+            <h2 className="text-lg font-semibold">Predictive Analytics Configuration</h2>
+            <Badge variant="default" className="flex items-center gap-1">
+              <Brain className="h-3 w-3" />
+              AI-Powered
+            </Badge>
           </div>
+          
           <div className="flex items-center gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Time Horizon</label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Time Horizon:</span>
               <Select value={selectedTimeHorizon} onValueChange={onTimeHorizonChange}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="1-year">1 Year</SelectItem>
                   <SelectItem value="3-year">3 Years</SelectItem>
                   <SelectItem value="5-year">5 Years</SelectItem>
                   <SelectItem value="10-year">10 Years</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Model Type</label>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Model:</span>
               <Select value={selectedModel} onValueChange={onModelChange}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ml-ensemble">ML Ensemble</SelectItem>
-                  <SelectItem value="regression">Linear Regression</SelectItem>
-                  <SelectItem value="arima">ARIMA</SelectItem>
+                  <SelectItem value="time-series">Time Series</SelectItem>
                   <SelectItem value="neural-network">Neural Network</SelectItem>
+                  <SelectItem value="regression">Regression</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         </div>
-      </CardHeader>
+      </CardContent>
     </Card>
   );
 };
