@@ -36,8 +36,8 @@
     <meta name="twitter:description" content="Comprehensive platform for Emirati career development and opportunities" />
     <meta name="twitter:image" content="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png" />
     
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https: wss:; font-src 'self' data:;">
+    <!-- Security - Updated CSP to allow Google Fonts and other necessary resources -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss: blob:; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; frame-src 'self' https:; media-src 'self' https: blob:;">
   </head>
 
   <body>
