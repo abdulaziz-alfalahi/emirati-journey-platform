@@ -63,6 +63,8 @@ class SmartContractService {
 
       if (error) throw error;
 
+      const contract = data as SmartContract;
+
       await auditLogger.logOperation({
         user_id: userId,
         operation_type: 'issue',
@@ -79,7 +81,7 @@ class SmartContractService {
         block_number: blockNumber
       });
 
-      return data;
+      return contract;
     } catch (error) {
       console.error('Error deploying smart contract:', error);
       throw error;
@@ -115,12 +117,14 @@ class SmartContractService {
 
       if (error) throw error;
 
+      const interaction = data as SmartContractInteraction;
+
       // Simulate transaction confirmation after a delay
       setTimeout(async () => {
-        await this.confirmTransaction(data.id, Math.floor(Math.random() * 1000000) + 15000000);
+        await this.confirmTransaction(interaction.id, Math.floor(Math.random() * 1000000) + 15000000);
       }, 2000);
 
-      return data;
+      return interaction;
     } catch (error) {
       console.error('Error interacting with smart contract:', error);
       throw error;
@@ -147,7 +151,7 @@ class SmartContractService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as SmartContract[];
   }
 
   async getContractInteractions(contractId: string): Promise<SmartContractInteraction[]> {
@@ -158,7 +162,7 @@ class SmartContractService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as SmartContractInteraction[];
   }
 }
 

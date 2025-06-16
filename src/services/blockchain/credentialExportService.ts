@@ -97,6 +97,10 @@ class CredentialExportService {
   }
 
   private transformCredentialData(credential: BlockchainCredential, format: ExportFormat): any {
+    // Safely access metadata properties
+    const metadata = credential.metadata as Record<string, any> || {};
+    const issuerName = metadata.issuer_name || 'Unknown Issuer';
+
     switch (format.format_name) {
       case 'open_badges':
         return {
@@ -111,7 +115,7 @@ class CredentialExportService {
           },
           "issuer": {
             "id": `urn:uuid:${credential.issuer_id}`,
-            "name": credential.metadata?.issuer_name || "Unknown Issuer",
+            "name": issuerName,
             "type": "Profile"
           },
           "issuanceDate": credential.issued_date,
@@ -122,7 +126,7 @@ class CredentialExportService {
               "type": "Achievement",
               "name": credential.title,
               "description": credential.description,
-              "criteria": credential.metadata
+              "criteria": metadata
             }
           },
           "proof": {
@@ -140,7 +144,7 @@ class CredentialExportService {
           "type": ["VerifiableCredential", "EuropassCredential"],
           "issuer": {
             "id": `urn:uuid:${credential.issuer_id}`,
-            "name": credential.metadata?.issuer_name || "Unknown Issuer"
+            "name": issuerName
           },
           "issuanceDate": credential.issued_date,
           "expirationDate": credential.expiry_date,
@@ -164,7 +168,7 @@ class CredentialExportService {
           "id": `urn:uuid:${credential.id}`,
           "issuer": {
             "id": `urn:uuid:${credential.issuer_id}`,
-            "name": credential.metadata?.issuer_name || "Unknown Issuer"
+            "name": issuerName
           },
           "issuanceDate": credential.issued_date,
           "credentialSubject": {
@@ -188,7 +192,7 @@ class CredentialExportService {
           data: {
             title: credential.title,
             recipient: `Recipient ID: ${credential.recipient_id}`,
-            issuer: credential.metadata?.issuer_name || "Unknown Issuer",
+            issuer: issuerName,
             issuedDate: new Date(credential.issued_date).toLocaleDateString(),
             description: credential.description,
             skills: credential.skills?.join(', ') || '',

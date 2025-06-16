@@ -58,6 +58,8 @@ class PrivacyControlService {
 
       if (error) throw error;
 
+      const permission = data as CredentialSharingPermission;
+
       await auditLogger.logOperation({
         user_id: ownerId,
         credential_id: request.credentialId,
@@ -73,7 +75,7 @@ class PrivacyControlService {
         }
       });
 
-      return data;
+      return permission;
     } catch (error) {
       console.error('Error creating sharing permission:', error);
       throw error;
@@ -99,9 +101,11 @@ class PrivacyControlService {
 
       if (error) throw error;
 
+      const permission = data as CredentialSharingPermission;
+
       await auditLogger.logOperation({
         user_id: userId,
-        credential_id: data.credential_id,
+        credential_id: permission.credential_id,
         operation_type: 'share',
         operation_details: {
           action: `Updated sharing permission`,
@@ -110,7 +114,7 @@ class PrivacyControlService {
         }
       });
 
-      return data;
+      return permission;
     } catch (error) {
       console.error('Error updating sharing permission:', error);
       throw error;
@@ -151,7 +155,7 @@ class PrivacyControlService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CredentialSharingPermission[];
   }
 
   async getUserSharingPermissions(userId: string): Promise<CredentialSharingPermission[]> {
@@ -163,7 +167,7 @@ class PrivacyControlService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CredentialSharingPermission[];
   }
 
   async validateSharingAccess(
@@ -182,19 +186,21 @@ class PrivacyControlService {
         return { hasAccess: false };
       }
 
+      const typedPermission = permission as CredentialSharingPermission;
+
       // Check expiration
-      if (permission.expires_at && new Date(permission.expires_at) < new Date()) {
+      if (typedPermission.expires_at && new Date(typedPermission.expires_at) < new Date()) {
         return { hasAccess: false };
       }
 
       // Check access count limit
-      if (permission.max_access_count && permission.access_count >= permission.max_access_count) {
+      if (typedPermission.max_access_count && typedPermission.access_count >= typedPermission.max_access_count) {
         return { hasAccess: false };
       }
 
       // Check field access
       const hasFieldAccess = requestedFields.every(field => 
-        permission.fields_accessible.includes(field) || permission.fields_accessible.includes('*')
+        typedPermission.fields_accessible.includes(field) || typedPermission.fields_accessible.includes('*')
       );
 
       if (!hasFieldAccess) {
@@ -204,10 +210,10 @@ class PrivacyControlService {
       // Increment access count
       await supabase
         .from('credential_sharing_permissions')
-        .update({ access_count: permission.access_count + 1 })
-        .eq('id', permission.id);
+        .update({ access_count: typedPermission.access_count + 1 })
+        .eq('id', typedPermission.id);
 
-      return { hasAccess: true, permission };
+      return { hasAccess: true, permission: typedPermission };
     } catch (error) {
       console.error('Error validating sharing access:', error);
       return { hasAccess: false };

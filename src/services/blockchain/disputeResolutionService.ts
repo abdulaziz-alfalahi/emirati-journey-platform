@@ -50,6 +50,9 @@ class DisputeResolutionService {
 
       if (error) throw error;
 
+      // Type assertion to ensure proper typing
+      const dispute = data as CredentialDispute;
+
       // Log the dispute filing
       await auditLogger.logOperation({
         user_id: disputedBy,
@@ -59,16 +62,16 @@ class DisputeResolutionService {
           action: `Filed dispute`,
           metadata: {
             dispute_type: request.disputeType,
-            dispute_id: data.id
+            dispute_id: dispute.id
           },
           result: 'success'
         }
       });
 
       // Create smart contract dispute if available
-      await this.createSmartContractDispute(data.id, request);
+      await this.createSmartContractDispute(dispute.id, request);
 
-      return data;
+      return dispute;
     } catch (error) {
       console.error('Error filing dispute:', error);
       throw error;
@@ -120,6 +123,8 @@ class DisputeResolutionService {
 
       if (error) throw error;
 
+      const dispute = data as CredentialDispute;
+
       await auditLogger.logOperation({
         user_id: assignedBy,
         operation_type: 'revoke',
@@ -133,7 +138,7 @@ class DisputeResolutionService {
         }
       });
 
-      return data;
+      return dispute;
     } catch (error) {
       console.error('Error assigning dispute:', error);
       throw error;
@@ -160,14 +165,16 @@ class DisputeResolutionService {
 
       if (error) throw error;
 
+      const dispute = data as CredentialDispute;
+
       // Execute resolution action if needed
       if (resolution.actionTaken === 'revoke_credential') {
-        await this.revokeCredentialFromDispute(data.credential_id, resolvedBy);
+        await this.revokeCredentialFromDispute(dispute.credential_id, resolvedBy);
       }
 
       await auditLogger.logOperation({
         user_id: resolvedBy,
-        credential_id: data.credential_id,
+        credential_id: dispute.credential_id,
         operation_type: 'revoke',
         operation_details: {
           action: `Resolved dispute`,
@@ -180,7 +187,7 @@ class DisputeResolutionService {
         }
       });
 
-      return data;
+      return dispute;
     } catch (error) {
       console.error('Error resolving dispute:', error);
       throw error;
@@ -207,7 +214,7 @@ class DisputeResolutionService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CredentialDispute[];
   }
 
   async getAssignedDisputes(reviewerId: string): Promise<CredentialDispute[]> {
@@ -218,7 +225,7 @@ class DisputeResolutionService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CredentialDispute[];
   }
 
   async getAllDisputes(): Promise<CredentialDispute[]> {
@@ -228,7 +235,7 @@ class DisputeResolutionService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CredentialDispute[];
   }
 
   async getDisputeById(disputeId: string): Promise<CredentialDispute | null> {
@@ -239,7 +246,7 @@ class DisputeResolutionService {
       .single();
 
     if (error) return null;
-    return data;
+    return data as CredentialDispute;
   }
 }
 
