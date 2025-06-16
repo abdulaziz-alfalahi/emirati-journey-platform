@@ -30,19 +30,32 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
 
   const setLanguage = async (newLanguage: Language) => {
     console.log('Changing language to:', newLanguage);
+    console.log('Current i18n language:', i18n.language);
+    console.log('i18n isInitialized:', i18n.isInitialized);
+    
     setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
     
     // Change language in i18n
     try {
       await i18n.changeLanguage(newLanguage);
-      console.log('Language changed successfully in i18n');
+      console.log('Language changed successfully in i18n to:', i18n.language);
+      
+      // Force a re-render by triggering a storage event
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'language',
+        newValue: newLanguage,
+        oldValue: language
+      }));
     } catch (error) {
       console.error('Failed to change language in i18n:', error);
     }
   };
 
   useEffect(() => {
+    console.log('Language effect triggered:', language);
+    console.log('i18n current language:', i18n.language);
+    
     // Update document direction and language
     document.documentElement.dir = direction;
     document.documentElement.lang = language;
@@ -51,14 +64,21 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     document.documentElement.style.setProperty('--text-direction', direction);
     
     // Set initial language in i18n
-    if (i18n.isInitialized) {
-      i18n.changeLanguage(language);
-    } else {
-      // Wait for i18n to initialize
-      i18n.on('initialized', () => {
-        i18n.changeLanguage(language);
-      });
-    }
+    const changeLanguage = async () => {
+      if (i18n.isInitialized) {
+        console.log('i18n is initialized, changing language to:', language);
+        await i18n.changeLanguage(language);
+      } else {
+        console.log('i18n not initialized, waiting...');
+        // Wait for i18n to initialize
+        i18n.on('initialized', async () => {
+          console.log('i18n initialized, changing language to:', language);
+          await i18n.changeLanguage(language);
+        });
+      }
+    };
+    
+    changeLanguage();
   }, [language, direction]);
 
   const value: LanguageContextType = {

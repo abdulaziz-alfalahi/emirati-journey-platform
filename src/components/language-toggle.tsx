@@ -14,11 +14,22 @@ import {
 
 export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
 
-  const handleLanguageChange = (newLanguage: 'en' | 'ar') => {
+  console.log('LanguageToggle render - current language:', language);
+  console.log('LanguageToggle render - i18n language:', i18n.language);
+  console.log('LanguageToggle render - toggle language text:', t('toggleLanguage'));
+
+  const handleLanguageChange = async (newLanguage: 'en' | 'ar') => {
     console.log('Language toggle clicked:', newLanguage);
-    setLanguage(newLanguage);
+    console.log('Before change - i18n language:', i18n.language);
+    
+    await setLanguage(newLanguage);
+    
+    // Force component re-render by waiting a bit
+    setTimeout(() => {
+      console.log('After change - i18n language:', i18n.language);
+    }, 100);
   };
 
   return (
