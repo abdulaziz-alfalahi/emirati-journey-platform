@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import i18n from '../lib/i18n';
 
 type Language = 'en' | 'ar';
 type Direction = 'ltr' | 'rtl';
@@ -19,7 +20,6 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
-  const { i18n } = useTranslation();
   const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem('language');
     return (stored as Language) || defaultLanguage;
@@ -31,7 +31,11 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
-    i18n.changeLanguage(newLanguage);
+    
+    // Safely change language only if i18n is initialized
+    if (i18n && i18n.changeLanguage) {
+      i18n.changeLanguage(newLanguage);
+    }
   };
 
   useEffect(() => {
@@ -42,9 +46,11 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     // Update CSS custom property for direction-aware styles
     document.documentElement.style.setProperty('--text-direction', direction);
     
-    // Set initial language in i18n
-    i18n.changeLanguage(language);
-  }, [language, direction, i18n]);
+    // Safely set initial language in i18n only if it's initialized
+    if (i18n && i18n.changeLanguage) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, direction]);
 
   const value: LanguageContextType = {
     language,
