@@ -49,9 +49,9 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
             </a>
           </div>
 
-          {/* Right: Empty space (AccessibilityToolbar removed to prevent duplication) */}
+          {/* Right: Empty space for balance */}
           <div className="flex items-center">
-            {/* Accessibility toolbar removed - it's already in DubaiGovHeader */}
+            {/* Language toggle removed - now available in mobile menu */}
           </div>
         </div>
       </header>
