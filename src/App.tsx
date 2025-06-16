@@ -1,5 +1,5 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, startTransition } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
@@ -62,73 +62,82 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Higher-order component to wrap routes with Suspense
+const SuspenseRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingFallback />}>
+    {children}
+  </Suspense>
+);
+
 function App() {
   return (
     <AuthProvider>
       <RoleProvider>
-        <Router>
-          <PhaseProvider>
-            <PersonalizationProvider>
-              <div className="min-h-screen bg-background">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/home" element={<HomePage />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/notifications" element={<NotificationsPage />} />
-                  <Route path="/messages" element={<MessagesPage />} />
-                  <Route path="/national-service" element={<NationalServicePage />} />
-                  <Route path="/youth-development" element={<YouthDevelopmentPage />} />
-                  <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
-                  <Route path="/digital-skills-development" element={<DigitalSkillsDevelopmentPage />} />
-                  <Route path="/assessments" element={<AssessmentsPage />} />
-                  <Route path="/blockchain-credentials" element={<BlockchainCredentialsPage />} />
-                  <Route path="/communities" element={<CommunitiesPage />} />
-                  <Route path="/mentorship" element={<MentorshipPage />} />
-                  <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
-                  {/* Redirect for old URL */}
-                  <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
-                  
-                  {/* Admin Routes */}
-                  <Route path="/admin/user-roles" element={<UserRolesAdminPage />} />
-                  <Route path="/admin/content-management" element={<ContentManagementPage />} />
-                  
-                  {/* Education Pathway routes */}
-                  <Route path="/summer-camps" element={<SummerCampsPage />} />
-                  <Route path="/school-programs" element={<SchoolProgramsPage />} />
-                  <Route path="/scholarships" element={<ScholarshipsPage />} />
-                  <Route path="/university-programs" element={<UniversityProgramsPage />} />
-                  <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
-                  <Route path="/lms" element={<LMSPage />} />
-                  <Route path="/training" element={<TrainingPage />} />
-                  
-                  {/* Career Entry routes */}
-                  <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
-                  <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
-                  <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
-                  <Route path="/internships" element={<InternshipsPage />} />
-                  <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-                  <Route path="/portfolio" element={<PortfolioPage />} />
-                  <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
-                  <Route path="/job-matching" element={<JobMatchingPage />} />
-                  
-                  {/* Legacy redirects to unified Career Planning Hub */}
-                  <Route path="/career-journey" element={<Navigate to="/career-planning-hub" replace />} />
-                  <Route path="/career-comparison" element={<Navigate to="/career-planning-hub" replace />} />
-                  <Route path="/salary-explorer" element={<SalaryExplorerPage />} />
-                  <Route path="/financial-planning" element={<FinancialPlanningPage />} />
-                  <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
-                  <Route path="/retiree" element={<RetireeServicesPage />} />
-                  <Route path="/mentor-matching" element={<MentorMatchingPage />} />
-                  <Route path="/design-system" element={<DesignSystemPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/business-intelligence" element={<BusinessIntelligencePage />} />
-                </Routes>
-              </div>
-            </PersonalizationProvider>
-          </PhaseProvider>
-        </Router>
+        <QueryProvider>
+          <Router>
+            <PhaseProvider>
+              <PersonalizationProvider>
+                <div className="min-h-screen bg-background">
+                  <Routes>
+                    <Route path="/" element={<SuspenseRoute><HomePage /></SuspenseRoute>} />
+                    <Route path="/home" element={<SuspenseRoute><HomePage /></SuspenseRoute>} />
+                    <Route path="/auth" element={<SuspenseRoute><AuthPage /></SuspenseRoute>} />
+                    <Route path="/dashboard" element={<SuspenseRoute><DashboardPage /></SuspenseRoute>} />
+                    <Route path="/profile" element={<SuspenseRoute><ProfilePage /></SuspenseRoute>} />
+                    <Route path="/notifications" element={<SuspenseRoute><NotificationsPage /></SuspenseRoute>} />
+                    <Route path="/messages" element={<SuspenseRoute><MessagesPage /></SuspenseRoute>} />
+                    <Route path="/national-service" element={<SuspenseRoute><NationalServicePage /></SuspenseRoute>} />
+                    <Route path="/youth-development" element={<SuspenseRoute><YouthDevelopmentPage /></SuspenseRoute>} />
+                    <Route path="/professional-certifications" element={<SuspenseRoute><ProfessionalCertificationsPage /></SuspenseRoute>} />
+                    <Route path="/digital-skills-development" element={<SuspenseRoute><DigitalSkillsDevelopmentPage /></SuspenseRoute>} />
+                    <Route path="/assessments" element={<SuspenseRoute><AssessmentsPage /></SuspenseRoute>} />
+                    <Route path="/blockchain-credentials" element={<SuspenseRoute><BlockchainCredentialsPage /></SuspenseRoute>} />
+                    <Route path="/communities" element={<SuspenseRoute><CommunitiesPage /></SuspenseRoute>} />
+                    <Route path="/mentorship" element={<SuspenseRoute><MentorshipPage /></SuspenseRoute>} />
+                    <Route path="/share-success-stories" element={<SuspenseRoute><ShareSuccessStoriesPage /></SuspenseRoute>} />
+                    {/* Redirect for old URL */}
+                    <Route path="/success-stories" element={<Navigate to="/share-success-stories" replace />} />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin/user-roles" element={<SuspenseRoute><UserRolesAdminPage /></SuspenseRoute>} />
+                    <Route path="/admin/content-management" element={<SuspenseRoute><ContentManagementPage /></SuspenseRoute>} />
+                    
+                    {/* Education Pathway routes */}
+                    <Route path="/summer-camps" element={<SuspenseRoute><SummerCampsPage /></SuspenseRoute>} />
+                    <Route path="/school-programs" element={<SuspenseRoute><SchoolProgramsPage /></SuspenseRoute>} />
+                    <Route path="/scholarships" element={<SuspenseRoute><ScholarshipsPage /></SuspenseRoute>} />
+                    <Route path="/university-programs" element={<SuspenseRoute><UniversityProgramsPage /></SuspenseRoute>} />
+                    <Route path="/graduate-programs" element={<SuspenseRoute><GraduateProgramsPage /></SuspenseRoute>} />
+                    <Route path="/lms" element={<SuspenseRoute><LMSPage /></SuspenseRoute>} />
+                    <Route path="/training" element={<SuspenseRoute><TrainingPage /></SuspenseRoute>} />
+                    
+                    {/* Career Entry routes */}
+                    <Route path="/career-planning-hub" element={<SuspenseRoute><CareerPlanningHubPage /></SuspenseRoute>} />
+                    <Route path="/career-advisory" element={<SuspenseRoute><CareerAdvisoryPage /></SuspenseRoute>} />
+                    <Route path="/industry-exploration" element={<SuspenseRoute><IndustryExplorationPage /></SuspenseRoute>} />
+                    <Route path="/internships" element={<SuspenseRoute><InternshipsPage /></SuspenseRoute>} />
+                    <Route path="/resume-builder" element={<SuspenseRoute><ResumeBuilderPage /></SuspenseRoute>} />
+                    <Route path="/portfolio" element={<SuspenseRoute><PortfolioPage /></SuspenseRoute>} />
+                    <Route path="/interview-preparation" element={<SuspenseRoute><InterviewPreparationPage /></SuspenseRoute>} />
+                    <Route path="/job-matching" element={<SuspenseRoute><JobMatchingPage /></SuspenseRoute>} />
+                    
+                    {/* Legacy redirects to unified Career Planning Hub */}
+                    <Route path="/career-journey" element={<Navigate to="/career-planning-hub" replace />} />
+                    <Route path="/career-comparison" element={<Navigate to="/career-planning-hub" replace />} />
+                    <Route path="/salary-explorer" element={<SuspenseRoute><SalaryExplorerPage /></SuspenseRoute>} />
+                    <Route path="/financial-planning" element={<SuspenseRoute><FinancialPlanningPage /></SuspenseRoute>} />
+                    <Route path="/thought-leadership" element={<SuspenseRoute><ThoughtLeadershipPage /></SuspenseRoute>} />
+                    <Route path="/retiree" element={<SuspenseRoute><RetireeServicesPage /></SuspenseRoute>} />
+                    <Route path="/mentor-matching" element={<SuspenseRoute><MentorMatchingPage /></SuspenseRoute>} />
+                    <Route path="/design-system" element={<SuspenseRoute><DesignSystemPage /></SuspenseRoute>} />
+                    <Route path="/analytics" element={<SuspenseRoute><AnalyticsPage /></SuspenseRoute>} />
+                    <Route path="/business-intelligence" element={<BusinessIntelligencePage />} />
+                  </Routes>
+                </div>
+              </PersonalizationProvider>
+            </PhaseProvider>
+          </Router>
+        </QueryProvider>
       </RoleProvider>
     </AuthProvider>
   );
