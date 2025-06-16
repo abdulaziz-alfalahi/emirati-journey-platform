@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';

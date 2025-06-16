@@ -1,3 +1,4 @@
+
 export type MFAFactor = {
   id: string;
   factor_type: 'totp' | 'phone';
