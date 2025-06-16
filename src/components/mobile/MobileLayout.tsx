@@ -50,8 +50,8 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
           </div>
 
           {/* Right: Empty space for balance */}
-          <div className="flex items-center">
-            {/* Language toggle removed - now available in mobile menu */}
+          <div className="w-10">
+            {/* Empty space to balance the mobile menu button on the left */}
           </div>
         </div>
       </header>
