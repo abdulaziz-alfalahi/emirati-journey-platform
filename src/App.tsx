@@ -1,8 +1,9 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoleProvider } from '@/context/RoleContext';
-import { QueryProvider } from '@/context/QueryContext';
+import { QueryProvider } from '@/context/QueryProvider';
 import { PhaseProvider } from '@/context/PhaseContext';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { PersonalizationProvider } from '@/context/PersonalizationContext';
@@ -65,10 +66,10 @@ function App() {
   return (
     <AuthProvider>
       <RoleProvider>
-        <PhaseProvider>
-          <PersonalizationProvider>
-            <div className="min-h-screen bg-background">
-              <Router>
+        <Router>
+          <PhaseProvider>
+            <PersonalizationProvider>
+              <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/home" element={<HomePage />} />
@@ -124,10 +125,10 @@ function App() {
                   <Route path="/analytics" element={<AnalyticsPage />} />
                   <Route path="/business-intelligence" element={<BusinessIntelligencePage />} />
                 </Routes>
-              </Router>
-            </div>
-          </PersonalizationProvider>
-        </PhaseProvider>
+              </div>
+            </PersonalizationProvider>
+          </PhaseProvider>
+        </Router>
       </RoleProvider>
     </AuthProvider>
   );
