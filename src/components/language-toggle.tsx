@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Languages } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -15,6 +16,11 @@ export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation('common');
 
+  const handleLanguageChange = (newLanguage: 'en' | 'ar') => {
+    console.log('Language toggle clicked:', newLanguage);
+    setLanguage(newLanguage);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,18 +31,20 @@ export function LanguageToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-background border-border">
         <DropdownMenuItem 
-          onClick={() => setLanguage("en")}
+          onClick={() => handleLanguageChange("en")}
           className={`cursor-pointer flex items-center gap-2 ${language === 'en' ? 'bg-accent' : ''}`}
         >
           <span className="text-base">🇺🇸</span>
           <span>English</span>
+          {language === 'en' && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => setLanguage("ar")}
+          onClick={() => handleLanguageChange("ar")}
           className={`cursor-pointer flex items-center gap-2 ${language === 'ar' ? 'bg-accent' : ''}`}
         >
           <span className="text-base">🇦🇪</span>
           <span>العربية</span>
+          {language === 'ar' && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

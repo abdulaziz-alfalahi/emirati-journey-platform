@@ -28,13 +28,17 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
   const direction: Direction = language === 'ar' ? 'rtl' : 'ltr';
   const isRTL = direction === 'rtl';
 
-  const setLanguage = (newLanguage: Language) => {
+  const setLanguage = async (newLanguage: Language) => {
+    console.log('Changing language to:', newLanguage);
     setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
     
-    // Safely change language only if i18n is initialized
-    if (i18n && i18n.changeLanguage) {
-      i18n.changeLanguage(newLanguage);
+    // Change language in i18n
+    try {
+      await i18n.changeLanguage(newLanguage);
+      console.log('Language changed successfully in i18n');
+    } catch (error) {
+      console.error('Failed to change language in i18n:', error);
     }
   };
 
@@ -46,9 +50,14 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     // Update CSS custom property for direction-aware styles
     document.documentElement.style.setProperty('--text-direction', direction);
     
-    // Safely set initial language in i18n only if it's initialized
-    if (i18n && i18n.changeLanguage) {
+    // Set initial language in i18n
+    if (i18n.isInitialized) {
       i18n.changeLanguage(language);
+    } else {
+      // Wait for i18n to initialize
+      i18n.on('initialized', () => {
+        i18n.changeLanguage(language);
+      });
     }
   }, [language, direction]);
 
