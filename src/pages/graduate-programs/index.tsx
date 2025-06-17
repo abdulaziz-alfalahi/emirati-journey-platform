@@ -44,26 +44,26 @@ const GraduateProgramsPage: React.FC = () => {
 
   const stats = [
     {
-      title: 'Available Programs',
       value: '150+',
+      label: 'Available Programs',
       description: 'Graduate programs across UAE universities',
       icon: GraduationCap,
     },
     {
-      title: 'Partner Universities',
       value: '25+',
+      label: 'Partner Universities',
       description: 'Leading educational institutions',
       icon: Award,
     },
     {
-      title: 'Success Rate',
       value: '85%',
+      label: 'Success Rate',
       description: 'Students completing their programs',
       icon: TrendingUp,
     },
     {
-      title: 'Alumni Network',
       value: '10K+',
+      label: 'Alumni Network',
       description: 'Graduate program alumni',
       icon: Users,
     },
