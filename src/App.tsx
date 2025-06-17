@@ -41,6 +41,9 @@ const InternshipsPage = React.lazy(() => import('@/pages/internships/index'));
 // Business Development page
 const BusinessDevelopmentPage = React.lazy(() => import('@/pages/business-development/index'));
 
+// Portfolio page
+const PortfolioPage = React.lazy(() => import('@/pages/portfolio/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -100,6 +103,9 @@ function App() {
             
             {/* Business Development Route */}
             <Route path="/business-development" element={<BusinessDevelopmentPage />} />
+            
+            {/* Portfolio Route */}
+            <Route path="/portfolio" element={<PortfolioPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
