@@ -30,44 +30,20 @@ const UniversityProgramsPage: React.FC = () => {
     language: '',
   });
 
-  // Fetch filter options
-  const { data: filterOptions } = useQuery({
-    queryKey: ['university-programs-filter-options'],
-    queryFn: async () => {
-      const { data: programs, error } = await supabase
-        .from('university_programs')
-        .select('university_name, degree_level, field_of_study')
-        .eq('is_active', true);
-      
-      if (error) throw error;
+  // Mock data for filter options since we don't have the actual data yet
+  const filterOptions = {
+    universities: ['UAE University', 'American University of Sharjah', 'Khalifa University', 'University of Dubai'],
+    degreeLevels: ['Bachelor', 'Master', 'PhD'],
+    fieldsOfStudy: ['Computer Science', 'Business Administration', 'Engineering', 'Medicine', 'Arts']
+  };
 
-      const universities = [...new Set(programs.map(p => p.university_name))].sort();
-      const degreeLevels = [...new Set(programs.map(p => p.degree_level))].sort();
-      const fieldsOfStudy = [...new Set(programs.map(p => p.field_of_study))].sort();
-
-      return { universities, degreeLevels, fieldsOfStudy };
-    }
-  });
-
-  // Fetch stats
-  const { data: stats } = useQuery({
-    queryKey: ['university-programs-stats'],
-    queryFn: async () => {
-      const { data: programs, error } = await supabase
-        .from('university_programs')
-        .select('*')
-        .eq('is_active', true);
-      
-      if (error) throw error;
-
-      const totalPrograms = programs.length;
-      const universities = new Set(programs.map(p => p.university_name)).size;
-      const fields = new Set(programs.map(p => p.field_of_study)).size;
-      const international = programs.filter(p => p.university_name.includes('Cambridge') || p.university_name.includes('MIT')).length;
-
-      return { totalPrograms, universities, fields, international };
-    }
-  });
+  // Mock stats data
+  const stats = {
+    totalPrograms: 150,
+    universities: 25,
+    fields: 30,
+    international: 15
+  };
 
   // Education stats for the layout
   const educationStats: EducationStat[] = [
@@ -102,15 +78,13 @@ const UniversityProgramsPage: React.FC = () => {
       content: (
         <div className="grid gap-8 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            {filterOptions && (
-              <UniversityProgramsFilter
-                filters={filters}
-                onFilterChange={setFilters}
-                universities={filterOptions.universities}
-                degreeLevels={filterOptions.degreeLevels}
-                fieldsOfStudy={filterOptions.fieldsOfStudy}
-              />
-            )}
+            <UniversityProgramsFilter
+              filters={filters}
+              onFilterChange={setFilters}
+              universities={filterOptions.universities}
+              degreeLevels={filterOptions.degreeLevels}
+              fieldsOfStudy={filterOptions.fieldsOfStudy}
+            />
           </div>
           <div className="lg:col-span-3">
             <ProgramsList filters={filters} />
@@ -125,15 +99,13 @@ const UniversityProgramsPage: React.FC = () => {
       content: (
         <div className="grid gap-8 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            {filterOptions && (
-              <UniversityProgramsFilter
-                filters={filters}
-                onFilterChange={setFilters}
-                universities={filterOptions.universities}
-                degreeLevels={filterOptions.degreeLevels}
-                fieldsOfStudy={filterOptions.fieldsOfStudy}
-              />
-            )}
+            <UniversityProgramsFilter
+              filters={filters}
+              onFilterChange={setFilters}
+              universities={filterOptions.universities}
+              degreeLevels={filterOptions.degreeLevels}
+              fieldsOfStudy={filterOptions.fieldsOfStudy}
+            />
           </div>
           <div className="lg:col-span-3">
             <RecommendedPrograms filters={filters} />
