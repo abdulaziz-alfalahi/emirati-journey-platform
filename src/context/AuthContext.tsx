@@ -9,7 +9,7 @@ interface User {
   app_metadata: any;
   user_metadata: any;
   aud: string;
-  created_at?: string;
+  created_at: string;
 }
 
 interface AuthContextType {
@@ -52,7 +52,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name: 'Demo User',
         created_at: new Date().toISOString(),
         app_metadata: {},
-        user_metadata: {}
+        user_metadata: {},
+        aud: 'authenticated'
       });
     } finally {
       setIsLoading(false);
@@ -70,7 +71,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         name,
         created_at: new Date().toISOString(),
         app_metadata: {},
-        user_metadata: {}
+        user_metadata: {},
+        aud: 'authenticated'
       });
     } finally {
       setIsLoading(false);
