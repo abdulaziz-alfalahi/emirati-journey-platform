@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import MobileLayout from '@/components/mobile/MobileLayout';
-import { useMobileDetection } from '@/hooks/use-mobile-detection';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,8 +40,6 @@ interface CareerPageLayoutProps {
   // Tabs props
   tabs: TabItem[];
   defaultTab: string;
-  
-  // Optional gradient override - removed to ensure consistency
 }
 
 export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
@@ -61,7 +59,7 @@ export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
   tabs,
   defaultTab
 }) => {
-  const { isMobile, isCapacitor } = useMobileDetection();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Use consistent gradient for all Career Entry pages
@@ -139,7 +137,7 @@ export const CareerPageLayout: React.FC<CareerPageLayoutProps> = ({
     </div>
   );
 
-  if (isMobile || isCapacitor) {
+  if (isMobile) {
     return <MobileLayout>{content}</MobileLayout>;
   }
 
