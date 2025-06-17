@@ -1,5 +1,5 @@
 
-export type SummerCamp = {
+export interface SummerCamp {
   id: string;
   title: string;
   organizer: string;
@@ -11,33 +11,32 @@ export type SummerCamp = {
   duration: string;
   location: string;
   capacity: number;
-  max_participants?: number; // Make optional since it might not exist in DB
   enrolled: number;
   price: number;
   image_url: string;
   tags: string[];
-  registration_deadline?: string; // Make optional since it might not exist in DB
-  rating?: number;
+  rating: number;
   created_at: string;
   updated_at: string | null;
   created_by?: string;
-};
+}
 
-export type CampEnrollment = {
+export interface CampEnrollment {
   id: string;
   camp_id: string;
   user_id: string;
-  status: 'confirmed' | 'cancelled' | 'waiting_list';
+  status: 'pending' | 'confirmed' | 'cancelled';
   payment_status: 'pending' | 'paid' | 'refunded';
   enrolled_at: string;
   updated_at: string | null;
-  // Joined data
-  camp?: SummerCamp;
-};
+  camp: SummerCamp;
+}
 
-export type CampFilters = {
+export interface CampFilters {
   category?: string[];
   ageGroup?: string[];
-  location?: string[];
   searchQuery?: string;
-};
+  location?: string;
+  priceRange?: [number, number];
+  dateRange?: [string, string];
+}

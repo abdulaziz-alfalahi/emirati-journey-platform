@@ -8,20 +8,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AccessibilityEnhancedLayout } from '@/components/accessibility/AccessibilityEnhancedLayout';
 import { Button } from '@/components/ui/button';
 
-interface TabItem {
+export interface TabItem {
   id: string;
   label: string;
   icon: React.ReactNode;
   content: React.ReactNode;
 }
 
-interface Stat {
+export interface Stat {
   value: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
-interface EducationPathwayLayoutProps {
+export interface EducationPathwayLayoutProps {
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -30,6 +30,45 @@ interface EducationPathwayLayoutProps {
   defaultTab: string;
   actionButtonText?: string;
   actionButtonHref?: string;
+}
+
+// Type aliases for backward compatibility
+export type EducationStat = Stat;
+export type EducationTab = TabItem;
+
+export interface AcademicProgress {
+  courseId: string;
+  courseName: string;
+  progress: number;
+  totalModules: number;
+  completedModules: number;
+  status: 'active' | 'completed' | 'paused';
+  nextDeadline?: Date;
+}
+
+export interface AcademicAnnouncement {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  date: Date;
+  urgent: boolean;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  dateEarned: Date;
+  category: 'academic' | 'social' | 'leadership' | 'service';
+}
+
+export interface InstitutionalBranding {
+  institutionName: string;
+  primaryColor: string;
+  secondaryColor: string;
+  logoUrl?: string;
 }
 
 export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
@@ -182,3 +221,5 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
 
   return <Layout>{enhancedContent}</Layout>;
 };
+
+export default EducationPathwayLayout;
