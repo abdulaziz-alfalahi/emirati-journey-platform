@@ -8,7 +8,7 @@ interface User {
   name: string;
   app_metadata: any;
   user_metadata: any;
-  aud?: string;
+  aud: string;
   created_at?: string;
 }
 
