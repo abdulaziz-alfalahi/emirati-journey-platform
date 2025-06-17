@@ -1,13 +1,6 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import React from 'react';
-
-// Ensure React is globally available FIRST
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-}
-
 import App from './App.tsx';
 import './index.css';
 import './lib/i18n'; // Initialize i18n

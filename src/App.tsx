@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 const HomePage = React.lazy(() => import('@/pages/home/index'));
 const DashboardPage = React.lazy(() => import('@/pages/dashboard/index'));
 const AuthPage = React.lazy(() => import('@/pages/auth/index'));
-const NotFoundPage = React.lazy(() => import('@/pages/NotFound'));
+const NotFoundPage = React.lazy(() => import('@/pages/not-found'));
 
 // Education Pathway pages
 const SummerCampsPage = React.lazy(() => import('@/pages/summer-camps/index'));

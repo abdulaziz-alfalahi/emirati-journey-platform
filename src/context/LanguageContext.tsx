@@ -2,11 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import i18n from '../lib/i18n';
 
-// Ensure React is available
-if (typeof window !== 'undefined' && !(window as any).React) {
-  (window as any).React = React;
-}
-
 type Language = 'en' | 'ar';
 type Direction = 'ltr' | 'rtl';
 
