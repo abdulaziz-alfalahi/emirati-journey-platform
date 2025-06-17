@@ -1,5 +1,12 @@
 
-import type { Course, CourseFilters, CourseEnrollment } from '@/types/lms';
+import type { Course, CourseEnrollment } from '@/types/lms';
+
+// CourseFilters interface for filtering courses
+export interface CourseFilters {
+  status?: string;
+  category?: string;
+  difficulty_level?: string;
+}
 
 // Mock implementation of LMS service
 export const lmsService = {
@@ -104,30 +111,3 @@ export const lmsService = {
     ];
   }
 };
-
-// Export interfaces for compatibility
-export interface Course {
-  id: string;
-  title: string;
-  description?: string;
-  instructor_id: string;
-  category: string;
-  difficulty_level: string;
-  duration_hours?: number;
-  price: number;
-  currency: string;
-  thumbnail_url?: string;
-  status: string;
-  is_featured: boolean;
-  prerequisites: string[];
-  learning_objectives: string[];
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CourseFilters {
-  status?: string;
-  category?: string;
-  difficulty_level?: string;
-}
