@@ -35,6 +35,12 @@ const CVBuilderPage = React.lazy(() => import('@/pages/cv-builder/index'));
 // Interview Preparation page
 const InterviewPreparationPage = React.lazy(() => import('@/pages/interview-preparation/index'));
 
+// Internships page
+const InternshipsPage = React.lazy(() => import('@/pages/internships/index'));
+
+// Business Development page
+const BusinessDevelopmentPage = React.lazy(() => import('@/pages/business-development/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -88,6 +94,12 @@ function App() {
             
             {/* Interview Preparation Route */}
             <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
+            
+            {/* Internships Route */}
+            <Route path="/internships" element={<InternshipsPage />} />
+            
+            {/* Business Development Route */}
+            <Route path="/business-development" element={<BusinessDevelopmentPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
