@@ -26,6 +26,12 @@ const IndustryExplorationPage = React.lazy(() => import('@/pages/industry-explor
 // Job Matching page
 const JobMatchingPage = React.lazy(() => import('@/pages/job-matching/index'));
 
+// Resume Builder page
+const ResumeBuilderPage = React.lazy(() => import('@/pages/resume-builder/index'));
+
+// CV Builder page
+const CVBuilderPage = React.lazy(() => import('@/pages/cv-builder/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -70,6 +76,12 @@ function App() {
             
             {/* Job Matching Route */}
             <Route path="/job-matching" element={<JobMatchingPage />} />
+            
+            {/* Resume Builder Route */}
+            <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+            
+            {/* CV Builder Route */}
+            <Route path="/cv-builder" element={<CVBuilderPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
