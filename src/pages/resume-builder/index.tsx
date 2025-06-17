@@ -16,19 +16,19 @@ const ResumeBuilderPage: React.FC = () => {
       id: 'classic',
       name: 'Classic',
       description: 'A clean, professional resume template',
-      preview: '/lovable-uploads/template-classic.png'
+      sections: ['personal', 'summary', 'experience', 'education', 'skills']
     },
     {
       id: 'modern',
       name: 'Modern',
       description: 'A contemporary design with subtle colors',
-      preview: '/lovable-uploads/template-modern.png'
+      sections: ['personal', 'summary', 'experience', 'education', 'skills', 'languages']
     },
     {
       id: 'creative',
       name: 'Creative',
       description: 'Perfect for creative professionals',
-      preview: '/lovable-uploads/template-creative.png'
+      sections: ['personal', 'summary', 'experience', 'education', 'skills', 'projects']
     }
   ];
 
