@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AccessibilityPreferences } from '@/types/accessibility';
 import { useAuth } from '@/context/AuthContext';
 
