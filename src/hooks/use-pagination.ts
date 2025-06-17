@@ -1,47 +1,51 @@
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 
 export interface PaginationConfig {
-  initialPage?: number;
   pageSize?: number;
+  initialPage?: number;
 }
 
-export interface PaginationState {
+export interface PaginationReturn {
   currentPage: number;
   pageSize: number;
-  offset: number;
   setCurrentPage: (page: number) => void;
-  nextPage: () => void;
-  previousPage: () => void;
+  setPageSize: (size: number) => void;
   getTotalPages: (totalCount: number) => number;
   hasNextPage: (totalCount: number) => boolean;
   hasPreviousPage: () => boolean;
+  getOffset: () => number;
 }
 
-export const usePagination = ({ 
-  initialPage = 1, 
-  pageSize = 20 
-}: PaginationConfig = {}): PaginationState => {
+export const usePagination = (config: PaginationConfig = {}): PaginationReturn => {
+  const { pageSize: initialPageSize = 10, initialPage = 1 } = config;
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
-  const offset = useMemo(() => (currentPage - 1) * pageSize, [currentPage, pageSize]);
+  const getTotalPages = (totalCount: number) => {
+    return Math.ceil(totalCount / pageSize);
+  };
 
-  const nextPage = () => setCurrentPage(prev => prev + 1);
-  const previousPage = () => setCurrentPage(prev => Math.max(1, prev - 1));
+  const hasNextPage = (totalCount: number) => {
+    return currentPage < getTotalPages(totalCount);
+  };
 
-  const getTotalPages = (totalCount: number) => Math.ceil(totalCount / pageSize);
-  const hasNextPage = (totalCount: number) => currentPage < getTotalPages(totalCount);
-  const hasPreviousPage = () => currentPage > 1;
+  const hasPreviousPage = () => {
+    return currentPage > 1;
+  };
+
+  const getOffset = () => {
+    return (currentPage - 1) * pageSize;
+  };
 
   return {
     currentPage,
     pageSize,
-    offset,
     setCurrentPage,
-    nextPage,
-    previousPage,
+    setPageSize,
     getTotalPages,
     hasNextPage,
-    hasPreviousPage
+    hasPreviousPage,
+    getOffset
   };
 };
