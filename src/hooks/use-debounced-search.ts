@@ -7,11 +7,13 @@ export const useDebouncedFilters = <T extends Record<string, any>>(
   onFiltersChange: (filters: T) => void
 ) => {
   const [debouncedFilters, setDebouncedFilters] = useState<T>(initialFilters);
+  const [isUpdating, setIsUpdating] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   const batchUpdateFilters = useCallback((updates: Partial<T>) => {
     const newFilters = { ...debouncedFilters, ...updates };
     setDebouncedFilters(newFilters);
+    setIsUpdating(true);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -19,11 +21,13 @@ export const useDebouncedFilters = <T extends Record<string, any>>(
 
     timeoutRef.current = setTimeout(() => {
       onFiltersChange(newFilters);
+      setIsUpdating(false);
     }, delay);
   }, [debouncedFilters, delay, onFiltersChange]);
 
   return {
     debouncedFilters,
-    batchUpdateFilters
+    batchUpdateFilters,
+    isUpdating
   };
 };

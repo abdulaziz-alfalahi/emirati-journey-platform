@@ -15,4 +15,6 @@ export const toast = ({ title, description, variant = 'default' }: ToastProps) =
   }
 };
 
-export { toast as useToast };
+export const useToast = () => {
+  return { toast };
+};
