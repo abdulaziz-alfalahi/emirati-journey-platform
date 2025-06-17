@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole } from '@/types/auth';
 
+export { UserRole } from '@/types/auth';
+
 interface User {
   id: string;
   email: string;

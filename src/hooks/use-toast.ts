@@ -6,6 +6,8 @@ interface ToastProps {
   title: string;
   description?: string;
   variant?: 'default' | 'destructive';
+  duration?: number;
+  action?: React.ReactNode;
 }
 
 interface ToastState {
@@ -13,13 +15,15 @@ interface ToastState {
   title: string;
   description?: string;
   variant?: 'default' | 'destructive';
+  duration?: number;
+  action?: React.ReactNode;
 }
 
-export const toast = ({ title, description, variant = 'default' }: ToastProps) => {
+export const toast = ({ title, description, variant = 'default', duration }: ToastProps) => {
   if (variant === 'destructive') {
-    sonnerToast.error(title, { description });
+    sonnerToast.error(title, { description, duration });
   } else {
-    sonnerToast.success(title, { description });
+    sonnerToast.success(title, { description, duration });
   }
 };
 

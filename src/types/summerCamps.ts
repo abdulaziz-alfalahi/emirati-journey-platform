@@ -19,6 +19,8 @@ export interface SummerCamp {
   created_at: string;
   updated_at: string | null;
   created_by?: string;
+  max_participants?: number;
+  registration_deadline?: string;
 }
 
 export interface CampEnrollment {
@@ -36,7 +38,7 @@ export interface CampFilters {
   category?: string[];
   ageGroup?: string[];
   searchQuery?: string;
-  location?: string;
+  location?: string[];
   priceRange?: [number, number];
   dateRange?: [string, string];
 }

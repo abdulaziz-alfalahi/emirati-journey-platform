@@ -1,208 +1,252 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { SearchInput } from '@/components/ui/search-input';
-import { useDebouncedFilters } from '@/hooks/use-debounced-search';
-import { useSearchAnalytics } from '@/services/searchAnalytics';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import { CampFilters } from '@/types/summerCamps';
+import { Search, Filter, X } from 'lucide-react';
 
 interface CampsFilterProps {
-  onFilterChange: (filters: CampFilters) => void;
-  onSearchChange: (query: string) => void;
-  selectedFilters: CampFilters;
+  filters: CampFilters;
+  onFiltersChange: (filters: CampFilters) => void;
   searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
 const categories = [
-  { id: 'technology', label: 'Technology' },
-  { id: 'science', label: 'Science' },
-  { id: 'arts', label: 'Arts' },
-  { id: 'leadership', label: 'Leadership' },
-  { id: 'sports', label: 'Sports' },
+  'Sports',
+  'Arts & Crafts',
+  'Science & Technology',
+  'Adventure',
+  'Language',
+  'Music',
+  'Drama',
+  'Leadership'
 ];
 
 const ageGroups = [
-  { id: '6-9', label: '6-9 years' },
-  { id: '8-14', label: '8-14 years' },
-  { id: '10-16', label: '10-16 years' },
-  { id: '10-18', label: '10-18 years' },
-  { id: '12-16', label: '12-16 years' },
-  { id: '14-18', label: '14-18 years' },
+  '5-7 years',
+  '8-10 years',
+  '11-13 years',
+  '14-16 years',
+  '17+ years'
 ];
 
-// Updated locations to match Dubai business districts
 const locations = [
-  { id: 'dubai-internet-city', label: 'Dubai Internet City' },
-  { id: 'dubai-media-city', label: 'Dubai Media City' },
-  { id: 'dubai-marina', label: 'Dubai Marina' },
-  { id: 'business-bay', label: 'Business Bay' },
-  { id: 'difc', label: 'DIFC' },
-  { id: 'downtown-dubai', label: 'Downtown Dubai' },
-  { id: 'dubai-silicon-oasis', label: 'Dubai Silicon Oasis' },
-  { id: 'dubai-knowledge-park', label: 'Dubai Knowledge Park' },
-  { id: 'jlt', label: 'JLT' },
-  { id: 'deira', label: 'Deira' },
+  'Dubai',
+  'Abu Dhabi',
+  'Sharjah',
+  'Ajman',
+  'Ras Al Khaimah',
+  'Fujairah',
+  'Umm Al Quwain'
 ];
 
-const CampsFilter: React.FC<CampsFilterProps> = ({ 
-  onFilterChange, 
-  onSearchChange, 
-  selectedFilters, 
-  searchQuery 
+const CampsFilter: React.FC<CampsFilterProps> = ({
+  filters,
+  onFiltersChange,
+  searchQuery,
+  onSearchChange
 }) => {
-  const { trackSearch, trackFilter } = useSearchAnalytics('CampsFilter');
-  
-  const filters = { search: searchQuery, ...selectedFilters };
-  const { debouncedFilters, batchUpdateFilters } = useDebouncedFilters(
-    filters,
-    400,
-    (newFilters) => {
-      if (newFilters.search !== searchQuery) {
-        onSearchChange(newFilters.search || '');
-        trackSearch(newFilters.search || '', 0, 0, false);
-      }
-      
-      const { search, ...filterUpdates } = newFilters;
-      if (JSON.stringify(filterUpdates) !== JSON.stringify(selectedFilters)) {
-        onFilterChange(filterUpdates);
-        trackFilter(1, 1, 400);
-      }
-    }
-  );
-  
-  const handleCategoryChange = (category: string) => {
-    const currentCategories = selectedFilters.category || [];
-    const newCategories = currentCategories.includes(category)
-      ? currentCategories.filter(c => c !== category)
-      : [...currentCategories, category];
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    const currentCategories = Array.isArray(filters.category) ? filters.category : [];
+    const newCategories = checked
+      ? [...currentCategories, category]
+      : currentCategories.filter(c => c !== category);
     
-    batchUpdateFilters({
-      category: newCategories.length > 0 ? newCategories : undefined,
+    onFiltersChange({
+      ...filters,
+      category: newCategories
     });
   };
-  
-  const handleAgeGroupChange = (ageGroup: string) => {
-    const currentAgeGroups = selectedFilters.ageGroup || [];
-    const newAgeGroups = currentAgeGroups.includes(ageGroup)
-      ? currentAgeGroups.filter(a => a !== ageGroup)
-      : [...currentAgeGroups, ageGroup];
+
+  const handleAgeGroupChange = (ageGroup: string, checked: boolean) => {
+    const currentAgeGroups = Array.isArray(filters.ageGroup) ? filters.ageGroup : [];
+    const newAgeGroups = checked
+      ? [...currentAgeGroups, ageGroup]
+      : currentAgeGroups.filter(ag => ag !== ageGroup);
     
-    batchUpdateFilters({
-      ageGroup: newAgeGroups.length > 0 ? newAgeGroups : undefined,
+    onFiltersChange({
+      ...filters,
+      ageGroup: newAgeGroups
     });
   };
-  
-  const handleLocationChange = (location: string) => {
-    const currentLocations = selectedFilters.location || [];
-    const newLocations = currentLocations.includes(location)
-      ? currentLocations.filter(l => l !== location)
-      : [...currentLocations, location];
+
+  const handleLocationChange = (location: string, checked: boolean) => {
+    const currentLocations = Array.isArray(filters.location) ? filters.location : [];
+    const newLocations = checked
+      ? [...currentLocations, location]
+      : currentLocations.filter(l => l !== location);
     
-    batchUpdateFilters({
-      location: newLocations.length > 0 ? newLocations : undefined,
+    onFiltersChange({
+      ...filters,
+      location: newLocations
     });
   };
-  
-  const handleReset = () => {
-    batchUpdateFilters({ 
-      search: '', 
-      category: undefined, 
-      ageGroup: undefined, 
-      location: undefined 
-    });
+
+  const clearFilters = () => {
+    onFiltersChange({});
+    onSearchChange('');
   };
-  
+
+  const hasActiveFilters = () => {
+    return (
+      searchQuery ||
+      (Array.isArray(filters.category) && filters.category.length > 0) ||
+      (Array.isArray(filters.ageGroup) && filters.ageGroup.length > 0) ||
+      (Array.isArray(filters.location) && filters.location.length > 0) ||
+      filters.priceRange ||
+      filters.dateRange
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <SearchInput
-        placeholder="Search camps..."
-        value={searchQuery}
-        onChange={(value) => batchUpdateFilters({ search: value })}
-        debounceDelay={400}
-      />
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Filter Camps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-5">
-            <div>
-              <h3 className="font-medium mb-2">Categories</h3>
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <div key={category.id} className="flex items-center">
-                    <Checkbox 
-                      id={`category-${category.id}`} 
-                      checked={(selectedFilters.category || []).includes(category.label)}
-                      onCheckedChange={() => handleCategoryChange(category.label)}
-                    />
-                    <Label 
-                      htmlFor={`category-${category.id}`}
-                      className="ml-2 text-sm"
-                    >
-                      {category.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-medium mb-2">Age Groups</h3>
-              <div className="space-y-2">
-                {ageGroups.map((ageGroup) => (
-                  <div key={ageGroup.id} className="flex items-center">
-                    <Checkbox 
-                      id={`age-${ageGroup.id}`} 
-                      checked={(selectedFilters.ageGroup || []).includes(ageGroup.id)}
-                      onCheckedChange={() => handleAgeGroupChange(ageGroup.id)}
-                    />
-                    <Label 
-                      htmlFor={`age-${ageGroup.id}`}
-                      className="ml-2 text-sm"
-                    >
-                      {ageGroup.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-medium mb-2">Locations</h3>
-              <div className="space-y-2">
-                {locations.map((location) => (
-                  <div key={location.id} className="flex items-center">
-                    <Checkbox 
-                      id={`location-${location.id}`} 
-                      checked={(selectedFilters.location || []).includes(location.label)}
-                      onCheckedChange={() => handleLocationChange(location.label)}
-                    />
-                    <Label 
-                      htmlFor={`location-${location.id}`}
-                      className="ml-2 text-sm"
-                    >
-                      {location.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              className="w-full mt-2" 
-              onClick={handleReset}
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center">
+            <Filter className="h-5 w-5 mr-2" />
+            Filters
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            {hasActiveFilters() && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-4 w-4 mr-1" />
+                Clear
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
             >
-              Reset Filters
+              {isExpanded ? 'Collapse' : 'Expand'}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search camps..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {isExpanded && (
+          <>
+            {/* Categories */}
+            <div>
+              <Label className="text-sm font-medium mb-3 block">Categories</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((category) => (
+                  <div key={category} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`category-${category}`}
+                      checked={Array.isArray(filters.category) && filters.category.includes(category)}
+                      onCheckedChange={(checked) => 
+                        handleCategoryChange(category, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`category-${category}`} className="text-sm">
+                      {category}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Age Groups */}
+            <div>
+              <Label className="text-sm font-medium mb-3 block">Age Groups</Label>
+              <div className="space-y-2">
+                {ageGroups.map((ageGroup) => (
+                  <div key={ageGroup} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`age-${ageGroup}`}
+                      checked={Array.isArray(filters.ageGroup) && filters.ageGroup.includes(ageGroup)}
+                      onCheckedChange={(checked) => 
+                        handleAgeGroupChange(ageGroup, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`age-${ageGroup}`} className="text-sm">
+                      {ageGroup}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Locations */}
+            <div>
+              <Label className="text-sm font-medium mb-3 block">Locations</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {locations.map((location) => (
+                  <div key={location} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`location-${location}`}
+                      checked={Array.isArray(filters.location) && filters.location.includes(location)}
+                      onCheckedChange={(checked) => 
+                        handleLocationChange(location, checked as boolean)
+                      }
+                    />
+                    <Label htmlFor={`location-${location}`} className="text-sm">
+                      {location}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Active filters display */}
+        {hasActiveFilters() && (
+          <div className="pt-3 border-t">
+            <div className="flex flex-wrap gap-2">
+              {Array.isArray(filters.category) && filters.category.map((category) => (
+                <Badge key={category} variant="secondary" className="text-xs">
+                  {category}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => handleCategoryChange(category, false)}
+                  />
+                </Badge>
+              ))}
+              {Array.isArray(filters.ageGroup) && filters.ageGroup.map((ageGroup) => (
+                <Badge key={ageGroup} variant="secondary" className="text-xs">
+                  {ageGroup}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => handleAgeGroupChange(ageGroup, false)}
+                  />
+                </Badge>
+              ))}
+              {Array.isArray(filters.location) && filters.location.map((location) => (
+                <Badge key={location} variant="secondary" className="text-xs">
+                  {location}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => handleLocationChange(location, false)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
