@@ -2,6 +2,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
+
+// Ensure React is globally available FIRST
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+}
+
 import App from './App.tsx';
 import './index.css';
 import './lib/i18n'; // Initialize i18n
@@ -11,11 +17,6 @@ import { ThemeProvider } from './components/theme-provider';
 import { LanguageProvider } from './context/LanguageContext';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
-
-// Ensure React is available globally for Radix UI components
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-}
 
 // Initialize monitoring in production
 if (process.env.NODE_ENV === 'production') {

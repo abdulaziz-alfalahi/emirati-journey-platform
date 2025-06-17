@@ -2,6 +2,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import i18n from '../lib/i18n';
 
+// Ensure React is available
+if (typeof window !== 'undefined' && !(window as any).React) {
+  (window as any).React = React;
+}
+
 type Language = 'en' | 'ar';
 type Direction = 'ltr' | 'rtl';
 
@@ -20,11 +25,20 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Simplified initialization without try-catch
-    const stored = localStorage.getItem('language');
-    return (stored as Language) || defaultLanguage;
-  });
+  // Initialize with a safe default first
+  const [language, setLanguageState] = useState<Language>(defaultLanguage);
+
+  // Use useEffect to load from localStorage after component mounts
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('language');
+      if (stored && (stored === 'en' || stored === 'ar')) {
+        setLanguageState(stored as Language);
+      }
+    } catch (error) {
+      console.warn('Failed to load language from localStorage:', error);
+    }
+  }, []);
 
   const direction: Direction = language === 'ar' ? 'rtl' : 'ltr';
   const isRTL = direction === 'rtl';
@@ -33,20 +47,28 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     console.log('Changing language to:', newLanguage);
     setLanguageState(newLanguage);
     
-    // Save to localStorage
-    localStorage.setItem('language', newLanguage);
+    // Save to localStorage safely
+    try {
+      localStorage.setItem('language', newLanguage);
+    } catch (error) {
+      console.warn('Failed to save language to localStorage:', error);
+    }
     
     // Change language in i18n
-    i18n.changeLanguage(newLanguage);
+    if (i18n && i18n.changeLanguage) {
+      i18n.changeLanguage(newLanguage);
+    }
   };
 
   useEffect(() => {
     // Update document direction and language
-    document.documentElement.dir = direction;
-    document.documentElement.lang = language;
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = direction;
+      document.documentElement.lang = language;
+    }
     
     // Set initial language in i18n
-    if (i18n.isInitialized) {
+    if (i18n && i18n.isInitialized && i18n.changeLanguage) {
       i18n.changeLanguage(language);
     }
   }, [language, direction]);
