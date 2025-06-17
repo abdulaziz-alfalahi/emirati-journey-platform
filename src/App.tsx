@@ -23,6 +23,9 @@ const CareerPlanningHubPage = React.lazy(() => import('@/pages/career-planning-h
 // Industry Exploration page
 const IndustryExplorationPage = React.lazy(() => import('@/pages/industry-exploration/index'));
 
+// Job Matching page
+const JobMatchingPage = React.lazy(() => import('@/pages/job-matching/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -64,6 +67,9 @@ function App() {
             
             {/* Industry Exploration Route */}
             <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
+            
+            {/* Job Matching Route */}
+            <Route path="/job-matching" element={<JobMatchingPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
