@@ -1,5 +1,3 @@
-
-// src/components/job-matching/JobDescriptionsList.jsx
 import React from 'react';
 import { JobDescriptionCard } from './components/JobDescriptionCard';
 import { JobDescriptionsTable } from './components/JobDescriptionsTable';
