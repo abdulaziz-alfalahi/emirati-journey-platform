@@ -16,6 +16,8 @@ interface UsePaginationReturn {
   goToPage: (page: number) => void;
   getTotalPages: (totalItems: number) => number;
   getPageItems: <T>(items: T[]) => T[];
+  hasNextPage: (totalItems: number) => boolean;
+  hasPreviousPage: () => boolean;
 }
 
 export const usePagination = ({
@@ -47,6 +49,14 @@ export const usePagination = ({
     return items.slice(startIndex, endIndex);
   };
 
+  const hasNextPage = (totalItems: number) => {
+    return currentPage < getTotalPages(totalItems);
+  };
+
+  const hasPreviousPage = () => {
+    return currentPage > 1;
+  };
+
   return {
     currentPage,
     pageSize: currentPageSize,
@@ -56,6 +66,8 @@ export const usePagination = ({
     previousPage,
     goToPage,
     getTotalPages,
-    getPageItems
+    getPageItems,
+    hasNextPage,
+    hasPreviousPage
   };
 };

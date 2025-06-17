@@ -4,6 +4,9 @@ export interface PerformanceReport {
   averageResponseTime: number;
   successRate: number;
   popularQueries: string[];
+  cacheHitRate: number;
+  totalFilterChanges: number;
+  apiCallsReduced: number;
 }
 
 export const searchAnalytics = {
@@ -11,7 +14,28 @@ export const searchAnalytics = {
     totalSearches: 1234,
     averageResponseTime: 150,
     successRate: 0.95,
-    popularQueries: ['javascript', 'react', 'python']
+    popularQueries: ['javascript', 'react', 'python'],
+    cacheHitRate: 0.85,
+    totalFilterChanges: 567,
+    apiCallsReduced: 890
+  }),
+  
+  getPerformanceReport: (): PerformanceReport => ({
+    totalSearches: 1234,
+    averageResponseTime: 150,
+    successRate: 0.95,
+    popularQueries: ['javascript', 'react', 'python'],
+    cacheHitRate: 0.85,
+    totalFilterChanges: 567,
+    apiCallsReduced: 890
+  }),
+  
+  getPopularSearchTerms: (): string[] => ['javascript', 'react', 'python'],
+  
+  getComponentStats: () => ({
+    totalComponents: 45,
+    activeComponents: 38,
+    averageSearchTime: 120
   })
 };
 
