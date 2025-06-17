@@ -10,7 +10,7 @@ import SuccessStories from '@/components/school-programs/SuccessStories';
 import ResourcesSection from '@/components/school-programs/ResourcesSection';
 import { useAuth } from '@/context/AuthContext';
 import { ProgramFilters } from '@/types/schoolPrograms';
-import type { EducationStat, EducationTab, AcademicProgress, AcademicAnnouncement, Achievement } from '@/components/layouts/EducationPathwayLayout';
+import type { EducationStat, EducationTab } from '@/components/layouts/EducationPathwayLayout';
 
 const SchoolProgramsPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -169,60 +169,6 @@ const SchoolProgramsPage: React.FC = () => {
     });
   }
 
-  // Sample academic progress for K-12 education
-  const academicProgress: AcademicProgress[] = [
-    {
-      courseId: "prog-1",
-      courseName: "STEM Excellence Program - Grade 10",
-      progress: 65,
-      totalModules: 8,
-      completedModules: 5,
-      status: "active",
-      nextDeadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
-    },
-    {
-      courseId: "prog-2",
-      courseName: "Arabic Language Arts - Grade 9",
-      progress: 85,
-      totalModules: 6,
-      completedModules: 5,
-      status: "active",
-      nextDeadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
-    }
-  ];
-
-  // K-12 education announcements
-  const announcements: AcademicAnnouncement[] = [
-    {
-      id: "1",
-      title: "New STEM Program Registration Open",
-      message: "Registration is now open for the advanced STEM program for grades 9-12. Limited spots available.",
-      type: "info",
-      date: new Date(),
-      urgent: false
-    },
-    {
-      id: "2",
-      title: "Parent-Teacher Conference Scheduled",
-      message: "Quarterly parent-teacher conferences will be held next week. Please check your program schedule.",
-      type: "success",
-      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      urgent: true
-    }
-  ];
-
-  // K-12 achievements
-  const achievements: Achievement[] = [
-    {
-      id: "1",
-      title: "Program Completion",
-      description: "Successfully completed Advanced Mathematics program",
-      icon: Award,
-      dateEarned: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-      category: "academic"
-    }
-  ];
-
   return (
     <EducationPathwayLayout
       title="K-12 School Programs"
@@ -233,15 +179,6 @@ const SchoolProgramsPage: React.FC = () => {
       defaultTab="available"
       actionButtonText="Explore Programs"
       actionButtonHref="#available"
-      academicProgress={academicProgress}
-      announcements={announcements}
-      achievements={achievements.length > 0 ? achievements : undefined}
-      academicYear="2024-2025"
-      institutionalBranding={{
-        institutionName: "UAE K-12 Education Network",
-        primaryColor: "#1e3a8a",
-        secondaryColor: "#059669"
-      }}
     />
   );
 };

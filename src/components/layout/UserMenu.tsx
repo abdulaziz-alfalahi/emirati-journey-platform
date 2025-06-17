@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { useAuth, UserRole } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import { UserRole } from '@/types/auth';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

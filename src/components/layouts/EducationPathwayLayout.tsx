@@ -21,21 +21,6 @@ export interface Stat {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-export interface EducationPathwayLayoutProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  stats: Stat[];
-  tabs: TabItem[];
-  defaultTab: string;
-  actionButtonText?: string;
-  actionButtonHref?: string;
-}
-
-// Type aliases for backward compatibility
-export type EducationStat = Stat;
-export type EducationTab = TabItem;
-
 export interface AcademicProgress {
   courseId: string;
   courseName: string;
@@ -71,6 +56,27 @@ export interface InstitutionalBranding {
   logoUrl?: string;
 }
 
+export interface EducationPathwayLayoutProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  stats: Stat[];
+  tabs: TabItem[];
+  defaultTab: string;
+  actionButtonText?: string;
+  actionButtonHref?: string;
+  academicProgress?: AcademicProgress[];
+  announcements?: AcademicAnnouncement[];
+  achievements?: Achievement[];
+  currentGPA?: number;
+  academicYear?: string;
+  institutionalBranding?: InstitutionalBranding;
+}
+
+// Type aliases for backward compatibility
+export type EducationStat = Stat;
+export type EducationTab = TabItem;
+
 export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
   title,
   description,
@@ -79,7 +85,13 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
   tabs,
   defaultTab,
   actionButtonText,
-  actionButtonHref
+  actionButtonHref,
+  academicProgress,
+  announcements,
+  achievements,
+  currentGPA,
+  academicYear,
+  institutionalBranding
 }) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   

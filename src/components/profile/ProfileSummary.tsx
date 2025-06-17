@@ -1,15 +1,11 @@
-
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { UserRole } from '@/context/AuthContext';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MapPin, Mail, Phone, Calendar, Edit, User } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { UserRole } from '@/types/auth';
 
 const roleLabels: Record<UserRole, string> = {
   school_student: 'School Student',

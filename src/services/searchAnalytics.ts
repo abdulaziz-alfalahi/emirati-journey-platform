@@ -62,3 +62,8 @@ export const useSearchAnalytics = (componentName: string) => {
     trackFilter
   };
 };
+
+// Add static methods to useSearchAnalytics for compatibility
+useSearchAnalytics.getPerformanceReport = searchAnalytics.getPerformanceReport;
+useSearchAnalytics.getPopularSearchTerms = searchAnalytics.getPopularSearchTerms;
+useSearchAnalytics.getComponentStats = searchAnalytics.getComponentStats;
