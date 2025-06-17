@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';

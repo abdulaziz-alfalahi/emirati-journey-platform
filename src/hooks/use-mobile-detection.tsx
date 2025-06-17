@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useMobileDetection() {
   // Initialize with safe defaults to prevent null errors
