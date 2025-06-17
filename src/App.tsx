@@ -32,6 +32,9 @@ const ResumeBuilderPage = React.lazy(() => import('@/pages/resume-builder/index'
 // CV Builder page
 const CVBuilderPage = React.lazy(() => import('@/pages/cv-builder/index'));
 
+// Interview Preparation page
+const InterviewPreparationPage = React.lazy(() => import('@/pages/interview-preparation/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -82,6 +85,9 @@ function App() {
             
             {/* CV Builder Route */}
             <Route path="/cv-builder" element={<CVBuilderPage />} />
+            
+            {/* Interview Preparation Route */}
+            <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
