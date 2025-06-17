@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { UserRole } from '@/types/auth';
 import {
@@ -15,11 +16,6 @@ interface RoleOnboardingTooltipProps {
 }
 
 const roleOnboardingContent: Record<UserRole, { title: string; description: string; features: string[] }> = {
-  student: {
-    title: "Welcome, Student!",
-    description: "Your dashboard is now optimized for your educational journey.",
-    features: ["Track academic progress", "Explore career paths", "Find internship opportunities"]
-  },
   school_student: {
     title: "Welcome, School Student!",
     description: "Your dashboard is now optimized for your educational journey.",
@@ -44,11 +40,6 @@ const roleOnboardingContent: Record<UserRole, { title: string; description: stri
     title: "Welcome, Educational Institution!",
     description: "Manage your institution's programs and students.",
     features: ["Student management", "Program analytics", "Accreditation tracking"]
-  },
-  recruiter: {
-    title: "Welcome, Recruiter!",
-    description: "Find and connect with top talent.",
-    features: ["Candidate matching", "Interview scheduling", "Hiring analytics"]
   },
   private_sector_recruiter: {
     title: "Welcome, Recruiter!",
@@ -79,11 +70,6 @@ const roleOnboardingContent: Record<UserRole, { title: string; description: stri
     title: "Welcome, Assessment Center!",
     description: "Create and manage professional assessments.",
     features: ["Assessment creation", "Result analytics", "Certification management"]
-  },
-  admin: {
-    title: "Welcome, Administrator!",
-    description: "Full platform access and management capabilities.",
-    features: ["User management", "System analytics", "Platform configuration"]
   },
   administrator: {
     title: "Welcome, Administrator!",

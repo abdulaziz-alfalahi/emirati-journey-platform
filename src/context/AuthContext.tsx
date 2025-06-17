@@ -1,88 +1,120 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { UserRole } from '@/types/auth';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  app_metadata: any;
-  user_metadata: any;
-  aud: string;
-  created_at: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  roles: UserRole[];
-  isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => void;
-  hasRole: (role: UserRole) => boolean;
-}
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { AuthContextType, UserRole } from '@/types/auth';
+import { useFetchUserRoles } from '@/hooks/use-fetch-user-roles';
+import { useAuthOperations } from '@/hooks/use-auth-operations';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [roles, setRoles] = useState<UserRole[]>(['school_student']);
-  const [isLoading, setIsLoading] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [roles, setRoles] = useState<UserRole[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+  
+  const { fetchUserRoles } = useFetchUserRoles();
+  const { signIn, signUp, signOut } = useAuthOperations(setIsLoading);
 
-  const signIn = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Mock sign in
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setUser({
-        id: '1',
-        email,
-        name: 'Demo User',
-        created_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: {},
-        aud: 'authenticated'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    let mounted = true;
 
-  const signUp = async (email: string, password: string, name: string) => {
-    setIsLoading(true);
-    try {
-      // Mock sign up
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setUser({
-        id: '1',
-        email,
-        name,
-        created_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: {},
-        aud: 'authenticated'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.id);
+        
+        if (!mounted) return;
+        
+        // Prevent infinite loops by checking if session actually changed
+        if (currentSession?.access_token === session?.access_token) {
+          return;
+        }
+        
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          // Use setTimeout to avoid potential deadlocks with auth callbacks
+          setTimeout(async () => {
+            if (mounted) {
+              try {
+                const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
+                if (mounted) {
+                  setRoles(userRoles);
+                }
+              } catch (error) {
+                console.error('Error fetching user roles:', error);
+                if (mounted) {
+                  setRoles([]);
+                }
+              }
+            }
+          }, 0);
+        } else {
+          setRoles([]);
+        }
+        
+        if (!initialized) {
+          setInitialized(true);
+          setIsLoading(false);
+        }
+      }
+    );
 
-  const signOut = () => {
-    setUser(null);
-    setRoles(['school_student']);
-  };
+    // Check for existing session only once
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          setInitialized(true);
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          try {
+            const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
+            if (mounted) {
+              setRoles(userRoles);
+            }
+          } catch (error) {
+            console.error('Error fetching user roles:', error);
+            if (mounted) {
+              setRoles([]);
+            }
+          }
+        }
+        
+        if (mounted) {
+          setInitialized(true);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setIsLoading(false);
+          setInitialized(true);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []); // Remove dependencies to prevent re-initialization
 
   const hasRole = (role: UserRole) => {
     return roles.includes(role);
@@ -91,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       user,
+      session,
       roles,
       isLoading,
       signIn,
@@ -102,3 +135,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export type { UserRole } from '@/types/auth';

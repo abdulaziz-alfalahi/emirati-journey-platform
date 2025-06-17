@@ -1,3 +1,4 @@
+
 export { ProfessionalDevelopmentCard } from './ProfessionalDevelopmentCard';
 export { SkillAssessmentInterface } from './SkillAssessmentInterface';
 export { MentorshipInterface } from './MentorshipInterface';
@@ -5,7 +6,6 @@ export { InnovationProjectShowcase } from './InnovationProjectShowcase';
 export { NetworkingEventDisplay } from './NetworkingEventDisplay';
 export { SuccessStoryPresentation } from './SuccessStoryPresentation';
 export { LeadershipModuleInterface } from './LeadershipModuleInterface';
-export { ProfessionalGrowthProgressTracker } from './ProfessionalGrowthProgressTracker';
 
 export type {
   ProfessionalDevelopmentCard as ProfessionalDevelopmentCardProps
@@ -28,12 +28,3 @@ export type {
   SuccessStory,
   LeadershipModule
 } from './types';
-
-export {
-  ProfessionalGrowthAnalyticsDashboard,
-  OverviewAnalytics,
-  SkillsAnalytics,
-  AchievementsDisplay,
-  GoalsTracking,
-  RecommendationsPanel
-} from '../analytics';

@@ -9,6 +9,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  className?: string;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -16,53 +17,64 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
   hasNextPage,
-  hasPreviousPage
+  hasPreviousPage,
+  className = ""
 }) => {
-  const renderPageNumbers = () => {
+  const getPageNumbers = () => {
     const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage < maxVisiblePages - 1) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    const maxVisible = 5;
+    const halfRange = Math.floor(maxVisible / 2);
+    
+    let startPage = Math.max(1, currentPage - halfRange);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+    // Adjust start if we're near the end
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
     }
-
+    
     for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <Button
-          key={i}
-          variant={i === currentPage ? "default" : "outline"}
-          size="sm"
-          onClick={() => onPageChange(i)}
-        >
-          {i}
-        </Button>
-      );
+      pages.push(i);
     }
-
+    
     return pages;
   };
 
+  if (totalPages <= 1) return null;
+
   return (
-    <div className="flex items-center space-x-2">
+    <div className={`flex items-center justify-center space-x-2 ${className}`}>
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPreviousPage}
+        className="flex items-center gap-1"
       >
         <ChevronLeft className="h-4 w-4" />
         Previous
       </Button>
 
-      {renderPageNumbers()}
+      <div className="flex items-center space-x-1">
+        {getPageNumbers().map((page) => (
+          <Button
+            key={page}
+            variant={page === currentPage ? "default" : "outline"}
+            size="sm"
+            onClick={() => onPageChange(page)}
+            className="min-w-[40px]"
+          >
+            {page}
+          </Button>
+        ))}
+      </div>
 
       <Button
         variant="outline"
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNextPage}
+        className="flex items-center gap-1"
       >
         Next
         <ChevronRight className="h-4 w-4" />

@@ -1,72 +1,46 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-interface UsePaginationProps {
-  pageSize?: number;
+export interface PaginationConfig {
   initialPage?: number;
+  pageSize?: number;
 }
 
-interface UsePaginationReturn {
+export interface PaginationState {
   currentPage: number;
   pageSize: number;
+  offset: number;
   setCurrentPage: (page: number) => void;
-  setPageSize: (size: number) => void;
   nextPage: () => void;
   previousPage: () => void;
-  goToPage: (page: number) => void;
-  getTotalPages: (totalItems: number) => number;
-  getPageItems: <T>(items: T[]) => T[];
-  hasNextPage: (totalItems: number) => boolean;
+  getTotalPages: (totalCount: number) => number;
+  hasNextPage: (totalCount: number) => boolean;
   hasPreviousPage: () => boolean;
 }
 
-export const usePagination = ({
-  pageSize = 10,
-  initialPage = 1
-}: UsePaginationProps = {}): UsePaginationReturn => {
+export const usePagination = ({ 
+  initialPage = 1, 
+  pageSize = 20 
+}: PaginationConfig = {}): PaginationState => {
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [currentPageSize, setPageSize] = useState(pageSize);
 
-  const nextPage = () => {
-    setCurrentPage(prev => prev + 1);
-  };
+  const offset = useMemo(() => (currentPage - 1) * pageSize, [currentPage, pageSize]);
 
-  const previousPage = () => {
-    setCurrentPage(prev => Math.max(1, prev - 1));
-  };
+  const nextPage = () => setCurrentPage(prev => prev + 1);
+  const previousPage = () => setCurrentPage(prev => Math.max(1, prev - 1));
 
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, page));
-  };
-
-  const getTotalPages = (totalItems: number) => {
-    return Math.ceil(totalItems / currentPageSize);
-  };
-
-  const getPageItems = <T>(items: T[]): T[] => {
-    const startIndex = (currentPage - 1) * currentPageSize;
-    const endIndex = startIndex + currentPageSize;
-    return items.slice(startIndex, endIndex);
-  };
-
-  const hasNextPage = (totalItems: number) => {
-    return currentPage < getTotalPages(totalItems);
-  };
-
-  const hasPreviousPage = () => {
-    return currentPage > 1;
-  };
+  const getTotalPages = (totalCount: number) => Math.ceil(totalCount / pageSize);
+  const hasNextPage = (totalCount: number) => currentPage < getTotalPages(totalCount);
+  const hasPreviousPage = () => currentPage > 1;
 
   return {
     currentPage,
-    pageSize: currentPageSize,
+    pageSize,
+    offset,
     setCurrentPage,
-    setPageSize,
     nextPage,
     previousPage,
-    goToPage,
     getTotalPages,
-    getPageItems,
     hasNextPage,
     hasPreviousPage
   };

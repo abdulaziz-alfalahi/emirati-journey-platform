@@ -1,13 +1,13 @@
 
-import { StrictMode } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import './lib/i18n';
+import './lib/i18n'; // Initialize i18n
 import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './context/QueryContext';
-import { ThemeProvider } from './components/theme-provider';
-import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
+import { LanguageProvider } from './context/LanguageContext'; // Import LanguageProvider
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
@@ -72,16 +72,19 @@ const initializePWAFeatures = async () => {
   }
 };
 
-// Get the root element and ensure it exists
+// Ensure we have a root element
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  throw new Error("Root element not found. Make sure there is an element with id 'root' in your HTML.");
+  // If root element is missing, create one
+  const newRoot = document.createElement("div");
+  newRoot.id = "root";
+  document.body.appendChild(newRoot);
+  console.warn("Root element was missing and has been created dynamically");
 }
 
-// Create and render the React app
-const root = createRoot(rootElement);
-root.render(
-  <StrictMode>
+const root = document.getElementById("root");
+createRoot(root!).render(
+  <React.StrictMode>
     <LanguageProvider>
       <ThemeProvider defaultTheme="light">
         <AuthProvider>
@@ -91,7 +94,7 @@ root.render(
         </AuthProvider>
       </ThemeProvider>
     </LanguageProvider>
-  </StrictMode>
+  </React.StrictMode>
 );
 
 // Initialize PWA features after app loads

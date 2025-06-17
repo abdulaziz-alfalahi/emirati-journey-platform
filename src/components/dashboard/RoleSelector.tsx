@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { UserRole } from '@/types/auth';
 import {
@@ -17,7 +18,6 @@ interface RoleSelectorProps {
 }
 
 const roleLabels: Record<UserRole, string> = {
-  student: 'Student',
   school_student: 'School Student',
   national_service_participant: 'National Service Participant',
   university_student: 'University Student',
@@ -31,7 +31,6 @@ const roleLabels: Record<UserRole, string> = {
   retiree: 'Retiree',
   educational_institution: 'Educational Institution',
   parent: 'Parent',
-  recruiter: 'Recruiter',
   private_sector_recruiter: 'Private Sector Recruiter',
   government_representative: 'Government Representative',
   retiree_advocate: 'Retiree Advocate',
@@ -40,13 +39,11 @@ const roleLabels: Record<UserRole, string> = {
   mentor: 'Mentor',
   career_advisor: 'Career Advisor',
   platform_operator: 'Platform Operator',
-  admin: 'Admin',
   administrator: 'Administrator',
   super_user: 'Super User'
 };
 
 const roleIcons: Record<UserRole, React.ComponentType<any>> = {
-  student: GraduationCap,
   school_student: GraduationCap,
   national_service_participant: User,
   university_student: GraduationCap,
@@ -60,7 +57,6 @@ const roleIcons: Record<UserRole, React.ComponentType<any>> = {
   retiree: Heart,
   educational_institution: Building,
   parent: Users,
-  recruiter: Users,
   private_sector_recruiter: Users,
   government_representative: Building,
   retiree_advocate: Heart,
@@ -69,7 +65,6 @@ const roleIcons: Record<UserRole, React.ComponentType<any>> = {
   mentor: Users,
   career_advisor: Users,
   platform_operator: Crown,
-  admin: Crown,
   administrator: Crown,
   super_user: Crown
 };

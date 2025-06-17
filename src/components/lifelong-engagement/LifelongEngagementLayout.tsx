@@ -5,7 +5,6 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { AccessibilityEnhancedLayout } from '@/components/accessibility/AccessibilityEnhancedLayout';
 
 interface TabItem {
   id: string;
@@ -58,18 +57,14 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
   const content = (
     <div className="min-h-screen bg-gradient-to-br from-ehrdc-teal via-ehrdc-light-teal to-ehrdc-neutral-light">
       {/* Hero Section */}
-      <section 
-        className="py-16 bg-gradient-to-r from-ehrdc-teal to-ehrdc-dark-teal text-white"
-        role="banner"
-        aria-labelledby="hero-title"
-      >
+      <section className="py-16 bg-gradient-to-r from-ehrdc-teal to-ehrdc-dark-teal text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center mb-6">
-            <div className="bg-white/20 rounded-full p-4" role="img" aria-label="Page icon">
+            <div className="bg-white/20 rounded-full p-4">
               {icon}
             </div>
           </div>
-          <h1 id="hero-title" className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             {title}
           </h1>
           <p className="text-xl md:text-2xl opacity-90 max-w-4xl mx-auto leading-relaxed">
@@ -79,22 +74,15 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
       </section>
 
       {/* Stats Section */}
-      <section 
-        className="py-16 bg-white"
-        role="complementary"
-        aria-labelledby="stats-heading"
-      >
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 id="stats-heading" className="sr-only">Key Statistics</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center" role="group" aria-labelledby={`stat-${index}`}>
-                <div className="flex justify-center mb-4" role="img" aria-hidden="true">
+              <div key={index} className="text-center">
+                <div className="flex justify-center mb-4">
                   <stat.icon className="h-8 w-8 text-ehrdc-teal" />
                 </div>
-                <div id={`stat-${index}`} className="text-4xl font-bold text-ehrdc-teal mb-2" aria-label={`${stat.value} ${stat.label}`}>
-                  {stat.value}
-                </div>
+                <div className="text-4xl font-bold text-ehrdc-teal mb-2">{stat.value}</div>
                 <div className="text-muted-foreground">{stat.label}</div>
               </div>
             ))}
@@ -106,21 +94,10 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto">
-            <TabsList 
-              className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-white border min-w-max"
-              role="tablist"
-              aria-label="Content sections"
-            >
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-white border min-w-max">
               {tabs.map((tab) => (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id} 
-                  className="flex items-center gap-2 text-ehrdc-teal whitespace-nowrap"
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  aria-controls={`tabpanel-${tab.id}`}
-                >
-                  <span role="img" aria-hidden="true">{tab.icon}</span>
+                <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 text-ehrdc-teal whitespace-nowrap">
+                  {tab.icon}
                   <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
               ))}
@@ -128,13 +105,7 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
           </div>
 
           {tabs.map((tab) => (
-            <TabsContent 
-              key={tab.id} 
-              value={tab.id}
-              role="tabpanel"
-              id={`tabpanel-${tab.id}`}
-              aria-labelledby={`tab-${tab.id}`}
-            >
+            <TabsContent key={tab.id} value={tab.id}>
               <Card>
                 <CardContent className="p-6">
                   {tab.content}
@@ -147,16 +118,9 @@ export const LifelongEngagementLayout: React.FC<LifelongEngagementLayoutProps> =
     </div>
   );
 
-  // Wrap content with accessibility enhancements
-  const enhancedContent = (
-    <AccessibilityEnhancedLayout>
-      {content}
-    </AccessibilityEnhancedLayout>
-  );
-
   if (isMobile || isCapacitor) {
-    return <MobileLayout>{enhancedContent}</MobileLayout>;
+    return <MobileLayout>{content}</MobileLayout>;
   }
 
-  return <Layout>{enhancedContent}</Layout>;
+  return <Layout>{content}</Layout>;
 };
