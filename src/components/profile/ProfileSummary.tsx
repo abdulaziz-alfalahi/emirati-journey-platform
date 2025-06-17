@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types/auth';
 
 const roleLabels: Record<UserRole, string> = {
+  student: 'Student',
   school_student: 'School Student',
   national_service_participant: 'National Service Participant',
   university_student: 'University Student',
@@ -21,6 +23,7 @@ const roleLabels: Record<UserRole, string> = {
   retiree: 'Retiree',
   educational_institution: 'Educational Institution',
   parent: 'Parent',
+  recruiter: 'Recruiter',
   private_sector_recruiter: 'Private Sector Recruiter',
   government_representative: 'Government Representative',
   retiree_advocate: 'Retiree Advocate',
@@ -29,6 +32,7 @@ const roleLabels: Record<UserRole, string> = {
   mentor: 'Mentor',
   career_advisor: 'Career Advisor',
   platform_operator: 'Platform Operator',
+  admin: 'Admin',
   administrator: 'Administrator',
   super_user: 'Super User'
 };

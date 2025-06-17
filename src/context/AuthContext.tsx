@@ -38,7 +38,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [roles, setRoles] = useState<UserRole[]>(['student']);
+  const [roles, setRoles] = useState<UserRole[]>(['school_student']);
   const [isLoading, setIsLoading] = useState(false);
 
   const signIn = async (email: string, password: string) => {
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = () => {
     setUser(null);
-    setRoles(['student']);
+    setRoles(['school_student']);
   };
 
   const hasRole = (role: UserRole) => {
