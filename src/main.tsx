@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -81,7 +81,7 @@ if (!rootElement) {
 // Create and render the React app
 const root = createRoot(rootElement);
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <LanguageProvider>
       <ThemeProvider defaultTheme="light">
         <AuthProvider>
@@ -91,7 +91,7 @@ root.render(
         </AuthProvider>
       </ThemeProvider>
     </LanguageProvider>
-  </React.StrictMode>
+  </StrictMode>
 );
 
 // Initialize PWA features after app loads

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -32,7 +32,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-background">
-        <React.Suspense 
+        <Suspense 
           fallback={
             <div className="flex items-center justify-center min-h-screen">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -65,7 +65,7 @@ function App() {
             
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </React.Suspense>
+        </Suspense>
         <Toaster />
       </div>
     </Router>
