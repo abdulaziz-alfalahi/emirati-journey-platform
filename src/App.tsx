@@ -2,7 +2,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
-import { useAuth } from '@/context/AuthContext';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/home/index'));
