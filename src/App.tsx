@@ -12,6 +12,9 @@ const NotFoundPage = React.lazy(() => import('@/pages/NotFound'));
 
 // Education Pathway pages
 const SummerCampsPage = React.lazy(() => import('@/pages/summer-camps/index'));
+const SchoolProgramsPage = React.lazy(() => import('@/pages/school-programs/index'));
+const LMSPage = React.lazy(() => import('@/pages/lms/index'));
+const ScholarshipsPage = React.lazy(() => import('@/pages/scholarships/index'));
 
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
@@ -43,6 +46,9 @@ function App() {
             
             {/* Education Pathway Routes */}
             <Route path="/summer-camps" element={<SummerCampsPage />} />
+            <Route path="/school-programs" element={<SchoolProgramsPage />} />
+            <Route path="/lms" element={<LMSPage />} />
+            <Route path="/scholarships" element={<ScholarshipsPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
