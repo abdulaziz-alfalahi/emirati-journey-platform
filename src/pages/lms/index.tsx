@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { LMSTabsWrapper } from '@/components/lms/LMSTabsWrapper';
@@ -49,16 +48,29 @@ const LMSPage: React.FC = () => {
   const enrolledCourseIds = enrollments.map(enrollment => enrollment.course_id);
 
   // Transform enrollments to academic progress format
-  const academicProgress: AcademicProgress[] = enrollments.map(enrollment => ({
-    courseId: enrollment.course_id,
-    courseName: (enrollment as any).courses?.title || 'Course',
-    progress: enrollment.progress_percentage,
-    totalModules: 10, // Mock data - would come from actual course data
-    completedModules: Math.floor((enrollment.progress_percentage / 100) * 10),
-    status: enrollment.status === 'completed' ? 'completed' : 
-            enrollment.status === 'active' ? 'active' : 'pending',
-    nextDeadline: enrollment.status === 'active' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : undefined
-  }));
+  const academicProgress: AcademicProgress[] = enrollments.map(enrollment => {
+    let status: 'active' | 'completed' | 'paused' | 'pending' = 'pending';
+    
+    if (enrollment.status === 'completed') {
+      status = 'completed';
+    } else if (enrollment.status === 'active') {
+      status = 'active';
+    } else if (enrollment.status === 'suspended') {
+      status = 'paused';
+    } else {
+      status = 'pending';
+    }
+
+    return {
+      courseId: enrollment.course_id,
+      courseName: (enrollment as any).courses?.title || 'Course',
+      progress: enrollment.progress_percentage,
+      totalModules: 10, // Mock data - would come from actual course data
+      completedModules: Math.floor((enrollment.progress_percentage / 100) * 10),
+      status,
+      nextDeadline: status === 'active' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : undefined
+    };
+  });
 
   // Education stats for the layout
   const stats: EducationStat[] = [

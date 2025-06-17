@@ -6,8 +6,8 @@ interface User {
   id: string;
   email: string;
   name: string;
-  app_metadata?: any;
-  user_metadata?: any;
+  app_metadata: any;
+  user_metadata: any;
   aud?: string;
   created_at?: string;
 }

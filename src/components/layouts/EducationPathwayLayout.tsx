@@ -27,7 +27,7 @@ export interface AcademicProgress {
   progress: number;
   totalModules: number;
   completedModules: number;
-  status: 'active' | 'completed' | 'paused';
+  status: 'active' | 'completed' | 'paused' | 'pending';
   nextDeadline?: Date;
 }
 
