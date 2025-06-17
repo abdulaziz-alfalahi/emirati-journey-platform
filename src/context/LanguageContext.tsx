@@ -21,8 +21,13 @@ interface LanguageProviderProps {
 
 export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>(() => {
-    const stored = localStorage.getItem('language');
-    return (stored as Language) || defaultLanguage;
+    try {
+      const stored = localStorage.getItem('language');
+      return (stored as Language) || defaultLanguage;
+    } catch (error) {
+      console.warn('Failed to read language from localStorage:', error);
+      return defaultLanguage;
+    }
   });
 
   const direction: Direction = language === 'ar' ? 'rtl' : 'ltr';
@@ -34,7 +39,12 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     console.log('i18n isInitialized:', i18n.isInitialized);
     
     setLanguageState(newLanguage);
-    localStorage.setItem('language', newLanguage);
+    
+    try {
+      localStorage.setItem('language', newLanguage);
+    } catch (error) {
+      console.warn('Failed to save language to localStorage:', error);
+    }
     
     // Change language in i18n
     try {
@@ -42,11 +52,15 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
       console.log('Language changed successfully in i18n to:', i18n.language);
       
       // Force a re-render by triggering a storage event
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'language',
-        newValue: newLanguage,
-        oldValue: language
-      }));
+      try {
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'language',
+          newValue: newLanguage,
+          oldValue: language
+        }));
+      } catch (error) {
+        console.warn('Failed to dispatch storage event:', error);
+      }
     } catch (error) {
       console.error('Failed to change language in i18n:', error);
     }
@@ -57,11 +71,13 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     console.log('i18n current language:', i18n.language);
     
     // Update document direction and language
-    document.documentElement.dir = direction;
-    document.documentElement.lang = language;
-    
-    // Update CSS custom property for direction-aware styles
-    document.documentElement.style.setProperty('--text-direction', direction);
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = direction;
+      document.documentElement.lang = language;
+      
+      // Update CSS custom property for direction-aware styles
+      document.documentElement.style.setProperty('--text-direction', direction);
+    }
     
     // Set initial language in i18n
     const changeLanguage = async () => {
