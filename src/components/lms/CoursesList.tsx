@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Search, Filter } from 'lucide-react';
 import { CourseCard } from './CourseCard';
-import { lmsService } from '@/services/lmsService';
+import { lmsService } from '@/services/lms';
 import { useToast } from '@/hooks/use-toast';
 import type { Course } from '@/types/lms';
 
