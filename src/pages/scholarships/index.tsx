@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { useAuth } from '@/context/AuthContext';
 import type { EducationStat, EducationTab, AcademicProgress, AcademicAnnouncement, Achievement } from '@/components/layouts/EducationPathwayLayout';
-import { DollarSign, Users, Award, TrendingUp, GraduationCap, Target, Calendar } from 'lucide-react';
+import { Users, Award, TrendingUp, GraduationCap, Target, Calendar } from 'lucide-react';
+import { DirhamSign } from '@/components/icons/DirhamSign';
 
 const ScholarshipsPage: React.FC = () => {
   const { user, roles } = useAuth();
@@ -35,7 +36,7 @@ const ScholarshipsPage: React.FC = () => {
     {
       value: "50+",
       label: "Available Scholarships",
-      icon: DollarSign
+      icon: DirhamSign
     },
     {
       value: "1,200+",
@@ -59,7 +60,7 @@ const ScholarshipsPage: React.FC = () => {
     {
       id: "browse",
       label: "Browse Scholarships",
-      icon: <DollarSign className="h-4 w-4" />,
+      icon: <DirhamSign className="h-4 w-4" />,
       content: (
         <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Available Scholarships</h3>
@@ -108,7 +109,7 @@ const ScholarshipsPage: React.FC = () => {
     <EducationPathwayLayout
       title="Scholarships & Financial Aid"
       description="Discover scholarship opportunities and financial aid programs designed to support Emirati students in their educational journey."
-      icon={<DollarSign className="h-12 w-12 text-green-600" />}
+      icon={<DirhamSign className="h-12 w-12 text-green-600" />}
       stats={stats}
       tabs={tabs}
       defaultTab="browse"
