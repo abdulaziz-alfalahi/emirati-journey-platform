@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import i18n from '../lib/i18n';
 
 type Language = 'en' | 'ar';
