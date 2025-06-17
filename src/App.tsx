@@ -10,6 +10,9 @@ const DashboardPage = React.lazy(() => import('@/pages/dashboard/index'));
 const AuthPage = React.lazy(() => import('@/pages/auth/index'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFound'));
 
+// Education Pathway pages
+const SummerCampsPage = React.lazy(() => import('@/pages/summer-camps/index'));
+
 // Lifelong Engagement pages
 const RetireeServicesPage = React.lazy(() => import('@/pages/retiree/index'));
 const CommunitiesPage = React.lazy(() => import('@/pages/communities/index'));
@@ -37,6 +40,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Education Pathway Routes */}
+            <Route path="/summer-camps" element={<SummerCampsPage />} />
             
             {/* Lifelong Engagement Routes */}
             <Route path="/retiree" element={<RetireeServicesPage />} />
