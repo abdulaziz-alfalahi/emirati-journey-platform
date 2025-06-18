@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,7 @@ const mockAssessments = [
     id: '1',
     title: 'Teamwork Assessment',
     description: 'Evaluate teamwork and collaboration skills.',
-    status: 'draft',
+    status: 'draft' as const,
     dueDate: '2024-05-15',
     participants: [
       { name: 'Alice Smith', imageUrl: 'https://example.com/alice.jpg' },
@@ -26,7 +27,7 @@ const mockAssessments = [
     id: '2',
     title: 'Leadership Skills Assessment',
     description: 'Assess leadership qualities and potential.',
-    status: 'in_progress',
+    status: 'in_progress' as const,
     dueDate: '2024-06-01',
     participants: [
       { name: 'Charlie Brown', imageUrl: 'https://example.com/charlie.jpg' },
@@ -38,7 +39,7 @@ const mockAssessments = [
     id: '3',
     title: 'Communication Skills Assessment',
     description: 'Evaluate verbal and written communication skills.',
-    status: 'completed',
+    status: 'completed' as const,
     dueDate: '2024-04-20',
     participants: [
       { name: 'Eve Williams', imageUrl: 'https://example.com/eve.jpg' },
@@ -50,7 +51,7 @@ const mockAssessments = [
     id: '4',
     title: 'Problem Solving Assessment',
     description: 'Assess abilities to solve complex problems.',
-    status: 'pending',
+    status: 'pending' as const,
     dueDate: '2024-07-10',
     participants: [
       { name: 'Grace Taylor', imageUrl: 'https://example.com/grace.jpg' },
@@ -60,7 +61,19 @@ const mockAssessments = [
   },
 ];
 
-const AssessmentDashboard: React.FC = () => {
+interface AssessmentDashboardProps {
+  onCreateAssessment?: () => void;
+  onCreateTemplate?: () => void;
+  onViewAssessment?: (assessment: any) => void;
+  onEvaluateAssessment?: (assessment: any) => void;
+}
+
+const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
+  onCreateAssessment = () => {},
+  onCreateTemplate,
+  onViewAssessment = () => {},
+  onEvaluateAssessment = () => {}
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (isLoading) {
@@ -69,8 +82,11 @@ const AssessmentDashboard: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <DashboardHeader />
-      <DashboardStats />
+      <DashboardHeader 
+        onCreateAssessment={onCreateAssessment}
+        onCreateTemplate={onCreateTemplate}
+      />
+      <DashboardStats assessments={mockAssessments} />
       
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4">

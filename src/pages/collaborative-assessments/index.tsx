@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import { AssessmentDashboard } from '@/components/collaborative-assessments/AssessmentDashboard';
+import AssessmentDashboard from '@/components/collaborative-assessments/AssessmentDashboard';
 import { TemplateBuilder } from '@/components/collaborative-assessments/TemplateBuilder';
 import { TemplateLibrary } from '@/components/collaborative-assessments/templates/TemplateLibrary';
 import { EvaluationInterface } from '@/components/collaborative-assessments/EvaluationInterface';
