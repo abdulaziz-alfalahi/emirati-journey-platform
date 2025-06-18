@@ -20,9 +20,15 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
+  // Initialize state with a safer approach
   const [language, setLanguageState] = useState<Language>(() => {
-    const stored = localStorage.getItem('language');
-    return (stored as Language) || defaultLanguage;
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
+      return (stored as Language) || defaultLanguage;
+    } catch (error) {
+      console.warn('Failed to read language from localStorage:', error);
+      return defaultLanguage;
+    }
   });
 
   const direction: Direction = language === 'ar' ? 'rtl' : 'ltr';
@@ -34,7 +40,14 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     console.log('i18n isInitialized:', i18n.isInitialized);
     
     setLanguageState(newLanguage);
-    localStorage.setItem('language', newLanguage);
+    
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('language', newLanguage);
+      }
+    } catch (error) {
+      console.warn('Failed to save language to localStorage:', error);
+    }
     
     // Change language in i18n
     try {
@@ -42,11 +55,13 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
       console.log('Language changed successfully in i18n to:', i18n.language);
       
       // Force a re-render by triggering a storage event
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'language',
-        newValue: newLanguage,
-        oldValue: language
-      }));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'language',
+          newValue: newLanguage,
+          oldValue: language
+        }));
+      }
     } catch (error) {
       console.error('Failed to change language in i18n:', error);
     }
@@ -57,24 +72,30 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     console.log('i18n current language:', i18n.language);
     
     // Update document direction and language
-    document.documentElement.dir = direction;
-    document.documentElement.lang = language;
-    
-    // Update CSS custom property for direction-aware styles
-    document.documentElement.style.setProperty('--text-direction', direction);
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = direction;
+      document.documentElement.lang = language;
+      
+      // Update CSS custom property for direction-aware styles
+      document.documentElement.style.setProperty('--text-direction', direction);
+    }
     
     // Set initial language in i18n
     const changeLanguage = async () => {
-      if (i18n.isInitialized) {
-        console.log('i18n is initialized, changing language to:', language);
-        await i18n.changeLanguage(language);
-      } else {
-        console.log('i18n not initialized, waiting...');
-        // Wait for i18n to initialize
-        i18n.on('initialized', async () => {
-          console.log('i18n initialized, changing language to:', language);
+      try {
+        if (i18n.isInitialized) {
+          console.log('i18n is initialized, changing language to:', language);
           await i18n.changeLanguage(language);
-        });
+        } else {
+          console.log('i18n not initialized, waiting...');
+          // Wait for i18n to initialize
+          i18n.on('initialized', async () => {
+            console.log('i18n initialized, changing language to:', language);
+            await i18n.changeLanguage(language);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to initialize language in i18n:', error);
       }
     };
     
