@@ -1,71 +1,125 @@
-
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/context/AuthContext';
-import { DashboardHeader } from './dashboard/DashboardHeader';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AssessmentCard from './dashboard/AssessmentCard';
 import { DashboardStats } from './dashboard/DashboardStats';
-import { AssessmentCard } from './dashboard/AssessmentCard';
+import { DashboardHeader } from './dashboard/DashboardHeader';
 import { EmptyAssessmentsState } from './dashboard/EmptyAssessmentsState';
 import { LoadingState } from './dashboard/LoadingState';
-import { fetchCollaborativeAssessments } from '@/services/collaborativeAssessments/assessmentService';
-import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
 
-interface AssessmentDashboardProps {
-  onCreateAssessment: () => void;
-  onCreateTemplate?: () => void;
-  onViewAssessment: (assessment: CollaborativeAssessment) => void;
-  onEvaluateAssessment: (assessment: CollaborativeAssessment) => void;
-}
+const mockAssessments = [
+  {
+    id: '1',
+    title: 'Teamwork Assessment',
+    description: 'Evaluate teamwork and collaboration skills.',
+    status: 'draft',
+    dueDate: '2024-05-15',
+    participants: [
+      { name: 'Alice Smith', imageUrl: 'https://example.com/alice.jpg' },
+      { name: 'Bob Johnson', imageUrl: 'https://example.com/bob.jpg' },
+    ],
+    progress: 25,
+  },
+  {
+    id: '2',
+    title: 'Leadership Skills Assessment',
+    description: 'Assess leadership qualities and potential.',
+    status: 'in_progress',
+    dueDate: '2024-06-01',
+    participants: [
+      { name: 'Charlie Brown', imageUrl: 'https://example.com/charlie.jpg' },
+      { name: 'Diana Miller', imageUrl: 'https://example.com/diana.jpg' },
+    ],
+    progress: 50,
+  },
+  {
+    id: '3',
+    title: 'Communication Skills Assessment',
+    description: 'Evaluate verbal and written communication skills.',
+    status: 'completed',
+    dueDate: '2024-04-20',
+    participants: [
+      { name: 'Eve Williams', imageUrl: 'https://example.com/eve.jpg' },
+      { name: 'Frank Davis', imageUrl: 'https://example.com/frank.jpg' },
+    ],
+    progress: 100,
+  },
+  {
+    id: '4',
+    title: 'Problem Solving Assessment',
+    description: 'Assess abilities to solve complex problems.',
+    status: 'pending',
+    dueDate: '2024-07-10',
+    participants: [
+      { name: 'Grace Taylor', imageUrl: 'https://example.com/grace.jpg' },
+      { name: 'Harry Moore', imageUrl: 'https://example.com/harry.jpg' },
+    ],
+    progress: 0,
+  },
+];
 
-export const AssessmentDashboard: React.FC<AssessmentDashboardProps> = ({
-  onCreateAssessment,
-  onCreateTemplate,
-  onViewAssessment,
-  onEvaluateAssessment
-}) => {
-  const { user } = useAuth();
-
-  const { data: assessments = [], isLoading, error } = useQuery({
-    queryKey: ['collaborative-assessments', user?.id],
-    queryFn: () => fetchCollaborativeAssessments(user!.id),
-    enabled: !!user
-  });
+const AssessmentDashboard: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
 
   if (isLoading) {
     return <LoadingState />;
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-destructive">Failed to load assessments. Please try again.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <DashboardHeader 
-        onCreateAssessment={onCreateAssessment}
-        onCreateTemplate={onCreateTemplate}
-      />
+    <div className="container mx-auto p-6 space-y-8">
+      <DashboardHeader />
+      <DashboardStats />
       
-      <DashboardStats assessments={assessments} />
-
-      {assessments.length === 0 ? (
-        <EmptyAssessmentsState onCreateAssessment={onCreateAssessment} />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assessments.map((assessment) => (
-            <AssessmentCard
-              key={assessment.id}
-              assessment={assessment}
-              onViewAssessment={() => onViewAssessment(assessment)}
-              onEvaluateAssessment={() => onEvaluateAssessment(assessment)}
-            />
-          ))}
-        </div>
-      )}
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All Assessments</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="draft">Drafts</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="all" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {mockAssessments.map((assessment) => (
+              <AssessmentCard key={assessment.id} assessment={assessment} />
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="active" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {mockAssessments
+              .filter((assessment) => assessment.status === 'in_progress')
+              .map((assessment) => (
+                <AssessmentCard key={assessment.id} assessment={assessment} />
+              ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="draft" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {mockAssessments
+              .filter((assessment) => assessment.status === 'draft')
+              .map((assessment) => (
+                <AssessmentCard key={assessment.id} assessment={assessment} />
+              ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="completed" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {mockAssessments
+              .filter((assessment) => assessment.status === 'completed')
+              .map((assessment) => (
+                <AssessmentCard key={assessment.id} assessment={assessment} />
+              ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
+
+export default AssessmentDashboard;
