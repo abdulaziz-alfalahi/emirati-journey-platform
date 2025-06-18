@@ -24,7 +24,7 @@ import GraduatePrograms from './pages/graduate-programs';
 import LegacyProjects from './pages/legacy-projects';
 import AdvisoryPositions from './pages/advisory-positions';
 import CommunityLeadership from './pages/community-leadership';
-import NationalService from './pages/not-found'; // Placeholder - adjust if actual page exists
+import NationalService from './pages/national-service';
 import IndustryExploration from './pages/industry-exploration';
 import InterviewPreparation from './pages/interview-preparation';
 import JobMatching from './pages/job-matching';
