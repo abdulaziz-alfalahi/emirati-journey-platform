@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from './context/QueryContext';
@@ -49,6 +48,7 @@ import ResumeBuilderPage from './pages/resume-builder';
 import YouthDevelopment from './pages/youth-development';
 import SuccessStoriesPage from './pages/success-stories';
 import ThoughtLeadershipPage from './pages/thought-leadership';
+import FinancialPlanningPage from './pages/financial-planning';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -116,6 +116,7 @@ function App() {
                 <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
                 <Route path="/success-stories" element={<SuccessStoriesPage />} />
                 <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                <Route path="/financial-planning" element={<FinancialPlanningPage />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
