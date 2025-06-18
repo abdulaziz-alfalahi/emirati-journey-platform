@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import './lib/i18n'; // Initialize i18n
-import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
-import { LanguageProvider } from './context/LanguageContext'; // Import LanguageProvider
+import { ThemeProvider } from './components/theme-provider';
+import { LanguageProvider } from './context/LanguageContext';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
@@ -82,11 +82,11 @@ if (!rootElement) {
 
 const root = document.getElementById("root");
 
-// Render with proper error boundaries and provider order - removed duplicate providers
+// Render with proper error boundaries and provider order
 try {
   createRoot(root!).render(
     <React.StrictMode>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <LanguageProvider defaultLanguage="en">
           <App />
         </LanguageProvider>
