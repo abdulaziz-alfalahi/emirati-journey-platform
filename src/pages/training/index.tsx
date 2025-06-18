@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
-import LifelongEngagementLayout from '@/components/layout/LifelongEngagementLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { TrainingFilters } from '@/components/training/TrainingFilters';
 import { TrainingProgramsList } from '@/components/training/TrainingProgramsList';
+import { MyLearningTab } from '@/components/training/MyLearningTab';
+import { CompletedTrainingTab } from '@/components/training/CompletedTrainingTab';
+import { CertificatesTab } from '@/components/training/CertificatesTab';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, Users, Award, TrendingUp, GraduationCap, Building } from 'lucide-react';
+import { BookOpen, Users, Award, TrendingUp, GraduationCap, Building, User, CheckCircle } from 'lucide-react';
 import type { TrainingFilters as TrainingFiltersType } from '@/types/training';
 
 const TrainingPage: React.FC = () => {
@@ -37,60 +39,25 @@ const TrainingPage: React.FC = () => {
     // TODO: Implement program details view
   };
 
-  return (
-    <LifelongEngagementLayout
-      heroTitle="Vocational Training Programs"
-      heroDescription="Develop practical skills and advance your career with industry-specific training programs designed for the UAE's growing economy. From technical skills to entrepreneurship, find the right program to achieve your professional goals."
-    >
-      
-      {/* Stats Section */}
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="bg-blue-50 p-4 rounded-lg flex items-center">
-              <BookOpen className="h-10 w-10 text-blue-600 mr-4" />
-              <div>
-                <h3 className="font-semibold">200+ Programs</h3>
-                <p className="text-sm text-muted-foreground">Available training options</p>
-              </div>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg flex items-center">
-              <Users className="h-10 w-10 text-green-600 mr-4" />
-              <div>
-                <h3 className="font-semibold">15,000+ Graduates</h3>
-                <p className="text-sm text-muted-foreground">Successfully trained</p>
-              </div>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg flex items-center">
-              <TrendingUp className="h-10 w-10 text-purple-600 mr-4" />
-              <div>
-                <h3 className="font-semibold">92% Job Placement</h3>
-                <p className="text-sm text-muted-foreground">Employment success rate</p>
-              </div>
-            </div>
-            <div className="bg-amber-50 p-4 rounded-lg flex items-center">
-              <Building className="h-10 w-10 text-amber-600 mr-4" />
-              <div>
-                <h3 className="font-semibold">50+ Partners</h3>
-                <p className="text-sm text-muted-foreground">Training providers</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+  const stats = [
+    { value: "200+", label: "Training Programs", icon: BookOpen },
+    { value: "15,000+", label: "Graduates", icon: Users },
+    { value: "92%", label: "Job Placement Rate", icon: TrendingUp },
+    { value: "50+", label: "Training Partners", icon: Building }
+  ];
 
-      {/* Main Content */}
-      <Tabs defaultValue="browse" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="browse">Browse Programs</TabsTrigger>
-          <TabsTrigger value="applications">My Applications</TabsTrigger>
-          <TabsTrigger value="enrollments">My Enrollments</TabsTrigger>
-          <TabsTrigger value="providers">Training Partners</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="browse" className="space-y-6">
+  const tabs = [
+    {
+      id: "available-courses",
+      label: "Available Courses",
+      icon: <BookOpen className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Training Programs"
+          description="Discover comprehensive vocational training programs designed for the UAE's growing economy"
+          icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Filters Sidebar */}
             <div className="lg:col-span-1">
               <TrainingFilters
                 filters={filters}
@@ -98,8 +65,6 @@ const TrainingPage: React.FC = () => {
                 onClearFilters={handleClearFilters}
               />
             </div>
-            
-            {/* Programs List */}
             <div className="lg:col-span-3">
               <TrainingProgramsList
                 filters={filters}
@@ -108,51 +73,66 @@ const TrainingPage: React.FC = () => {
               />
             </div>
           </div>
-        </TabsContent>
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "my-learning",
+      label: "My Learning",
+      icon: <User className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="My Learning Journey"
+          description="Track your current training programs and learning progress"
+          icon={<User className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+        >
+          <MyLearningTab />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      icon: <CheckCircle className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Completed Training"
+          description="Review your completed training programs and achievements"
+          icon={<CheckCircle className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
+        >
+          <CompletedTrainingTab />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "certificates",
+      label: "Certificates",
+      icon: <Award className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="My Certificates"
+          description="Access and manage your earned certificates and credentials"
+          icon={<Award className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
+        >
+          <CertificatesTab />
+        </ProfessionalGrowthTabContent>
+      )
+    }
+  ];
 
-        <TabsContent value="applications">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <GraduationCap className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">My Applications</h3>
-              <p className="text-muted-foreground text-center">
-                Track your training program applications and their status. 
-                <br />
-                Apply to programs to see them here.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="enrollments">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Award className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">My Enrollments</h3>
-              <p className="text-muted-foreground text-center">
-                View your current and completed training programs.
-                <br />
-                Track your progress and access certificates.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="providers">
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Building className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Training Partners</h3>
-              <p className="text-muted-foreground text-center">
-                Explore our network of verified training providers and institutions.
-                <br />
-                Learn about their expertise and partnership levels.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </LifelongEngagementLayout>
+  return (
+    <ProfessionalGrowthLayout
+      title="Vocational Training Programs"
+      description="Develop practical skills and advance your career with industry-specific training programs designed for the UAE's growing economy"
+      icon={<GraduationCap className="h-12 w-12" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="available-courses"
+      ctaTitle="Ready to Start Your Training Journey?"
+      ctaDescription="Join thousands of professionals who have advanced their careers through our comprehensive training programs"
+      ctaActionLabel="Browse All Programs"
+      ctaActionHref="#available-courses"
+    />
   );
 };
 

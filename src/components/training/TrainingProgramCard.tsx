@@ -1,147 +1,146 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, Users, Award, Briefcase, DollarSign } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Clock, Users, MapPin, Calendar, Award, DollarSign } from 'lucide-react';
 import type { TrainingProgram } from '@/types/training';
 
 interface TrainingProgramCardProps {
   program: TrainingProgram;
   onApply: (programId: string) => void;
   onViewDetails: (programId: string) => void;
-  showApplyButton?: boolean;
 }
 
 export const TrainingProgramCard: React.FC<TrainingProgramCardProps> = ({
   program,
   onApply,
-  onViewDetails,
-  showApplyButton = true
+  onViewDetails
 }) => {
-  const { t } = useTranslation('common');
-  
-  const getCategoryLabel = (category: string) => {
+  const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'technical_skills': return t('training.categories.technicalSkills');
-      case 'trade_skills': return t('training.categories.tradeSkills');
-      case 'service_skills': return t('training.categories.serviceSkills');
-      case 'entrepreneurship_business': return t('training.categories.entrepreneurshipBusiness');
-      default: return category;
+      case 'technical_skills':
+        return 'bg-[rgb(var(--pg-primary))] text-white';
+      case 'trade_skills':
+        return 'bg-[rgb(var(--pg-secondary))] text-white';
+      case 'service_skills':
+        return 'bg-[rgb(var(--pg-accent))] text-white';
+      case 'entrepreneurship_business':
+        return 'bg-purple-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
     }
   };
 
-  const getModeLabel = (mode: string) => {
-    switch (mode) {
-      case 'in_person': return t('training.modes.inPerson');
-      case 'online': return t('training.modes.online');
-      case 'hybrid': return t('training.modes.hybrid');
-      default: return mode;
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'full':
+        return 'bg-red-100 text-red-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-blue-100 text-blue-800';
     }
   };
 
-  const getModeColor = (mode: string) => {
-    switch (mode) {
-      case 'in_person': return 'bg-blue-100 text-blue-800';
-      case 'online': return 'bg-green-100 text-green-800';
-      case 'hybrid': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const formatCurrency = (amount: number | undefined, currency: string) => {
+    if (!amount) return 'Free';
+    return `${currency} ${amount.toLocaleString()}`;
+  };
+
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'TBD';
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow">
-      {program.image_url && (
-        <div className="w-full h-48 overflow-hidden rounded-t-lg">
-          <img
-            src={program.image_url}
-            alt={program.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-      
-      <CardHeader>
+    <Card className="hover:shadow-lg transition-all duration-200 hover:border-[rgb(var(--pg-primary))] group">
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-start mb-2">
-          <Badge variant="outline">{getCategoryLabel(program.category)}</Badge>
-          {program.featured && (
-            <Badge className="bg-yellow-100 text-yellow-800">{t('training.card.featured')}</Badge>
-          )}
+          <CardTitle className="text-lg leading-tight group-hover:text-[rgb(var(--pg-primary))] transition-colors">
+            {program.title}
+          </CardTitle>
+          <Badge className={getStatusColor(program.status)}>
+            {program.status}
+          </Badge>
         </div>
-        <CardTitle className="text-lg line-clamp-2">{program.title}</CardTitle>
         {program.provider && (
           <p className="text-sm text-muted-foreground">{program.provider.name}</p>
         )}
+        <Badge className={getCategoryColor(program.category)} variant="secondary">
+          {program.category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        </Badge>
       </CardHeader>
-
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground line-clamp-3">{program.description}</p>
-
-        <div className="grid grid-cols-2 gap-2 text-sm">
+        {program.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {program.description}
+          </p>
+        )}
+        
+        <div className="grid grid-cols-2 gap-3 text-sm">
           {program.duration_weeks && (
-            <div className="flex items-center text-muted-foreground">
-              <Clock className="h-4 w-4 mr-1" />
-              {program.duration_weeks} {t('training.card.weeks')}
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-[rgb(var(--pg-secondary))]" />
+              <span>{program.duration_weeks} weeks</span>
             </div>
           )}
           
-          <div className="flex items-center text-muted-foreground">
-            <Users className="h-4 w-4 mr-1" />
-            {program.current_participants}/{program.max_participants || '∞'} {t('training.card.participants')}
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-[rgb(var(--pg-secondary))]" />
+            <span>{program.current_participants}/{program.max_participants || '∞'}</span>
           </div>
-
+          
           {program.location && (
-            <div className="flex items-center text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-1" />
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-[rgb(var(--pg-secondary))]" />
               <span className="truncate">{program.location}</span>
             </div>
           )}
-
+          
           {program.start_date && (
-            <div className="flex items-center text-muted-foreground">
-              <Calendar className="h-4 w-4 mr-1" />
-              {new Date(program.start_date).toLocaleDateString()}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-[rgb(var(--pg-secondary))]" />
+              <span>{formatDate(program.start_date)}</span>
             </div>
           )}
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Badge className={getModeColor(program.training_mode)}>
-            {getModeLabel(program.training_mode)}
-          </Badge>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-[rgb(var(--pg-accent))]" />
+            <span className="font-semibold text-[rgb(var(--pg-accent))]">
+              {formatCurrency(program.price_amount, program.price_currency)}
+            </span>
+          </div>
           
           {program.certification_offered && (
-            <Badge variant="outline" className="text-green-700">
-              <Award className="h-3 w-3 mr-1" />
-              {t('training.card.certificate')}
-            </Badge>
-          )}
-          
-          {program.job_placement_assistance && (
-            <Badge variant="outline" className="text-blue-700">
-              <Briefcase className="h-3 w-3 mr-1" />
-              {t('training.card.jobPlacement')}
-            </Badge>
+            <div className="flex items-center gap-1 text-sm text-[rgb(var(--pg-primary))]">
+              <Award className="h-4 w-4" />
+              <span>Certificate</span>
+            </div>
           )}
         </div>
-
-        {program.price_amount && program.price_amount > 0 && (
-          <div className="flex items-center text-lg font-semibold text-ehrdc-teal">
-            <DollarSign className="h-5 w-5 mr-1" />
-            {program.price_amount.toLocaleString()} {program.price_currency}
-          </div>
-        )}
-
+        
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" onClick={() => onViewDetails(program.id)} className="flex-1">
-            {t('training.card.viewDetails')}
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="flex-1 hover:border-[rgb(var(--pg-primary))] hover:text-[rgb(var(--pg-primary))]"
+            onClick={() => onViewDetails(program.id)}
+          >
+            View Details
           </Button>
-          {showApplyButton && (
-            <Button onClick={() => onApply(program.id)} className="flex-1 bg-ehrdc-teal hover:bg-ehrdc-teal/90">
-              {t('training.card.applyNow')}
-            </Button>
-          )}
+          <Button 
+            size="sm"
+            className="flex-1 bg-[rgb(var(--pg-primary))] hover:bg-[rgb(var(--pg-primary))/90] text-white"
+            onClick={() => onApply(program.id)}
+            disabled={program.status === 'full' || program.status === 'completed'}
+          >
+            {program.status === 'full' ? 'Full' : 'Apply Now'}
+          </Button>
         </div>
       </CardContent>
     </Card>
