@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { RoleProvider } from './context/RoleContext';
+import { PhaseProvider } from './context/PhaseContext';
 import { PersonalizationProvider } from './context/PersonalizationContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 import Home from './pages/Home';
@@ -19,16 +20,18 @@ function App() {
         </div>
       }
     >
-      <RoleProvider>
-        <PersonalizationProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/analytics" element={<Analytics />} />
-            </Routes>
-          </Router>
-        </PersonalizationProvider>
-      </RoleProvider>
+      <Router>
+        <RoleProvider>
+          <PhaseProvider>
+            <PersonalizationProvider>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/analytics" element={<Analytics />} />
+              </Routes>
+            </PersonalizationProvider>
+          </PhaseProvider>
+        </RoleProvider>
+      </Router>
     </ErrorBoundary>
   );
 }
