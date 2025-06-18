@@ -94,6 +94,17 @@ export const SkillsAssessment: React.FC = () => {
     ]
   };
 
+  const getLevelBadgeVariant = (level: string) => {
+    switch (level) {
+      case 'Advanced':
+        return 'default';
+      case 'Intermediate':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
   const handleAnswerChange = (questionId: number, value: string) => {
     setAnswers({ ...answers, [questionId]: value });
   };
@@ -116,13 +127,13 @@ export const SkillsAssessment: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-6 w-6 text-[rgb(var(--pg-secondary))]" />
               Assessment Complete
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{mockResults.overall}%</div>
+              <div className="text-4xl font-bold text-[rgb(var(--pg-primary))] mb-2">{mockResults.overall}%</div>
               <div className="text-muted-foreground">Overall Digital Skills Score</div>
             </div>
 
@@ -134,10 +145,7 @@ export const SkillsAssessment: React.FC = () => {
                     <div key={index}>
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium">{category.name}</span>
-                        <Badge variant={
-                          category.level === 'Advanced' ? 'default' :
-                          category.level === 'Intermediate' ? 'secondary' : 'outline'
-                        }>
+                        <Badge variant={getLevelBadgeVariant(category.level)}>
                           {category.level}
                         </Badge>
                       </div>
@@ -153,12 +161,12 @@ export const SkillsAssessment: React.FC = () => {
                 <div className="space-y-3">
                   {mockResults.recommendations.map((rec, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <TrendingUp className="h-4 w-4 text-[rgb(var(--pg-secondary))] mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{rec}</span>
                     </div>
                   ))}
                 </div>
-                <Button className="w-full mt-6 bg-blue-600 hover:bg-blue-700">
+                <Button className="w-full mt-6 bg-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))/90] text-white">
                   Generate Learning Path
                 </Button>
               </div>
@@ -192,7 +200,7 @@ export const SkillsAssessment: React.FC = () => {
                 onValueChange={(value) => handleAnswerChange(question.id, value)}
               >
                 {question.options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-blue-50 transition-colors">
+                  <div key={index} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-[rgb(var(--pg-background))]/50 transition-colors">
                     <RadioGroupItem value={option.value} id={`option-${index}`} />
                     <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
                       {option.label}
@@ -209,7 +217,7 @@ export const SkillsAssessment: React.FC = () => {
               <Button 
                 onClick={nextQuestion}
                 disabled={!answers[question.id]}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))/90] text-white"
               >
                 {currentQuestion === sampleQuestions.length ? 'Complete Assessment' : 'Next'}
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -226,7 +234,7 @@ export const SkillsAssessment: React.FC = () => {
       <Card>
         <CardContent className="p-6">
           <div className="text-center mb-8">
-            <Target className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+            <Target className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Digital Skills Assessment</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Take our comprehensive assessment to evaluate your current digital skills, 
@@ -236,7 +244,7 @@ export const SkillsAssessment: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {assessmentCategories.map((category) => (
-              <div key={category.id} className="border rounded-lg p-4">
+              <div key={category.id} className="border rounded-lg p-4 hover:border-[rgb(var(--pg-secondary))] transition-colors">
                 <h3 className="font-semibold mb-2">{category.name}</h3>
                 <p className="text-sm text-muted-foreground mb-3">{category.description}</p>
                 <div className="flex items-center gap-2 text-sm">
@@ -248,7 +256,7 @@ export const SkillsAssessment: React.FC = () => {
           </div>
 
           <div className="text-center">
-            <Button size="lg" onClick={startAssessment} className="bg-blue-600 hover:bg-blue-700">
+            <Button size="lg" onClick={startAssessment} className="bg-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))/90] text-white">
               Start Assessment
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

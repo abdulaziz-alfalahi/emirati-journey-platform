@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import Layout from '@/components/layout/Layout';
-import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
+import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { SkillsAssessment } from '@/components/digital-skills/SkillsAssessment';
 import { LearningPathways } from '@/components/digital-skills/LearningPathways';
 import { CourseCatalog } from '@/components/digital-skills/CourseCatalog';
@@ -10,123 +10,164 @@ import { IndustryProjects } from '@/components/digital-skills/IndustryProjects';
 import { MentorMatching } from '@/components/digital-skills/MentorMatching';
 import { ProgressDashboard } from '@/components/digital-skills/ProgressDashboard';
 import { EmployerConnections } from '@/components/digital-skills/EmployerConnections';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Code, BookOpen, Users, TrendingUp, Zap, Target, Activity, Building } from 'lucide-react';
 
 const DigitalSkillsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('assessment');
+  const statsItems: StatItem[] = [
+    {
+      value: "50+",
+      label: "Digital Skills Covered",
+      icon: Code
+    },
+    {
+      value: "200+",
+      label: "Interactive Courses",
+      icon: BookOpen
+    },
+    {
+      value: "95%",
+      label: "Job Market Relevance",
+      icon: TrendingUp
+    },
+    {
+      value: "24/7",
+      label: "Practice Lab Access",
+      icon: Activity
+    }
+  ];
+
+  const tabs: TabItem[] = [
+    {
+      id: "assessment",
+      label: "Skills Assessment",
+      icon: <Target className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Digital Skills Assessment"
+          icon={<Target className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Evaluate your current digital skills and identify areas for improvement"
+        >
+          <SkillsAssessment />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "pathways",
+      label: "Learning Pathways",
+      icon: <TrendingUp className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Personalized Learning Pathways"
+          icon={<TrendingUp className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Follow structured learning paths tailored to your career goals"
+        >
+          <LearningPathways />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "catalog",
+      label: "Course Catalog",
+      icon: <BookOpen className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Digital Skills Course Catalog"
+          icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Browse our comprehensive collection of digital skills courses"
+        >
+          <CourseCatalog />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "lab",
+      label: "Practice Lab",
+      icon: <Code className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Hands-On Practice Lab"
+          icon={<Code className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Practice your skills in real-world scenarios with interactive exercises"
+        >
+          <PracticeLab />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "projects",
+      label: "Industry Projects",
+      icon: <Zap className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Real Industry Projects"
+          icon={<Zap className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Work on actual industry projects to build your portfolio"
+        >
+          <IndustryProjects />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "mentors",
+      label: "Expert Mentors",
+      icon: <Users className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Connect with Expert Mentors"
+          icon={<Users className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Get guidance from industry experts and experienced professionals"
+        >
+          <MentorMatching />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "progress",
+      label: "My Progress",
+      icon: <Activity className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Learning Progress Dashboard"
+          icon={<Activity className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Track your learning journey and achievements"
+        >
+          <ProgressDashboard />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "employers",
+      label: "Employer Network",
+      icon: <Building className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Connect with Employers"
+          icon={<Building className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description="Network with potential employers and showcase your digital skills"
+        >
+          <EmployerConnections />
+        </ProfessionalGrowthTabContent>
+      )
+    }
+  ];
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-        {/* Standardized Hero Section */}
-        <CareerEntryHeroSection
-          title="Digital Skills Development"
-          description="Build future-ready technology competencies through personalized learning paths and hands-on practice"
-          icon={<Code className="h-12 w-12" />}
-          primaryActionLabel="Take Skills Assessment"
-          primaryActionIcon={<Target className="h-5 w-5" />}
-          secondaryActionLabel="Explore Learning Paths"
-          secondaryActionIcon={<TrendingUp className="h-5 w-5" />}
-        />
-
-        {/* Stats Section */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-900 mb-2">50+</div>
-                <div className="text-slate-600">Digital Skills Covered</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-900 mb-2">200+</div>
-                <div className="text-slate-600">Interactive Courses</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-900 mb-2">95%</div>
-                <div className="text-slate-600">Job Market Relevance</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-900 mb-2">24/7</div>
-                <div className="text-slate-600">Practice Lab Access</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 mb-8">
-              <TabsTrigger value="assessment" className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                <span className="hidden sm:inline">Assessment</span>
-              </TabsTrigger>
-              <TabsTrigger value="pathways" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Pathways</span>
-              </TabsTrigger>
-              <TabsTrigger value="catalog" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Catalog</span>
-              </TabsTrigger>
-              <TabsTrigger value="lab" className="flex items-center gap-2">
-                <Code className="h-4 w-4" />
-                <span className="hidden sm:inline">Lab</span>
-              </TabsTrigger>
-              <TabsTrigger value="projects" className="flex items-center gap-2">
-                <Zap className="h-4 w-4" />
-                <span className="hidden sm:inline">Projects</span>
-              </TabsTrigger>
-              <TabsTrigger value="mentors" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Mentors</span>
-              </TabsTrigger>
-              <TabsTrigger value="progress" className="flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">Progress</span>
-              </TabsTrigger>
-              <TabsTrigger value="employers" className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                <span className="hidden sm:inline">Employers</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="assessment">
-              <SkillsAssessment />
-            </TabsContent>
-            
-            <TabsContent value="pathways">
-              <LearningPathways />
-            </TabsContent>
-            
-            <TabsContent value="catalog">
-              <CourseCatalog />
-            </TabsContent>
-            
-            <TabsContent value="lab">
-              <PracticeLab />
-            </TabsContent>
-            
-            <TabsContent value="projects">
-              <IndustryProjects />
-            </TabsContent>
-            
-            <TabsContent value="mentors">
-              <MentorMatching />
-            </TabsContent>
-            
-            <TabsContent value="progress">
-              <ProgressDashboard />
-            </TabsContent>
-            
-            <TabsContent value="employers">
-              <EmployerConnections />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
-    </Layout>
+    <ProfessionalGrowthLayout
+      title="Digital Skills Development"
+      description="Build future-ready technology competencies through personalized learning paths, hands-on practice, and expert mentorship. Master the digital skills that matter most in today's economy."
+      icon={<Code className="h-8 w-8 text-white" />}
+      stats={statsItems}
+      tabs={tabs}
+      defaultTab="assessment"
+      showProgress={true}
+      progressStep={1}
+      totalSteps={4}
+      stepLabel="Skills Assessment & Path Selection"
+      ctaTitle="Ready to Advance Your Digital Career?"
+      ctaDescription="Complete your skills assessment and unlock personalized learning recommendations"
+      ctaActionLabel="Start Professional Certification"
+      ctaActionHref="/professional-certifications"
+    />
   );
 };
 

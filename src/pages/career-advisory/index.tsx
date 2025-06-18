@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -161,7 +160,7 @@ const ExpertAdvisorsContent = () => {
                 <span className="font-medium">{advisor.rating}</span>
                 <span className="text-muted-foreground ml-1">({advisor.reviews} reviews)</span>
               </div>
-              <Badge variant="outline">{advisor.experience}</Badge>
+              <Badge variant="default">{advisor.experience}</Badge>
             </div>
             
             <div className="flex items-center text-sm text-muted-foreground">

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Video, ArrowUpRight, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +60,9 @@ const InterviewsSection: React.FC<InterviewsSectionProps> = ({ interviews }) => 
               <div>
                 <h3 className="font-medium">{interview.topic}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={interview.status === "completed" ? "success" : "outline"}>
+                  <Badge variant={
+                    interview.status === 'completed' ? 'default' : 'outline'
+                  }>
                     {interview.interview_type || "General"} Interview
                   </Badge>
                   <span className="text-xs text-muted-foreground">

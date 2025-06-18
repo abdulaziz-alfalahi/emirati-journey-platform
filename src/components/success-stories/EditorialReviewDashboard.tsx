@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,7 +149,11 @@ const EditorialReviewDashboard: React.FC = () => {
               {pendingStories.map((story) => (
                 <Card key={story.id} className="relative">
                   <div className="absolute top-4 right-4">
-                    <Badge variant={getStatusColor(story.status)} className="flex items-center space-x-1">
+                    <Badge variant={
+                      story.status === 'published' ? 'default' :
+                      story.status === 'approved' ? 'secondary' :
+                      story.status === 'rejected' ? 'destructive' : 'outline'
+                    } className="flex items-center space-x-1">
                       {getStatusIcon(story.status)}
                       <span className="capitalize">{story.status.replace('_', ' ')}</span>
                     </Badge>
@@ -243,7 +246,11 @@ const EditorialReviewDashboard: React.FC = () => {
             {reviewedStories.map((story) => (
               <div key={story.id} className="relative">
                 <div className="absolute top-4 right-4 z-10">
-                  <Badge variant={getStatusColor(story.status)} className="flex items-center space-x-1">
+                  <Badge variant={
+                    story.status === 'published' ? 'default' :
+                    story.status === 'approved' ? 'secondary' :
+                    story.status === 'rejected' ? 'destructive' : 'outline'
+                  } className="flex items-center space-x-1">
                     {getStatusIcon(story.status)}
                     <span className="capitalize">{story.status}</span>
                   </Badge>
