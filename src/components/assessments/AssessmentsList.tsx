@@ -16,11 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const getAssessmentTypeColor = (type: AssessmentType) => {
   switch (type) {
     case 'skills':
-      return 'bg-blue-500/10 text-blue-500';
+      return 'bg-[rgb(var(--pg-primary))/10] text-[rgb(var(--pg-primary))]';
     case 'behaviors':
-      return 'bg-green-500/10 text-green-500';
+      return 'bg-[rgb(var(--pg-secondary))/10] text-[rgb(var(--pg-secondary))]';
     case 'capabilities':
-      return 'bg-purple-500/10 text-purple-500';
+      return 'bg-[rgb(var(--pg-accent))/10] text-[rgb(var(--pg-accent))]';
     default:
       return 'bg-gray-500/10 text-gray-500';
   }
@@ -65,14 +65,18 @@ export const AssessmentsList = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Assessment Opportunities</h2>
-          <p className="text-muted-foreground">Browse and register for assessment opportunities</p>
+          <h2 className="text-3xl font-bold tracking-tight text-[rgb(var(--pg-primary))]">Assessment Opportunities</h2>
+          <p className="text-muted-foreground">
+            Browse and register for assessment opportunities to advance your professional development
+          </p>
         </div>
 
         {isAssessmentCenter && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button>Post New Assessment</Button>
+              <Button className="bg-[rgb(var(--pg-primary))] hover:bg-[rgb(var(--pg-primary))/90]">
+                Post New Assessment
+              </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl">
               <AssessmentCreate onSuccess={handleCreateSuccess} />
@@ -82,17 +86,33 @@ export const AssessmentsList = () => {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="all" onClick={() => setActiveFilter('all')}>
+        <TabsList className="mb-4 bg-white border shadow-sm">
+          <TabsTrigger 
+            value="all" 
+            onClick={() => setActiveFilter('all')}
+            className="data-[state=active]:bg-[rgb(var(--pg-primary))] data-[state=active]:text-white"
+          >
             All Types
           </TabsTrigger>
-          <TabsTrigger value="skills" onClick={() => setActiveFilter('skills')}>
+          <TabsTrigger 
+            value="skills" 
+            onClick={() => setActiveFilter('skills')}
+            className="data-[state=active]:bg-[rgb(var(--pg-primary))] data-[state=active]:text-white"
+          >
             Skills
           </TabsTrigger>
-          <TabsTrigger value="behaviors" onClick={() => setActiveFilter('behaviors')}>
+          <TabsTrigger 
+            value="behaviors" 
+            onClick={() => setActiveFilter('behaviors')}
+            className="data-[state=active]:bg-[rgb(var(--pg-secondary))] data-[state=active]:text-white"
+          >
             Behaviors
           </TabsTrigger>
-          <TabsTrigger value="capabilities" onClick={() => setActiveFilter('capabilities')}>
+          <TabsTrigger 
+            value="capabilities" 
+            onClick={() => setActiveFilter('capabilities')}
+            className="data-[state=active]:bg-[rgb(var(--pg-accent))] data-[state=active]:text-white"
+          >
             Capabilities
           </TabsTrigger>
         </TabsList>
@@ -100,7 +120,7 @@ export const AssessmentsList = () => {
         <TabsContent value={activeFilter}>
           {isLoading ? (
             <div className="flex justify-center p-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[rgb(var(--pg-primary))]"></div>
             </div>
           ) : filteredAssessments.length === 0 ? (
             <div className="text-center p-8 border rounded-lg bg-muted/40">
@@ -116,7 +136,7 @@ export const AssessmentsList = () => {
               {filteredAssessments.map((assessment) => (
                 <Dialog key={assessment.id}>
                   <DialogTrigger asChild>
-                    <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                    <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-l-4 border-l-[rgb(var(--pg-primary))]">
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
                           <Badge className={getAssessmentTypeColor(assessment.assessment_type)}>
@@ -126,7 +146,7 @@ export const AssessmentsList = () => {
                             </div>
                           </Badge>
                         </div>
-                        <CardTitle className="mt-2">{assessment.title}</CardTitle>
+                        <CardTitle className="mt-2 text-[rgb(var(--pg-primary))]">{assessment.title}</CardTitle>
                         <CardDescription className="line-clamp-2">
                           {assessment.description || 'No description available'}
                         </CardDescription>
@@ -141,12 +161,12 @@ export const AssessmentsList = () => {
                         {assessment.skills_tested && assessment.skills_tested.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {assessment.skills_tested.slice(0, 3).map((skill) => (
-                              <Badge key={skill} variant="outline" className="text-xs">
+                              <Badge key={skill} variant="outline" className="text-xs border-[rgb(var(--pg-secondary))] text-[rgb(var(--pg-secondary))]">
                                 {skill}
                               </Badge>
                             ))}
                             {assessment.skills_tested.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs border-[rgb(var(--pg-secondary))] text-[rgb(var(--pg-secondary))]">
                                 +{assessment.skills_tested.length - 3} more
                               </Badge>
                             )}
@@ -157,12 +177,17 @@ export const AssessmentsList = () => {
                         <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
                           <div>
                             {assessment.price_amount ? (
-                              <span className="font-semibold">{assessment.price_amount} {assessment.price_currency}</span>
+                              <span className="font-semibold text-[rgb(var(--pg-primary))]">{assessment.price_amount} {assessment.price_currency}</span>
                             ) : (
-                              <span>Free</span>
+                              <Badge className="bg-[rgb(var(--pg-secondary))] text-white">Free</Badge>
                             )}
                           </div>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedAssessmentId(assessment.id)}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-[rgb(var(--pg-primary))] hover:bg-[rgb(var(--pg-primary))/10]"
+                            onClick={() => setSelectedAssessmentId(assessment.id)}
+                          >
                             View Details
                           </Button>
                         </div>
