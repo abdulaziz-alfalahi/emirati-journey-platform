@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from './context/QueryContext';
@@ -105,6 +106,7 @@ function App() {
                 <Route path="/become-mentor" element={<BecomeMentor />} />
                 <Route path="/mentor-matching" element={<MentorMatching />} />
                 <Route path="/blockchain" element={<Blockchain />} />
+                <Route path="/blockchain-credentials" element={<Blockchain />} />
                 <Route path="/lms" element={<LMS />} />
                 <Route path="/summer-camps" element={<SummerCamps />} />
                 <Route path="/school-programs" element={<SchoolPrograms />} />
