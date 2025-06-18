@@ -43,6 +43,7 @@ import SummerCamps from './pages/summer-camps';
 import SchoolPrograms from './pages/school-programs';
 import Scholarships from './pages/scholarships';
 import UniversityPrograms from './pages/university-programs';
+import CareerPlanningHubPage from './pages/career-planning-hub';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/career-advisory" element={<CareerAdvisory />} />
+                <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
                 <Route path="/training" element={<Training />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/internships" element={<Internships />} />
