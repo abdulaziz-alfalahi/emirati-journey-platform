@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { QueryProvider } from './context/QueryProvider';
+import { QueryProvider } from './context/QueryContext';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 import HomePage from './pages/home';
