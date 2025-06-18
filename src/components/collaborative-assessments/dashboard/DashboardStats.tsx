@@ -1,10 +1,22 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
+
+interface MockAssessment {
+  id: string;
+  title: string;
+  description: string;
+  status: 'draft' | 'in_progress' | 'completed' | 'pending';
+  dueDate: string;
+  participants: {
+    name: string;
+    imageUrl: string;
+  }[];
+  progress: number;
+}
 
 interface DashboardStatsProps {
-  assessments: CollaborativeAssessment[] | undefined;
+  assessments: MockAssessment[] | undefined;
 }
 
 export const DashboardStats: React.FC<DashboardStatsProps> = ({ assessments }) => {

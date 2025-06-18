@@ -9,8 +9,23 @@ import { DashboardStats } from './dashboard/DashboardStats';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { EmptyAssessmentsState } from './dashboard/EmptyAssessmentsState';
 import { LoadingState } from './dashboard/LoadingState';
+import { CollaborativeAssessment } from '@/types/collaborativeAssessments';
 
-const mockAssessments = [
+// Create a simple mock assessment interface for display purposes
+interface MockAssessment {
+  id: string;
+  title: string;
+  description: string;
+  status: 'draft' | 'in_progress' | 'completed' | 'pending';
+  dueDate: string;
+  participants: {
+    name: string;
+    imageUrl: string;
+  }[];
+  progress: number;
+}
+
+const mockAssessments: MockAssessment[] = [
   {
     id: '1',
     title: 'Teamwork Assessment',
