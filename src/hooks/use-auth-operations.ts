@@ -1,7 +1,6 @@
 
-import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { UserRole } from '@/types/auth';
 
 export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
@@ -18,40 +17,35 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
       });
       
       if (error) {
-        console.error('Sign in error details:', {
-          message: error.message,
-          status: error.status,
-          name: error.name
-        });
+        console.error('Sign in error:', error);
         
-        // Special handling for common auth errors
-        if (error.message === 'Email not confirmed') {
-          toast({
-            title: "Email not confirmed",
-            description: "Please check your email and click the confirmation link, or contact support.",
-            variant: "destructive"
-          });
-        } else if (error.message === 'Invalid login credentials') {
-          toast({
-            title: "Invalid credentials",
-            description: "Please check your email and password and try again.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Login failed",
-            description: error.message,
-            variant: "destructive"
-          });
+        let errorMessage = 'Sign in failed. Please try again.';
+        
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and click the confirmation link before signing in.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Too many sign in attempts. Please wait a moment and try again.';
         }
+        
+        toast({
+          title: "Sign in failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
         throw error;
       }
       
-      console.log('Sign in successful:', data);
-      toast({
-        title: "Welcome back",
-        description: "You've successfully logged in"
-      });
+      if (data.user) {
+        console.log('Sign in successful:', data.user.id);
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in."
+        });
+      }
+      
+      return data;
     } catch (error) {
       console.error('Error in signIn:', error);
       throw error;
@@ -64,10 +58,8 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
     try {
       setIsLoading(true);
       
-      // Get the current origin for redirect
       const redirectUrl = `${window.location.origin}/`;
       
-      // 1. Create the user account
       const { data: userData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -80,9 +72,17 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
       });
 
       if (signUpError) {
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (signUpError.message.includes('already registered')) {
+          errorMessage = 'This email is already registered. Please try signing in instead.';
+        } else if (signUpError.message.includes('Password')) {
+          errorMessage = 'Password must be at least 6 characters long.';
+        }
+        
         toast({
           title: "Registration failed",
-          description: signUpError.message,
+          description: errorMessage,
           variant: "destructive"
         });
         throw signUpError;
@@ -92,7 +92,7 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
         throw new Error('User creation failed');
       }
 
-      // 2. Assign all selected roles using the edge function
+      // Assign roles using the edge function
       const roleAssignmentPromises = roles.map(role => 
         supabase.functions.invoke('assign-user-role', {
           body: { 
@@ -104,7 +104,6 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
 
       const roleResults = await Promise.allSettled(roleAssignmentPromises);
       
-      // Check if any role assignments failed
       const failedRoles = roleResults
         .map((result, index) => ({ result, role: roles[index] }))
         .filter(({ result }) => result.status === 'rejected')
@@ -119,12 +118,12 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
         });
       } else {
         toast({
-          title: "Account created",
-          description: `You've successfully registered with ${roles.length} role(s). You can now log in.`
+          title: "Account created successfully!",
+          description: `Registration complete with ${roles.length} role(s). Please check your email to verify your account.`
         });
       }
       
-      return;
+      return userData;
     } catch (error) {
       console.error('Error in signUp:', error);
       throw error;

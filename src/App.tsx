@@ -9,6 +9,7 @@ import { ErrorBoundary } from './components/ui/error-boundary';
 // Pages - Updated import paths to match actual file structure
 import Home from './pages/home';
 import Dashboard from './pages/dashboard';
+import AuthPage from './pages/auth';
 import CareerAdvisory from './pages/career-advisory';
 import Training from './pages/training';
 import Jobs from './pages/job-matching';
@@ -65,6 +66,7 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/career-advisory" element={<CareerAdvisory />} />
                 <Route path="/training" element={<Training />} />

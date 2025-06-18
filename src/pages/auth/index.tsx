@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, LogIn, UserPlus, Shield } from 'lucide-react';
+import { Loader2, LogIn, UserPlus, Shield, AlertCircle } from 'lucide-react';
 import RoleSelector from '@/components/auth/RoleSelector';
 import { UserRole } from '@/types/auth';
 
@@ -41,10 +41,17 @@ const AuthPage: React.FC = () => {
       return;
     }
 
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     try {
       await signIn(email, password);
+      // Success handling is done in the signIn function via toast
     } catch (error: any) {
-      setError(error.message || 'Sign in failed');
+      console.error('Sign in error:', error);
+      setError(error.message || 'Sign in failed. Please try again.');
     }
   };
 
@@ -57,6 +64,16 @@ const AuthPage: React.FC = () => {
       return;
     }
 
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     if (selectedRoles.length === 0) {
       setError('Please select at least one role');
       return;
@@ -64,6 +81,7 @@ const AuthPage: React.FC = () => {
 
     try {
       await signUp(email, password, fullName, selectedRoles);
+      // Clear form on successful signup
       setActiveTab('signin');
       setError('');
       setEmail('');
@@ -71,7 +89,8 @@ const AuthPage: React.FC = () => {
       setFullName('');
       setSelectedRoles([]);
     } catch (error: any) {
-      setError(error.message || 'Sign up failed');
+      console.error('Sign up error:', error);
+      setError(error.message || 'Sign up failed. Please try again.');
     }
   };
 
@@ -108,6 +127,7 @@ const AuthPage: React.FC = () => {
               
               {error && (
                 <Alert variant="destructive" className="mt-4">
+                  <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -128,6 +148,7 @@ const AuthPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -139,6 +160,7 @@ const AuthPage: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <Button 
@@ -174,6 +196,7 @@ const AuthPage: React.FC = () => {
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your full name"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -185,6 +208,7 @@ const AuthPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -194,8 +218,10 @@ const AuthPage: React.FC = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create a password"
+                      placeholder="Create a password (min 6 characters)"
                       required
+                      disabled={isLoading}
+                      minLength={6}
                     />
                   </div>
                   

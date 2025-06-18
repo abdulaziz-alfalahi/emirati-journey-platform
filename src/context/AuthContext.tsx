@@ -28,31 +28,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (!mounted) return;
         
-        // Prevent infinite loops by checking if session actually changed
-        if (currentSession?.access_token === session?.access_token) {
-          return;
-        }
-        
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Use setTimeout to avoid potential deadlocks with auth callbacks
-          setTimeout(async () => {
+          try {
+            const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
             if (mounted) {
-              try {
-                const userRoles = await fetchUserRoles(currentSession.user.id, currentSession.user);
-                if (mounted) {
-                  setRoles(userRoles);
-                }
-              } catch (error) {
-                console.error('Error fetching user roles:', error);
-                if (mounted) {
-                  setRoles([]);
-                }
-              }
+              setRoles(userRoles);
             }
-          }, 0);
+          } catch (error) {
+            console.error('Error fetching user roles:', error);
+            if (mounted) {
+              setRoles([]);
+            }
+          }
         } else {
           setRoles([]);
         }
@@ -64,15 +54,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Check for existing session only once
+    // Check for existing session
     const initializeAuth = async () => {
       try {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
-          setIsLoading(false);
-          setInitialized(true);
+          if (mounted) {
+            setIsLoading(false);
+            setInitialized(true);
+          }
           return;
         }
         
@@ -114,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []); // Remove dependencies to prevent re-initialization
+  }, []);
 
   const hasRole = (role: UserRole) => {
     return roles.includes(role);
