@@ -44,6 +44,7 @@ import SchoolPrograms from './pages/school-programs';
 import Scholarships from './pages/scholarships';
 import UniversityPrograms from './pages/university-programs';
 import CareerPlanningHubPage from './pages/career-planning-hub';
+import ResumeBuilderPage from './pages/resume-builder';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -98,6 +99,7 @@ function App() {
                 <Route path="/assessments" element={<AssessmentsPage />} />
                 <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
                 <Route path="/cv-builder" element={<CVBuilder />} />
+                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
                 <Route path="/become-mentor" element={<BecomeMentor />} />
                 <Route path="/mentor-matching" element={<MentorMatching />} />
                 <Route path="/blockchain" element={<Blockchain />} />
