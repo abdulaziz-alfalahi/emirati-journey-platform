@@ -42,6 +42,7 @@ import Admin from './pages/not-found'; // Placeholder - adjust if actual page ex
 import SummerCamps from './pages/summer-camps';
 import SchoolPrograms from './pages/school-programs';
 import Scholarships from './pages/scholarships';
+import UniversityPrograms from './pages/university-programs';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -83,6 +84,7 @@ function App() {
                 <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
                 <Route path="/mentorship" element={<MentorshipPrograms />} />
                 <Route path="/graduate-programs" element={<GraduatePrograms />} />
+                <Route path="/university-programs" element={<UniversityPrograms />} />
                 <Route path="/legacy-projects" element={<LegacyProjects />} />
                 <Route path="/advisory-positions" element={<AdvisoryPositions />} />
                 <Route path="/community-leadership" element={<CommunityLeadership />} />
