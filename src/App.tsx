@@ -5,7 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './context/QueryContext';
 import { RoleProvider } from './context/RoleContext';
 import { PhaseProvider } from './context/PhaseContext';
-import { PersonalizationProvider } from './context/PersonalizationProvider';
+import { PersonalizationProvider } from './context/PersonalizationContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 import Home from './pages/Home';
 import Analytics from './pages/analytics';
