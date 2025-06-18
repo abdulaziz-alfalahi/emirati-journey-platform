@@ -60,8 +60,8 @@ const ErrorFallback = ({ error }: { error: Error }) => (
 function App() {
   return (
     <ErrorBoundary fallback={<ErrorFallback error={new Error('Application error')} />}>
-      <AuthProvider>
-        <QueryProvider>
+      <QueryProvider>
+        <AuthProvider>
           <RoleProvider>
             <Router>
               <Routes>
@@ -101,8 +101,8 @@ function App() {
               </Routes>
             </Router>
           </RoleProvider>
-        </QueryProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </QueryProvider>
     </ErrorBoundary>
   );
 }

@@ -38,8 +38,8 @@ export interface AuthContextType {
   session: Session | null;
   roles: UserRole[];
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, roles: UserRole[]) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, fullName: string, roles: UserRole[]) => Promise<any>;
   signOut: () => Promise<void>;
   hasRole: (role: UserRole) => boolean;
 }
