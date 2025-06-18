@@ -25,4 +25,4 @@ export type {
   NetworkingEvent,
   SuccessStory,
   LeadershipModule
-} from './types';
+} from './ProfessionalDevelopmentCard';
