@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { MoonIcon, SunIcon, Laptop } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/components/theme-provider";
 
 import { Button } from "@/components/ui/button";
 import {
