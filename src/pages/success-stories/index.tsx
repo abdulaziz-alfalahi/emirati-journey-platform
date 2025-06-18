@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Plus, Users, FileText, Eye, Star } from 'lucide-react';
-import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import SuccessStoriesShowcase from '@/components/success-stories/SuccessStoriesShowcase';
 import StorySubmissionForm from '@/components/success-stories/StorySubmissionForm';
 import { useAuth } from '@/context/AuthContext';
@@ -47,10 +47,10 @@ const SuccessStoriesPage: React.FC = () => {
   }
 
   return (
-    <ProfessionalGrowthLayout
+    <LifelongEngagementLayout
       title="Emirati Journeys: Stories of Triumph"
       description="Discover inspiring success stories from Emiratis across various fields and life stages. Share your own journey to inspire others and celebrate the achievements that make our nation proud."
-      icon={<Star className="h-6 w-6" />}
+      icon={<Star className="h-12 w-12" />}
       stats={stats}
       tabs={tabs}
       defaultTab="browse"
