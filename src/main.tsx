@@ -5,10 +5,9 @@ import App from './App.tsx';
 import './index.css';
 import './lib/i18n'; // Initialize i18n
 import { AuthProvider } from './context/AuthContext';
-import { RoleProvider } from './context/RoleContext';
 import { QueryProvider } from './context/QueryContext';
-import { ThemeProvider } from './components/theme-provider';
-import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
+import { LanguageProvider } from './context/LanguageContext'; // Import LanguageProvider
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
@@ -89,11 +88,9 @@ createRoot(root!).render(
     <LanguageProvider>
       <ThemeProvider defaultTheme="light">
         <AuthProvider>
-          <RoleProvider>
-            <QueryProvider>
-              <App />
-            </QueryProvider>
-          </RoleProvider>
+          <QueryProvider>
+            <App />
+          </QueryProvider>
         </AuthProvider>
       </ThemeProvider>
     </LanguageProvider>
