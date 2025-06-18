@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { QueryProvider } from './context/QueryContext';
 import { RoleProvider } from './context/RoleContext';
 import { PhaseProvider } from './context/PhaseContext';
-import { PersonalizationProvider } from './context/PersonalizationContext';
+import { PersonalizationProvider } from './context/PersonalizationProvider';
 import { ErrorBoundary } from './components/ui/error-boundary';
 import Home from './pages/Home';
 import Analytics from './pages/analytics';
@@ -20,18 +22,22 @@ function App() {
         </div>
       }
     >
-      <Router>
-        <RoleProvider>
-          <PhaseProvider>
-            <PersonalizationProvider>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/analytics" element={<Analytics />} />
-              </Routes>
-            </PersonalizationProvider>
-          </PhaseProvider>
-        </RoleProvider>
-      </Router>
+      <AuthProvider>
+        <QueryProvider>
+          <Router>
+            <RoleProvider>
+              <PhaseProvider>
+                <PersonalizationProvider>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                  </Routes>
+                </PersonalizationProvider>
+              </PhaseProvider>
+            </RoleProvider>
+          </Router>
+        </QueryProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
