@@ -26,11 +26,11 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
   };
 
   const handleCategoryChange = (category: string) => {
-    onFiltersChange({ ...filters, category });
+    onFiltersChange({ ...filters, category: category === 'all' ? undefined : category });
   };
 
   const handleTrainingModeChange = (training_mode: string) => {
-    onFiltersChange({ ...filters, training_mode });
+    onFiltersChange({ ...filters, training_mode: training_mode === 'all' ? undefined : training_mode });
   };
 
   const handleCertificationChange = (certification_offered: boolean) => {
@@ -94,12 +94,12 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
         {/* Category */}
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
-          <Select value={filters.category || ''} onValueChange={handleCategoryChange}>
+          <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
             <SelectTrigger className="focus:border-[rgb(var(--pg-primary))] focus:ring-[rgb(var(--pg-primary))]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               <SelectItem value="technical_skills">Technical Skills</SelectItem>
               <SelectItem value="trade_skills">Trade Skills</SelectItem>
               <SelectItem value="service_skills">Service Skills</SelectItem>
@@ -111,12 +111,12 @@ export const TrainingFilters: React.FC<TrainingFiltersProps> = ({
         {/* Training Mode */}
         <div className="space-y-2">
           <Label htmlFor="mode">Training Mode</Label>
-          <Select value={filters.training_mode || ''} onValueChange={handleTrainingModeChange}>
+          <Select value={filters.training_mode || 'all'} onValueChange={handleTrainingModeChange}>
             <SelectTrigger className="focus:border-[rgb(var(--pg-primary))] focus:ring-[rgb(var(--pg-primary))]">
               <SelectValue placeholder="All Modes" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Modes</SelectItem>
+              <SelectItem value="all">All Modes</SelectItem>
               <SelectItem value="in_person">In-Person</SelectItem>
               <SelectItem value="online">Online</SelectItem>
               <SelectItem value="hybrid">Hybrid</SelectItem>
