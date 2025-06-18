@@ -48,6 +48,7 @@ import CareerPlanningHubPage from './pages/career-planning-hub';
 import ResumeBuilderPage from './pages/resume-builder';
 import YouthDevelopment from './pages/youth-development';
 import SuccessStoriesPage from './pages/success-stories';
+import ThoughtLeadershipPage from './pages/thought-leadership';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -114,6 +115,7 @@ function App() {
                 <Route path="/youth-development" element={<YouthDevelopment />} />
                 <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
                 <Route path="/success-stories" element={<SuccessStoriesPage />} />
+                <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
