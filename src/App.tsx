@@ -33,6 +33,7 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/digital-skills" element={<DigitalSkillsPage />} />
+                <Route path="/digital-skills-development" element={<DigitalSkillsPage />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
               </Routes>
