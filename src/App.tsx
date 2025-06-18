@@ -6,43 +6,59 @@ import { AuthProvider } from './context/AuthContext';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 
-// Pages
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import CareerAdvisory from './pages/CareerAdvisory';
-import Training from './pages/Training';
-import Jobs from './pages/Jobs';
-import Internships from './pages/Internships';
-import CareerJourney from './pages/CareerJourney';
-import Portfolio from './pages/Portfolio';
-import Communities from './pages/Communities';
-import Analytics from './pages/Analytics';
-import DigitalSkills from './pages/DigitalSkills';
-import ProfessionalCertifications from './pages/ProfessionalCertifications';
+// Pages - Updated import paths to match actual file structure
+import Home from './pages/home';
+import Dashboard from './pages/dashboard';
+import CareerAdvisory from './pages/career-advisory';
+import Training from './pages/training';
+import Jobs from './pages/job-matching';
+import Internships from './pages/internships';
+import CareerJourney from './pages/career-journey';
+import Portfolio from './pages/portfolio';
+import Communities from './pages/communities/analytics';
+import Analytics from './pages/analytics';
+import DigitalSkills from './pages/digital-skills';
+import ProfessionalCertifications from './pages/professional-certifications';
 import MentorshipPrograms from './pages/mentorship';
-import GraduatePrograms from './pages/GraduatePrograms';
-import LegacyProjects from './pages/LegacyProjects';
-import AdvisoryPositions from './pages/AdvisoryPositions';
-import CommunityLeadership from './pages/CommunityLeadership';
-import NationalService from './pages/NationalService';
-import IndustryExploration from './pages/IndustryExploration';
-import InterviewPreparation from './pages/InterviewPreparation';
-import JobMatching from './pages/JobMatching';
-import CareerComparison from './pages/CareerComparison';
-import AssessmentsPage from './pages/Assessments';
-import CollaborativeAssessments from './pages/CollaborativeAssessments';
-import CVBuilder from './pages/CVBuilder';
-import BecomeMentor from './pages/BecomeMentor';
-import MentorMatching from './pages/MentorMatching';
-import Blockchain from './pages/Blockchain';
-import LMS from './pages/LMS';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
-import Admin from './pages/Admin';
+import GraduatePrograms from './pages/graduate-programs';
+import LegacyProjects from './pages/legacy-projects';
+import AdvisoryPositions from './pages/advisory-positions';
+import CommunityLeadership from './pages/community-leadership';
+import NationalService from './pages/not-found'; // Placeholder - adjust if actual page exists
+import IndustryExploration from './pages/industry-exploration';
+import InterviewPreparation from './pages/interview-preparation';
+import JobMatching from './pages/job-matching';
+import CareerComparison from './pages/career-comparison';
+import AssessmentsPage from './pages/assessments';
+import CollaborativeAssessments from './pages/collaborative-assessments';
+import CVBuilder from './pages/cv-builder';
+import BecomeMentor from './pages/become-mentor';
+import MentorMatching from './pages/mentor-matching';
+import Blockchain from './pages/blockchain-credentials';
+import LMS from './pages/lms';
+import Settings from './pages/not-found'; // Placeholder - adjust if actual page exists
+import Profile from './pages/profile';
+import Admin from './pages/not-found'; // Placeholder - adjust if actual page exists
+
+// Error fallback component
+const ErrorFallback = ({ error }: { error: Error }) => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+      <p className="text-gray-600 mb-4">{error.message}</p>
+      <button 
+        onClick={() => window.location.reload()} 
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Reload Page
+      </button>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<ErrorFallback error={new Error('Application error')} />}>
       <AuthProvider>
         <QueryProvider>
           <RoleProvider>
