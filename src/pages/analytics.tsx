@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
-import Layout from '@/components/layout/Layout';
+import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, Shield, TestTube, TrendingUp, Settings } from 'lucide-react';
+import { BarChart3, Users, Shield, TestTube, TrendingUp, Settings, Activity, Eye, Database } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRole } from '@/context/RoleContext';
 import { UserJourneyVisualization } from '@/components/analytics/UserJourneyVisualization';
@@ -20,38 +19,136 @@ const AnalyticsPage: React.FC = () => {
 
   const isAdmin = activeRole === 'administrator' || activeRole === 'super_user';
 
+  // Analytics-focused statistics
+  const stats = [
+    {
+      value: "2.5M+",
+      label: "Data Points Collected",
+      icon: Database
+    },
+    {
+      value: "150+",
+      label: "Insights Generated",
+      icon: TrendingUp
+    },
+    {
+      value: "99.8%",
+      label: "Privacy Compliance Rate",
+      icon: Shield
+    },
+    {
+      value: "87%",
+      label: "User Engagement Score",
+      icon: Activity
+    }
+  ];
+
+  // Define tabs based on user role
+  const getTabs = () => {
+    const baseTabs = [
+      {
+        id: 'journey',
+        label: 'My Journey',
+        icon: <TrendingUp className="h-4 w-4" />,
+        content: <UserJourneyVisualization />
+      },
+      {
+        id: 'recommendations',
+        label: 'Recommendations',
+        icon: <TestTube className="h-4 w-4" />,
+        content: <RecommendationAnalytics />
+      },
+      {
+        id: 'consent',
+        label: 'Privacy Settings',
+        icon: <Shield className="h-4 w-4" />,
+        content: <AnalyticsConsentManager />
+      }
+    ];
+
+    if (isAdmin) {
+      baseTabs.push(
+        {
+          id: 'platform',
+          label: 'Platform Analytics',
+          icon: <BarChart3 className="h-4 w-4" />,
+          content: <AdminAnalyticsDashboard />
+        },
+        {
+          id: 'abtesting',
+          label: 'A/B Testing',
+          icon: <TestTube className="h-4 w-4" />,
+          content: (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TestTube className="h-5 w-5" />
+                  A/B Testing Dashboard
+                </CardTitle>
+                <CardDescription>
+                  Manage and monitor A/B tests for continuous platform improvement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-muted-foreground">
+                  <TestTube className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-semibold mb-2">A/B Testing Interface</h3>
+                  <p className="mb-4">
+                    Advanced A/B testing interface coming soon. This will include experiment
+                    creation, variant management, and statistical analysis tools.
+                  </p>
+                  <Button variant="outline">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configure Tests
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        }
+      );
+    }
+
+    return baseTabs;
+  };
+
   if (!user) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="py-12 text-center">
-              <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Analytics Access Required</h3>
-              <p className="text-muted-foreground mb-4">
-                Please sign in to view your analytics and journey insights.
-              </p>
-              <Button onClick={() => window.location.href = '/auth'}>
-                Sign In
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </Layout>
+      <LifelongEngagementLayout
+        heroTitle="Analytics & Insights Access Required"
+        heroDescription="Please sign in to view your analytics and journey insights."
+      >
+        <Card>
+          <CardContent className="py-12 text-center">
+            <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Analytics Access Required</h3>
+            <p className="text-muted-foreground mb-4">
+              Please sign in to view your analytics and journey insights.
+            </p>
+            <Button onClick={() => window.location.href = '/auth'}>
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </LifelongEngagementLayout>
     );
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 space-y-6">
+    <LifelongEngagementLayout
+      heroTitle="Analytics & Insights"
+      heroDescription="Comprehensive analytics across your citizen lifecycle journey with privacy-first data insights and personalized recommendations."
+    >
+      <div className="space-y-6">
+        {/* Header with badges */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <BarChart3 className="h-8 w-8" />
-              Analytics & Insights
+              Analytics Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Comprehensive analytics across your citizen lifecycle journey
+              Track your progress and gain insights from your lifelong engagement journey
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -68,82 +165,59 @@ const AnalyticsPage: React.FC = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="journey" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              My Journey
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2">
-              <TestTube className="h-4 w-4" />
-              Recommendations
-            </TabsTrigger>
-            <TabsTrigger value="consent" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Privacy Settings
-            </TabsTrigger>
-            {isAdmin && (
-              <>
-                <TabsTrigger value="platform" className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  Platform Analytics
-                </TabsTrigger>
-                <TabsTrigger value="abtesting" className="flex items-center gap-2">
-                  <TestTube className="h-4 w-4" />
-                  A/B Testing
-                </TabsTrigger>
-              </>
-            )}
-          </TabsList>
-
-          <TabsContent value="journey">
-            <UserJourneyVisualization />
-          </TabsContent>
-
-          <TabsContent value="recommendations">
-            <RecommendationAnalytics />
-          </TabsContent>
-
-          <TabsContent value="consent">
-            <AnalyticsConsentManager />
-          </TabsContent>
-
-          {isAdmin && (
-            <>
-              <TabsContent value="platform">
-                <AdminAnalyticsDashboard />
-              </TabsContent>
-
-              <TabsContent value="abtesting">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TestTube className="h-5 w-5" />
-                      A/B Testing Dashboard
-                    </CardTitle>
-                    <CardDescription>
-                      Manage and monitor A/B tests for continuous platform improvement
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 text-muted-foreground">
-                      <TestTube className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-semibold mb-2">A/B Testing Interface</h3>
-                      <p className="mb-4">
-                        Advanced A/B testing interface coming soon. This will include experiment
-                        creation, variant management, and statistical analysis tools.
-                      </p>
-                      <Button variant="outline">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Configure Tests
-                      </Button>
+        {/* Statistics Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {stats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <Card key={index} className="border-0 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <IconComponent className="h-5 w-5 text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </>
-          )}
-        </Tabs>
+                    <div>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      <p className="text-lg font-semibold">{stat.value}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Analytics Content */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              <CardTitle>Analytics Insights</CardTitle>
+            </div>
+            <CardDescription>
+              Explore your data insights, journey visualization, and privacy controls
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+              {getTabs().map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? "default" : "outline"}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="flex items-center gap-2 justify-start"
+                >
+                  {tab.icon}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </Button>
+              ))}
+            </div>
+
+            <div className="min-h-[400px]">
+              {getTabs().find(tab => tab.id === activeTab)?.content}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Privacy Notice */}
         <Card className="bg-muted/50">
@@ -162,7 +236,7 @@ const AnalyticsPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </LifelongEngagementLayout>
   );
 };
 
