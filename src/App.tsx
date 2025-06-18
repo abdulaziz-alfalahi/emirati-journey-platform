@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { QueryProvider } from './context/QueryContext';
+import { QueryProvider } from './context/QueryProvider';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 import HomePage from './pages/home';
@@ -10,6 +10,7 @@ import AuthPage from './pages/auth';
 import DashboardPage from './pages/dashboard';
 import DigitalSkillsPage from './pages/digital-skills';
 import ProfessionalCertificationsPage from './pages/professional-certifications';
+import TrainingPage from './pages/training';
 import AnalyticsPage from './pages/analytics';
 
 // Education Pathway Pages
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/digital-skills" element={<DigitalSkillsPage />} />
                 <Route path="/digital-skills-development" element={<DigitalSkillsPage />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
+                <Route path="/training" element={<TrainingPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 
                 {/* Education Pathway Routes */}
