@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, Users, Shield, TestTube, TrendingUp, Settings, Activity, Eye, Database } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -11,11 +9,12 @@ import { UserJourneyVisualization } from '@/components/analytics/UserJourneyVisu
 import { AnalyticsConsentManager } from '@/components/analytics/AnalyticsConsentManager';
 import { AdminAnalyticsDashboard } from '@/components/analytics/AdminAnalyticsDashboard';
 import RecommendationAnalytics from '@/components/dashboard/RecommendationAnalytics';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const AnalyticsPage: React.FC = () => {
   const { user } = useAuth();
   const { activeRole } = useRole();
-  const [activeTab, setActiveTab] = useState('journey');
 
   const isAdmin = activeRole === 'administrator' || activeRole === 'super_user';
 
@@ -115,8 +114,11 @@ const AnalyticsPage: React.FC = () => {
   if (!user) {
     return (
       <LifelongEngagementLayout
-        heroTitle="Analytics & Insights Access Required"
-        heroDescription="Please sign in to view your analytics and journey insights."
+        title="Analytics & Insights Access Required"
+        description="Please sign in to view your analytics and journey insights."
+        icon={<BarChart3 className="h-12 w-12" />}
+        stats={[]}
+        tabs={[]}
       >
         <Card>
           <CardContent className="py-12 text-center">
@@ -136,8 +138,12 @@ const AnalyticsPage: React.FC = () => {
 
   return (
     <LifelongEngagementLayout
-      heroTitle="Analytics & Insights"
-      heroDescription="Comprehensive analytics across your citizen lifecycle journey with privacy-first data insights and personalized recommendations."
+      title="Analytics & Insights"
+      description="Comprehensive analytics across your citizen lifecycle journey with privacy-first data insights and personalized recommendations."
+      icon={<BarChart3 className="h-12 w-12" />}
+      stats={stats}
+      tabs={getTabs()}
+      defaultTab="journey"
     >
       <div className="space-y-6">
         {/* Header with badges */}
@@ -164,60 +170,6 @@ const AnalyticsPage: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <Card key={index} className="border-0 shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <IconComponent className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                      <p className="text-lg font-semibold">{stat.value}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Analytics Content */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              <CardTitle>Analytics Insights</CardTitle>
-            </div>
-            <CardDescription>
-              Explore your data insights, journey visualization, and privacy controls
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-              {getTabs().map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? "default" : "outline"}
-                  onClick={() => setActiveTab(tab.id)}
-                  className="flex items-center gap-2 justify-start"
-                >
-                  {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </Button>
-              ))}
-            </div>
-
-            <div className="min-h-[400px]">
-              {getTabs().find(tab => tab.id === activeTab)?.content}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Privacy Notice */}
         <Card className="bg-muted/50">
