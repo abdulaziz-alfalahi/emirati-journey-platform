@@ -12,6 +12,24 @@ import DigitalSkillsPage from './pages/digital-skills';
 import ProfessionalCertificationsPage from './pages/professional-certifications';
 import AnalyticsPage from './pages/analytics';
 
+// Education Pathway Pages
+import SummerCampsPage from './pages/summer-camps';
+import SchoolProgramsPage from './pages/school-programs';
+import ScholarshipsPage from './pages/scholarships';
+import UniversityProgramsPage from './pages/university-programs';
+import LMSPage from './pages/lms';
+
+// Career Entry Pages
+import CareerPlanningHubPage from './pages/career-planning-hub';
+import IndustryExplorationPage from './pages/industry-exploration';
+import GraduateProgramsPage from './pages/graduate-programs';
+import InternshipsPage from './pages/internships';
+import JobMatchingPage from './pages/job-matching';
+import CareerAdvisoryPage from './pages/career-advisory';
+import ResumeBuilderPage from './pages/resume-builder';
+import PortfolioPage from './pages/portfolio';
+import InterviewPreparationPage from './pages/interview-preparation';
+
 function App() {
   return (
     <ErrorBoundary
@@ -36,6 +54,24 @@ function App() {
                 <Route path="/digital-skills-development" element={<DigitalSkillsPage />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
+                
+                {/* Education Pathway Routes */}
+                <Route path="/summer-camps" element={<SummerCampsPage />} />
+                <Route path="/school-programs" element={<SchoolProgramsPage />} />
+                <Route path="/scholarships" element={<ScholarshipsPage />} />
+                <Route path="/university-programs" element={<UniversityProgramsPage />} />
+                <Route path="/lms" element={<LMSPage />} />
+                
+                {/* Career Entry Routes */}
+                <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
+                <Route path="/industry-exploration" element={<IndustryExplorationPage />} />
+                <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
+                <Route path="/internships" element={<InternshipsPage />} />
+                <Route path="/job-matching" element={<JobMatchingPage />} />
+                <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
+                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/interview-preparation" element={<InterviewPreparationPage />} />
               </Routes>
             </RoleProvider>
           </Router>

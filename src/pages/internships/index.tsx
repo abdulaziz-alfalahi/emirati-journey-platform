@@ -1,104 +1,49 @@
 
-import React, { useState } from 'react';
-import Layout from '@/components/layout/Layout';
-import MobileLayout from '@/components/mobile/MobileLayout';
-import { useMobileDetection } from '@/hooks/use-mobile-detection';
-import { CareerEntryHeroSection } from '@/components/career/CareerEntryHeroSection';
-import { InternshipsList } from '@/components/internships/InternshipsList';
-import { InternshipsFilter } from '@/components/internships/InternshipsFilter';
-import { InternshipsCreate } from '@/components/internships/InternshipsCreate';
-import { InternshipsManage } from '@/components/internships/InternshipsManage';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Briefcase, Search, Plus, Settings, Target } from 'lucide-react';
+import React from 'react';
+import { CareerPageLayout } from '@/components/career/CareerPageLayout';
+import { Briefcase, Users, Building, TrendingUp } from 'lucide-react';
 
 const InternshipsPage: React.FC = () => {
-  const { isMobile, isCapacitor } = useMobileDetection();
-  const [activeTab, setActiveTab] = useState('browse');
+  const stats = [
+    { value: "300+", label: "Available Internships" },
+    { value: "150+", label: "Partner Companies" },
+    { value: "1,200+", label: "Successful Placements" },
+    { value: "88%", label: "Full-time Conversion Rate" }
+  ];
 
-  const content = (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
-      {/* Standardized Hero Section */}
-      <CareerEntryHeroSection
-        title="Internship Opportunities"
-        description="Discover meaningful internship experiences that bridge the gap between education and career success in the UAE"
-        icon={<Briefcase className="h-12 w-12" />}
-        primaryActionLabel="Browse Internships"
-        primaryActionIcon={<Search className="h-5 w-5" />}
-        secondaryActionLabel="Post Internship"
-        secondaryActionIcon={<Plus className="h-5 w-5" />}
-      />
-
-      {/* Key Statistics */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">1000+</div>
-              <div className="text-gray-600">Active Internships</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">300+</div>
-              <div className="text-gray-600">Partner Companies</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">85%</div>
-              <div className="text-gray-600">Conversion to Full-time</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-ehrdc-teal mb-2">15+</div>
-              <div className="text-gray-600">Industry Sectors</div>
-            </div>
-          </div>
+  const tabs = [
+    {
+      id: "opportunities",
+      label: "Opportunities",
+      icon: <Briefcase className="h-4 w-4" />,
+      content: (
+        <div className="text-center py-8">
+          <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Internship Platform Coming Soon</h3>
+          <p className="text-muted-foreground">
+            We're building a comprehensive internship matching platform to connect you with the best opportunities.
+          </p>
         </div>
-      </section>
+      )
+    }
+  ];
 
-      {/* Main Content Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-white border">
-            <TabsTrigger value="browse" className="flex items-center gap-2 text-ehrdc-teal">
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Browse</span>
-            </TabsTrigger>
-            <TabsTrigger value="filter" className="flex items-center gap-2 text-ehrdc-teal">
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Filter</span>
-            </TabsTrigger>
-            <TabsTrigger value="create" className="flex items-center gap-2 text-ehrdc-teal">
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Post</span>
-            </TabsTrigger>
-            <TabsTrigger value="manage" className="flex items-center gap-2 text-ehrdc-teal">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Manage</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="browse">
-            <InternshipsList />
-          </TabsContent>
-          
-          <TabsContent value="filter">
-            <InternshipsFilter onFilterChange={() => {}} />
-          </TabsContent>
-          
-          <TabsContent value="create">
-            <InternshipsCreate onSuccess={() => {}} />
-          </TabsContent>
-          
-          <TabsContent value="manage">
-            <InternshipsManage />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+  return (
+    <CareerPageLayout
+      title="Internships"
+      description="Gain valuable work experience through internships with leading companies across the UAE"
+      heroIcon={<Briefcase className="h-12 w-12" />}
+      primaryActionLabel="Find Internships"
+      primaryActionIcon={<Briefcase className="h-4 w-4" />}
+      secondaryActionLabel="Learn More"
+      stats={stats}
+      quote="An internship is a bridge between learning and earning"
+      attribution="Career Development Wisdom"
+      quoteIcon={<Briefcase className="h-8 w-8" />}
+      tabs={tabs}
+      defaultTab="opportunities"
+    />
   );
-
-  if (isMobile || isCapacitor) {
-    return <MobileLayout>{content}</MobileLayout>;
-  }
-
-  return <Layout>{content}</Layout>;
 };
 
 export default InternshipsPage;
