@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { ProfessionalGrowthTabContent, EmptyTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
+import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { 
   Users, 
   UserCheck, 
@@ -9,9 +9,13 @@ import {
   Star, 
   MessageCircle,
   BookOpen,
-  Target,
-  TrendingUp
+  Search,
+  UserPlus
 } from 'lucide-react';
+import { FindMentorsTab } from '@/components/mentorship/FindMentorsTab';
+import { MyMentorshipsTab } from '@/components/mentorship/MyMentorshipsTab';
+import { MentorApplicationsTab } from '@/components/mentorship/MentorApplicationsTab';
+import { MentorshipResourcesTab } from '@/components/mentorship/MentorshipResourcesTab';
 
 const MentorshipProgramsPage: React.FC = () => {
   const stats: StatItem[] = [
@@ -39,62 +43,44 @@ const MentorshipProgramsPage: React.FC = () => {
 
   const tabs: TabItem[] = [
     {
-      id: "find-mentor",
-      label: "Find a Mentor",
-      icon: <Users className="h-4 w-4" />,
+      id: "find-mentors",
+      label: "Find Mentors",
+      icon: <Search className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
           title="Find Your Mentor"
-          icon={<Users className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Connect with experienced professionals who can guide your career development"
+          icon={<Search className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
+          description="Connect with experienced professionals who can guide your career development and personal growth"
         >
-          <EmptyTabContent
-            icon={Users}
-            title="Find a Mentor"
-            description="Browse our network of experienced mentors and find the perfect match for your career goals and aspirations."
-            actionLabel="Browse Mentors"
-            onAction={() => console.log("Browse mentors")}
-          />
+          <FindMentorsTab />
         </ProfessionalGrowthTabContent>
       )
     },
     {
-      id: "my-sessions",
-      label: "My Sessions",
-      icon: <Calendar className="h-4 w-4" />,
-      content: (
-        <ProfessionalGrowthTabContent
-          title="My Mentorship Sessions"
-          icon={<Calendar className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Manage your scheduled and completed mentorship sessions"
-        >
-          <EmptyTabContent
-            icon={Calendar}
-            title="My Sessions"
-            description="View and manage your upcoming, ongoing, and completed mentorship sessions."
-            actionLabel="View Sessions"
-            onAction={() => console.log("View mentorship sessions")}
-          />
-        </ProfessionalGrowthTabContent>
-      )
-    },
-    {
-      id: "groups",
-      label: "Group Mentorship",
+      id: "my-mentorships",
+      label: "My Mentorships",
       icon: <MessageCircle className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Group Mentorship"
+          title="My Mentorship Relationships"
           icon={<MessageCircle className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Join group mentorship sessions and peer learning circles"
+          description="Manage your active mentorship relationships, sessions, and progress tracking"
         >
-          <EmptyTabContent
-            icon={MessageCircle}
-            title="Group Mentorship"
-            description="Participate in group mentorship sessions and connect with peers for collaborative learning experiences."
-            actionLabel="Join Groups"
-            onAction={() => console.log("Join group mentorship")}
-          />
+          <MyMentorshipsTab />
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "mentor-applications",
+      label: "Mentor Applications",
+      icon: <UserPlus className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title="Mentor Applications"
+          icon={<UserPlus className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
+          description="Review and manage your applications to become a mentor or mentee"
+        >
+          <MentorApplicationsTab />
         </ProfessionalGrowthTabContent>
       )
     },
@@ -105,16 +91,10 @@ const MentorshipProgramsPage: React.FC = () => {
       content: (
         <ProfessionalGrowthTabContent
           title="Mentorship Resources"
-          icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Access guides and tools for effective mentorship relationships"
+          icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
+          description="Access guides, templates, and tools for effective mentorship relationships"
         >
-          <EmptyTabContent
-            icon={BookOpen}
-            title="Mentorship Resources"
-            description="Access comprehensive guides, templates, and tools to make the most of your mentorship experience."
-            actionLabel="Browse Resources"
-            onAction={() => console.log("Browse mentorship resources")}
-          />
+          <MentorshipResourcesTab />
         </ProfessionalGrowthTabContent>
       )
     }
@@ -127,7 +107,12 @@ const MentorshipProgramsPage: React.FC = () => {
       icon={<Users className="h-8 w-8 text-white" />}
       stats={stats}
       tabs={tabs}
-      defaultTab="find-mentor"
+      defaultTab="find-mentors"
+      ctaTitle="Ready to Start Your Mentorship Journey?"
+      ctaDescription="Join our community of mentors and mentees to accelerate your professional development"
+      ctaActionLabel="Get Started"
+      ctaActionHref="#find-mentors"
+      showProgress={false}
     />
   );
 };
