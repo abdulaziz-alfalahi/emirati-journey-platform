@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -49,13 +50,12 @@ export const CoachingRecommendations: React.FC = () => {
           <div key={recommendation.id} className="border rounded-lg p-4">
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-semibold">{recommendation.title}</h3>
-              
-              
+              <Badge variant={
                 recommendation.priority === 'high' ? 'destructive' :
                 recommendation.priority === 'medium' ? 'default' : 'secondary'
-              }
+              }>
                 {recommendation.priority}
-              
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground mb-3">{recommendation.description}</p>
             <div className="flex items-center justify-between">
