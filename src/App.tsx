@@ -41,6 +41,7 @@ import Profile from './pages/profile';
 import Admin from './pages/not-found'; // Placeholder - adjust if actual page exists
 import SummerCamps from './pages/summer-camps';
 import SchoolPrograms from './pages/school-programs';
+import Scholarships from './pages/scholarships';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -99,6 +100,7 @@ function App() {
                 <Route path="/lms" element={<LMS />} />
                 <Route path="/summer-camps" element={<SummerCamps />} />
                 <Route path="/school-programs" element={<SchoolPrograms />} />
+                <Route path="/scholarships" element={<Scholarships />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
