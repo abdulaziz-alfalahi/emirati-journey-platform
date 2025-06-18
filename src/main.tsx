@@ -4,8 +4,6 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import './lib/i18n'; // Initialize i18n
-import { AuthProvider } from './context/AuthContext';
-import { QueryProvider } from './context/QueryContext';
 import { ThemeProvider } from './components/theme-provider'; // Import ThemeProvider
 import { LanguageProvider } from './context/LanguageContext'; // Import LanguageProvider
 import { initializePerformanceMonitoring } from './lib/performance';
@@ -84,17 +82,13 @@ if (!rootElement) {
 
 const root = document.getElementById("root");
 
-// Render with proper error boundaries and provider order
+// Render with proper error boundaries and provider order - removed duplicate providers
 try {
   createRoot(root!).render(
     <React.StrictMode>
       <ThemeProvider defaultTheme="light">
         <LanguageProvider defaultLanguage="en">
-          <AuthProvider>
-            <QueryProvider>
-              <App />
-            </QueryProvider>
-          </AuthProvider>
+          <App />
         </LanguageProvider>
       </ThemeProvider>
     </React.StrictMode>
