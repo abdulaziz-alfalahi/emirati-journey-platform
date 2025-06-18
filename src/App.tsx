@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from './context/QueryContext';
@@ -40,6 +39,7 @@ import LMS from './pages/lms';
 import Settings from './pages/not-found'; // Placeholder - adjust if actual page exists
 import Profile from './pages/profile';
 import Admin from './pages/not-found'; // Placeholder - adjust if actual page exists
+import SummerCamps from './pages/summer-camps';
 
 // Error fallback component
 const ErrorFallback = ({ error }: { error: Error }) => (
@@ -96,6 +96,7 @@ function App() {
                 <Route path="/mentor-matching" element={<MentorMatching />} />
                 <Route path="/blockchain" element={<Blockchain />} />
                 <Route path="/lms" element={<LMS />} />
+                <Route path="/summer-camps" element={<SummerCamps />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
