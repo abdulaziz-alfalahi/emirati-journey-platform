@@ -77,6 +77,7 @@ function App() {
                 <Route path="/communities" element={<Communities />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/digital-skills" element={<DigitalSkills />} />
+                <Route path="/digital-skills-development" element={<DigitalSkills />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
                 <Route path="/mentorship" element={<MentorshipPrograms />} />
                 <Route path="/graduate-programs" element={<GraduatePrograms />} />
