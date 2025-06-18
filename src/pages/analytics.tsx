@@ -185,6 +185,7 @@ const AnalyticsPage: React.FC = () => {
             )
           }
         ]}
+        defaultTab="signin"
       />
     );
   }
