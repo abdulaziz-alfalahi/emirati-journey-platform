@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { useNavigationGroups } from './navigationConfig';
+import { navigationGroups } from './navigationConfig';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -18,7 +18,7 @@ const MainNav: React.FC = () => {
   const { user } = useAuth();
   const { t } = useTranslation('navigation');
   const location = useLocation();
-  const navGroups = useNavigationGroups();
+  const navGroups = navigationGroups;
 
   return (
     <div className="flex items-center space-x-6">
@@ -33,7 +33,7 @@ const MainNav: React.FC = () => {
           {navGroups.map((group) => (
             <NavigationMenuItem key={group.id}>
               <NavigationMenuTrigger className="text-ehrdc-neutral-dark hover:text-ehrdc-teal">
-                {group.name}
+                {t(group.nameKey)}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
@@ -44,23 +44,23 @@ const MainNav: React.FC = () => {
                         to={group.items[0]?.href || '/'}
                       >
                         <div className="mb-2 mt-4 text-lg font-medium text-white">
-                          {group.name}
+                          {t(group.nameKey)}
                         </div>
                         <p className="text-sm leading-tight text-white/90">
-                          {group.description}
+                          {t(group.descriptionKey)}
                         </p>
                       </Link>
                     </NavigationMenuLink>
                   </div>
                   {group.items.map((item) => (
-                    <NavigationMenuLink key={item.name} asChild>
+                    <NavigationMenuLink key={item.href} asChild>
                       <Link
                         to={item.href}
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-ehrdc-light-teal/10 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/10 focus:text-ehrdc-teal"
                       >
-                        <div className="text-sm font-medium leading-none">{item.name}</div>
+                        <div className="text-sm font-medium leading-none">{t(item.nameKey)}</div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          {item.description}
+                          {t(item.descriptionKey)}
                         </p>
                       </Link>
                     </NavigationMenuLink>
