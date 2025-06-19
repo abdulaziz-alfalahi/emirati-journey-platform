@@ -21,13 +21,18 @@ export const GovLogos: React.FC<GovLogosProps> = ({
   };
 
   return (
-    <div className={`flex ${variant === 'horizontal' ? 'flex-row justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`}>
-      {/* Dubai Government Logo - Always Left (order-1 ensures it stays left) */}
+    <div 
+      className={`flex ${variant === 'horizontal' ? 'flex-row justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`}
+      dir="ltr"
+      style={{ direction: 'ltr' }}
+    >
+      {/* Dubai Government Logo - Always Left (using CSS order to force position) */}
       <a 
         href="https://tec.gov.ae/" 
         target="_blank" 
         rel="noopener noreferrer" 
-        className={`flex items-center ${variant === 'horizontal' ? 'order-1' : ''}`}
+        className="flex items-center"
+        style={{ order: 1 }}
       >
         <img 
           src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
@@ -38,12 +43,13 @@ export const GovLogos: React.FC<GovLogosProps> = ({
       </a>
 
       {/* Spacer for horizontal layout */}
-      {variant === 'horizontal' && <div className="flex-1" />}
+      {variant === 'horizontal' && <div className="flex-1" style={{ order: 2 }} />}
 
-      {/* Emirati Human Resources Development Council Logo - Always Right (order-3 ensures it stays right) */}
+      {/* Emirati Human Resources Development Council Logo - Always Right (using CSS order to force position) */}
       <Link 
         to="/" 
-        className={`flex items-center ${variant === 'horizontal' ? 'order-3' : ''}`}
+        className="flex items-center"
+        style={{ order: 3 }}
       >
         <img 
           src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
