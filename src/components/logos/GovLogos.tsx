@@ -56,18 +56,17 @@ export const GovLogos: React.FC<GovLogosProps> = ({
     <div 
       className={`relative w-full ${className}`}
       style={{ 
-        direction: 'ltr !important',
-        textAlign: 'left',
-        unicodeBidi: 'isolate'
+        direction: 'ltr',
+        textAlign: 'left'
       }}
     >
-      {/* Dubai Government Logo - Fixed to Left with !important CSS */}
+      {/* Dubai Government Logo - Fixed to Left */}
       <div 
         className="absolute top-1/2 transform -translate-y-1/2"
         style={{ 
-          left: '0 !important',
-          right: 'auto !important',
-          direction: 'ltr !important'
+          left: '0px',
+          order: 1,
+          position: 'absolute'
         }}
       >
         <a 
@@ -75,36 +74,36 @@ export const GovLogos: React.FC<GovLogosProps> = ({
           target="_blank" 
           rel="noopener noreferrer" 
           className="flex items-center"
-          style={{ direction: 'ltr !important' }}
+          style={{ direction: 'ltr' }}
         >
           <img 
             src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
             alt="Government of Dubai"
             className={`${logoSize[size]}`}
-            style={{ direction: 'ltr !important' }}
+            style={{ direction: 'ltr' }}
           />
         </a>
       </div>
 
-      {/* Emirati Human Resources Development Council Logo - Fixed to Right with !important CSS */}
+      {/* Emirati Human Resources Development Council Logo - Fixed to Right */}
       <div 
         className="absolute top-1/2 transform -translate-y-1/2"
         style={{ 
-          right: '0 !important',
-          left: 'auto !important',
-          direction: 'ltr !important'
+          right: '0px',
+          order: 2,
+          position: 'absolute'
         }}
       >
         <Link 
           to="/" 
           className="flex items-center"
-          style={{ direction: 'ltr !important' }}
+          style={{ direction: 'ltr' }}
         >
           <img 
             src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
             alt="Emirati Human Resources Development Council"
             className={`${logoSize[size]}`}
-            style={{ direction: 'ltr !important' }}
+            style={{ direction: 'ltr' }}
           />
         </Link>
       </div>
