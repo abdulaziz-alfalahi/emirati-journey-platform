@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { NavGroup } from '@/components/layout/types';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,7 +22,11 @@ interface MainNavProps {
 const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
   const { user } = useAuth();
   const { t } = useTranslation('navigation');
+  const { language } = useLanguage();
   const location = useLocation();
+
+  // Reverse the order of navigation groups for Arabic (RTL)
+  const orderedNavGroups = language === 'ar' ? [...navGroups].reverse() : navGroups;
 
   return (
     <div className="flex items-center space-x-6">
@@ -33,7 +38,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
       {/* Navigation Menu */}
       <NavigationMenu>
         <NavigationMenuList>
-          {navGroups.map((group) => (
+          {orderedNavGroups.map((group) => (
             <NavigationMenuItem key={group.id}>
               <NavigationMenuTrigger className="text-ehrdc-neutral-dark hover:text-ehrdc-teal">
                 {t(`groups.${group.id}.title`)}
