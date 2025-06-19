@@ -54,8 +54,15 @@ export const GovLogos: React.FC<GovLogosProps> = ({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Dubai Government Logo - Always Left */}
-      <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
+      {/* Dubai Government Logo - Fixed to Physical Left */}
+      <div 
+        className="absolute top-1/2 -translate-y-1/2"
+        style={{ 
+          left: '0%',
+          transform: 'translateY(-50%)',
+          position: 'absolute'
+        }}
+      >
         <a 
           href="https://tec.gov.ae/" 
           target="_blank" 
@@ -70,8 +77,15 @@ export const GovLogos: React.FC<GovLogosProps> = ({
         </a>
       </div>
 
-      {/* Emirati Human Resources Development Council Logo - Always Right */}
-      <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
+      {/* Emirati Human Resources Development Council Logo - Fixed to Physical Right */}
+      <div 
+        className="absolute top-1/2 -translate-y-1/2"
+        style={{ 
+          right: '0%',
+          transform: 'translateY(-50%)',
+          position: 'absolute'
+        }}
+      >
         <Link 
           to="/" 
           className="flex items-center"
