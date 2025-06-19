@@ -4,7 +4,7 @@
   "toggleLanguage": "Toggle language",
   "dashboard": "Dashboard",
   "groups": {
-    "education": {
+    "educationPathway": {
       "title": "Education Pathway",
       "description": "Explore educational opportunities and academic pathways",
       "items": {
@@ -24,119 +24,131 @@
           "title": "University Programs",
           "description": "Higher education and university pathways"
         },
-        "lms": {
-          "title": "Learning Management System",
-          "description": "Comprehensive learning platform"
-        }
-      }
-    },
-    "career": {
-      "title": "Career Entry",
-      "description": "Launch your professional career with confidence",
-      "items": {
-        "planningHub": {
-          "title": "Career Planning Hub",
-          "description": "Comprehensive career planning resources"
-        },
-        "industryExploration": {
-          "title": "Industry Exploration",
-          "description": "Discover UAE industry opportunities"
-        },
         "graduatePrograms": {
           "title": "Graduate Programs",
           "description": "Advanced degree and graduate opportunities"
         },
-        "internships": {
-          "title": "Internships",
-          "description": "Hands-on work experience opportunities"
-        },
-        "jobMatching": {
-          "title": "Job Matching",
-          "description": "Find your perfect career match"
-        },
-        "advisory": {
-          "title": "Career Advisory",
-          "description": "Professional career guidance"
-        },
-        "resumeBuilder": {
-          "title": "Resume Builder",
-          "description": "Modern resume building platform"
-        },
-        "portfolio": {
-          "title": "Portfolio Management",
-          "description": "Showcase your professional achievements"
-        },
-        "interviewPrep": {
-          "title": "Interview Preparation",
-          "description": "Ace your job interviews"
-        }
-      }
-    },
-    "professional": {
-      "title": "Professional Growth",
-      "description": "Advance your career and develop professionally",
-      "items": {
-        "digitalSkills": {
-          "title": "Digital Skills Development",
-          "description": "Technology and digital literacy training"
-        },
-        "certifications": {
+        "professionalCertifications": {
           "title": "Professional Certifications",
           "description": "Industry-recognized certification programs"
         },
-        "training": {
-          "title": "Training Programs",
-          "description": "Professional development training"
+        "digitalSkills": {
+          "title": "Digital Skills Development",
+          "description": "Technology and digital literacy training"
+        }
+      }
+    },
+    "careerEntry": {
+      "title": "Career Entry",
+      "description": "Launch your professional career with confidence",
+      "items": {
+        "careerPlanningHub": {
+          "title": "Career Planning Hub",
+          "description": "Comprehensive career planning resources"
         },
         "assessments": {
           "title": "Assessments",
           "description": "Skills and personality assessments"
         },
+        "cvBuilder": {
+          "title": "CV Builder",
+          "description": "Professional CV creation tools"
+        },
+        "resumeBuilder": {
+          "title": "Resume Builder",
+          "description": "Modern resume building platform"
+        },
+        "interviewPreparation": {
+          "title": "Interview Preparation",
+          "description": "Ace your job interviews"
+        },
+        "jobMatching": {
+          "title": "Job Matching",
+          "description": "Find your perfect career match"
+        },
+        "internships": {
+          "title": "Internships",
+          "description": "Hands-on work experience opportunities"
+        },
+        "careerComparison": {
+          "title": "Career Comparison",
+          "description": "Compare different career paths"
+        }
+      }
+    },
+    "professionalGrowth": {
+      "title": "Professional Growth",
+      "description": "Advance your career and develop professionally",
+      "items": {
+        "training": {
+          "title": "Training Programs",
+          "description": "Professional development training"
+        },
         "mentorship": {
           "title": "Mentorship Programs",
           "description": "Connect with industry mentors"
         },
+        "portfolio": {
+          "title": "Portfolio Management",
+          "description": "Showcase your professional achievements"
+        },
+        "careerJourney": {
+          "title": "Career Journey",
+          "description": "Track your professional progression"
+        },
         "communities": {
           "title": "Professional Communities",
           "description": "Network with industry professionals"
-        }
-      }
-    },
-    "lifelong": {
-      "title": "Lifelong Engagement",
-      "description": "Continuous learning and community engagement",
-      "items": {
-        "nationalService": {
-          "title": "National Service",
-          "description": "Serve your country and community"
         },
-        "youthDevelopment": {
-          "title": "Youth Development",
-          "description": "Programs for youth empowerment"
-        },
-        "successStories": {
-          "title": "Share Success Stories",
-          "description": "Inspire others with your journey"
+        "analytics": {
+          "title": "Career Analytics",
+          "description": "Data-driven career insights"
         },
         "blockchainCredentials": {
           "title": "Blockchain Credentials",
           "description": "Secure digital credential verification"
         },
-        "analytics": {
-          "title": "Analytics",
-          "description": "Data-driven career insights"
+        "lms": {
+          "title": "Learning Management",
+          "description": "Comprehensive learning platform"
+        }
+      }
+    },
+    "lifelongEngagement": {
+      "title": "Lifelong Engagement",
+      "description": "Continue growing throughout your career",
+      "items": {
+        "advisoryPositions": {
+          "title": "Advisory Positions",
+          "description": "Senior advisory and consulting roles"
         },
-        "financialPlanning": {
-          "title": "Financial Planning",
-          "description": "Plan your financial future"
+        "communityLeadership": {
+          "title": "Community Leadership",
+          "description": "Lead and serve your community"
+        },
+        "legacyProjects": {
+          "title": "Legacy Projects",
+          "description": "Create lasting impact through projects"
+        },
+        "nationalService": {
+          "title": "National Service",
+          "description": "Serve your country with pride"
         },
         "thoughtLeadership": {
           "title": "Thought Leadership",
-          "description": "Share your expertise and insights"
+          "description": "Share expertise and insights"
         },
-        "retiree": {
-          "title": "Retiree Programs",
-          "description": "Programs for retired professionals"
+        "successStories": {
+          "title": "Success Stories",
+          "description": "Inspire others with your journey"
+        },
+        "financialPlanning": {
+          "title": "Financial Planning",
+          "description": "Plan for your financial future"
+        },
+        "retireeServices": {
+          "title": "Retiree Services",
+          "description": "Support for retired professionals"
         }
       }
     }

@@ -2,8 +2,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { NavGroup } from '@/components/layout/types';
 import { useTranslation } from 'react-i18next';
-import { useNavigationGroups } from './navigationConfig.tsx';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,11 +14,14 @@ import {
 } from '@/components/ui/navigation-menu';
 import { NotificationIcon } from '@/components/notifications/NotificationIcon';
 
-const MainNav: React.FC = () => {
+interface MainNavProps {
+  navGroups: NavGroup[];
+}
+
+const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
   const { user } = useAuth();
   const { t } = useTranslation('navigation');
   const location = useLocation();
-  const navGroups = useNavigationGroups();
 
   return (
     <div className="flex items-center space-x-6">
@@ -31,7 +34,7 @@ const MainNav: React.FC = () => {
       <NavigationMenu>
         <NavigationMenuList>
           {navGroups.map((group) => (
-            <NavigationMenuItem key={group.id}>
+            <NavigationMenuItem key={group.name}>
               <NavigationMenuTrigger className="text-ehrdc-neutral-dark hover:text-ehrdc-teal">
                 {group.name}
               </NavigationMenuTrigger>
@@ -47,20 +50,20 @@ const MainNav: React.FC = () => {
                           {group.name}
                         </div>
                         <p className="text-sm leading-tight text-white/90">
-                          {group.description}
+                          {group.description || `Explore ${group.name.toLowerCase()} opportunities`}
                         </p>
                       </Link>
                     </NavigationMenuLink>
                   </div>
                   {group.items.map((item) => (
-                    <NavigationMenuLink key={item.href} asChild>
+                    <NavigationMenuLink key={item.name} asChild>
                       <Link
-                        to={item.href || '/'}
+                        to={item.href}
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-ehrdc-light-teal/10 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/10 focus:text-ehrdc-teal"
                       >
                         <div className="text-sm font-medium leading-none">{item.name}</div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          {item.description}
+                          {item.description || `Access ${item.name.toLowerCase()}`}
                         </p>
                       </Link>
                     </NavigationMenuLink>
