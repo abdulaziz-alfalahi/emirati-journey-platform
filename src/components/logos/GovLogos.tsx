@@ -54,35 +54,57 @@ export const GovLogos: React.FC<GovLogosProps> = ({
 
   return (
     <div 
-      className={`relative w-full flex items-center ${className}`}
-      style={{ direction: 'ltr' }}
+      className={`relative w-full ${className}`}
+      style={{ 
+        direction: 'ltr !important',
+        textAlign: 'left',
+        unicodeBidi: 'isolate'
+      }}
     >
-      {/* Dubai Government Logo - Fixed to Left */}
-      <div className="absolute left-0 top-1/2 transform -translate-y-1/2">
+      {/* Dubai Government Logo - Fixed to Left with !important CSS */}
+      <div 
+        className="absolute top-1/2 transform -translate-y-1/2"
+        style={{ 
+          left: '0 !important',
+          right: 'auto !important',
+          direction: 'ltr !important'
+        }}
+      >
         <a 
           href="https://tec.gov.ae/" 
           target="_blank" 
           rel="noopener noreferrer" 
           className="flex items-center"
+          style={{ direction: 'ltr !important' }}
         >
           <img 
             src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
             alt="Government of Dubai"
             className={`${logoSize[size]}`}
+            style={{ direction: 'ltr !important' }}
           />
         </a>
       </div>
 
-      {/* Emirati Human Resources Development Council Logo - Fixed to Right */}
-      <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
+      {/* Emirati Human Resources Development Council Logo - Fixed to Right with !important CSS */}
+      <div 
+        className="absolute top-1/2 transform -translate-y-1/2"
+        style={{ 
+          right: '0 !important',
+          left: 'auto !important',
+          direction: 'ltr !important'
+        }}
+      >
         <Link 
           to="/" 
           className="flex items-center"
+          style={{ direction: 'ltr !important' }}
         >
           <img 
             src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
             alt="Emirati Human Resources Development Council"
             className={`${logoSize[size]}`}
+            style={{ direction: 'ltr !important' }}
           />
         </Link>
       </div>
