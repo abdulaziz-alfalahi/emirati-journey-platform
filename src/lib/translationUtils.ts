@@ -29,7 +29,9 @@ export const getTranslationWithFallback = (
 ): string => {
   const fullKey = `${namespace}:${key}`;
   if (i18n.exists(fullKey)) {
-    return i18n.t(fullKey, options);
+    const translation = i18n.t(fullKey, options);
+    // Ensure we return a string, not an object or array
+    return typeof translation === 'string' ? translation : String(translation);
   }
   
   // Log missing key in development
@@ -67,7 +69,14 @@ export const validateTranslationCompleteness = (
  * @returns Array of namespace names
  */
 export const getAvailableNamespaces = (): string[] => {
-  return i18n.options.ns || ['common'];
+  const namespaces = i18n.options.ns;
+  if (Array.isArray(namespaces)) {
+    return [...namespaces]; // Create a mutable copy
+  }
+  if (typeof namespaces === 'string') {
+    return [namespaces];
+  }
+  return ['common']; // fallback
 };
 
 /**
