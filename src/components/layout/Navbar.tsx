@@ -4,7 +4,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DesktopMenu } from './DesktopMenu';
 import MobileMenu from './MobileMenu';
-import { navigationGroups } from '@/components/navigation/navigationConfig';
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -16,7 +15,7 @@ const Navbar = () => {
         {isMobile ? (
           <MobileMenu />
         ) : (
-          <DesktopMenu navGroups={navigationGroups} />
+          <DesktopMenu />
         )}
       </div>
     </header>

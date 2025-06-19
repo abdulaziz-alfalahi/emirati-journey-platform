@@ -2,8 +2,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { NavGroup } from '@/components/layout/types';
 import { useTranslation } from 'react-i18next';
+import { useNavigationGroups } from './navigationConfig';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,14 +14,11 @@ import {
 } from '@/components/ui/navigation-menu';
 import { NotificationIcon } from '@/components/notifications/NotificationIcon';
 
-interface MainNavProps {
-  navGroups: NavGroup[];
-}
-
-const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
+const MainNav: React.FC = () => {
   const { user } = useAuth();
   const { t } = useTranslation('navigation');
   const location = useLocation();
+  const navGroups = useNavigationGroups();
 
   return (
     <div className="flex items-center space-x-6">
@@ -34,7 +31,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
       <NavigationMenu>
         <NavigationMenuList>
           {navGroups.map((group) => (
-            <NavigationMenuItem key={group.name}>
+            <NavigationMenuItem key={group.id}>
               <NavigationMenuTrigger className="text-ehrdc-neutral-dark hover:text-ehrdc-teal">
                 {group.name}
               </NavigationMenuTrigger>
@@ -50,7 +47,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
                           {group.name}
                         </div>
                         <p className="text-sm leading-tight text-white/90">
-                          {group.description || `Explore ${group.name.toLowerCase()} opportunities`}
+                          {group.description}
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -63,7 +60,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
                       >
                         <div className="text-sm font-medium leading-none">{item.name}</div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          {item.description || `Access ${item.name.toLowerCase()}`}
+                          {item.description}
                         </p>
                       </Link>
                     </NavigationMenuLink>
