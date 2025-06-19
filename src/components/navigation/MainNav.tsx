@@ -34,9 +34,9 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
       <NavigationMenu>
         <NavigationMenuList>
           {navGroups.map((group) => (
-            <NavigationMenuItem key={group.name}>
+            <NavigationMenuItem key={group.id}>
               <NavigationMenuTrigger className="text-ehrdc-neutral-dark hover:text-ehrdc-teal">
-                {group.name}
+                {t(`groups.${group.id}.title`)}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <div className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
@@ -47,27 +47,68 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
                         to={group.items[0]?.href || '/'}
                       >
                         <div className="mb-2 mt-4 text-lg font-medium text-white">
-                          {group.name}
+                          {t(`groups.${group.id}.title`)}
                         </div>
                         <p className="text-sm leading-tight text-white/90">
-                          {group.description || `Explore ${group.name.toLowerCase()} opportunities`}
+                          {t(`groups.${group.id}.description`)}
                         </p>
                       </Link>
                     </NavigationMenuLink>
                   </div>
-                  {group.items.map((item) => (
-                    <NavigationMenuLink key={item.name} asChild>
-                      <Link
-                        to={item.href}
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-ehrdc-light-teal/10 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/10 focus:text-ehrdc-teal"
-                      >
-                        <div className="text-sm font-medium leading-none">{item.name}</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          {item.description || `Access ${item.name.toLowerCase()}`}
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  ))}
+                  {group.items.map((item) => {
+                    // Map the item name to the translation key
+                    const getItemKey = (itemName: string) => {
+                      const nameToKeyMap: { [key: string]: string } = {
+                        'Summer Camps': 'summerCamps',
+                        'School Programs': 'schoolPrograms',
+                        'Scholarships': 'scholarships',
+                        'University Programs': 'universityPrograms',
+                        'Learning Management System': 'lms',
+                        'Career Planning Hub': 'planningHub',
+                        'Industry Exploration': 'industryExploration',
+                        'Graduate Programs': 'graduatePrograms',
+                        'Internships': 'internships',
+                        'Job Matching': 'jobMatching',
+                        'Career Advisory': 'advisory',
+                        'Resume Builder': 'resumeBuilder',
+                        'Portfolio': 'portfolio',
+                        'Interview Preparation': 'interviewPrep',
+                        'Digital Skills Development': 'digitalSkills',
+                        'Professional Certifications': 'certifications',
+                        'Training Programs': 'training',
+                        'Assessments': 'assessments',
+                        'Mentorship': 'mentorship',
+                        'Communities': 'communities',
+                        'National Service': 'nationalService',
+                        'Youth Development': 'youthDevelopment',
+                        'Success Stories': 'successStories',
+                        'Blockchain Credentials': 'blockchainCredentials',
+                        'Analytics': 'analytics',
+                        'Financial Planning': 'financialPlanning',
+                        'Thought Leadership': 'thoughtLeadership',
+                        'Retiree Services': 'retiree'
+                      };
+                      return nameToKeyMap[itemName] || itemName.toLowerCase().replace(/\s+/g, '');
+                    };
+
+                    const itemKey = getItemKey(item.name);
+                    
+                    return (
+                      <NavigationMenuLink key={item.name} asChild>
+                        <Link
+                          to={item.href}
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-ehrdc-light-teal/10 hover:text-ehrdc-teal focus:bg-ehrdc-light-teal/10 focus:text-ehrdc-teal"
+                        >
+                          <div className="text-sm font-medium leading-none">
+                            {t(`groups.${group.id}.items.${itemKey}.title`)}
+                          </div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            {t(`groups.${group.id}.items.${itemKey}.description`)}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    );
+                  })}
                 </div>
               </NavigationMenuContent>
             </NavigationMenuItem>
