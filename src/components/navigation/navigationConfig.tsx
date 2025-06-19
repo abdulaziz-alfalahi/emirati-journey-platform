@@ -32,214 +32,196 @@ export const useNavigationGroups = (): NavGroup[] => {
   return [
     {
       id: 'education',
-      name: t('groups.educationPathway.title'),
-      description: t('groups.educationPathway.description'),
+      name: t('groups.education.title'),
+      description: t('groups.education.description'),
       items: [
         {
-          name: t('groups.educationPathway.items.summerCamps.title'),
+          name: t('groups.education.items.summerCamps.title'),
           href: '/summer-camps',
-          description: t('groups.educationPathway.items.summerCamps.description'),
+          description: t('groups.education.items.summerCamps.description'),
           icon: Calendar
         },
         {
-          name: t('groups.educationPathway.items.schoolPrograms.title'),
+          name: t('groups.education.items.schoolPrograms.title'),
           href: '/school-programs',
-          description: t('groups.educationPathway.items.schoolPrograms.description'),
+          description: t('groups.education.items.schoolPrograms.description'),
           icon: BookOpen
         },
         {
-          name: t('groups.educationPathway.items.scholarships.title'),
+          name: t('groups.education.items.scholarships.title'),
           href: '/scholarships',
-          description: t('groups.educationPathway.items.scholarships.description'),
+          description: t('groups.education.items.scholarships.description'),
           icon: Award
         },
         {
-          name: t('groups.educationPathway.items.universityPrograms.title'),
+          name: t('groups.education.items.universityPrograms.title'),
           href: '/university-programs',
-          description: t('groups.educationPathway.items.universityPrograms.description'),
+          description: t('groups.education.items.universityPrograms.description'),
           icon: GraduationCap
         },
         {
-          name: t('groups.educationPathway.items.graduatePrograms.title'),
-          href: '/graduate-programs',
-          description: t('groups.educationPathway.items.graduatePrograms.description'),
-          icon: GraduationCap
-        },
-        {
-          name: t('groups.educationPathway.items.professionalCertifications.title'),
-          href: '/professional-certifications',
-          description: t('groups.educationPathway.items.professionalCertifications.description'),
-          icon: Award
-        },
-        {
-          name: t('groups.educationPathway.items.digitalSkills.title'),
-          href: '/digital-skills-development',
-          description: t('groups.educationPathway.items.digitalSkills.description'),
+          name: t('groups.education.items.lms.title'),
+          href: '/lms',
+          description: t('groups.education.items.lms.description'),
           icon: Monitor
         }
       ]
     },
     {
       id: 'career',
-      name: t('groups.careerEntry.title'),
-      description: t('groups.careerEntry.description'),
+      name: t('groups.career.title'),
+      description: t('groups.career.description'),
       items: [
         {
-          name: t('groups.careerEntry.items.careerPlanningHub.title'),
+          name: t('groups.career.items.planningHub.title'),
           href: '/career-planning-hub',
-          description: t('groups.careerEntry.items.careerPlanningHub.description'),
+          description: t('groups.career.items.planningHub.description'),
           icon: Compass
         },
         {
-          name: t('groups.careerEntry.items.assessments.title'),
-          href: '/assessments',
-          description: t('groups.careerEntry.items.assessments.description'),
-          icon: CheckSquare
+          name: t('groups.career.items.industryExploration.title'),
+          href: '/industry-exploration',
+          description: t('groups.career.items.industryExploration.description'),
+          icon: Compass
         },
         {
-          name: t('groups.careerEntry.items.cvBuilder.title'),
-          href: '/cv-builder',
-          description: t('groups.careerEntry.items.cvBuilder.description'),
-          icon: FileText
+          name: t('groups.career.items.graduatePrograms.title'),
+          href: '/graduate-programs',
+          description: t('groups.career.items.graduatePrograms.description'),
+          icon: GraduationCap
         },
         {
-          name: t('groups.careerEntry.items.resumeBuilder.title'),
-          href: '/resume-builder',
-          description: t('groups.careerEntry.items.resumeBuilder.description'),
-          icon: FileText
-        },
-        {
-          name: t('groups.careerEntry.items.interviewPreparation.title'),
-          href: '/interview-preparation',
-          description: t('groups.careerEntry.items.interviewPreparation.description'),
-          icon: Users
-        },
-        {
-          name: t('groups.careerEntry.items.jobMatching.title'),
-          href: '/job-matching',
-          description: t('groups.careerEntry.items.jobMatching.description'),
-          icon: Search
-        },
-        {
-          name: t('groups.careerEntry.items.internships.title'),
+          name: t('groups.career.items.internships.title'),
           href: '/internships',
-          description: t('groups.careerEntry.items.internships.description'),
+          description: t('groups.career.items.internships.description'),
           icon: Briefcase
         },
         {
-          name: t('groups.careerEntry.items.careerComparison.title'),
-          href: '/career-comparison',
-          description: t('groups.careerEntry.items.careerComparison.description'),
-          icon: GitCompare
+          name: t('groups.career.items.jobMatching.title'),
+          href: '/job-matching',
+          description: t('groups.career.items.jobMatching.description'),
+          icon: Search
+        },
+        {
+          name: t('groups.career.items.advisory.title'),
+          href: '/career-advisory',
+          description: t('groups.career.items.advisory.description'),
+          icon: UserCheck
+        },
+        {
+          name: t('groups.career.items.resumeBuilder.title'),
+          href: '/resume-builder',
+          description: t('groups.career.items.resumeBuilder.description'),
+          icon: FileText
+        },
+        {
+          name: t('groups.career.items.portfolio.title'),
+          href: '/portfolio',
+          description: t('groups.career.items.portfolio.description'),
+          icon: User
+        },
+        {
+          name: t('groups.career.items.interviewPrep.title'),
+          href: '/interview-preparation',
+          description: t('groups.career.items.interviewPrep.description'),
+          icon: Users
         }
       ]
     },
     {
       id: 'professional',
-      name: t('groups.professionalGrowth.title'),
-      description: t('groups.professionalGrowth.description'),
+      name: t('groups.professional.title'),
+      description: t('groups.professional.description'),
       items: [
         {
-          name: t('groups.professionalGrowth.items.training.title'),
+          name: t('groups.professional.items.digitalSkills.title'),
+          href: '/digital-skills-development',
+          description: t('groups.professional.items.digitalSkills.description'),
+          icon: Lightbulb
+        },
+        {
+          name: t('groups.professional.items.certifications.title'),
+          href: '/professional-certifications',
+          description: t('groups.professional.items.certifications.description'),
+          icon: Award
+        },
+        {
+          name: t('groups.professional.items.training.title'),
           href: '/training',
-          description: t('groups.professionalGrowth.items.training.description'),
+          description: t('groups.professional.items.training.description'),
           icon: BookOpen
         },
         {
-          name: t('groups.professionalGrowth.items.mentorship.title'),
+          name: t('groups.professional.items.assessments.title'),
+          href: '/assessments',
+          description: t('groups.professional.items.assessments.description'),
+          icon: CheckSquare
+        },
+        {
+          name: t('groups.professional.items.mentorship.title'),
           href: '/mentorship',
-          description: t('groups.professionalGrowth.items.mentorship.description'),
+          description: t('groups.professional.items.mentorship.description'),
           icon: Heart
         },
         {
-          name: t('groups.professionalGrowth.items.portfolio.title'),
-          href: '/portfolio',
-          description: t('groups.professionalGrowth.items.portfolio.description'),
-          icon: User
-        },
-        {
-          name: t('groups.professionalGrowth.items.careerJourney.title'),
-          href: '/career-journey',
-          description: t('groups.professionalGrowth.items.careerJourney.description'),
-          icon: MapPin
-        },
-        {
-          name: t('groups.professionalGrowth.items.communities.title'),
+          name: t('groups.professional.items.communities.title'),
           href: '/communities',
-          description: t('groups.professionalGrowth.items.communities.description'),
+          description: t('groups.professional.items.communities.description'),
           icon: Users
-        },
-        {
-          name: t('groups.professionalGrowth.items.analytics.title'),
-          href: '/analytics',
-          description: t('groups.professionalGrowth.items.analytics.description'),
-          icon: BarChart3
-        },
-        {
-          name: t('groups.professionalGrowth.items.blockchainCredentials.title'),
-          href: '/blockchain-credentials',
-          description: t('groups.professionalGrowth.items.blockchainCredentials.description'),
-          icon: Shield
-        },
-        {
-          name: t('groups.professionalGrowth.items.lms.title'),
-          href: '/lms',
-          description: t('groups.professionalGrowth.items.lms.description'),
-          icon: Monitor
         }
       ]
     },
     {
       id: 'lifelong',
-      name: t('groups.lifelongEngagement.title'),
-      description: t('groups.lifelongEngagement.description'),
+      name: t('groups.lifelong.title'),
+      description: t('groups.lifelong.description'),
       items: [
         {
-          name: t('groups.lifelongEngagement.items.advisoryPositions.title'),
-          href: '/advisory-positions',
-          description: t('groups.lifelongEngagement.items.advisoryPositions.description'),
-          icon: UserCheck
-        },
-        {
-          name: t('groups.lifelongEngagement.items.communityLeadership.title'),
-          href: '/community-leadership',
-          description: t('groups.lifelongEngagement.items.communityLeadership.description'),
-          icon: Users
-        },
-        {
-          name: t('groups.lifelongEngagement.items.legacyProjects.title'),
-          href: '/legacy-projects',
-          description: t('groups.lifelongEngagement.items.legacyProjects.description'),
-          icon: Trophy
-        },
-        {
-          name: t('groups.lifelongEngagement.items.nationalService.title'),
+          name: t('groups.lifelong.items.nationalService.title'),
           href: '/national-service',
-          description: t('groups.lifelongEngagement.items.nationalService.description'),
+          description: t('groups.lifelong.items.nationalService.description'),
           icon: Building2
         },
         {
-          name: t('groups.lifelongEngagement.items.thoughtLeadership.title'),
-          href: '/thought-leadership',
-          description: t('groups.lifelongEngagement.items.thoughtLeadership.description'),
-          icon: Lightbulb
+          name: t('groups.lifelong.items.youthDevelopment.title'),
+          href: '/youth-development',
+          description: t('groups.lifelong.items.youthDevelopment.description'),
+          icon: Users
         },
         {
-          name: t('groups.lifelongEngagement.items.successStories.title'),
+          name: t('groups.lifelong.items.successStories.title'),
           href: '/share-success-stories',
-          description: t('groups.lifelongEngagement.items.successStories.description'),
+          description: t('groups.lifelong.items.successStories.description'),
           icon: Trophy
         },
         {
-          name: t('groups.lifelongEngagement.items.financialPlanning.title'),
+          name: t('groups.lifelong.items.blockchainCredentials.title'),
+          href: '/blockchain-credentials',
+          description: t('groups.lifelong.items.blockchainCredentials.description'),
+          icon: Shield
+        },
+        {
+          name: t('groups.lifelong.items.analytics.title'),
+          href: '/analytics',
+          description: t('groups.lifelong.items.analytics.description'),
+          icon: BarChart3
+        },
+        {
+          name: t('groups.lifelong.items.financialPlanning.title'),
           href: '/financial-planning',
-          description: t('groups.lifelongEngagement.items.financialPlanning.description'),
+          description: t('groups.lifelong.items.financialPlanning.description'),
           icon: DollarSign
         },
         {
-          name: t('groups.lifelongEngagement.items.retireeServices.title'),
+          name: t('groups.lifelong.items.thoughtLeadership.title'),
+          href: '/thought-leadership',
+          description: t('groups.lifelong.items.thoughtLeadership.description'),
+          icon: Lightbulb
+        },
+        {
+          name: t('groups.lifelong.items.retiree.title'),
           href: '/retiree',
-          description: t('groups.lifelongEngagement.items.retireeServices.description'),
+          description: t('groups.lifelong.items.retiree.description'),
           icon: Users
         }
       ]
