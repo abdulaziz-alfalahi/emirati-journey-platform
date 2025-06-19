@@ -84,15 +84,17 @@ const root = document.getElementById("root");
 
 // Render with proper error boundaries and provider order
 try {
-  createRoot(root!).render(
-    <React.StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <LanguageProvider defaultLanguage="en">
-          <App />
-        </LanguageProvider>
-      </ThemeProvider>
-    </React.StrictMode>
-  );
+  if (root) {
+    createRoot(root).render(
+      <React.StrictMode>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <LanguageProvider defaultLanguage="en">
+            <App />
+          </LanguageProvider>
+        </ThemeProvider>
+      </React.StrictMode>
+    );
+  }
 
   // Initialize PWA features after app loads
   initializePWAFeatures();
