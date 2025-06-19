@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { useNavigationGroups } from './navigationConfig';
+import { useNavigationGroups } from './navigationConfig.tsx';
 import {
   NavigationMenu,
   NavigationMenuContent,
