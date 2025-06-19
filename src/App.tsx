@@ -53,7 +53,7 @@ import FinancialPlanningPage from './pages/financial-planning';
 import RetireeServicesPage from './pages/retiree';
 
 // Error fallback component
-const ErrorFallback = ({ error }: { error: Error }) => (
+const ErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
@@ -68,7 +68,7 @@ const ErrorFallback = ({ error }: { error: Error }) => (
   </div>
 );
 
-function App() {
+const App: React.FC = () => {
   return (
     <ErrorBoundary fallback={<ErrorFallback error={new Error('Application error')} />}>
       <QueryProvider>
@@ -130,6 +130,6 @@ function App() {
       </QueryProvider>
     </ErrorBoundary>
   );
-}
+};
 
 export default App;
