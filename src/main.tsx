@@ -97,7 +97,7 @@ try {
   // Initialize PWA features after app loads
   initializePWAFeatures();
 
-  console.log("Main rendering complete with PWA features initialized");
+  console.log("Main rendering complete with translation infrastructure and PWA features initialized");
 } catch (error) {
   console.error("Failed to render app:", error);
   

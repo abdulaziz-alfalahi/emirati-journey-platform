@@ -1,0 +1,156 @@
+
+{
+  "emiratiGateway": "البوابة الإماراتية",
+  "toggleLanguage": "تبديل اللغة",
+  "dashboard": "لوحة التحكم",
+  "groups": {
+    "educationPathway": {
+      "title": "المسار التعليمي",
+      "description": "استكشف الفرص التعليمية والمسارات الأكاديمية",
+      "items": {
+        "summerCamps": {
+          "title": "المخيمات الصيفية",
+          "description": "برامج صيفية تفاعلية للطلاب"
+        },
+        "schoolPrograms": {
+          "title": "البرامج المدرسية",
+          "description": "البرامج الأكاديمية والمبادرات المدرسية"
+        },
+        "scholarships": {
+          "title": "المنح الدراسية",
+          "description": "المساعدات المالية وفرص المنح الدراسية"
+        },
+        "universityPrograms": {
+          "title": "البرامج الجامعية",
+          "description": "التعليم العالي والمسارات الجامعية"
+        },
+        "graduatePrograms": {
+          "title": "برامج الدراسات العليا",
+          "description": "فرص الدرجات المتقدمة والدراسات العليا"
+        },
+        "professionalCertifications": {
+          "title": "الشهادات المهنية",
+          "description": "برامج الشهادات المعترف بها في الصناعة"
+        },
+        "digitalSkills": {
+          "title": "تطوير المهارات الرقمية",
+          "description": "التدريب على التكنولوجيا والمهارات الرقمية"
+        }
+      }
+    },
+    "careerEntry": {
+      "title": "دخول سوق العمل",
+      "description": "ابدأ مسيرتك المهنية بثقة",
+      "items": {
+        "careerPlanningHub": {
+          "title": "مركز التخطيط المهني",
+          "description": "موارد شاملة للتخطيط المهني"
+        },
+        "assessments": {
+          "title": "التقييمات",
+          "description": "تقييمات المهارات والشخصية"
+        },
+        "cvBuilder": {
+          "title": "منشئ السيرة الذاتية",
+          "description": "أدوات إنشاء السيرة الذاتية المهنية"
+        },
+        "resumeBuilder": {
+          "title": "منشئ الملف الشخصي",
+          "description": "منصة بناء الملف الشخصي الحديثة"
+        },
+        "interviewPreparation": {
+          "title": "الإعداد للمقابلات",
+          "description": "اجتز مقابلات العمل بنجاح"
+        },
+        "jobMatching": {
+          "title": "مطابقة الوظائف",
+          "description": "اعثر على المهنة المثالية لك"
+        },
+        "internships": {
+          "title": "التدريب العملي",
+          "description": "فرص الخبرة العملية المباشرة"
+        },
+        "careerComparison": {
+          "title": "مقارنة المهن",
+          "description": "قارن بين مسارات مهنية مختلفة"
+        }
+      }
+    },
+    "professionalGrowth": {
+      "title": "النمو المهني",
+      "description": "طور مسيرتك المهنية ونم مهنياً",
+      "items": {
+        "training": {
+          "title": "برامج التدريب",
+          "description": "تدريب التطوير المهني"
+        },
+        "mentorship": {
+          "title": "برامج الإرشاد",
+          "description": "تواصل مع موجهين في الصناعة"
+        },
+        "portfolio": {
+          "title": "إدارة الملف الشخصي",
+          "description": "اعرض إنجازاتك المهنية"
+        },
+        "careerJourney": {
+          "title": "الرحلة المهنية",
+          "description": "تتبع تقدمك المهني"
+        },
+        "communities": {
+          "title": "المجتمعات المهنية",
+          "description": "تواصل مع المهنيين في الصناعة"
+        },
+        "analytics": {
+          "title": "تحليلات المهنة",
+          "description": "رؤى مهنية مدفوعة بالبيانات"
+        },
+        "blockchainCredentials": {
+          "title": "أوراق الاعتماد البلوك تشين",
+          "description": "التحقق الآمن من الأوراق الاعتماد الرقمية"
+        },
+        "lms": {
+          "title": "إدارة التعلم",
+          "description": "منصة تعلم شاملة"
+        }
+      }
+    },
+    "lifelongEngagement": {
+      "title": "المشاركة مدى الحياة",
+      "description": "استمر في النمو طوال مسيرتك المهنية",
+      "items": {
+        "advisoryPositions": {
+          "title": "المناصب الاستشارية",
+          "description": "أدوار استشارية وتشاورية كبيرة"
+        },
+        "communityLeadership": {
+          "title": "القيادة المجتمعية",
+          "description": "قد واخدم مجتمعك"
+        },
+        "legacyProjects": {
+          "title": "مشاريع الإرث",
+          "description": "أنشئ تأثيراً دائماً من خلال المشاريع"
+        },
+        "nationalService": {
+          "title": "الخدمة الوطنية",
+          "description": "اخدم وطنك بفخر"
+        },
+        "thoughtLeadership": {
+          "title": "القيادة الفكرية",
+          "description": "شارك خبرتك ورؤاك"
+        },
+        "successStories": {
+          "title": "قصص النجاح",
+          "description": "ألهم الآخرين برحلتك"
+        },
+        "financialPlanning": {
+          "title": "التخطيط المالي",
+          "description": "خطط لمستقبلك المالي"
+        },
+        "retireeServices": {
+          "title": "خدمات المتقاعدين",
+          "description": "دعم للمهنيين المتقاعدين"
+        }
+      }
+    }
+  }
+}

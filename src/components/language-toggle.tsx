@@ -14,21 +14,19 @@ import {
 
 export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
 
   console.log('LanguageToggle render - current language:', language);
-  console.log('LanguageToggle render - i18n language:', i18n.language);
-  console.log('LanguageToggle render - toggle language text:', t('toggleLanguage'));
+  console.log('LanguageToggle render - toggle language text:', t('accessibility.toggleLanguage'));
 
   const handleLanguageChange = async (newLanguage: 'en' | 'ar') => {
     console.log('Language toggle clicked:', newLanguage);
-    console.log('Before change - i18n language:', i18n.language);
     
     await setLanguage(newLanguage);
     
     // Force component re-render by waiting a bit
     setTimeout(() => {
-      console.log('After change - i18n language:', i18n.language);
+      console.log('After change - language:', newLanguage);
     }, 100);
   };
 
@@ -37,7 +35,7 @@ export function LanguageToggle() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="bg-background">
           <Languages className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">{t('toggleLanguage')}</span>
+          <span className="sr-only">{t('accessibility.toggleLanguage')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-background border-border">

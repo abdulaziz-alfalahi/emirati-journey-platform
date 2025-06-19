@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { user } = useAuth();
-  const { t } = useTranslation('pages');
+  const { t } = useTranslation('home');
 
   useEffect(() => {
     setIsLoaded(true);

@@ -20,14 +20,14 @@ interface MainNavProps {
 
 const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
   const { user } = useAuth();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('navigation');
   const location = useLocation();
 
   return (
     <div className="flex items-center space-x-6">
       {/* Logo */}
       <Link to="/" className="flex items-center space-x-2">
-        <div className="font-bold text-xl text-ehrdc-teal">{t('menu.emiratiGateway')}</div>
+        <div className="font-bold text-xl text-ehrdc-teal">{t('emiratiGateway')}</div>
       </Link>
 
       {/* Navigation Menu */}
@@ -87,7 +87,7 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
               location.pathname === '/dashboard' ? 'text-ehrdc-teal' : 'text-ehrdc-neutral-dark'
             }`}
           >
-            {t('nav.dashboard')}
+            {t('dashboard')}
           </Link>
         )}
       </div>
