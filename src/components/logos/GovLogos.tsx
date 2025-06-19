@@ -21,8 +21,8 @@ export const GovLogos: React.FC<GovLogosProps> = ({
   };
 
   return (
-    <div className={`flex ${variant === 'horizontal' ? 'flex-row space-x-6 md:space-x-10 justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`}>
-      {/* Dubai Government Logo - Left */}
+    <div className={`flex ${variant === 'horizontal' ? 'flex-row space-x-6 md:space-x-10 justify-between w-full' : 'flex-col space-y-4'} items-center ${className}`} dir="ltr">
+      {/* Dubai Government Logo - Always Left */}
       <a href="https://tec.gov.ae/" target="_blank" rel="noopener noreferrer" className="flex items-center">
         <img 
           src="/lovable-uploads/8e8dde72-de3d-4664-b8d9-541c109edc51.png"
@@ -32,7 +32,7 @@ export const GovLogos: React.FC<GovLogosProps> = ({
         />
       </a>
 
-      {/* Emirati Human Resources Development Council Logo - Right */}
+      {/* Emirati Human Resources Development Council Logo - Always Right */}
       <Link to="/" className="flex items-center">
         <img 
           src="/lovable-uploads/e4ab7695-235d-451a-a304-556e2bb2b7e8.png"
