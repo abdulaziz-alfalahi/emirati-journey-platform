@@ -28,7 +28,6 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { LanguageToggle } from '@/components/language-toggle';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -99,7 +98,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ className }) => {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <LanguageToggle />
               <ThemeToggle />
               <AccessibilityToolbar />
             </div>
