@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '@/context/LanguageContext';
 
 interface GovLogosProps {
   variant?: 'horizontal' | 'vertical';
@@ -14,33 +13,11 @@ export const GovLogos: React.FC<GovLogosProps> = ({
   size = 'medium',
   className = ''
 }) => {
-  const { language } = useLanguage();
-  const isRTL = language === 'ar';
-
   // Set consistent fixed heights based on size prop
   const logoSize = {
     small: 'h-6 md:h-8',
     medium: 'h-8 md:h-10',
     large: 'h-10 md:h-14',
-  };
-
-  // Positioning styles with fallback for older browsers
-  const dubaiGovStyle = {
-    ...(CSS.supports('inset-inline-start', '0%') 
-      ? { insetInlineStart: '0%' }
-      : { [isRTL ? 'right' : 'left']: '0%' }
-    ),
-    transform: 'translateY(-50%)',
-    position: 'absolute' as const
-  };
-
-  const ehrdcStyle = {
-    ...(CSS.supports('inset-inline-end', '0%')
-      ? { insetInlineEnd: '0%' }
-      : { [isRTL ? 'left' : 'right']: '0%' }
-    ),
-    transform: 'translateY(-50%)',
-    position: 'absolute' as const
   };
 
   if (variant === 'vertical') {
@@ -77,10 +54,14 @@ export const GovLogos: React.FC<GovLogosProps> = ({
 
   return (
     <div className={`relative w-full ${className}`}>
-      {/* Dubai Government Logo - Always at logical start (left in LTR, right in RTL) */}
+      {/* Dubai Government Logo - Always at physical left */}
       <div 
         className="absolute top-1/2 -translate-y-1/2"
-        style={dubaiGovStyle}
+        style={{ 
+          left: '0%',
+          transform: 'translateY(-50%)',
+          position: 'absolute'
+        }}
       >
         <a 
           href="https://tec.gov.ae/" 
@@ -96,10 +77,14 @@ export const GovLogos: React.FC<GovLogosProps> = ({
         </a>
       </div>
 
-      {/* Emirati Human Resources Development Council Logo - Always at logical end (right in LTR, left in RTL) */}
+      {/* Emirati Human Resources Development Council Logo - Always at physical right */}
       <div 
         className="absolute top-1/2 -translate-y-1/2"
-        style={ehrdcStyle}
+        style={{ 
+          right: '0%',
+          transform: 'translateY(-50%)',
+          position: 'absolute'
+        }}
       >
         <Link 
           to="/" 
