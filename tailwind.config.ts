@@ -124,7 +124,9 @@ export default {
 				sans: ['Inter', 'sans-serif'],
 				display: ['SF Pro Display', 'Inter', 'sans-serif'],
 				// Dubai Design System font
-				gov: ['Dubai', 'Arial', 'sans-serif']
+				gov: ['Dubai', 'Arial', 'sans-serif'],
+				// Arabic font support
+				arabic: ['Cairo', 'Tajawal', 'Amiri', 'Arabic UI Text', 'Segoe UI Arabic', 'Tahoma', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -196,5 +198,44 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		// Add RTL support plugin functionality
+		function({ addUtilities }: { addUtilities: any }) {
+			const rtlUtilities = {
+				'.rtl\\:text-right': {
+					'[dir="rtl"] &': {
+						'text-align': 'right'
+					}
+				},
+				'.rtl\\:text-left': {
+					'[dir="rtl"] &': {
+						'text-align': 'left'
+					}
+				},
+				'.rtl\\:flex-row-reverse': {
+					'[dir="rtl"] &': {
+						'flex-direction': 'row-reverse'
+					}
+				},
+				'.rtl\\:space-y-2': {
+					'[dir="rtl"] & > :not([hidden]) ~ :not([hidden])': {
+						'margin-top': '0.5rem'
+					}
+				},
+				'.rtl\\:font-arabic': {
+					'[dir="rtl"] &': {
+						'font-family': 'Cairo, Tajawal, Amiri, "Arabic UI Text", "Segoe UI Arabic", Tahoma, sans-serif',
+						'line-height': '1.8'
+					}
+				},
+				'.rtl\\:leading-relaxed': {
+					'[dir="rtl"] &': {
+						'line-height': '1.9'
+					}
+				}
+			};
+			addUtilities(rtlUtilities);
+		}
+	],
 } satisfies Config;

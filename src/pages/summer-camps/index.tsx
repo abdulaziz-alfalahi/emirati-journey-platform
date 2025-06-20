@@ -1,14 +1,17 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/context/LanguageContext';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { Calendar, Users, Award, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const SummerCampsPage: React.FC = () => {
   const { t } = useTranslation('summer-camps');
+  const { isRTL, direction } = useLanguage();
 
   // Dynamic stats from translations
   const stats = [
@@ -70,31 +73,67 @@ const SummerCampsPage: React.FC = () => {
       content: (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {camps.map((camp, index) => (
-            <Card key={index}>
-              <CardHeader>
-                <CardTitle className="text-lg">{camp.title}</CardTitle>
-                <p className="text-muted-foreground">{camp.description}</p>
+            <Card key={index} className={cn(
+              "transition-all duration-300 hover:shadow-lg",
+              isRTL && "rtl:text-right"
+            )}>
+              <CardHeader className={cn(
+                isRTL && "rtl:text-right"
+              )}>
+                <CardTitle className={cn(
+                  "text-lg",
+                  isRTL && "rtl:text-right rtl:font-arabic"
+                )}>{camp.title}</CardTitle>
+                <p className={cn(
+                  "text-muted-foreground",
+                  isRTL && "rtl:text-right rtl:font-arabic rtl:leading-relaxed"
+                )}>{camp.description}</p>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span>{t('info.duration')}:</span>
-                    <span>{camp.duration}</span>
+              <CardContent className={cn(
+                isRTL && "rtl:text-right"
+              )}>
+                <div className={cn(
+                  "space-y-2 mb-4",
+                  isRTL && "rtl:space-y-2"
+                )}>
+                  <div className={cn(
+                    "flex justify-between text-sm",
+                    isRTL && "rtl:flex-row-reverse rtl:text-right"
+                  )}>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('info.duration')}:</span>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.duration}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>{t('ui.filters.ageGroup')}:</span>
-                    <span>{camp.ageGroup}</span>
+                  <div className={cn(
+                    "flex justify-between text-sm",
+                    isRTL && "rtl:flex-row-reverse rtl:text-right"
+                  )}>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.ageGroup')}:</span>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.ageGroup}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>{t('ui.filters.location')}:</span>
-                    <span>{camp.location}</span>
+                  <div className={cn(
+                    "flex justify-between text-sm",
+                    isRTL && "rtl:flex-row-reverse rtl:text-right"
+                  )}>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.location')}:</span>
+                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.location}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('info.price')}:</span>
-                    <Badge variant="secondary">{camp.price}</Badge>
+                  <div className={cn(
+                    "flex justify-between items-center",
+                    isRTL && "rtl:flex-row-reverse rtl:text-right"
+                  )}>
+                    <span className={cn(
+                      "text-sm",
+                      isRTL && "rtl:font-arabic"
+                    )}>{t('info.price')}:</span>
+                    <Badge variant="secondary" className={cn(
+                      isRTL && "rtl:font-arabic"
+                    )}>{camp.price}</Badge>
                   </div>
                 </div>
-                <Button className="w-full">{t('ui.buttons.applyNow')}</Button>
+                <Button className={cn(
+                  "w-full",
+                  isRTL && "rtl:font-arabic"
+                )}>{t('ui.buttons.applyNow')}</Button>
               </CardContent>
             </Card>
           ))}
@@ -104,27 +143,32 @@ const SummerCampsPage: React.FC = () => {
   ];
 
   return (
-    <EducationPathwayLayout
-      title={t('meta.title')}
-      description={t('meta.description')}
-      icon={<Calendar className="h-12 w-12 text-orange-600" />}
-      stats={stats}
-      tabs={tabs}
-      defaultTab="programs"
-      actionButtonText={t('ui.buttons.browseProgramsShort')}
-      actionButtonHref="#programs"
-      announcements={[
-        {
-          id: "1",
-          title: t('announcements.earlyBird.title'),
-          message: t('announcements.earlyBird.message'),
-          type: "info",
-          date: new Date(),
-          urgent: false
-        }
-      ]}
-      academicYear={t('info.academicYear')}
-    />
+    <div className={cn(
+      "min-h-screen",
+      isRTL && "rtl:font-arabic"
+    )} dir={direction}>
+      <EducationPathwayLayout
+        title={t('meta.title')}
+        description={t('meta.description')}
+        icon={<Calendar className="h-12 w-12 text-orange-600" />}
+        stats={stats}
+        tabs={tabs}
+        defaultTab="programs"
+        actionButtonText={t('ui.buttons.browseProgramsShort')}
+        actionButtonHref="#programs"
+        announcements={[
+          {
+            id: "1",
+            title: t('announcements.earlyBird.title'),
+            message: t('announcements.earlyBird.message'),
+            type: "info",
+            date: new Date(),
+            urgent: false
+          }
+        ]}
+        academicYear={t('info.academicYear')}
+      />
+    </div>
   );
 };
 
