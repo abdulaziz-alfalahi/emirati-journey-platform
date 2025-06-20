@@ -115,31 +115,42 @@ export const useTranslationLoader = (options: UseTranslationLoaderOptions) => {
     }
   }, [preloadLanguages, loadedLanguages, loadTranslation]);
 
-  // Enhanced translation function with fallback
-  const tWithFallback = useCallback((key: string, options?: any) => {
+  // Enhanced translation function that ensures string return
+  const tWithFallback = useCallback((key: string, options?: any): string => {
     try {
       const translation = t(key, { ...options, fallbackLng: 'en' });
       
-      // If translation returns the key, it means translation is missing
-      if (translation === key) {
-        console.warn(`Missing translation key: ${i18nInstance.language}.${namespace}.${key}`);
-        
-        // Try English fallback if current language is not English
-        if (i18nInstance.language !== 'en') {
-          const englishResource = i18nInstance.getResourceBundle('en', namespace);
-          if (englishResource) {
-            const fallbackValue = key.split('.').reduce((obj, k) => obj?.[k], englishResource);
-            if (fallbackValue && typeof fallbackValue === 'string') {
-              return fallbackValue;
+      // Ensure we always return a string
+      if (typeof translation === 'string') {
+        // If translation returns the key, it means translation is missing
+        if (translation === key) {
+          console.warn(`Missing translation key: ${i18nInstance.language}.${namespace}.${key}`);
+          
+          // Try English fallback if current language is not English
+          if (i18nInstance.language !== 'en') {
+            const englishResource = i18nInstance.getResourceBundle('en', namespace);
+            if (englishResource) {
+              const fallbackValue = key.split('.').reduce((obj, k) => obj?.[k], englishResource);
+              if (fallbackValue && typeof fallbackValue === 'string') {
+                return fallbackValue;
+              }
             }
           }
+          
+          // Return formatted key as last resort
+          return key.split('.').pop() || key;
         }
         
-        // Return formatted key as last resort
-        return key.split('.').pop() || key;
+        return translation;
       }
       
-      return translation;
+      // Handle non-string returns by converting to string
+      if (translation && typeof translation === 'object') {
+        console.warn(`Translation returned object for key: ${key}, converting to string`);
+        return JSON.stringify(translation);
+      }
+      
+      return String(translation || key.split('.').pop() || key);
     } catch (error) {
       console.error('Translation error:', error);
       return key.split('.').pop() || key;

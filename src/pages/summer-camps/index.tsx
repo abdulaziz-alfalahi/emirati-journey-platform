@@ -22,57 +22,63 @@ const SummerCampsPage: React.FC = () => {
     cacheExpiry: 10 * 60 * 1000 // 10 minutes cache
   });
 
+  // Enhanced translation function that ensures string return
+  const getSafeTranslation = useCallback((key: string): string => {
+    const translation = t(key);
+    return typeof translation === 'string' ? translation : String(translation);
+  }, [t]);
+
   // Memoized stats to prevent re-computation
   const stats = useMemo(() => [
     { 
-      value: t('stats.summerPrograms.value'), 
-      label: t('stats.summerPrograms.label'), 
+      value: getSafeTranslation('stats.summerPrograms.value'), 
+      label: getSafeTranslation('stats.summerPrograms.label'), 
       icon: Calendar 
     },
     { 
-      value: t('stats.studentsEnrolled.value'), 
-      label: t('stats.studentsEnrolled.label'), 
+      value: getSafeTranslation('stats.studentsEnrolled.value'), 
+      label: getSafeTranslation('stats.studentsEnrolled.label'), 
       icon: Users 
     },
     { 
-      value: t('stats.partnerInstitutions.value'), 
-      label: t('stats.partnerInstitutions.label'), 
+      value: getSafeTranslation('stats.partnerInstitutions.value'), 
+      label: getSafeTranslation('stats.partnerInstitutions.label'), 
       icon: Award 
     },
     { 
-      value: t('stats.emiratesCovered.value'), 
-      label: t('stats.emiratesCovered.label'), 
+      value: getSafeTranslation('stats.emiratesCovered.value'), 
+      label: getSafeTranslation('stats.emiratesCovered.label'), 
       icon: MapPin 
     }
-  ], [t]);
+  ], [getSafeTranslation]);
 
   // Memoized camps to prevent re-computation
   const camps = useMemo(() => [
     {
-      title: t('camps.stemInnovation.title'),
-      description: t('camps.stemInnovation.description'),
-      duration: t('camps.stemInnovation.duration'),
-      ageGroup: t('camps.stemInnovation.ageGroup'),
-      location: t('camps.stemInnovation.location'),
-      price: t('camps.stemInnovation.price')
+      title: getSafeTranslation('camps.stemInnovation.title'),
+      description: getSafeTranslation('camps.stemInnovation.description'),
+      duration: getSafeTranslation('camps.stemInnovation.duration'),
+      ageGroup: getSafeTranslation('camps.stemInnovation.ageGroup'),
+      location: getSafeTranslation('camps.stemInnovation.location'),
+      price: getSafeTranslation('camps.stemInnovation.price')
     },
     {
-      title: t('camps.entrepreneurshipBootcamp.title'),
-      description: t('camps.entrepreneurshipBootcamp.description'),
-      duration: t('camps.entrepreneurshipBootcamp.duration'),
-      ageGroup: t('camps.entrepreneurshipBootcamp.ageGroup'),
-      location: t('camps.entrepreneurshipBootcamp.location'),
-      price: t('camps.entrepreneurshipBootcamp.price')
+      title: getSafeTranslation('camps.entrepreneurshipBootcamp.title'),
+      description: getSafeTranslation('camps.entrepreneurshipBootcamp.description'),
+      duration: getSafeTranslation('camps.entrepreneurshipBootcamp.duration'),
+      ageGroup: getSafeTranslation('camps.entrepreneurshipBootcamp.ageGroup'),
+      location: getSafeTranslation('camps.entrepreneurshipBootcamp.location'),
+      price: getSafeTranslation('camps.entrepreneurshipBootcamp.price')
     },
     {
-      title: t('camps.digitalArtsDesign.title'),
-      description: t('camps.digitalArtsDesign.description'),
-      duration: t('camps.digitalArtsDesign.duration'),
-      ageGroup: t('camps.digitalArtsDesign.ageGroup'),
-      location: t('camps.digitalArtsDesign.location'),
-      price: t('camps.digitalArtsDesign.price')
+      title: getSafeTranslation('camps.digitalArtsDesign.title'),
+      description: getSafeTranslation('camps.digitalArtsDesign.description'),
+      duration: getSafeTranslation('camps.digitalArtsDesign.duration'),
+      ageGroup: getSafeTranslation('camps.digitalArtsDesign.ageGroup'),
+      location: getSafeTranslation('camps.digitalArtsDesign.location'),
+      price: getSafeTranslation('camps.digitalArtsDesign.price')
     }
-  ], [t]);
+  ], [getSafeTranslation]);
 
   // Memoized apply handler to prevent re-renders
   const handleApplyClick = useCallback((campIndex: number) => {
@@ -80,26 +86,42 @@ const SummerCampsPage: React.FC = () => {
     // Application logic would go here
   }, [camps]);
 
+  // Error fallback component
+  const ErrorFallback = ({ error }: { error?: Error }) => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center p-8">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h2>
+        <p className="text-gray-600 mb-4">{error?.message || 'An unexpected error occurred'}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Reload Page
+        </button>
+      </div>
+    </div>
+  );
+
   // Memoized tabs to prevent re-computation
   const tabs = useMemo(() => [
     {
       id: "programs",
-      label: t('tabs.programs.label'),
+      label: getSafeTranslation('tabs.programs.label'),
       icon: <Calendar className="h-4 w-4" />,
       content: (
-        <ErrorBoundary>
+        <ErrorBoundary fallback={<ErrorFallback />}>
           <Suspense fallback={<TranslationLoadingState />}>
             <MemoizedSummerCampsContent
               stats={stats}
               camps={camps}
-              t={t}
+              t={getSafeTranslation}
               onApplyClick={handleApplyClick}
             />
           </Suspense>
         </ErrorBoundary>
       )
     }
-  ], [t, stats, camps, handleApplyClick]);
+  ], [getSafeTranslation, stats, camps, handleApplyClick]);
 
   // Show loading state during initial translation loading
   if (isLoading && loadedLanguages.length === 0) {
@@ -129,27 +151,27 @@ const SummerCampsPage: React.FC = () => {
       "min-h-screen",
       isRTL && "rtl:font-arabic"
     )} dir={direction}>
-      <ErrorBoundary>
+      <ErrorBoundary fallback={<ErrorFallback />}>
         <EducationPathwayLayout
-          title={t('meta.title')}
-          description={t('meta.description')}
+          title={getSafeTranslation('meta.title')}
+          description={getSafeTranslation('meta.description')}
           icon={<Calendar className="h-12 w-12 text-orange-600" />}
           stats={stats}
           tabs={tabs}
           defaultTab="programs"
-          actionButtonText={t('ui.buttons.browseProgramsShort')}
+          actionButtonText={getSafeTranslation('ui.buttons.browseProgramsShort')}
           actionButtonHref="#programs"
           announcements={[
             {
               id: "1",
-              title: t('announcements.earlyBird.title'),
-              message: t('announcements.earlyBird.message'),
+              title: getSafeTranslation('announcements.earlyBird.title'),
+              message: getSafeTranslation('announcements.earlyBird.message'),
               type: "info",
               date: new Date(),
               urgent: false
             }
           ]}
-          academicYear={t('info.academicYear')}
+          academicYear={getSafeTranslation('info.academicYear')}
         />
       </ErrorBoundary>
     </div>
