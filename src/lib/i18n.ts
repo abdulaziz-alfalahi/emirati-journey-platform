@@ -7,11 +7,13 @@ import enNavigation from '../locales/en/navigation.json';
 import enHome from '../locales/en/home.json';
 import enCommon from '../locales/en/common.json';
 import enForms from '../locales/en/forms.json';
+import enSummerCamps from '../locales/en/summer-camps.json';
 
 import arNavigation from '../locales/ar/navigation.json';
 import arHome from '../locales/ar/home.json';
 import arCommon from '../locales/ar/common.json';
 import arForms from '../locales/ar/forms.json';
+import arSummerCamps from '../locales/ar/summer-camps.json';
 
 // Define the resources
 const resources = {
@@ -20,6 +22,7 @@ const resources = {
     home: enHome,
     common: enCommon,
     forms: enForms,
+    'summer-camps': enSummerCamps,
     // Keep the existing pages namespace for backward compatibility
     pages: enHome
   },
@@ -28,6 +31,7 @@ const resources = {
     home: arHome,
     common: arCommon,
     forms: arForms,
+    'summer-camps': arSummerCamps,
     // Keep the existing pages namespace for backward compatibility
     pages: arHome
   }
