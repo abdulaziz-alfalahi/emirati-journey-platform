@@ -89,30 +89,57 @@ const SummerCampsPage: React.FC = () => {
       }
     ];
 
-    // Tabs data with proper typing
+    // Tabs data
     const tabsData = [
       {
         id: 'available',
         label: t('summerCamps.tabs.available'),
         icon: <Tent className="h-4 w-4" />,
-        contentType: 'available' as const
+        content: (
+          <ErrorBoundary fallback={<ErrorFallback error={new Error('Content error')} />}>
+            <MemoizedSummerCampsContent
+              stats={statsData}
+              camps={campsData}
+              t={t}
+              onApplyClick={handleApplyClick}
+            />
+          </ErrorBoundary>
+        )
       },
       {
         id: 'registered',
         label: t('summerCamps.tabs.registered'),
         icon: <Users className="h-4 w-4" />,
-        contentType: 'registered' as const
+        content: (
+          <ErrorBoundary fallback={<ErrorFallback error={new Error('Content error')} />}>
+            <MemoizedSummerCampsContent
+              stats={statsData}
+              camps={campsData}
+              t={t}
+              onApplyClick={handleApplyClick}
+            />
+          </ErrorBoundary>
+        )
       },
       {
         id: 'calendar',
         label: t('summerCamps.tabs.calendar'),
         icon: <Calendar className="h-4 w-4" />,
-        contentType: 'calendar' as const
+        content: (
+          <ErrorBoundary fallback={<ErrorFallback error={new Error('Content error')} />}>
+            <MemoizedSummerCampsContent
+              stats={statsData}
+              camps={campsData}
+              t={t}
+              onApplyClick={handleApplyClick}
+            />
+          </ErrorBoundary>
+        )
       }
     ];
 
     return { stats: statsData, camps: campsData, tabs: tabsData };
-  }, [t]);
+  }, [t, handleApplyClick]);
 
   // SEO and accessibility setup
   const { generateStructuredData } = useAccessibilityAndSEO({
@@ -155,21 +182,7 @@ const SummerCampsPage: React.FC = () => {
           description={t('summerCamps.hero.description')}
           icon={<Tent className="h-8 w-8" />}
           stats={stats}
-          tabs={tabs.map(tab => ({
-            id: tab.id,
-            label: tab.label,
-            icon: tab.icon,
-            content: (
-              <ErrorBoundary fallback={<ErrorFallback error={new Error('Content error')} />}>
-                <MemoizedSummerCampsContent
-                  stats={stats}
-                  camps={camps}
-                  t={t}
-                  onApplyClick={handleApplyClick}
-                />
-              </ErrorBoundary>
-            )
-          }))}
+          tabs={tabs}
           defaultTab="available"
           ctaTitle={t('summerCamps.cta.title')}
           ctaDescription={t('summerCamps.cta.description')}
