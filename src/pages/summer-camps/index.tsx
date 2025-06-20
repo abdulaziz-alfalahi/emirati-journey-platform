@@ -1,20 +1,29 @@
 
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useCallback, useMemo, Suspense } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { Calendar, Users, Award, MapPin } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslationLoader } from '@/hooks/useTranslationLoader';
+import TranslationLoadingState from '@/components/summer-camps/TranslationLoadingState';
+import MemoizedSummerCampsContent from '@/components/summer-camps/MemoizedSummerCampsContent';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 const SummerCampsPage: React.FC = () => {
-  const { t } = useTranslation('summer-camps');
   const { isRTL, direction } = useLanguage();
+  const { 
+    t, 
+    isLoading, 
+    error,
+    loadedLanguages 
+  } = useTranslationLoader({ 
+    namespace: 'summer-camps',
+    preloadLanguages: ['en', 'ar'],
+    cacheExpiry: 10 * 60 * 1000 // 10 minutes cache
+  });
 
-  // Dynamic stats from translations
-  const stats = [
+  // Memoized stats to prevent re-computation
+  const stats = useMemo(() => [
     { 
       value: t('stats.summerPrograms.value'), 
       label: t('stats.summerPrograms.label'), 
@@ -35,10 +44,10 @@ const SummerCampsPage: React.FC = () => {
       label: t('stats.emiratesCovered.label'), 
       icon: MapPin 
     }
-  ];
+  ], [t]);
 
-  // Dynamic camps from translations
-  const camps = [
+  // Memoized camps to prevent re-computation
+  const camps = useMemo(() => [
     {
       title: t('camps.stemInnovation.title'),
       description: t('camps.stemInnovation.description'),
@@ -63,111 +72,86 @@ const SummerCampsPage: React.FC = () => {
       location: t('camps.digitalArtsDesign.location'),
       price: t('camps.digitalArtsDesign.price')
     }
-  ];
+  ], [t]);
 
-  const tabs = [
+  // Memoized apply handler to prevent re-renders
+  const handleApplyClick = useCallback((campIndex: number) => {
+    console.log(`Applying for camp: ${camps[campIndex]?.title}`);
+    // Application logic would go here
+  }, [camps]);
+
+  // Memoized tabs to prevent re-computation
+  const tabs = useMemo(() => [
     {
       id: "programs",
       label: t('tabs.programs.label'),
       icon: <Calendar className="h-4 w-4" />,
       content: (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {camps.map((camp, index) => (
-            <Card key={index} className={cn(
-              "transition-all duration-300 hover:shadow-lg",
-              isRTL && "rtl:text-right"
-            )}>
-              <CardHeader className={cn(
-                isRTL && "rtl:text-right"
-              )}>
-                <CardTitle className={cn(
-                  "text-lg",
-                  isRTL && "rtl:text-right rtl:font-arabic"
-                )}>{camp.title}</CardTitle>
-                <p className={cn(
-                  "text-muted-foreground",
-                  isRTL && "rtl:text-right rtl:font-arabic rtl:leading-relaxed"
-                )}>{camp.description}</p>
-              </CardHeader>
-              <CardContent className={cn(
-                isRTL && "rtl:text-right"
-              )}>
-                <div className={cn(
-                  "space-y-2 mb-4",
-                  isRTL && "rtl:space-y-2"
-                )}>
-                  <div className={cn(
-                    "flex justify-between text-sm",
-                    isRTL && "rtl:flex-row-reverse rtl:text-right"
-                  )}>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('info.duration')}:</span>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.duration}</span>
-                  </div>
-                  <div className={cn(
-                    "flex justify-between text-sm",
-                    isRTL && "rtl:flex-row-reverse rtl:text-right"
-                  )}>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.ageGroup')}:</span>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.ageGroup}</span>
-                  </div>
-                  <div className={cn(
-                    "flex justify-between text-sm",
-                    isRTL && "rtl:flex-row-reverse rtl:text-right"
-                  )}>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.location')}:</span>
-                    <span className={cn(isRTL && "rtl:font-arabic")}>{camp.location}</span>
-                  </div>
-                  <div className={cn(
-                    "flex justify-between items-center",
-                    isRTL && "rtl:flex-row-reverse rtl:text-right"
-                  )}>
-                    <span className={cn(
-                      "text-sm",
-                      isRTL && "rtl:font-arabic"
-                    )}>{t('info.price')}:</span>
-                    <Badge variant="secondary" className={cn(
-                      isRTL && "rtl:font-arabic"
-                    )}>{camp.price}</Badge>
-                  </div>
-                </div>
-                <Button className={cn(
-                  "w-full",
-                  isRTL && "rtl:font-arabic"
-                )}>{t('ui.buttons.applyNow')}</Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ErrorBoundary>
+          <Suspense fallback={<TranslationLoadingState />}>
+            <MemoizedSummerCampsContent
+              stats={stats}
+              camps={camps}
+              t={t}
+              onApplyClick={handleApplyClick}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )
     }
-  ];
+  ], [t, stats, camps, handleApplyClick]);
+
+  // Show loading state during initial translation loading
+  if (isLoading && loadedLanguages.length === 0) {
+    return <TranslationLoadingState />;
+  }
+
+  // Show error state if translation loading failed
+  if (error && loadedLanguages.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Translation Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn(
       "min-h-screen",
       isRTL && "rtl:font-arabic"
     )} dir={direction}>
-      <EducationPathwayLayout
-        title={t('meta.title')}
-        description={t('meta.description')}
-        icon={<Calendar className="h-12 w-12 text-orange-600" />}
-        stats={stats}
-        tabs={tabs}
-        defaultTab="programs"
-        actionButtonText={t('ui.buttons.browseProgramsShort')}
-        actionButtonHref="#programs"
-        announcements={[
-          {
-            id: "1",
-            title: t('announcements.earlyBird.title'),
-            message: t('announcements.earlyBird.message'),
-            type: "info",
-            date: new Date(),
-            urgent: false
-          }
-        ]}
-        academicYear={t('info.academicYear')}
-      />
+      <ErrorBoundary>
+        <EducationPathwayLayout
+          title={t('meta.title')}
+          description={t('meta.description')}
+          icon={<Calendar className="h-12 w-12 text-orange-600" />}
+          stats={stats}
+          tabs={tabs}
+          defaultTab="programs"
+          actionButtonText={t('ui.buttons.browseProgramsShort')}
+          actionButtonHref="#programs"
+          announcements={[
+            {
+              id: "1",
+              title: t('announcements.earlyBird.title'),
+              message: t('announcements.earlyBird.message'),
+              type: "info",
+              date: new Date(),
+              urgent: false
+            }
+          ]}
+          academicYear={t('info.academicYear')}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
