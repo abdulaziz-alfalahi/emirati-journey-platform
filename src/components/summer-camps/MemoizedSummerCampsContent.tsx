@@ -35,26 +35,31 @@ const MemoizedSummerCampsContent: React.FC<MemoizedSummerCampsContentProps> = me
   t,
   onApplyClick
 }) => {
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
 
   const memoizedStats = useMemo(() => stats.map((stat, index) => {
     const IconComponent = stat.icon;
+    const statId = `stat-${index}`;
+    
     return (
-      <Card key={`stat-${index}`} className="text-center">
+      <Card key={statId} className="text-center" role="img" aria-labelledby={`${statId}-label`}>
         <CardContent className="p-6">
-          <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center justify-center mb-2" aria-hidden="true">
             <IconComponent className="h-8 w-8 text-orange-600" />
           </div>
           <div className={cn(
             "text-2xl font-bold text-gray-900 mb-1",
             isRTL && "rtl:font-arabic"
-          )}>
+          )} aria-label={`${stat.value} ${stat.label}`}>
             {stat.value}
           </div>
-          <div className={cn(
-            "text-sm text-gray-600",
-            isRTL && "rtl:font-arabic"
-          )}>
+          <div 
+            id={`${statId}-label`}
+            className={cn(
+              "text-sm text-gray-600",
+              isRTL && "rtl:font-arabic"
+            )}
+          >
             {stat.label}
           </div>
         </CardContent>
@@ -62,89 +67,146 @@ const MemoizedSummerCampsContent: React.FC<MemoizedSummerCampsContentProps> = me
     );
   }), [stats, isRTL]);
 
-  const memoizedCamps = useMemo(() => camps.map((camp, index) => (
-    <Card key={`camp-${index}`} className={cn(
-      "transition-all duration-300 hover:shadow-lg",
-      isRTL && "rtl:text-right"
-    )}>
-      <CardHeader className={cn(
-        isRTL && "rtl:text-right"
-      )}>
-        <CardTitle className={cn(
-          "text-lg",
-          isRTL && "rtl:text-right rtl:font-arabic"
-        )}>{camp.title}</CardTitle>
-        <p className={cn(
-          "text-muted-foreground",
-          isRTL && "rtl:text-right rtl:font-arabic rtl:leading-relaxed"
-        )}>{camp.description}</p>
-      </CardHeader>
-      <CardContent className={cn(
-        isRTL && "rtl:text-right"
-      )}>
-        <div className={cn(
-          "space-y-2 mb-4",
-          isRTL && "rtl:space-y-2"
+  const memoizedCamps = useMemo(() => camps.map((camp, index) => {
+    const campId = `camp-${index}`;
+    const applyButtonId = `apply-button-${index}`;
+    
+    return (
+      <Card 
+        key={campId} 
+        className={cn(
+          "transition-all duration-300 hover:shadow-lg focus-within:ring-2 focus-within:ring-orange-500",
+          isRTL && "rtl:text-right"
+        )}
+        role="article"
+        aria-labelledby={`${campId}-title`}
+        aria-describedby={`${campId}-description`}
+      >
+        <CardHeader className={cn(
+          isRTL && "rtl:text-right"
+        )}>
+          <CardTitle 
+            id={`${campId}-title`}
+            className={cn(
+              "text-lg",
+              isRTL && "rtl:text-right rtl:font-arabic"
+            )}
+          >
+            {camp.title}
+          </CardTitle>
+          <p 
+            id={`${campId}-description`}
+            className={cn(
+              "text-muted-foreground",
+              isRTL && "rtl:text-right rtl:font-arabic rtl:leading-relaxed"
+            )}
+          >
+            {camp.description}
+          </p>
+        </CardHeader>
+        <CardContent className={cn(
+          isRTL && "rtl:text-right"
         )}>
           <div className={cn(
-            "flex justify-between text-sm",
-            isRTL && "rtl:flex-row-reverse rtl:text-right"
-          )}>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{t('info.duration')}:</span>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{camp.duration}</span>
+            "space-y-2 mb-4",
+            isRTL && "rtl:space-y-2"
+          )} role="list" aria-label={language === 'ar' ? 'تفاصيل المخيم' : 'Camp details'}>
+            
+            <div className={cn(
+              "flex justify-between text-sm",
+              isRTL && "rtl:flex-row-reverse rtl:text-right"
+            )} role="listitem">
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-label={t('info.duration')}>
+                {t('info.duration')}:
+              </span>
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-describedby={`${campId}-duration`}>
+                <span id={`${campId}-duration`}>{camp.duration}</span>
+              </span>
+            </div>
+            
+            <div className={cn(
+              "flex justify-between text-sm",
+              isRTL && "rtl:flex-row-reverse rtl:text-right"
+            )} role="listitem">
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-label={t('ui.filters.ageGroup')}>
+                {t('ui.filters.ageGroup')}:
+              </span>
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-describedby={`${campId}-age`}>
+                <span id={`${campId}-age`}>{camp.ageGroup}</span>
+              </span>
+            </div>
+            
+            <div className={cn(
+              "flex justify-between text-sm",
+              isRTL && "rtl:flex-row-reverse rtl:text-right"
+            )} role="listitem">
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-label={t('ui.filters.location')}>
+                {t('ui.filters.location')}:
+              </span>
+              <span className={cn(isRTL && "rtl:font-arabic")} aria-describedby={`${campId}-location`}>
+                <span id={`${campId}-location`}>{camp.location}</span>
+              </span>
+            </div>
+            
+            <div className={cn(
+              "flex justify-between items-center",
+              isRTL && "rtl:flex-row-reverse rtl:text-right"
+            )} role="listitem">
+              <span className={cn(
+                "text-sm",
+                isRTL && "rtl:font-arabic"
+              )} aria-label={t('info.price')}>
+                {t('info.price')}:
+              </span>
+              <Badge 
+                variant="secondary" 
+                className={cn(isRTL && "rtl:font-arabic")}
+                aria-label={`${t('info.price')}: ${camp.price}`}
+              >
+                {camp.price}
+              </Badge>
+            </div>
           </div>
-          <div className={cn(
-            "flex justify-between text-sm",
-            isRTL && "rtl:flex-row-reverse rtl:text-right"
-          )}>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.ageGroup')}:</span>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{camp.ageGroup}</span>
-          </div>
-          <div className={cn(
-            "flex justify-between text-sm",
-            isRTL && "rtl:flex-row-reverse rtl:text-right"
-          )}>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{t('ui.filters.location')}:</span>
-            <span className={cn(isRTL && "rtl:font-arabic")}>{camp.location}</span>
-          </div>
-          <div className={cn(
-            "flex justify-between items-center",
-            isRTL && "rtl:flex-row-reverse rtl:text-right"
-          )}>
-            <span className={cn(
-              "text-sm",
+          
+          <Button 
+            id={applyButtonId}
+            className={cn(
+              "w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2",
               isRTL && "rtl:font-arabic"
-            )}>{t('info.price')}:</span>
-            <Badge variant="secondary" className={cn(
-              isRTL && "rtl:font-arabic"
-            )}>{camp.price}</Badge>
-          </div>
-        </div>
-        <Button 
-          className={cn(
-            "w-full",
-            isRTL && "rtl:font-arabic"
-          )}
-          onClick={() => onApplyClick(index)}
-        >
-          {t('ui.buttons.applyNow')}
-        </Button>
-      </CardContent>
-    </Card>
-  )), [camps, t, isRTL, onApplyClick]);
+            )}
+            onClick={() => onApplyClick(index)}
+            aria-describedby={`${campId}-title ${campId}-description`}
+            aria-label={`${t('ui.buttons.applyNow')} ${camp.title}`}
+          >
+            {t('ui.buttons.applyNow')}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }), [camps, t, isRTL, onApplyClick, language]);
 
   return (
-    <>
+    <div role="main" aria-label={language === 'ar' ? 'محتوى المخيمات الصيفية' : 'Summer camps content'}>
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {memoizedStats}
-      </div>
+      <section aria-labelledby="stats-heading" className="mb-8">
+        <h2 id="stats-heading" className="sr-only">
+          {language === 'ar' ? 'إحصائيات المخيمات الصيفية' : 'Summer camps statistics'}
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="list">
+          {memoizedStats}
+        </div>
+      </section>
 
       {/* Camps Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {memoizedCamps}
-      </div>
-    </>
+      <section aria-labelledby="camps-heading">
+        <h2 id="camps-heading" className="sr-only">
+          {language === 'ar' ? 'قائمة المخيمات الصيفية المتاحة' : 'Available summer camps'}
+        </h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
+          {memoizedCamps}
+        </div>
+      </section>
+    </div>
   );
 });
 
