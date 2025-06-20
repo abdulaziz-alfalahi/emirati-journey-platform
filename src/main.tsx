@@ -70,32 +70,31 @@ const initializePWAFeatures = async () => {
   }
 };
 
-// Get the root element
-const container = document.getElementById("root");
-
-if (!container) {
-  throw new Error("Root element not found");
+// Ensure we have a root element
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  // If root element is missing, create one
+  const newRoot = document.createElement("div");
+  newRoot.id = "root";
+  document.body.appendChild(newRoot);
+  console.warn("Root element was missing and has been created dynamically");
 }
 
-// Create the root and render the app
-const root = createRoot(container);
+const root = document.getElementById("root");
 
-// Main App Component with proper provider nesting
-const AppWithProviders: React.FC = () => {
-  return (
-    <React.StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <LanguageProvider defaultLanguage="en">
-          <App />
-        </LanguageProvider>
-      </ThemeProvider>
-    </React.StrictMode>
-  );
-};
-
-// Render with proper error boundaries
+// Render with proper error boundaries and provider order
 try {
-  root.render(<AppWithProviders />);
+  if (root) {
+    createRoot(root).render(
+      <React.StrictMode>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <LanguageProvider defaultLanguage="en">
+            <App />
+          </LanguageProvider>
+        </ThemeProvider>
+      </React.StrictMode>
+    );
+  }
 
   // Initialize PWA features after app loads
   initializePWAFeatures();
@@ -105,18 +104,14 @@ try {
   console.error("Failed to render app:", error);
   
   // Fallback error display
-  root.render(
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh', 
-      fontFamily: 'Arial, sans-serif' 
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ color: '#ef4444', marginBottom: '16px' }}>Application Error</h1>
-        <p style={{ color: '#6b7280' }}>Please refresh the page to try again.</p>
+  if (root) {
+    root.innerHTML = `
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+        <div style="text-align: center;">
+          <h1 style="color: #ef4444; margin-bottom: 16px;">Application Error</h1>
+          <p style="color: #6b7280;">Please refresh the page to try again.</p>
+        </div>
       </div>
-    </div>
-  );
+    `;
+  }
 }
