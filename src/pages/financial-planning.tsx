@@ -1,16 +1,16 @@
 
 import React from 'react';
-import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
-import { TrendingUp, Banknote, Calculator, Users, Shield, BookOpen, UserCheck, PieChart } from 'lucide-react';
+import { CareerPageLayout } from '@/components/career/CareerPageLayout';
+import { TrendingUp, Banknote, Calculator, Users, Shield, BookOpen, UserCheck, PieChart, Target } from 'lucide-react';
 import { DirhamSign } from '@/components/icons/DirhamSign';
 import { FinancialPlanningContent } from '@/components/financial-planning/FinancialPlanningContent';
 
 const FinancialPlanningPage: React.FC = () => {
   const stats = [
-    { value: "25+", label: "Financial Tools", icon: Calculator },
-    { value: "100+", label: "Investment Guides", icon: TrendingUp },
-    { value: "50+", label: "Planning Resources", icon: Banknote },
-    { value: "5000+", label: "Active Users", icon: Users }
+    { value: "25+", label: "Financial Tools" },
+    { value: "100+", label: "Investment Guides" },
+    { value: "50+", label: "Planning Resources" },
+    { value: "5000+", label: "Active Users" }
   ];
 
   const tabs = [
@@ -53,11 +53,17 @@ const FinancialPlanningPage: React.FC = () => {
   ];
 
   return (
-    <LifelongEngagementLayout
+    <CareerPageLayout
       title="Financial Planning & Wellness"
-      description="Build a secure financial future with comprehensive planning tools, expert guidance, and educational resources designed for UAE residents and professionals."
-      icon={<DirhamSign className="h-8 w-8" />}
+      description="Build a secure financial future with comprehensive planning tools, expert guidance, and educational resources designed for UAE residents and professionals"
+      heroIcon={<DirhamSign className="h-12 w-12" />}
+      primaryActionLabel="Start Planning"
+      primaryActionIcon={<Target className="h-4 w-4" />}
+      secondaryActionLabel="View Resources"
       stats={stats}
+      quote="Financial peace isn't the acquisition of stuff. It's learning to live on less than you make, so you can give money back and have money to invest. You can't win until you do this"
+      attribution="Dave Ramsey"
+      quoteIcon={<TrendingUp className="h-8 w-8" />}
       tabs={tabs}
       defaultTab="budgeting"
     />
