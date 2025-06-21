@@ -97,19 +97,18 @@ export const formatInterpolation = (count?: number, context?: Record<string, any
   return {
     count,
     ...context,
-    // Add Arabic-specific formatting if needed
-    arabicCount: count ? convertToArabicNumerals(count) : undefined,
+    // Use Western Arabic numerals for all languages
+    formattedCount: count?.toString(),
   };
 };
 
 /**
- * Convert numbers to Arabic numerals
- * @param num Number to convert
- * @returns String with Arabic numerals
+ * Format numbers using Western Arabic numerals (1234567890)
+ * @param num Number to format
+ * @returns String with Western Arabic numerals
  */
-export const convertToArabicNumerals = (num: number): string => {
-  const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return num.toString().replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
+export const formatNumber = (num: number): string => {
+  return num.toString();
 };
 
 /**
@@ -137,7 +136,7 @@ export default {
   getAvailableNamespaces,
   getAvailableLanguages,
   formatInterpolation,
-  convertToArabicNumerals,
+  formatNumber,
   isRTL,
   getDirectionalClass,
 };

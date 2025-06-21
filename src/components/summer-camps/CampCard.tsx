@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, MapPin, Users, Clock, Star } from 'lucide-react';
 import { SummerCamp } from '@/types/summerCamps';
 import { formatDistanceToNow } from 'date-fns';
+import { formatNumber } from '@/lib/translationUtils';
 
 interface CampCardProps {
   camp: SummerCamp;
@@ -71,7 +72,7 @@ const CampCard: React.FC<CampCardProps> = ({
           
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span>{camp.enrolled}/{maxParticipants} enrolled</span>
+            <span>{formatNumber(camp.enrolled)}/{formatNumber(maxParticipants)} enrolled</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -82,7 +83,7 @@ const CampCard: React.FC<CampCardProps> = ({
           {camp.rating && (
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-yellow-500" />
-              <span>{camp.rating}/5</span>
+              <span>{formatNumber(camp.rating)}/5</span>
             </div>
           )}
         </div>
