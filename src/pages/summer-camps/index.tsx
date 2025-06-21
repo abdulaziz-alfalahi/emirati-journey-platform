@@ -1,262 +1,124 @@
 
-import React, { useCallback, useMemo, Suspense } from 'react';
-import { useLanguage } from '@/context/LanguageContext';
+import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
-import { Calendar, Users, Award, MapPin } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useTranslationLoader } from '@/hooks/useTranslationLoader';
-import { useAccessibilityAndSEO } from '@/hooks/useAccessibilityAndSEO';
-import { AccessibilityManager } from '@/components/accessibility/AccessibilityManager';
-import TranslationLoadingState from '@/components/summer-camps/TranslationLoadingState';
-import MemoizedSummerCampsContent from '@/components/summer-camps/MemoizedSummerCampsContent';
-import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { Tent, Users, Calendar, Trophy, Filter, Search } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import CampsList from '@/components/summer-camps/CampsList';
+import CampsFilter from '@/components/summer-camps/CampsFilter';
+import type { CampFilters } from '@/types/summerCamps';
 
 const SummerCampsPage: React.FC = () => {
-  const { isRTL, direction, language } = useLanguage();
-  const { 
-    t, 
-    isLoading, 
-    error,
-    loadedLanguages 
-  } = useTranslationLoader({ 
-    namespace: 'summer-camps',
-    preloadLanguages: ['en', 'ar'],
-    cacheExpiry: 10 * 60 * 1000 // 10 minutes cache
+  const { t } = useTranslation('summer-camps');
+  const [activeTab, setActiveTab] = useState<"available" | "registered" | "managed">("available");
+  const [filters, setFilters] = useState<CampFilters>({
+    category: [],
+    ageGroup: [],
+    location: [],
   });
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Enhanced translation function that ensures string return
-  const getSafeTranslation = useCallback((key: string): string => {
-    const translation = t(key);
-    return typeof translation === 'string' ? translation : String(translation);
-  }, [t]);
+  const stats = [
+    { value: "50+", label: t('stats.totalCamps'), icon: Tent },
+    { value: "1,200+", label: t('stats.participants'), icon: Users },
+    { value: "12", label: t('stats.weeks'), icon: Calendar },
+    { value: "95%", label: t('stats.satisfaction'), icon: Trophy }
+  ];
 
-  // SEO data with proper translation
-  const seoData = useMemo(() => ({
-    title: getSafeTranslation('meta.pageTitle'),
-    description: getSafeTranslation('meta.description'),
-    keywords: language === 'ar' 
-      ? 'المخيمات الصيفية، تعليم، إمارات، تطوير المهارات'
-      : 'summer camps, education, emirates, skills development',
-    canonicalUrl: `https://emiratigateway.gov.ae/summer-camps?lang=${language}`
-  }), [getSafeTranslation, language]);
-
-  // Initialize accessibility and SEO enhancements
-  const { generateStructuredData } = useAccessibilityAndSEO(seoData, {
-    skipLinkTarget: '#main-content',
-    mainContentId: 'main-content',
-    navigationId: 'navigation'
-  });
-
-  // Memoized stats to prevent re-computation
-  const stats = useMemo(() => [
-    { 
-      value: getSafeTranslation('stats.summerPrograms.value'), 
-      label: getSafeTranslation('stats.summerPrograms.label'), 
-      icon: Calendar 
-    },
-    { 
-      value: getSafeTranslation('stats.studentsEnrolled.value'), 
-      label: getSafeTranslation('stats.studentsEnrolled.label'), 
-      icon: Users 
-    },
-    { 
-      value: getSafeTranslation('stats.partnerInstitutions.value'), 
-      label: getSafeTranslation('stats.partnerInstitutions.label'), 
-      icon: Award 
-    },
-    { 
-      value: getSafeTranslation('stats.emiratesCovered.value'), 
-      label: getSafeTranslation('stats.emiratesCovered.label'), 
-      icon: MapPin 
-    }
-  ], [getSafeTranslation]);
-
-  // Memoized camps to prevent re-computation
-  const camps = useMemo(() => [
-    {
-      title: getSafeTranslation('camps.stemInnovation.title'),
-      description: getSafeTranslation('camps.stemInnovation.description'),
-      duration: getSafeTranslation('camps.stemInnovation.duration'),
-      ageGroup: getSafeTranslation('camps.stemInnovation.ageGroup'),
-      location: getSafeTranslation('camps.stemInnovation.location'),
-      price: getSafeTranslation('camps.stemInnovation.price')
-    },
-    {
-      title: getSafeTranslation('camps.entrepreneurshipBootcamp.title'),
-      description: getSafeTranslation('camps.entrepreneurshipBootcamp.description'),
-      duration: getSafeTranslation('camps.entrepreneurshipBootcamp.duration'),
-      ageGroup: getSafeTranslation('camps.entrepreneurshipBootcamp.ageGroup'),
-      location: getSafeTranslation('camps.entrepreneurshipBootcamp.location'),
-      price: getSafeTranslation('camps.entrepreneurshipBootcamp.price')
-    },
-    {
-      title: getSafeTranslation('camps.digitalArtsDesign.title'),
-      description: getSafeTranslation('camps.digitalArtsDesign.description'),
-      duration: getSafeTranslation('camps.digitalArtsDesign.duration'),
-      ageGroup: getSafeTranslation('camps.digitalArtsDesign.ageGroup'),
-      location: getSafeTranslation('camps.digitalArtsDesign.location'),
-      price: getSafeTranslation('camps.digitalArtsDesign.price')
-    }
-  ], [getSafeTranslation]);
-
-  // Memoized apply handler to prevent re-renders
-  const handleApplyClick = useCallback((campIndex: number) => {
-    const campTitle = camps[campIndex]?.title;
-    console.log(`Applying for camp: ${campTitle}`);
-    
-    // Announce action to screen readers
-    const announcement = language === 'ar' 
-      ? `تم النقر على التقديم للمخيم: ${campTitle}`
-      : `Apply button clicked for camp: ${campTitle}`;
-    
-    // Create temporary live region for announcement
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('aria-live', 'polite');
-    liveRegion.className = 'sr-only';
-    liveRegion.textContent = announcement;
-    document.body.appendChild(liveRegion);
-    
-    setTimeout(() => {
-      document.body.removeChild(liveRegion);
-    }, 3000);
-    
-    // Application logic would go here
-  }, [camps, language]);
-
-  // Error fallback component
-  const ErrorFallback = ({ error }: { error?: Error }) => (
-    <div className="min-h-screen flex items-center justify-center" role="alert">
-      <div className="text-center p-8">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">
-          {language === 'ar' ? 'حدث خطأ ما' : 'Something went wrong'}
-        </h2>
-        <p className="text-gray-600 mb-4" aria-describedby="error-message">
-          <span id="error-message">
-            {error?.message || (language === 'ar' ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred')}
-          </span>
-        </p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          aria-label={language === 'ar' ? 'إعادة تحميل الصفحة' : 'Reload page'}
-        >
-          {language === 'ar' ? 'إعادة تحميل الصفحة' : 'Reload Page'}
-        </button>
-      </div>
-    </div>
-  );
-
-  // Memoized tabs to prevent re-computation
   const tabs = useMemo(() => [
     {
-      id: "programs",
-      label: getSafeTranslation('tabs.programs.label'),
-      icon: <Calendar className="h-4 w-4" aria-hidden="true" />,
+      id: "available",
+      label: t('tabs.available'),
+      icon: <Tent className="h-4 w-4" />,
       content: (
-        <ErrorBoundary fallback={<ErrorFallback />}>
-          <Suspense fallback={<TranslationLoadingState />}>
-            <section aria-labelledby="programs-heading">
-              <h2 id="programs-heading" className="sr-only">
-                {getSafeTranslation('tabs.programs.title')}
-              </h2>
-              <MemoizedSummerCampsContent
-                stats={stats}
-                camps={camps}
-                t={getSafeTranslation}
-                onApplyClick={handleApplyClick}
+        <div className="space-y-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-1/4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Filter className="h-5 w-5" />
+                    {t('filters.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CampsFilter 
+                    filters={filters} 
+                    onFiltersChange={setFilters}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="lg:w-3/4">
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Search className="h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder={t('search.placeholder')}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+              <CampsList 
+                type="available"
+                filters={filters}
+                searchQuery={searchQuery}
               />
-            </section>
-          </Suspense>
-        </ErrorBoundary>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "registered",
+      label: t('tabs.registered'),
+      icon: <Users className="h-4 w-4" />,
+      content: (
+        <CampsList 
+          type="registered"
+          filters={filters}
+          searchQuery={searchQuery}
+        />
+      )
+    },
+    {
+      id: "managed",
+      label: t('tabs.managed'),
+      icon: <Calendar className="h-4 w-4" />,
+      content: (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">{t('management.title')}</h2>
+            <Button>
+              {t('management.createNew')}
+            </Button>
+          </div>
+          <CampsList 
+            type="managed"
+            filters={filters}
+            searchQuery={searchQuery}
+          />
+        </div>
       )
     }
-  ], [getSafeTranslation, stats, camps, handleApplyClick, language]);
-
-  // Generate and inject structured data
-  React.useEffect(() => {
-    const structuredData = generateStructuredData(camps);
-    
-    let scriptElement = document.querySelector('#structured-data');
-    if (!scriptElement) {
-      scriptElement = document.createElement('script');
-      scriptElement.id = 'structured-data';
-      scriptElement.type = 'application/ld+json';
-      document.head.appendChild(scriptElement);
-    }
-    
-    scriptElement.textContent = JSON.stringify(structuredData);
-    
-    return () => {
-      const element = document.querySelector('#structured-data');
-      if (element) {
-        element.remove();
-      }
-    };
-  }, [camps, generateStructuredData]);
-
-  // Show loading state during initial translation loading
-  if (isLoading && loadedLanguages.length === 0) {
-    return <TranslationLoadingState />;
-  }
-
-  // Show error state if translation loading failed
-  if (error && loadedLanguages.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" role="alert">
-        <div className="text-center p-8">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">
-            {language === 'ar' ? 'خطأ في الترجمة' : 'Translation Error'}
-          </h2>
-          <p className="text-gray-600 mb-4" aria-describedby="translation-error">
-            <span id="translation-error">{error}</span>
-          </p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            aria-label={language === 'ar' ? 'إعادة المحاولة' : 'Retry loading'}
-          >
-            {language === 'ar' ? 'إعادة المحاولة' : 'Retry'}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  ], [t, filters, searchQuery]);
 
   return (
-    <AccessibilityManager
-      pageTitle={getSafeTranslation('meta.title')}
-      pageDescription={getSafeTranslation('meta.description')}
-      mainContentId="main-content"
-    >
-      <div className={cn(
-        "min-h-screen",
-        isRTL && "rtl:font-arabic"
-      )} dir={direction}>
-        <ErrorBoundary fallback={<ErrorFallback />}>
-          <EducationPathwayLayout
-            title={getSafeTranslation('meta.title')}
-            description={getSafeTranslation('meta.description')}
-            icon={<Calendar className="h-12 w-12 text-orange-600" aria-hidden="true" />}
-            stats={stats}
-            tabs={tabs}
-            defaultTab="programs"
-            actionButtonText={getSafeTranslation('ui.buttons.browseProgramsShort')}
-            actionButtonHref="#programs"
-            announcements={[
-              {
-                id: "1",
-                title: getSafeTranslation('announcements.earlyBird.title'),
-                message: getSafeTranslation('announcements.earlyBird.message'),
-                type: "info",
-                date: new Date(),
-                urgent: false
-              }
-            ]}
-            academicYear={getSafeTranslation('info.academicYear')}
-          />
-        </ErrorBoundary>
-      </div>
-    </AccessibilityManager>
+    <EducationPathwayLayout
+      title={t('page.title')}
+      description={t('page.description')}
+      icon={<Tent className="h-12 w-12 text-blue-600" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="available"
+      actionButtonText={t('actions.explore')}
+      actionButtonHref="#available"
+      academicYear="2024-2025"
+    />
   );
 };
 
