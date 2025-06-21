@@ -10,7 +10,7 @@ import { AdminAnalyticsDashboard } from '@/components/analytics/AdminAnalyticsDa
 import RecommendationAnalytics from '@/components/dashboard/RecommendationAnalytics';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
+import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
 
 const AnalyticsPage: React.FC = () => {
   const { user } = useAuth();
@@ -50,12 +50,6 @@ const AnalyticsPage: React.FC = () => {
       icon: <TrendingUp className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Journey Analytics</h2>
-            <p className="text-lg opacity-90 mb-6">
-              Visualize your learning path and track your progress across all phases of your journey.
-            </p>
-          </div>
           <UserJourneyVisualization />
         </div>
       )
@@ -66,12 +60,6 @@ const AnalyticsPage: React.FC = () => {
       icon: <TestTube className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Personalized Recommendations</h2>
-            <p className="text-lg opacity-90 mb-6">
-              AI-powered insights and recommendations based on your learning patterns and goals.
-            </p>
-          </div>
           <RecommendationAnalytics />
         </div>
       )
@@ -82,12 +70,6 @@ const AnalyticsPage: React.FC = () => {
       icon: <Shield className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Privacy & Data Protection</h2>
-            <p className="text-lg opacity-90 mb-6">
-              Manage your data sharing preferences and privacy settings with full transparency.
-            </p>
-          </div>
           <Card className="bg-muted/50 border-primary/20">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
@@ -118,12 +100,6 @@ const AnalyticsPage: React.FC = () => {
         icon: <BarChart3 className="h-4 w-4" />,
         content: (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">Platform Analytics</h2>
-              <p className="text-lg opacity-90 mb-6">
-                Comprehensive insights into platform usage, user engagement, and system performance.
-              </p>
-            </div>
             <AdminAnalyticsDashboard />
           </div>
         )
@@ -134,12 +110,6 @@ const AnalyticsPage: React.FC = () => {
         icon: <TestTube className="h-4 w-4" />,
         content: (
           <div className="space-y-6">
-            <div className="bg-gradient-to-br from-ehrdc-teal to-ehrdc-light-teal rounded-lg p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">A/B Testing Dashboard</h2>
-              <p className="text-lg opacity-90 mb-6">
-                Manage and monitor A/B tests for continuous platform improvement.
-              </p>
-            </div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -173,7 +143,7 @@ const AnalyticsPage: React.FC = () => {
 
   if (!user) {
     return (
-      <LifelongEngagementLayout
+      <ProfessionalGrowthLayout
         title="Analytics & Insights"
         description="Comprehensive analytics across your citizen lifecycle journey with privacy-first data insights"
         icon={<BarChart3 className="h-12 w-12 text-white" />}
@@ -203,7 +173,7 @@ const AnalyticsPage: React.FC = () => {
   }
 
   return (
-    <LifelongEngagementLayout
+    <ProfessionalGrowthLayout
       title="Analytics & Insights"
       description="Comprehensive analytics across your citizen lifecycle journey with privacy-first data insights"
       icon={<BarChart3 className="h-12 w-12 text-white" />}
