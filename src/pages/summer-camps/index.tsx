@@ -45,8 +45,10 @@ const SummerCampsPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <CampsFilter 
-                    filters={filters} 
-                    onFiltersChange={setFilters}
+                    selectedFilters={filters}
+                    onFilterChange={setFilters}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
                   />
                 </CardContent>
               </Card>
