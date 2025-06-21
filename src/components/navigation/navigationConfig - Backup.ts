@@ -1,3 +1,4 @@
+
 import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
@@ -10,18 +11,18 @@ import {
   Lightbulb,
   Heart,
   Trophy,
-  UserCheck,
+  User,
   FileText,
   MapPin,
   Monitor,
-  Compass,
+  CheckSquare,
+  UserCheck,
   Search,
   Shield,
   BarChart3,
-  DollarSign,
-  CheckSquare,
-  User,
-  GitCompare
+  Compass,
+  GitCompare,
+  DollarSign
 } from 'lucide-react';
 
 export const navigationGroups: NavGroup[] = [
@@ -31,16 +32,16 @@ export const navigationGroups: NavGroup[] = [
     description: 'Educational programs and learning opportunities',
     items: [
       {
-        name: 'School Programs',
-        href: '/school-programs',
-        description: 'Special programs for school students',
-        icon: BookOpen
-      },
-      {
         name: 'Summer Camps',
         href: '/summer-camps',
         description: 'Educational summer programs for youth development',
         icon: Calendar
+      },
+      {
+        name: 'School Programs',
+        href: '/school-programs',
+        description: 'Special programs for school students',
+        icon: BookOpen
       },
       {
         name: 'Scholarships',
@@ -52,12 +53,6 @@ export const navigationGroups: NavGroup[] = [
         name: 'University Programs',
         href: '/university-programs',
         description: 'Higher education pathways',
-        icon: GraduationCap
-      },
-      {
-        name: 'Graduate Programs',
-        href: '/graduate-programs',
-        description: 'Master\'s, PhD, and advanced degree programs',
         icon: GraduationCap
       },
       {
@@ -76,7 +71,7 @@ export const navigationGroups: NavGroup[] = [
       {
         name: 'Career Planning Hub',
         href: '/career-planning-hub',
-        description: 'Comprehensive career development platform with journey planning, path comparison, and market insights',
+        description: 'Comprehensive career development platform with journey planning, path comparison, and market intelligence',
         icon: Compass
       },
       {
@@ -86,28 +81,10 @@ export const navigationGroups: NavGroup[] = [
         icon: Compass
       },
       {
-        name: 'Financial Planning',
-        href: '/financial-planning',
-        description: 'Comprehensive financial wellness and planning tools',
-        icon: DollarSign
-      },
-      {
-        name: 'Resume Builder',
-        href: '/resume-builder',
-        description: 'Build your professional resume',
-        icon: FileText
-      },
-      {
-        name: 'Portfolio',
-        href: '/portfolio',
-        description: 'Create stunning digital portfolios to showcase your work',
-        icon: User
-      },
-      {
-        name: 'Interview Preparation',
-        href: '/interview-preparation',
-        description: 'Prepare for job interviews',
-        icon: Users
+        name: 'Graduate Programs',
+        href: '/graduate-programs',
+        description: 'Master\'s, PhD, and advanced degree programs',
+        icon: GraduationCap
       },
       {
         name: 'Internships',
@@ -126,6 +103,24 @@ export const navigationGroups: NavGroup[] = [
         href: '/career-advisory',
         description: 'Professional career guidance',
         icon: UserCheck
+      },
+      {
+        name: 'Resume Builder',
+        href: '/resume-builder',
+        description: 'Build your professional resume',
+        icon: FileText
+      },
+      {
+        name: 'Portfolio',
+        href: '/portfolio',
+        description: 'Create stunning digital portfolios to showcase your work',
+        icon: User
+      },
+      {
+        name: 'Interview Preparation',
+        href: '/interview-preparation',
+        description: 'Prepare for job interviews',
+        icon: Users
       }
     ]
   },
@@ -135,28 +130,10 @@ export const navigationGroups: NavGroup[] = [
     description: 'Skill development and training programs',
     items: [
       {
-        name: 'Assessments',
-        href: '/assessments',
-        description: 'Skill assessment and evaluation',
-        icon: CheckSquare
-      },
-      {
-        name: 'Analytics',
-        href: '/analytics',
-        description: 'View insights and analytics',
-        icon: BarChart3
-      },
-      {
         name: 'Digital Skills Development',
         href: '/digital-skills-development',
         description: 'Technology and digital literacy programs',
         icon: Lightbulb
-      },
-      {
-        name: 'Training Programs',
-        href: '/training',
-        description: 'Professional skill training',
-        icon: BookOpen
       },
       {
         name: 'Professional Certifications',
@@ -165,10 +142,16 @@ export const navigationGroups: NavGroup[] = [
         icon: Award
       },
       {
-        name: 'Blockchain Credentials',
-        href: '/blockchain-credentials',
-        description: 'Digital credential verification',
-        icon: Shield
+        name: 'Training Programs',
+        href: '/training',
+        description: 'Professional skill training',
+        icon: BookOpen
+      },
+      {
+        name: 'Assessments',
+        href: '/assessments',
+        description: 'Skill assessment and evaluation',
+        icon: CheckSquare
       },
       {
         name: 'Mentorship',
@@ -190,28 +173,46 @@ export const navigationGroups: NavGroup[] = [
     description: 'Community engagement and continuous learning',
     items: [
       {
-        name: 'Youth Development',
-        href: '/youth-development',
-        description: 'Programs for youth empowerment',
-        icon: Users
-      },
-      {
         name: 'National Service',
         href: '/national-service',
         description: 'National service opportunities',
         icon: Building2
       },
       {
-        name: 'Thought Leadership',
-        href: '/thought-leadership',
-        description: 'Industry insights and expert perspectives',
-        icon: Lightbulb
+        name: 'Youth Development',
+        href: '/youth-development',
+        description: 'Programs for youth empowerment',
+        icon: Users
       },
       {
         name: 'Success Stories',
         href: '/share-success-stories',
         description: 'Share your achievements and inspire others',
         icon: Trophy
+      },
+      {
+        name: 'Blockchain Credentials',
+        href: '/blockchain-credentials',
+        description: 'Digital credential verification',
+        icon: Shield
+      },
+      {
+        name: 'Analytics',
+        href: '/analytics',
+        description: 'View insights and analytics',
+        icon: BarChart3
+      },
+      {
+        name: 'Financial Planning',
+        href: '/financial-planning',
+        description: 'Comprehensive financial wellness and planning tools',
+        icon: DollarSign
+      },
+      {
+        name: 'Thought Leadership',
+        href: '/thought-leadership',
+        description: 'Industry insights and expert perspectives',
+        icon: Lightbulb
       },
       {
         name: 'Retiree Services',

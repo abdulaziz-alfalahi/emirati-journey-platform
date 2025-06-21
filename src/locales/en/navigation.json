@@ -1,4 +1,3 @@
-
 {
   "emiratiGateway": "Emirati Gateway",
   "toggleLanguage": "Toggle language",
@@ -8,13 +7,13 @@
       "title": "Education Pathway",
       "description": "Explore educational opportunities and academic pathways",
       "items": {
-        "summerCamps": {
-          "title": "Summer Camps",
-          "description": "Engaging summer programs for students"
-        },
         "schoolPrograms": {
           "title": "School Programs",
           "description": "Academic programs and school initiatives"
+        },
+        "summerCamps": {
+          "title": "Summer Camps",
+          "description": "Engaging summer programs for students"
         },
         "scholarships": {
           "title": "Scholarships",
@@ -23,6 +22,10 @@
         "universityPrograms": {
           "title": "University Programs",
           "description": "Higher education and university pathways"
+        },
+        "graduatePrograms": {
+          "title": "Graduate Programs",
+          "description": "Advanced degree and graduate opportunities"
         },
         "lms": {
           "title": "Learning Management System",
@@ -42,21 +45,9 @@
           "title": "Industry Exploration",
           "description": "Discover UAE industry opportunities"
         },
-        "graduatePrograms": {
-          "title": "Graduate Programs",
-          "description": "Advanced degree and graduate opportunities"
-        },
-        "internships": {
-          "title": "Internships",
-          "description": "Hands-on work experience opportunities"
-        },
-        "jobMatching": {
-          "title": "Job Matching",
-          "description": "Find your perfect career match"
-        },
-        "advisory": {
-          "title": "Career Advisory",
-          "description": "Professional career guidance"
+        "financialPlanning": {
+          "title": "Financial Planning",
+          "description": "Comprehensive financial wellness and planning tools"
         },
         "resumeBuilder": {
           "title": "Resume Builder",
@@ -69,36 +60,56 @@
         "interviewPrep": {
           "title": "Interview Preparation",
           "description": "Ace your job interviews"
+        },
+        "internships": {
+          "title": "Internships",
+          "description": "Hands-on work experience opportunities"
+        },
+        "jobMatching": {
+          "title": "Job Matching",
+          "description": "Find your perfect career match"
+        },
+        "advisory": {
+          "title": "Career Advisory",
+          "description": "Professional career guidance"
         }
       }
     },
     "professional": {
       "title": "Professional Growth",
-      "description": "Advance your career and develop professionally",
+      "description": "Advance your skills and professional development",
       "items": {
+        "assessments": {
+          "title": "Assessments",
+          "description": "Evaluate and improve your skills"
+        },
+        "analytics": {
+          "title": "Analytics",
+          "description": "View insights and analytics"
+        },
         "digitalSkills": {
           "title": "Digital Skills Development",
-          "description": "Technology and digital literacy training"
-        },
-        "certifications": {
-          "title": "Professional Certifications",
-          "description": "Industry-recognized certification programs"
+          "description": "Master digital technologies and tools"
         },
         "training": {
           "title": "Training Programs",
-          "description": "Professional development training"
+          "description": "Professional development and training"
         },
-        "assessments": {
-          "title": "Assessments",
-          "description": "Skills and personality assessments"
+        "certifications": {
+          "title": "Professional Certifications",
+          "description": "Industry-recognized certifications"
+        },
+        "blockchainCredentials": {
+          "title": "Blockchain Credentials",
+          "description": "Digital credential verification"
         },
         "mentorship": {
-          "title": "Mentorship Programs",
-          "description": "Connect with industry mentors"
+          "title": "Mentorship",
+          "description": "Connect with experienced mentors"
         },
         "communities": {
-          "title": "Professional Communities",
-          "description": "Network with industry professionals"
+          "title": "Communities",
+          "description": "Join professional networks"
         }
       }
     },
@@ -106,37 +117,25 @@
       "title": "Lifelong Engagement",
       "description": "Continuous learning and community engagement",
       "items": {
-        "nationalService": {
-          "title": "National Service",
-          "description": "Serve your country and community"
-        },
         "youthDevelopment": {
           "title": "Youth Development",
           "description": "Programs for youth empowerment"
         },
-        "successStories": {
-          "title": "Share Success Stories",
-          "description": "Inspire others with your journey"
-        },
-        "blockchainCredentials": {
-          "title": "Blockchain Credentials",
-          "description": "Secure digital credential verification"
-        },
-        "analytics": {
-          "title": "Analytics",
-          "description": "Data-driven career insights"
-        },
-        "financialPlanning": {
-          "title": "Financial Planning",
-          "description": "Plan your financial future"
+        "nationalService": {
+          "title": "National Service",
+          "description": "Serve your nation with pride"
         },
         "thoughtLeadership": {
           "title": "Thought Leadership",
-          "description": "Share your expertise and insights"
+          "description": "Industry insights and expert perspectives"
+        },
+        "successStories": {
+          "title": "Success Stories",
+          "description": "Share and celebrate achievements"
         },
         "retiree": {
-          "title": "Retiree Programs",
-          "description": "Programs for retired professionals"
+          "title": "Retiree Services",
+          "description": "Post-career opportunities and retirement benefits"
         }
       }
     }

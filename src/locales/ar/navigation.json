@@ -1,4 +1,3 @@
-
 {
   "emiratiGateway": "البوابة الإماراتية",
   "toggleLanguage": "تبديل اللغة",
@@ -8,25 +7,29 @@
       "title": "المسار التعليمي",
       "description": "استكشف الفرص التعليمية والمسارات الأكاديمية",
       "items": {
-        "summerCamps": {
-          "title": "المخيمات الصيفية",
-          "description": "برامج صيفية تفاعلية للطلاب"
-        },
         "schoolPrograms": {
           "title": "البرامج المدرسية",
           "description": "البرامج الأكاديمية والمبادرات المدرسية"
         },
+        "summerCamps": {
+          "title": "المخيمات الصيفية",
+          "description": "برامج صيفية تفاعلية للطلاب"
+        },
         "scholarships": {
           "title": "المنح الدراسية",
-          "description": "فرص المساعدات المالية والمنح الدراسية"
+          "description": "المساعدات المالية وفرص المنح الدراسية"
         },
         "universityPrograms": {
           "title": "البرامج الجامعية",
           "description": "التعليم العالي والمسارات الجامعية"
         },
+        "graduatePrograms": {
+          "title": "برامج الدراسات العليا",
+          "description": "الدرجات المتقدمة وفرص الدراسات العليا"
+        },
         "lms": {
           "title": "نظام إدارة التعلم",
-          "description": "منصة تعليمية شاملة"
+          "description": "منصة تعلم شاملة"
         }
       }
     },
@@ -42,21 +45,9 @@
           "title": "استكشاف الصناعات",
           "description": "اكتشف فرص الصناعات في دولة الإمارات"
         },
-        "graduatePrograms": {
-          "title": "برامج الدراسات العليا",
-          "description": "فرص الدرجات المتقدمة والدراسات العليا"
-        },
-        "internships": {
-          "title": "التدريب العملي",
-          "description": "فرص الخبرة العملية المباشرة"
-        },
-        "jobMatching": {
-          "title": "مطابقة الوظائف",
-          "description": "اعثر على الوظيفة المثالية لك"
-        },
-        "advisory": {
-          "title": "الاستشارة المهنية",
-          "description": "إرشاد مهني متخصص"
+        "financialPlanning": {
+          "title": "التخطيط المالي",
+          "description": "أدوات شاملة للعافية والتخطيط المالي"
         },
         "resumeBuilder": {
           "title": "منشئ السيرة الذاتية",
@@ -69,36 +60,56 @@
         "interviewPrep": {
           "title": "التحضير للمقابلات",
           "description": "تفوق في مقابلات العمل"
+        },
+        "internships": {
+          "title": "التدريب العملي",
+          "description": "فرص الخبرة العملية المباشرة"
+        },
+        "jobMatching": {
+          "title": "مطابقة الوظائف",
+          "description": "اعثر على الوظيفة المثالية لك"
+        },
+        "advisory": {
+          "title": "الاستشارات المهنية",
+          "description": "إرشاد مهني متخصص"
         }
       }
     },
     "professional": {
       "title": "النمو المهني",
-      "description": "طور مسيرتك المهنية وانمُ مهنياً",
+      "description": "طور مهاراتك ونموك المهني",
       "items": {
+        "assessments": {
+          "title": "التقييمات",
+          "description": "قيم وحسن مهاراتك"
+        },
+        "analytics": {
+          "title": "التحليلات",
+          "description": "اعرض الرؤى والتحليلات"
+        },
         "digitalSkills": {
           "title": "تطوير المهارات الرقمية",
-          "description": "التدريب على التكنولوجيا والمعرفة الرقمية"
-        },
-        "certifications": {
-          "title": "الشهادات المهنية",
-          "description": "برامج الشهادات المعترف بها في الصناعة"
+          "description": "أتقن التقنيات والأدوات الرقمية"
         },
         "training": {
           "title": "برامج التدريب",
-          "description": "تدريب التطوير المهني"
+          "description": "التطوير المهني والتدريب"
         },
-        "assessments": {
-          "title": "التقييمات",
-          "description": "تقييمات المهارات والشخصية"
+        "certifications": {
+          "title": "الشهادات المهنية",
+          "description": "شهادات معترف بها في الصناعة"
+        },
+        "blockchainCredentials": {
+          "title": "أوراق الاعتماد الرقمية",
+          "description": "التحقق من الأوراق الاعتماد الرقمية"
         },
         "mentorship": {
-          "title": "برامج الإرشاد",
-          "description": "تواصل مع مرشدين في الصناعة"
+          "title": "الإرشاد",
+          "description": "تواصل مع مرشدين ذوي خبرة"
         },
         "communities": {
-          "title": "المجتمعات المهنية",
-          "description": "تواصل مع المهنيين في الصناعة"
+          "title": "المجتمعات",
+          "description": "انضم إلى الشبكات المهنية"
         }
       }
     },
@@ -106,37 +117,25 @@
       "title": "المشاركة مدى الحياة",
       "description": "التعلم المستمر والمشاركة المجتمعية",
       "items": {
-        "nationalService": {
-          "title": "الخدمة الوطنية",
-          "description": "اخدم وطنك ومجتمعك"
-        },
         "youthDevelopment": {
           "title": "تنمية الشباب",
           "description": "برامج تمكين الشباب"
         },
-        "successStories": {
-          "title": "شارك قصص النجاح",
-          "description": "ألهم الآخرين برحلتك"
-        },
-        "blockchainCredentials": {
-          "title": "أوراق الاعتماد البلوك تشين",
-          "description": "التحقق الآمن من الأوراق الرقمية"
-        },
-        "analytics": {
-          "title": "التحليلات",
-          "description": "رؤى مهنية مدفوعة بالبيانات"
-        },
-        "financialPlanning": {
-          "title": "التخطيط المالي",
-          "description": "خطط لمستقبلك المالي"
+        "nationalService": {
+          "title": "الخدمة الوطنية",
+          "description": "اخدم وطنك بفخر"
         },
         "thoughtLeadership": {
           "title": "القيادة الفكرية",
-          "description": "شارك خبرتك ورؤاك"
+          "description": "رؤى الصناعة ووجهات نظر الخبراء"
+        },
+        "successStories": {
+          "title": "قصص النجاح",
+          "description": "شارك واحتفل بالإنجازات"
         },
         "retiree": {
-          "title": "برامج المتقاعدين",
-          "description": "برامج للمهنيين المتقاعدين"
+          "title": "خدمات المتقاعدين",
+          "description": "فرص ما بعد المهنة ومزايا التقاعد"
         }
       }
     }
