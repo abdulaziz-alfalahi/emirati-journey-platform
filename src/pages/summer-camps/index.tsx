@@ -5,8 +5,8 @@ import { useAccessibilityAndSEO } from '@/hooks/useAccessibilityAndSEO';
 import { useTranslation } from 'react-i18next';
 import TranslationLoadingState from '@/components/summer-camps/TranslationLoadingState';
 
-const MemoizedSummerCampsContent = React.lazy(() => 
-  import('@/components/summer-camps/MemoizedSummerCampsContent')
+const SummerCampsContentWrapper = React.lazy(() => 
+  import('@/components/summer-camps/SummerCampsContentWrapper')
 );
 
 const SummerCampsPage: React.FC = () => {
@@ -26,7 +26,7 @@ const SummerCampsPage: React.FC = () => {
   return (
     <ErrorBoundary fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}>
       <Suspense fallback={<TranslationLoadingState />}>
-        <MemoizedSummerCampsContent />
+        <SummerCampsContentWrapper />
         <script 
           type="application/ld+json"
           dangerouslySetInnerHTML={{
