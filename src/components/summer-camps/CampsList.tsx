@@ -6,6 +6,7 @@ import { useCamps } from './hooks/useCamps';
 import CampCard from './CampCard';
 import { Pagination } from '@/components/ui/pagination';
 import { Loader2, Tent } from 'lucide-react';
+import { formatNumber } from '@/lib/translationUtils';
 
 interface CampsListProps {
   type: "available" | "registered" | "managed";
@@ -87,13 +88,13 @@ const CampsList: React.FC<CampsListProps> = ({ type, filters, searchQuery }) => 
       <div className="text-center text-sm text-muted-foreground">
         {type === "available" || type === "managed" ? (
           <>
-            Showing {((pagination.currentPage - 1) * pagination.pageSize) + 1} to{' '}
-            {Math.min(pagination.currentPage * pagination.pageSize, totalCount)} of{' '}
-            {totalCount} camp{totalCount !== 1 ? 's' : ''}
+            Showing {formatNumber(((pagination.currentPage - 1) * pagination.pageSize) + 1)} to{' '}
+            {formatNumber(Math.min(pagination.currentPage * pagination.pageSize, totalCount))} of{' '}
+            {formatNumber(totalCount)} camp{totalCount !== 1 ? 's' : ''}
           </>
         ) : (
           <>
-            {totalCount} camp{totalCount !== 1 ? 's' : ''} found
+            {formatNumber(totalCount)} camp{totalCount !== 1 ? 's' : ''} found
           </>
         )}
       </div>

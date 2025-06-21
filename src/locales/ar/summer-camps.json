@@ -8,19 +8,19 @@
   "stats": {
     "summerPrograms": {
       "label": "البرامج الصيفية",
-      "value": "٢٥+"
+      "value": "25+"
     },
     "studentsEnrolled": {
       "label": "الطلاب المسجلين",
-      "value": "١,٢٠٠+"
+      "value": "1,200+"
     },
     "partnerInstitutions": {
       "label": "المؤسسات الشريكة",
-      "value": "١٥+"
+      "value": "15+"
     },
     "emiratesCovered": {
       "label": "الإمارات المشمولة",
-      "value": "٧"
+      "value": "7"
     }
   },
   "camps": {
@@ -28,25 +28,25 @@
       "title": "مخيم الابتكار في العلوم والتكنولوجيا",
       "description": "اكتشف العلوم والتكنولوجيا والهندسة والرياضيات من خلال المشاريع العملية",
       "duration": "أسبوعان",
-      "ageGroup": "١٢-١٦ سنة",
+      "ageGroup": "12-16 سنة",
       "location": "دبي",
-      "price": "١,٥٠٠ درهم"
+      "price": "1,500 درهم"
     },
     "entrepreneurshipBootcamp": {
       "title": "معسكر ريادة الأعمال",
       "description": "تعلم أساسيات الأعمال وطور فكرة شركتك الناشئة",
       "duration": "ثلاثة أسابيع",
-      "ageGroup": "١٦-١٨ سنة",
+      "ageGroup": "16-18 سنة",
       "location": "أبوظبي",
-      "price": "٢,٠٠٠ درهم"
+      "price": "2,000 درهم"
     },
     "digitalArtsDesign": {
       "title": "الفنون الرقمية والتصميم",
       "description": "أتقن أدوات الإبداع الرقمي ومبادئ التصميم",
       "duration": "أسبوعان",
-      "ageGroup": "١٤-١٨ سنة",
+      "ageGroup": "14-18 سنة",
       "location": "الشارقة",
-      "price": "١,٨٠٠ درهم"
+      "price": "1,800 درهم"
     }
   },
   "ui": {
@@ -140,15 +140,15 @@
   "announcements": {
     "earlyBird": {
       "title": "التسجيل المبكر مفتوح",
-      "message": "سجل قبل ١ مارس واحصل على خصم ٢٠٪ على جميع برامج المخيمات الصيفية."
+      "message": "سجل قبل 1 مارس واحصل على خصم 20% على جميع برامج المخيمات الصيفية."
     },
     "newPrograms": {
       "title": "برامج جديدة مضافة",
-      "message": "اطلع على أحدث مخيمات الروبوتات والبرمجة لعام ٢٠٢٤."
+      "message": "اطلع على أحدث مخيمات الروبوتات والبرمجة لعام 2024."
     }
   },
   "info": {
-    "academicYear": "صيف ٢٠٢٤",
+    "academicYear": "صيف 2024",
     "registrationDeadline": "الموعد النهائي للتسجيل",
     "startDate": "تاريخ البداية",
     "endDate": "تاريخ النهاية",
