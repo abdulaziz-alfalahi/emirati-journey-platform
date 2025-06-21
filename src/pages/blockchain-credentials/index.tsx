@@ -40,35 +40,51 @@ const BlockchainCredentialsPage: React.FC = () => {
     }
   ];
 
-  // Mock data for demonstration
+  // Mock data for demonstration - updated to match BlockchainCredential interface
   const mockCredentials: BlockchainCredential[] = [
     {
       id: '1',
+      recipient_id: user?.id || 'user-1',
+      issuer_id: 'issuer-1',
+      credential_type: 'certification',
       title: 'Digital Marketing Certificate',
-      issuer: 'Dubai Digital Authority',
-      issueDate: new Date('2024-01-15'),
-      expiryDate: new Date('2026-01-15'),
-      status: 'verified' as const,
-      blockchainHash: '0x1234...abcd',
-      credentialType: 'certification' as const,
+      description: 'Advanced digital marketing certification covering SEO, social media, and analytics',
+      issued_date: '2024-01-15T00:00:00Z',
+      expiry_date: '2026-01-15T00:00:00Z',
+      credential_hash: '0x1234...abcd',
+      merkle_proof: ['0xabc123', '0xdef456'],
+      block_number: 12345,
+      transaction_hash: '0x5678...efgh',
+      verification_status: 'verified',
       metadata: {
-        skills: ['Digital Marketing', 'SEO', 'Social Media'],
+        issuer_name: 'Dubai Digital Authority',
         level: 'Intermediate'
-      }
+      },
+      skills: ['Digital Marketing', 'SEO', 'Social Media'],
+      created_at: '2024-01-15T00:00:00Z',
+      updated_at: '2024-01-15T00:00:00Z'
     },
     {
       id: '2',
+      recipient_id: user?.id || 'user-1',
+      issuer_id: 'issuer-2',
+      credential_type: 'degree',
       title: 'Bachelor of Computer Science',
-      issuer: 'American University of Dubai',
-      issueDate: new Date('2023-06-20'),
-      status: 'verified' as const,
-      blockchainHash: '0x5678...efgh',
-      credentialType: 'education' as const,
+      description: 'Bachelor\'s degree in Computer Science with focus on software engineering',
+      issued_date: '2023-06-20T00:00:00Z',
+      credential_hash: '0x5678...efgh',
+      merkle_proof: ['0xghi789', '0xjkl012'],
+      block_number: 11234,
+      transaction_hash: '0x9abc...defg',
+      verification_status: 'verified',
       metadata: {
+        issuer_name: 'American University of Dubai',
         degree: 'Bachelor',
         major: 'Computer Science',
         gpa: '3.8'
-      }
+      },
+      created_at: '2023-06-20T00:00:00Z',
+      updated_at: '2023-06-20T00:00:00Z'
     }
   ];
 
