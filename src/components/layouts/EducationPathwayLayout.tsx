@@ -5,20 +5,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-interface TabItem {
+export interface StatItem {
+  value: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+export interface TabItem {
   id: string;
   label: string;
   icon: React.ReactNode;
   content: React.ReactNode;
 }
 
-interface StatItem {
-  value: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface EducationPathwayLayoutProps {
+export interface EducationPathwayLayoutProps {
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -123,3 +123,5 @@ export const EducationPathwayLayout: React.FC<EducationPathwayLayoutProps> = ({
     </Layout>
   );
 };
+
+export default EducationPathwayLayout;

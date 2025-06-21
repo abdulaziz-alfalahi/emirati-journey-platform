@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { Monitor, Users, BookOpen, Trophy } from 'lucide-react';
@@ -84,17 +83,6 @@ const LMSPage: React.FC = () => {
       defaultTab="courses"
       actionButtonText="Browse Courses"
       actionButtonHref="#courses"
-      academicProgress={[
-        {
-          courseId: "1",
-          courseName: "Digital Marketing Fundamentals",
-          progress: 75,
-          totalModules: 8,
-          completedModules: 6,
-          status: "active",
-          nextDeadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        }
-      ]}
       academicYear="2024-2025"
     />
   );

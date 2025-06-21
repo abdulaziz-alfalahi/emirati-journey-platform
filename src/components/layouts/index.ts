@@ -1,10 +1,8 @@
+
 export { default as EducationPathwayLayout } from './EducationPathwayLayout';
+export { EducationPathwayLayout } from './EducationPathwayLayout';
 export type { 
   EducationPathwayLayoutProps, 
-  EducationStat, 
-  EducationTab, 
-  AcademicProgress, 
-  AcademicAnnouncement, 
-  Achievement, 
-  InstitutionalBranding 
+  StatItem, 
+  TabItem
 } from './EducationPathwayLayout';

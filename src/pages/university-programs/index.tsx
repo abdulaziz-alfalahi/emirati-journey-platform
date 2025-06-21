@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +8,7 @@ import ProgramsList from '@/components/university-programs/ProgramsList';
 import RecommendedPrograms from '@/components/university-programs/RecommendedPrograms';
 import MyApplications from '@/components/university-programs/MyApplications';
 import SavedPrograms from '@/components/university-programs/SavedPrograms';
-import type { EducationStat, EducationTab, AcademicProgress, AcademicAnnouncement, Achievement } from '@/components/layouts/EducationPathwayLayout';
+import type { StatItem, TabItem } from '@/components/layouts/EducationPathwayLayout';
 
 interface FilterState {
   search: string;
@@ -70,7 +69,7 @@ const UniversityProgramsPage: React.FC = () => {
   });
 
   // Education stats for the layout
-  const educationStats: EducationStat[] = [
+  const educationStats: StatItem[] = [
     {
       value: `${stats?.totalPrograms || 0}+`,
       label: "University Programs",
@@ -94,7 +93,7 @@ const UniversityProgramsPage: React.FC = () => {
   ];
 
   // Education tabs with university program content
-  const educationTabs: EducationTab[] = [
+  const educationTabs: TabItem[] = [
     {
       id: "all-programs",
       label: "Program Catalog",
@@ -155,59 +154,6 @@ const UniversityProgramsPage: React.FC = () => {
     }
   ];
 
-  // Sample academic progress for university applications
-  const academicProgress: AcademicProgress[] = [
-    {
-      courseId: "app-1",
-      courseName: "UAE University - Computer Science",
-      progress: 75,
-      totalModules: 4,
-      completedModules: 3,
-      status: "active",
-      nextDeadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    },
-    {
-      courseId: "app-2", 
-      courseName: "AUS - Business Administration",
-      progress: 100,
-      totalModules: 5,
-      completedModules: 5,
-      status: "completed"
-    }
-  ];
-
-  // University program announcements
-  const announcements: AcademicAnnouncement[] = [
-    {
-      id: "1",
-      title: "Fall 2024 Application Deadlines Extended",
-      message: "Several partner universities have extended their application deadlines for Fall 2024 admission.",
-      type: "info",
-      date: new Date(),
-      urgent: false
-    },
-    {
-      id: "2",
-      title: "New Scholarship Opportunities Available",
-      message: "Merit-based scholarships now available for Computer Science and Engineering programs.",
-      type: "success", 
-      date: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      urgent: true
-    }
-  ];
-
-  // University program achievements
-  const achievements: Achievement[] = [
-    {
-      id: "1",
-      title: "Application Submitted",
-      description: "Successfully submitted application to UAE University",
-      icon: Trophy,
-      dateEarned: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      category: "academic"
-    }
-  ];
-
   return (
     <EducationPathwayLayout
       title="University Programs"
@@ -218,15 +164,7 @@ const UniversityProgramsPage: React.FC = () => {
       defaultTab="all-programs"
       actionButtonText="Explore Programs"
       actionButtonHref="#all-programs"
-      academicProgress={academicProgress}
-      announcements={announcements}
-      achievements={achievements.length > 0 ? achievements : undefined}
       academicYear="2024-2025"
-      institutionalBranding={{
-        institutionName: "UAE University Partnership Network",
-        primaryColor: "#1e3a8a",
-        secondaryColor: "#059669"
-      }}
     />
   );
 };

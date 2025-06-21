@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { Award, Users, DollarSign, GraduationCap } from 'lucide-react';
@@ -85,16 +84,6 @@ const ScholarshipsPage: React.FC = () => {
       defaultTab="available"
       actionButtonText="Browse Scholarships"
       actionButtonHref="#available"
-      announcements={[
-        {
-          id: "1",
-          title: "New Scholarship Program Launched",
-          message: "The Innovation Leadership Scholarship is now accepting applications for Fall 2024.",
-          type: "success",
-          date: new Date(),
-          urgent: true
-        }
-      ]}
       academicYear="2024-2025"
     />
   );
