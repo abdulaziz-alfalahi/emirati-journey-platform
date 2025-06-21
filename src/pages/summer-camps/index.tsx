@@ -3,12 +3,10 @@ import React, { Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { useAccessibilityAndSEO } from '@/hooks/useAccessibilityAndSEO';
 import { useTranslation } from 'react-i18next';
-import { TranslationLoadingState } from '@/components/summer-camps/TranslationLoadingState';
+import TranslationLoadingState from '@/components/summer-camps/TranslationLoadingState';
 
 const MemoizedSummerCampsContent = React.lazy(() => 
-  import('@/components/summer-camps/MemoizedSummerCampsContent').then(module => ({
-    default: module.MemoizedSummerCampsContent
-  }))
+  import('@/components/summer-camps/MemoizedSummerCampsContent')
 );
 
 const SummerCampsPage: React.FC = () => {
@@ -26,7 +24,7 @@ const SummerCampsPage: React.FC = () => {
   }
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}>
       <Suspense fallback={<TranslationLoadingState />}>
         <MemoizedSummerCampsContent />
         <script 
