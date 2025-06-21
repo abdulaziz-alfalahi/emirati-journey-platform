@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CareerPageLayout } from '@/components/career/CareerPageLayout';
+import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { GraduationCap, Users, BookOpen, Award, Target, Building } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 
 const GraduateProgramsPage: React.FC = () => {
   const stats = [
-    { value: "100+", label: "Graduate Programs" },
-    { value: "25+", label: "Partner Universities" },
-    { value: "2,500+", label: "Graduate Students" },
-    { value: "90%", label: "Employment Rate" }
+    { value: "100+", label: "Graduate Programs", icon: GraduationCap },
+    { value: "25+", label: "Partner Universities", icon: Building },
+    { value: "2,500+", label: "Graduate Students", icon: Users },
+    { value: "90%", label: "Employment Rate", icon: Target }
   ];
 
   const programs = [
@@ -102,7 +102,7 @@ const GraduateProgramsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
+                <Target className="h-5 w-5 text-green-600" />
                 General Requirements
               </CardTitle>
             </CardHeader>
@@ -121,7 +121,7 @@ const GraduateProgramsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5 text-green-600" />
+                <Building className="h-5 w-5 text-blue-600" />
                 Program-Specific Requirements
               </CardTitle>
             </CardHeader>
@@ -157,19 +157,16 @@ const GraduateProgramsPage: React.FC = () => {
   ];
 
   return (
-    <CareerPageLayout
+    <EducationPathwayLayout
       title="Graduate Programs"
-      description="Advance your education with master's, PhD, and specialized graduate programs from top universities across the UAE"
-      heroIcon={<GraduationCap className="h-12 w-12" />}
-      primaryActionLabel="Explore Programs"
-      primaryActionIcon={<GraduationCap className="h-4 w-4" />}
-      secondaryActionLabel="Get Guidance"
+      description="Master's, PhD, and advanced degree programs from top universities across the UAE for continued academic excellence"
+      icon={<GraduationCap className="h-12 w-12 text-purple-600" />}
       stats={stats}
-      quote="The beautiful thing about learning is that no one can take it away from you"
-      attribution="B.B. King"
-      quoteIcon={<BookOpen className="h-8 w-8" />}
       tabs={tabs}
       defaultTab="programs"
+      actionButtonText="Explore Programs"
+      actionButtonHref="#programs"
+      academicYear="2024-2025"
     />
   );
 };
