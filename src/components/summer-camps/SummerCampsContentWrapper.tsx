@@ -63,7 +63,7 @@ const SummerCampsContentWrapper: React.FC = () => {
   }
 
   if (camps.length === 0) {
-    return <EmptyState />;
+    return <EmptyState type="available" />;
   }
 
   return (
