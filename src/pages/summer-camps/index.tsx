@@ -27,84 +27,101 @@ const SummerCampsPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-ehrdc-teal/5 to-ehrdc-light-teal/10 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">{t('meta.title')}</h1>
+        <h1 className="text-3xl font-bold mb-4 text-ehrdc-teal">{t('meta.title')}</h1>
         <p className="text-muted-foreground">{t('meta.description')}</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
+        <Card className="border-l-4 border-l-ehrdc-teal shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-ehrdc-teal">
               {t('stats.summerPrograms.label')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(25)}+</div>
+            <div className="text-2xl font-bold text-ehrdc-dark-teal">{formatNumber(25)}+</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-l-4 border-l-ehrdc-gold shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-ehrdc-gold">
               {t('stats.studentsEnrolled.label')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(1200)}+</div>
+            <div className="text-2xl font-bold text-ehrdc-neutral-dark">{formatNumber(1200)}+</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-l-4 border-l-green-500 shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-green-600">
               {t('stats.partnerInstitutions.label')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(15)}+</div>
+            <div className="text-2xl font-bold text-ehrdc-neutral-dark">{formatNumber(15)}+</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-blue-600">
               {t('stats.emiratesCovered.label')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(7)}</div>
+            <div className="text-2xl font-bold text-ehrdc-neutral-dark">{formatNumber(7)}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="available">{t('tabs.programs.label')}</TabsTrigger>
-          <TabsTrigger value="registered">{t('tabs.myRegistrations.label')}</TabsTrigger>
-          <TabsTrigger value="managed">Managed Camps</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-white shadow-md">
+          <TabsTrigger 
+            value="available" 
+            className="data-[state=active]:bg-ehrdc-teal data-[state=active]:text-white"
+          >
+            {t('tabs.programs.label')}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="registered"
+            className="data-[state=active]:bg-ehrdc-teal data-[state=active]:text-white"
+          >
+            {t('tabs.myRegistrations.label')}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="managed"
+            className="data-[state=active]:bg-ehrdc-teal data-[state=active]:text-white"
+          >
+            Managed Camps
+          </TabsTrigger>
         </TabsList>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <CampsFilter
-              onFilterChange={handleFilterChange}
-              onSearchChange={handleSearchChange}
-              selectedFilters={filters}
-              searchQuery={searchQuery}
-            />
+            <Card className="shadow-lg border-ehrdc-light-teal/20">
+              <CampsFilter
+                onFilterChange={handleFilterChange}
+                onSearchChange={handleSearchChange}
+                selectedFilters={filters}
+                searchQuery={searchQuery}
+              />
+            </Card>
           </div>
 
           {/* Camps Content */}
           <div className="lg:col-span-3">
             <TabsContent value="available" className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-4">{t('tabs.programs.title')}</h2>
+                <h2 className="text-xl font-semibold mb-4 text-ehrdc-teal">{t('tabs.programs.title')}</h2>
                 <CampsList
                   type="available"
                   filters={filters}
@@ -115,7 +132,7 @@ const SummerCampsPage: React.FC = () => {
 
             <TabsContent value="registered" className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-4">{t('tabs.myRegistrations.title')}</h2>
+                <h2 className="text-xl font-semibold mb-4 text-ehrdc-teal">{t('tabs.myRegistrations.title')}</h2>
                 <CampsList
                   type="registered"
                   filters={filters}
@@ -126,7 +143,7 @@ const SummerCampsPage: React.FC = () => {
 
             <TabsContent value="managed" className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-4">Managed Camps</h2>
+                <h2 className="text-xl font-semibold mb-4 text-ehrdc-teal">Managed Camps</h2>
                 <CampsList
                   type="managed"
                   filters={filters}
