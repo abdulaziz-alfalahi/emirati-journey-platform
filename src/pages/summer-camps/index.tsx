@@ -21,16 +21,16 @@ const SummerCampsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const stats = [
-    { value: "50+", label: t('stats.totalCamps'), icon: Tent },
-    { value: "1,200+", label: t('stats.participants'), icon: Users },
-    { value: "12", label: t('stats.weeks'), icon: Calendar },
-    { value: "95%", label: t('stats.satisfaction'), icon: Trophy }
+    { value: "50+", label: t('stats.summerPrograms.label'), icon: Tent },
+    { value: "1,200+", label: t('stats.studentsEnrolled.label'), icon: Users },
+    { value: "15+", label: t('stats.partnerInstitutions.label'), icon: Calendar },
+    { value: "7", label: t('stats.emiratesCovered.label'), icon: Trophy }
   ];
 
   const tabs = useMemo(() => [
     {
       id: "available",
-      label: t('tabs.available'),
+      label: t('tabs.programs.label'),
       icon: <Tent className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
@@ -40,7 +40,7 @@ const SummerCampsPage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Filter className="h-5 w-5" />
-                    {t('filters.title')}
+                    {t('ui.filters.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -58,7 +58,7 @@ const SummerCampsPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <Search className="h-5 w-5 text-muted-foreground" />
                   <Input
-                    placeholder={t('search.placeholder')}
+                    placeholder={t('ui.search.placeholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="flex-1"
@@ -77,7 +77,7 @@ const SummerCampsPage: React.FC = () => {
     },
     {
       id: "registered",
-      label: t('tabs.registered'),
+      label: t('tabs.myRegistrations.label'),
       icon: <Users className="h-4 w-4" />,
       content: (
         <CampsList 
@@ -89,14 +89,14 @@ const SummerCampsPage: React.FC = () => {
     },
     {
       id: "managed",
-      label: t('tabs.managed'),
+      label: t('tabs.resources.label'),
       icon: <Calendar className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">{t('management.title')}</h2>
+            <h2 className="text-2xl font-bold">{t('tabs.resources.title')}</h2>
             <Button>
-              {t('management.createNew')}
+              {t('ui.buttons.registerEarly')}
             </Button>
           </div>
           <CampsList 
@@ -111,15 +111,15 @@ const SummerCampsPage: React.FC = () => {
 
   return (
     <EducationPathwayLayout
-      title={t('page.title')}
-      description={t('page.description')}
+      title={t('meta.title')}
+      description={t('meta.description')}
       icon={<Tent className="h-12 w-12 text-blue-600" />}
       stats={stats}
       tabs={tabs}
       defaultTab="available"
-      actionButtonText={t('actions.explore')}
+      actionButtonText={t('ui.buttons.browseProgramsShort')}
       actionButtonHref="#available"
-      academicYear="2024-2025"
+      academicYear={t('info.academicYear')}
     />
   );
 };
