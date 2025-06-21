@@ -70,6 +70,19 @@ const initializePWAFeatures = async () => {
   }
 };
 
+// Create the App component with proper provider nesting
+const AppWithProviders: React.FC = () => {
+  return (
+    <React.StrictMode>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <LanguageProvider defaultLanguage="en">
+          <App />
+        </LanguageProvider>
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+};
+
 // Ensure we have a root element
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -85,15 +98,7 @@ const root = document.getElementById("root");
 // Render with proper error boundaries and provider order
 try {
   if (root) {
-    createRoot(root).render(
-      <React.StrictMode>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <LanguageProvider defaultLanguage="en">
-            <App />
-          </LanguageProvider>
-        </ThemeProvider>
-      </React.StrictMode>
-    );
+    createRoot(root).render(<AppWithProviders />);
   }
 
   // Initialize PWA features after app loads
@@ -110,6 +115,9 @@ try {
         <div style="text-align: center;">
           <h1 style="color: #ef4444; margin-bottom: 16px;">Application Error</h1>
           <p style="color: #6b7280;">Please refresh the page to try again.</p>
+          <button onclick="window.location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Reload
+          </button>
         </div>
       </div>
     `;

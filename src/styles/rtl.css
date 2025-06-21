@@ -1,0 +1,121 @@
+
+/* RTL Support Styles for Summer Camps Page */
+
+/* Base RTL styles - Using Dubai font for all languages */
+[dir="rtl"] {
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+[dir="ltr"] {
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Text alignment and spacing for Arabic */
+[dir="rtl"] .rtl-text {
+  text-align: right;
+  line-height: 1.8;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+[dir="rtl"] .rtl-spacing {
+  letter-spacing: 0.025em;
+}
+
+/* Flex direction adjustments */
+[dir="rtl"] .rtl-flex {
+  flex-direction: row-reverse;
+}
+
+/* Card content adjustments */
+[dir="rtl"] .rtl-card {
+  text-align: right;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+[dir="rtl"] .rtl-card .card-header {
+  text-align: right;
+}
+
+[dir="rtl"] .rtl-card .card-content {
+  text-align: right;
+}
+
+/* Button text alignment */
+[dir="rtl"] .rtl-button {
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+[dir="ltr"] .rtl-button {
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Stats grid adjustments */
+[dir="rtl"] .rtl-stats {
+  text-align: center;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Ensure proper Arabic numerals display */
+[dir="rtl"] .arabic-numerals {
+  font-feature-settings: "tnum" 1;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Badge positioning */
+[dir="rtl"] .rtl-badge {
+  margin-left: 0;
+  margin-right: auto;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Icon spacing adjustments for RTL */
+[dir="rtl"] .rtl-icon-spacing {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Animation adjustments for RTL */
+[dir="rtl"] .rtl-slide-in {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+[dir="ltr"] .rtl-slide-in {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Smooth transitions for language switching */
+.language-transition {
+  transition: all 0.3s ease-in-out;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Ensure proper text overflow handling for both directions */
+[dir="rtl"] .rtl-truncate {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  direction: rtl;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+[dir="ltr"] .rtl-truncate {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  direction: ltr;
+  font-family: 'Dubai', Arial, sans-serif;
+}
+
+/* Ensure Dubai font is used across all text elements */
+* {
+  font-family: 'Dubai', Arial, sans-serif !important;
+}
+
+/* Specific font settings for different text types */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Dubai', Arial, sans-serif !important;
+}
+
+p, span, div, button, input, textarea, select, label {
+  font-family: 'Dubai', Arial, sans-serif !important;
+}

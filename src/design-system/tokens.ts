@@ -67,10 +67,14 @@ export const colorTokens = {
 // ============= Typography System =============
 export const typographyTokens = {
   fontFamily: {
-    primary: ['Inter', 'sans-serif'],
-    arabic: ['Noto Sans Arabic', 'Inter', 'sans-serif'],
-    display: ['SF Pro Display', 'Inter', 'sans-serif'],
-    government: ['Dubai', 'Arial', 'sans-serif']
+    primary: ['Dubai', 'Arial', 'sans-serif'],
+    arabic: ['Dubai', 'Arial', 'sans-serif'],
+    display: ['Dubai', 'Arial', 'sans-serif'],
+    government: ['Dubai', 'Arial', 'sans-serif'],
+    // All font families now use Dubai font
+    sans: ['Dubai', 'Arial', 'sans-serif'],
+    body: ['Dubai', 'Arial', 'sans-serif'],
+    heading: ['Dubai', 'Arial', 'sans-serif']
   },
   
   fontSize: {

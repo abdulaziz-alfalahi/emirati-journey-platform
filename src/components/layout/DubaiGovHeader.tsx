@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Menu, Phone, Mail, X } from 'lucide-react';
@@ -99,13 +100,14 @@ const DubaiGovHeader: React.FC = () => {
           <div className="dubai-container">
             <div className="relative py-4" style={{ minHeight: '80px' }}>
               
-              {/* Dubai Government Logo - Fixed to Physical Left */}
+              {/* Dubai Government Logo - Fixed to Physical Left (viewport left) */}
               <div 
-                className="absolute top-1/2 -translate-y-1/2"
                 style={{
-                  left: '0px',
-                  transform: 'translateY(-50%)',
-                  position: 'absolute'
+                  position: 'fixed',
+                  left: 'max(1rem, calc((100vw - 1200px) / 2))',
+                  top: 'calc(50px + 2rem)',
+                  zIndex: 10,
+                  transform: 'translateY(-50%)'
                 }}
               >
                 <a
@@ -166,13 +168,14 @@ const DubaiGovHeader: React.FC = () => {
                 </div>
               </div>
 
-              {/* EHRDC Logo - Fixed to Physical Right */}
+              {/* EHRDC Logo - Fixed to Physical Right (viewport right) */}
               <div 
-                className="absolute top-1/2 -translate-y-1/2"
                 style={{
-                  right: '0px',
-                  transform: 'translateY(-50%)',
-                  position: 'absolute'
+                  position: 'fixed',
+                  right: 'max(1rem, calc((100vw - 1200px) / 2))',
+                  top: 'calc(50px + 2rem)',
+                  zIndex: 10,
+                  transform: 'translateY(-50%)'
                 }}
               >
                 <div className="flex items-center space-x-4">
