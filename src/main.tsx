@@ -6,7 +6,6 @@ import './index.css';
 import './lib/i18n'; // Initialize i18n
 import { ThemeProvider } from './components/theme-provider';
 import { LanguageProvider } from './context/LanguageContext';
-import { AuthProvider } from './context/AuthContext';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
@@ -77,9 +76,7 @@ const AppWithProviders: React.FC = () => {
     <React.StrictMode>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <LanguageProvider defaultLanguage="en">
-          <AuthProvider>
-            <App />
-          </AuthProvider>
+          <App />
         </LanguageProvider>
       </ThemeProvider>
     </React.StrictMode>

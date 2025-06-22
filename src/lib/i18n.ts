@@ -8,14 +8,12 @@ import enHome from '../locales/en/home.json';
 import enCommon from '../locales/en/common.json';
 import enForms from '../locales/en/forms.json';
 import enSummerCamps from '../locales/en/summer-camps.json';
-import enSchoolPrograms from '../locales/en/school-programs.json';
 
 import arNavigation from '../locales/ar/navigation.json';
 import arHome from '../locales/ar/home.json';
 import arCommon from '../locales/ar/common.json';
 import arForms from '../locales/ar/forms.json';
 import arSummerCamps from '../locales/ar/summer-camps.json';
-import arSchoolPrograms from '../locales/ar/school-programs.json';
 
 // Define the resources
 const resources = {
@@ -25,7 +23,6 @@ const resources = {
     common: enCommon,
     forms: enForms,
     'summer-camps': enSummerCamps,
-    'school-programs': enSchoolPrograms,
     // Keep the existing pages namespace for backward compatibility
     pages: enHome
   },
@@ -35,7 +32,6 @@ const resources = {
     common: arCommon,
     forms: arForms,
     'summer-camps': arSummerCamps,
-    'school-programs': arSchoolPrograms,
     // Keep the existing pages namespace for backward compatibility
     pages: arHome
   }

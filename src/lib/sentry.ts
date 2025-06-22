@@ -3,16 +3,10 @@
 /**
  * Initialize Sentry error tracking and performance monitoring
  */
-export const initializeSentry = () => {
-  // Placeholder for Sentry initialization
-  console.log('Sentry would be initialized here in production');
-  
-  // In a real implementation, you would:
-  // import * as Sentry from "@sentry/react";
-  // Sentry.init({
-  //   dsn: "YOUR_SENTRY_DSN",
-  // });
-};
+export function initializeSentry(): void {
+  console.log('Sentry placeholder - install @sentry/react for production use');
+  return; // Placeholder implementation
+}
 
 /**
  * Placeholder functions for Sentry integration

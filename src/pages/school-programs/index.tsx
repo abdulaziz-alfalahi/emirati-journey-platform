@@ -1,158 +1,84 @@
 
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/context/LanguageContext';
-import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
-import { School, Users, Clock, Award, Search, Filter } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
+import { BookOpen, Users, Award, Target } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import ProgramsList from '@/components/school-programs/ProgramsList';
-import { ProgramFilters } from '@/types/schoolPrograms';
 
 const SchoolProgramsPage: React.FC = () => {
-  const { t } = useTranslation('school-programs');
-  const { isRTL } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<ProgramFilters>({});
-
   const stats = [
+    { value: "50+", label: "Partner Schools", icon: BookOpen },
+    { value: "5,000+", label: "Students Enrolled", icon: Users },
+    { value: "20+", label: "Specialized Programs", icon: Award },
+    { value: "95%", label: "Success Rate", icon: Target }
+  ];
+
+  const programs = [
     {
-      value: t('stats.partnerSchools.value'),
-      label: t('stats.partnerSchools.label'),
-      icon: School
+      title: "Advanced STEM Program",
+      description: "Accelerated science and mathematics curriculum for gifted students",
+      grades: "Grades 9-12",
+      schools: "15 Partner Schools"
     },
     {
-      value: t('stats.studentsEnrolled.value'),
-      label: t('stats.studentsEnrolled.label'),
-      icon: Users
+      title: "Leadership Development",
+      description: "Building tomorrow's leaders through practical leadership experiences",
+      grades: "Grades 10-12", 
+      schools: "25 Partner Schools"
     },
     {
-      value: t('stats.specializedPrograms.value'),
-      label: t('stats.specializedPrograms.label'),
-      icon: Award
-    },
-    {
-      value: t('stats.successRate.value'),
-      label: t('stats.successRate.label'),
-      icon: Clock
+      title: "Innovation Lab",
+      description: "Hands-on technology and engineering projects",
+      grades: "Grades 6-12",
+      schools: "30 Partner Schools"
     }
   ];
 
   const tabs = [
     {
-      id: 'programs',
-      label: t('tabs.programs.label'),
-      icon: <School className="h-4 w-4" />,
+      id: "programs",
+      label: "Available Programs",
+      icon: <BookOpen className="h-4 w-4" />,
       content: (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <School className="h-5 w-5" />
-                {t('tabs.programs.title')}
-              </CardTitle>
-              <CardDescription>
-                {t('meta.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className="flex-1 relative">
-                    <Search className={`absolute top-3 h-4 w-4 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-                    <Input
-                      placeholder={t('ui.search.placeholder')}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className={isRTL ? 'pr-10' : 'pl-10'}
-                    />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {programs.map((program, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle className="text-lg">{program.title}</CardTitle>
+                <p className="text-muted-foreground">{program.description}</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Target:</span>
+                    <span>{program.grades}</span>
                   </div>
-                  <Button variant="outline" className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <Filter className="h-4 w-4" />
-                    {t('ui.filters.title')}
-                  </Button>
+                  <div className="flex justify-between text-sm">
+                    <span>Availability:</span>
+                    <span>{program.schools}</span>
+                  </div>
                 </div>
-                
-                <ProgramsList 
-                  type="available" 
-                  filters={filters} 
-                  searchQuery={searchQuery}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      id: 'my-registrations',
-      label: t('tabs.myRegistrations.label'),
-      icon: <Users className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Users className="h-5 w-5" />
-                {t('tabs.myRegistrations.title')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProgramsList 
-                type="enrolled" 
-                filters={filters} 
-                searchQuery={searchQuery}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      id: 'resources',
-      label: t('tabs.resources.label'),
-      icon: <Award className="h-4 w-4" />,
-      content: (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <Award className="h-5 w-5" />
-                {t('tabs.resources.title')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Award className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">{t('tabs.resources.title')}</h3>
-                <p className="text-muted-foreground mb-6">
-                  {t('meta.description')}
-                </p>
-                <Button>
-                  {t('ui.buttons.browseProgramsShort')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                <Button className="w-full">Learn More</Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )
     }
   ];
 
   return (
-    <div className={isRTL ? 'rtl-text' : ''}>
-      <ProfessionalGrowthLayout
-        title={t('meta.title')}
-        description={t('meta.description')}
-        icon={<School className="h-12 w-12 text-white" />}
-        stats={stats}
-        tabs={tabs}
-        defaultTab="programs"
-      />
-    </div>
+    <EducationPathwayLayout
+      title="School Programs"
+      description="Specialized educational programs designed to enhance learning experiences in partnership with schools across the UAE"
+      icon={<BookOpen className="h-12 w-12 text-green-600" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="programs"
+      actionButtonText="Explore Programs"
+      actionButtonHref="#programs"
+      academicYear="2024-2025"
+    />
   );
 };
 

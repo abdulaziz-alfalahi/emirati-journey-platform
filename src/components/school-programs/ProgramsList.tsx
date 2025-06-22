@@ -1,7 +1,5 @@
 
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/context/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,23 +13,20 @@ interface ProgramsListProps {
 }
 
 const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery }) => {
-  const { t } = useTranslation('school-programs');
-  const { isRTL } = useLanguage();
-
   // Mock data for programs
   const programs = [
     {
       id: '1',
-      title: t('programs.innovationLab.title'),
-      description: t('programs.innovationLab.description'),
+      title: 'Young Innovators STEM Workshop',
+      description: 'Hands-on science, technology, engineering, and mathematics workshops designed for elementary students.',
       institution: 'Dubai International School',
       gradeLevel: ['Elementary'],
       subjectArea: ['STEM'],
       programType: ['After School'],
-      ageRange: t('programs.innovationLab.ageGroup'),
-      duration: t('programs.innovationLab.duration'),
+      ageRange: '6-11 years',
+      duration: '8 weeks',
       schedule: 'Tuesdays & Thursdays, 3:30pm - 5:00pm',
-      location: t('programs.innovationLab.location'),
+      location: 'Al Barsha Campus',
       startDate: '2024-09-15',
       enrollmentStatus: 'Open',
       spotsAvailable: 15,
@@ -39,16 +34,16 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
     },
     {
       id: '2',
-      title: t('programs.leadershipDevelopment.title'),
-      description: t('programs.leadershipDevelopment.description'),
+      title: 'Arabic Literary Excellence Program',
+      description: 'Developing advanced Arabic language skills through literature, poetry, and creative writing.',
       institution: 'Emirates Heritage Academy',
       gradeLevel: ['Middle School', 'High School'],
       subjectArea: ['Languages'],
       programType: ['Weekend'],
-      ageRange: t('programs.leadershipDevelopment.ageGroup'),
-      duration: t('programs.leadershipDevelopment.duration'),
+      ageRange: '12-17 years',
+      duration: '12 weeks',
       schedule: 'Saturdays, 10:00am - 1:00pm',
-      location: t('programs.leadershipDevelopment.location'),
+      location: 'Jumeirah Campus',
       startDate: '2024-09-10',
       enrollmentStatus: 'Open',
       spotsAvailable: 8,
@@ -56,16 +51,16 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
     },
     {
       id: '3',
-      title: t('programs.advancedStem.title'),
-      description: t('programs.advancedStem.description'),
+      title: 'Young Entrepreneurs Initiative',
+      description: 'Business fundamentals, innovation, and entrepreneurial thinking for high school students.',
       institution: 'Business Leaders Academy',
       gradeLevel: ['High School'],
       subjectArea: ['Business'],
       programType: ['Summer', 'Intensive'],
-      ageRange: t('programs.advancedStem.ageGroup'),
-      duration: t('programs.advancedStem.duration'),
+      ageRange: '14-18 years',
+      duration: '4 weeks',
       schedule: 'Monday-Thursday, 9:00am - 2:00pm',
-      location: t('programs.advancedStem.location'),
+      location: 'Downtown Dubai Campus',
       startDate: '2024-07-05',
       enrollmentStatus: 'Coming Soon',
       spotsAvailable: 20,
@@ -114,13 +109,13 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
       <Card className="bg-muted/20">
         <CardContent className="py-12 text-center">
           <School className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium mb-2">{t('ui.search.noResults')}</h3>
+          <h3 className="text-lg font-medium mb-2">No Programs Found</h3>
           <p className="text-muted-foreground max-w-md mx-auto">
-            {t('ui.search.noResultsDescription')}
+            No programs match your current filters. Try adjusting your filters or search terms to find more opportunities.
           </p>
           {type === 'available' && (
             <Button variant="outline" className="mt-4">
-              {t('ui.filters.clearFilters')}
+              Clear Filters
             </Button>
           )}
         </CardContent>
@@ -133,14 +128,14 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
       {filteredPrograms.map((program) => (
         <Card key={program.id} className="hover:shadow-md transition-shadow overflow-hidden">
           <CardContent className="p-0">
-            <div className={`flex flex-col md:flex-row ${isRTL ? 'md:flex-row-reverse' : ''}`}>
+            <div className="flex flex-col md:flex-row">
               <div className="md:w-1/3 h-48 md:h-auto bg-muted relative overflow-hidden">
                 <img
                   src={program.image}
                   alt={program.title}
                   className="w-full h-full object-cover"
                 />
-                <div className={`absolute top-3 space-x-2 ${isRTL ? 'right-3' : 'left-3'}`}>
+                <div className="absolute top-3 left-3 space-x-2">
                   {program.programType.map((type) => (
                     <Badge key={type} className="bg-white/90 text-ehrdc-teal text-xs">
                       {type}
@@ -149,16 +144,14 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
                 </div>
               </div>
               <div className="p-6 md:w-2/3">
-                <div className={`mb-2 flex justify-between items-start ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="mb-2 flex justify-between items-start">
                   <h3 className="font-semibold text-xl">{program.title}</h3>
                   <Badge className={
                     program.enrollmentStatus === 'Open' ? 'bg-green-100 text-green-800' : 
                     program.enrollmentStatus === 'Coming Soon' ? 'bg-blue-100 text-blue-800' :
                     'bg-amber-100 text-amber-800'
                   } variant="secondary">
-                    {program.enrollmentStatus === 'Open' ? t('ui.status.registrationOpen') : 
-                     program.enrollmentStatus === 'Coming Soon' ? t('ui.status.registrationClosed') :
-                     program.enrollmentStatus}
+                    {program.enrollmentStatus}
                   </Badge>
                 </div>
                 
@@ -167,33 +160,31 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-sm">
-                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="flex items-center gap-2">
                     <School className="h-4 w-4 text-ehrdc-teal" />
                     <span>{program.institution}</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-ehrdc-teal" />
                     <span>{program.ageRange}</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-ehrdc-teal" />
                     <span>{program.duration}</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-ehrdc-teal" />
                     <span>{program.location}</span>
                   </div>
                 </div>
                 
-                <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center gap-2 mb-4">
                   <Calendar className="h-4 w-4 text-ehrdc-teal" />
-                  <span className="text-sm">
-                    {t('info.startDate')} {new Date(program.startDate).toLocaleDateString()}
-                  </span>
+                  <span className="text-sm">Starts {new Date(program.startDate).toLocaleDateString()}</span>
                 </div>
                 
-                <div className={`flex flex-wrap items-center justify-between gap-4 mt-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className={`flex flex-wrap gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-auto">
+                  <div className="flex flex-wrap gap-2">
                     {program.gradeLevel.map((level) => (
                       <Badge key={level} variant="outline" className="text-xs">{level}</Badge>
                     ))}
@@ -203,8 +194,8 @@ const ProgramsList: React.FC<ProgramsListProps> = ({ type, filters, searchQuery 
                   </div>
                   
                   <Button className="ehrdc-button-primary">
-                    {type === 'enrolled' ? t('ui.buttons.viewDetails') : 
-                     type === 'managed' ? 'Manage Program' : t('ui.buttons.applyNow')}
+                    {type === 'enrolled' ? 'View Details' : 
+                     type === 'managed' ? 'Manage Program' : 'Apply Now'}
                   </Button>
                 </div>
               </div>
