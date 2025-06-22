@@ -1,0 +1,162 @@
+{
+  "meta": {
+    "title": "School Programs",
+    "description": "Specialized educational programs designed to enhance learning experiences in partnership with schools",
+    "pageTitle": "School Programs - Emirati Gateway"
+  },
+  "stats": {
+    "partnerSchools": {
+      "label": "Partner Schools",
+      "value": "50+"
+    },
+    "studentsEnrolled": {
+      "label": "Students Enrolled", 
+      "value": "5,000+"
+    },
+    "specializedPrograms": {
+      "label": "Specialized Programs",
+      "value": "20+"
+    },
+    "successRate": {
+      "label": "Success Rate",
+      "value": "95%"
+    }
+  },
+  "programs": {
+    "advancedStem": {
+      "title": "Advanced STEM Program",
+      "description": "Accelerated science and mathematics curriculum for gifted students",
+      "duration": "Full Academic Year",
+      "ageGroup": "Grades 9-12",
+      "location": "15 Partner Schools",
+      "price": "Free"
+    },
+    "leadershipDevelopment": {
+      "title": "Leadership Development", 
+      "description": "Building tomorrow's leaders through practical leadership experiences",
+      "duration": "Semester Program",
+      "ageGroup": "Grades 10-12",
+      "location": "25 Partner Schools",
+      "price": "Free"
+    },
+    "innovationLab": {
+      "title": "Innovation Lab",
+      "description": "Hands-on technology and engineering projects",
+      "duration": "Year-round",
+      "ageGroup": "Grades 6-12",
+      "location": "30 Partner Schools",
+      "price": "Free"
+    }
+  },
+  "ui": {
+    "buttons": {
+      "applyNow": "Apply Now",
+      "learnMore": "Learn More",
+      "viewDetails": "View Details",
+      "browseProgramsShort": "Browse Programs",
+      "registerEarly": "Register Early",
+      "enrollNow": "Enroll Now",
+      "cancelEnrollment": "Cancel Enrollment",
+      "loadMore": "Load More Opportunities",
+      "expressInterest": "Express Interest"
+    },
+    "filters": {
+      "title": "Filter Programs",
+      "category": "Category",
+      "ageGroup": "Grade Level",
+      "location": "School Location",
+      "searchPlaceholder": "Search programs...",
+      "clearFilters": "Clear All",
+      "applyFilters": "Apply Filters"
+    },
+    "search": {
+      "placeholder": "Search school programs...",
+      "noResults": "No programs found",
+      "noResultsDescription": "Try adjusting your search or filter criteria.",
+      "resultsCount": "{{count}} program found",
+      "resultsCount_plural": "{{count}} programs found"
+    },
+    "status": {
+      "registrationOpen": "Registration Open",
+      "registrationClosed": "Registration Closed",
+      "full": "Full",
+      "spotsAvailable": "{{count}} spot available",
+      "spotsAvailable_plural": "{{count}} spots available",
+      "waitlist": "Join Waitlist"
+    }
+  },
+  "tabs": {
+    "programs": {
+      "label": "Available Programs",
+      "title": "School Programs"
+    },
+    "myRegistrations": {
+      "label": "My Registrations",
+      "title": "My Program Registrations"
+    },
+    "resources": {
+      "label": "Resources",
+      "title": "Program Resources"
+    }
+  },
+  "forms": {
+    "registration": {
+      "title": "Program Registration",
+      "labels": {
+        "studentName": "Student Name",
+        "parentName": "Parent/Guardian Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "emergencyContact": "Emergency Contact",
+        "medicalInfo": "Medical Information",
+        "preferredProgram": "Preferred Program",
+        "specialRequests": "Special Requests"
+      },
+      "placeholders": {
+        "studentName": "Enter student's full name",
+        "parentName": "Enter parent/guardian name",
+        "email": "Enter email address",
+        "phone": "Enter phone number",
+        "emergencyContact": "Emergency contact details",
+        "medicalInfo": "Any medical conditions or allergies",
+        "specialRequests": "Any special requirements or requests"
+      },
+      "validation": {
+        "required": "This field is required",
+        "invalidEmail": "Please enter a valid email address",
+        "invalidPhone": "Please enter a valid phone number"
+      },
+      "success": {
+        "title": "Registration Successful",
+        "message": "Your program registration has been submitted successfully. You will receive a confirmation email shortly."
+      },
+      "errors": {
+        "title": "Registration Failed",
+        "message": "Unable to submit registration. Please try again."
+      }
+    }
+  },
+  "announcements": {
+    "earlyBird": {
+      "title": "Early Registration Open",
+      "message": "Register before the semester starts and secure your spot in specialized programs."
+    },
+    "newPrograms": {
+      "title": "New Programs Added",
+      "message": "Check out our latest STEM and leadership programs for 2024-2025."
+    }
+  },
+  "info": {
+    "academicYear": "2024-2025",
+    "registrationDeadline": "Registration Deadline",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "duration": "Duration",
+    "capacity": "Capacity",
+    "enrolled": "Enrolled",
+    "organizer": "Organizer",
+    "price": "Price",
+    "includes": "Program Includes",
+    "requirements": "Requirements"
+  }
+}
