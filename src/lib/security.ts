@@ -252,7 +252,7 @@ export class SecurityUtils {
     };
   }
 
-  // Generate secure random string - FIXED VERSION
+  // Generate secure random string - IMPROVED VERSION WITH BETTER ERROR HANDLING
   static generateSecureToken(length: number = 32): string {
     // Use crypto.getRandomValues for proper randomization
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -261,19 +261,36 @@ export class SecurityUtils {
     
     // Generate cryptographically secure random values
     if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      // Browser environment with Web Crypto API
       crypto.getRandomValues(randomArray);
+    } else if (typeof require !== 'undefined') {
+      // Node.js environment
+      try {
+        const nodeCrypto = require('crypto');
+        const randomBytes = nodeCrypto.randomBytes(length);
+        for (let i = 0; i < length; i++) {
+          randomArray[i] = randomBytes[i];
+        }
+      } catch (error) {
+        // Fallback if crypto module is not available
+        console.warn('Node.js crypto module not available, using Math.random fallback');
+        for (let i = 0; i < length; i++) {
+          randomArray[i] = Math.floor(Math.random() * 256);
+        }
+      }
     } else {
-      // Fallback for Node.js environment
-      const nodeCrypto = require('crypto');
-      const randomBytes = nodeCrypto.randomBytes(length);
+      // Last resort fallback using Math.random
+      console.warn('No secure random number generator available, using Math.random fallback');
       for (let i = 0; i < length; i++) {
-        randomArray[i] = randomBytes[i];
+        randomArray[i] = Math.floor(Math.random() * 256);
       }
     }
     
+    // Convert random bytes to characters
     for (let i = 0; i < length; i++) {
       result += chars[randomArray[i] % chars.length];
     }
+    
     return result;
   }
 
