@@ -38,7 +38,7 @@ export const YouthDashboard: React.FC = () => {
               <p className="text-ehrdc-neutral-light">Continue your journey of growth and discovery</p>
             </div>
             <Avatar className="h-16 w-16 ring-4 ring-white/20">
-              <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" />
+              <AvatarImage src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&h=150&fit=crop&crop=face" />
               <AvatarFallback>AH</AvatarFallback>
             </Avatar>
           </div>
