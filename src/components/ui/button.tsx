@@ -65,7 +65,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     className, 
     variant, 
     size, 
-    loading, 
+    loading = false, // ← FIXED: Added default value
     loadingText, 
     asChild = false, 
     children = "Click me", // DEFAULT TEXT FOR TESTS
