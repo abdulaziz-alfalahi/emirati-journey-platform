@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +38,7 @@ export const YouthDashboard: React.FC = () => {
               <p className="text-ehrdc-neutral-light">Continue your journey of growth and discovery</p>
             </div>
             <Avatar className="h-16 w-16 ring-4 ring-white/20">
-              <AvatarImage src="/lovable-uploads/55a61965-97db-4fe0-8462-3dca0f1f02c5.png" />
+              <AvatarImage src="/lovable-uploads/73a334b5-2916-40e6-8daf-ad4a26f78bfb.png" />
               <AvatarFallback>AH</AvatarFallback>
             </Avatar>
           </div>
