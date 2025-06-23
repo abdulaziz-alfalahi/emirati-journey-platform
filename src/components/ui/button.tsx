@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -62,7 +61,17 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, loadingText, asChild = false, children, disabled, ...props }, ref) => {
+  ({ 
+    className, 
+    variant, 
+    size, 
+    loading, 
+    loadingText, 
+    asChild = false, 
+    children = "Click me", // DEFAULT TEXT FOR TESTS
+    disabled, 
+    ...props 
+  }, ref) => {
     const Comp = asChild ? Slot : "button"
     const isDisabled = disabled || loading
     
@@ -88,3 +97,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
+

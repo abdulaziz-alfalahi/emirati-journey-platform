@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';
@@ -70,12 +69,24 @@ export const MFAStatusIndicator: React.FC<MFAStatusIndicatorProps> = ({
     return 'Additional security available';
   };
 
+  // Map size prop to text size classes - THIS IS THE KEY FIX
+  const getTextSizeClass = () => {
+    switch (size) {
+      case 'sm':
+        return 'text-xs';
+      case 'lg':
+        return 'text-lg';
+      default:
+        return 'text-sm';
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Badge variant={getStatusVariant()} className="gap-1">
         {getStatusIcon()}
         {showText && (
-          <span className={size === 'sm' ? 'text-xs' : undefined}>
+          <span className={getTextSizeClass()}>
             {getStatusText()}
           </span>
         )}
@@ -89,3 +100,4 @@ export const MFAStatusIndicator: React.FC<MFAStatusIndicatorProps> = ({
     </div>
   );
 };
+

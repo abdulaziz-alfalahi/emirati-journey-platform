@@ -1,4 +1,3 @@
-
 /**
  * Comprehensive Security Configuration and Utilities
  * Provides security headers, rate limiting, and protection mechanisms
@@ -253,12 +252,24 @@ export class SecurityUtils {
     };
   }
 
-  // Generate secure random string
+  // Generate secure random string - FIXED VERSION
   static generateSecureToken(length: number = 32): string {
+    // Use crypto.getRandomValues for proper randomization
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     const randomArray = new Uint8Array(length);
-    crypto.getRandomValues(randomArray);
+    
+    // Generate cryptographically secure random values
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(randomArray);
+    } else {
+      // Fallback for Node.js environment
+      const nodeCrypto = require('crypto');
+      const randomBytes = nodeCrypto.randomBytes(length);
+      for (let i = 0; i < length; i++) {
+        randomArray[i] = randomBytes[i];
+      }
+    }
     
     for (let i = 0; i < length; i++) {
       result += chars[randomArray[i] % chars.length];
@@ -321,3 +332,4 @@ if (typeof setInterval !== 'undefined') {
     sensitiveRateLimiter.cleanup();
   }, 5 * 60 * 1000);
 }
+

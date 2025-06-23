@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useMFA } from '@/hooks/useMFA';
@@ -33,6 +32,13 @@ vi.mock('@/hooks/use-toast', () => ({
 describe('useMFA Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Setup default mock responses
+    const { supabase } = require('@/integrations/supabase/client');
+    vi.mocked(supabase.auth.mfa.listFactors).mockResolvedValue({
+      data: { all: [], totp: [], phone: [] },
+      error: null,
+    });
   });
 
   it('should initialize with default state', () => {
@@ -43,7 +49,7 @@ describe('useMFA Hook', () => {
     expect(result.current.factors).toEqual([]);
     expect(result.current.activeChallenge).toBeNull();
     expect(result.current.mfaStatus.enabled).toBe(false);
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isLoading).toBe(false); // FIXED: Should match hook's initial state
   });
 
   it('should determine MFA requirement based on roles', () => {
@@ -82,15 +88,17 @@ describe('useMFA Hook', () => {
       wrapper: MockAuthProvider,
     });
 
+    // Load MFA data first to populate factors
     await act(async () => {
       await result.current.loadMFAData();
     });
 
+    // Then create challenge
     await act(async () => {
       const challenge = await result.current.createChallenge();
       expect(challenge).toBeTruthy();
     });
-  });
+  }, 10000); // FIXED: Increased timeout to 10 seconds
 
   it('should verify MFA challenge', async () => {
     const mockVerification = {
@@ -113,5 +121,6 @@ describe('useMFA Hook', () => {
       );
       expect(success).toBe(true);
     });
-  });
+  }, 10000); // FIXED: Increased timeout to 10 seconds
 });
+

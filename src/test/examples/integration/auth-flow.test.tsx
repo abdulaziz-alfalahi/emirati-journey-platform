@@ -1,18 +1,63 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@/test/utils/test-utils';
 import { AuthProvider } from '@/context/AuthContext';
 import RoleSelector from '@/components/auth/RoleSelector';
-import { mockSupabaseClient } from '@/test/utils/mock-data';
 
-// Mock Supabase
+// FIXED: Proper Vitest mocking without top-level variables
 vi.mock('@/integrations/supabase/client', () => ({
-  supabase: mockSupabaseClient,
+  supabase: {
+    auth: {
+      signInWithPassword: vi.fn(),
+      signOut: vi.fn(),
+      getUser: vi.fn(),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } }
+      })),
+      mfa: {
+        challenge: vi.fn(),
+        verify: vi.fn(),
+      }
+    },
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+      maybeSingle: vi.fn(),
+    })),
+  },
 }));
+
+// Import after mocking
+import { supabase } from '@/integrations/supabase/client';
 
 describe('Authentication Flow Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Setup default mock responses
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: null,
+    });
+    
+    vi.mocked(supabase.from).mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: null,
+        error: null,
+      }),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: null,
+        error: null,
+      }),
+    } as any);
   });
 
   it('should handle complete role selection flow', async () => {
@@ -38,15 +83,23 @@ describe('Authentication Flow Integration', () => {
 
     // Should trigger role assignment
     await waitFor(() => {
-      expect(mockSupabaseClient.from).toHaveBeenCalledWith('user_roles');
+      expect(supabase.from).toHaveBeenCalledWith('user_roles');
     });
   });
 
   it('should handle authentication errors gracefully', async () => {
+    // FIXED: Use type assertion to create proper AuthError-like object
+    const mockAuthError = {
+      message: 'Invalid credentials',
+      name: 'AuthError',
+      code: 'invalid_credentials',
+      status: 400,
+    } as any; // Type assertion to bypass protected property issues
+
     // Mock authentication error
-    mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
-      data: { user: null },
-      error: { message: 'Invalid credentials' },
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValueOnce({
+      data: { user: null, session: null },
+      error: mockAuthError,
     });
 
     const TestComponent = () => (
@@ -75,12 +128,13 @@ describe('Authentication Flow Integration', () => {
     });
 
     // Verify that authentication state is properly initialized
-    expect(mockSupabaseClient.auth.getUser).toHaveBeenCalled();
+    expect(supabase.auth.getUser).toHaveBeenCalled();
   });
 
   it('should handle role-based access control', async () => {
     // Test with admin role
-    mockSupabaseClient.from.mockReturnValueOnce({
+    const mockFrom = vi.mocked(supabase.from);
+    mockFrom.mockReturnValueOnce({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
@@ -94,7 +148,7 @@ describe('Authentication Flow Integration', () => {
         data: { role: 'administrator' },
         error: null,
       }),
-    });
+    } as any);
 
     const TestComponent = () => (
       <AuthProvider>
@@ -109,3 +163,4 @@ describe('Authentication Flow Integration', () => {
     });
   });
 });
+

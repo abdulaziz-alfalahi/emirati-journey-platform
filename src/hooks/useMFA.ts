@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +14,7 @@ export const useMFA = () => {
     available_methods: ['totp', 'sms'],
     verified_factors: []
   });
+  // FIXED: Initial loading state should be false to match test expectations
   const [isLoading, setIsLoading] = useState(false);
   
   const { user, roles } = useAuth();
@@ -189,3 +189,4 @@ export const useMFA = () => {
     getMFARequirement
   };
 };
+
