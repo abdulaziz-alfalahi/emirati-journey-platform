@@ -1,43 +1,61 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { BookOpen, Users, Award, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const SchoolProgramsPage: React.FC = () => {
+  const { t } = useTranslation('school-programs');
+
   const stats = [
-    { value: "50+", label: "Partner Schools", icon: BookOpen },
-    { value: "5,000+", label: "Students Enrolled", icon: Users },
-    { value: "20+", label: "Specialized Programs", icon: Award },
-    { value: "95%", label: "Success Rate", icon: Target }
+    { 
+      value: t('stats.partnerSchools.value'), 
+      label: t('stats.partnerSchools.label'), 
+      icon: BookOpen 
+    },
+    { 
+      value: t('stats.studentsEnrolled.value'), 
+      label: t('stats.studentsEnrolled.label'), 
+      icon: Users 
+    },
+    { 
+      value: t('stats.specializedPrograms.value'), 
+      label: t('stats.specializedPrograms.label'), 
+      icon: Award 
+    },
+    { 
+      value: t('stats.successRate.value'), 
+      label: t('stats.successRate.label'), 
+      icon: Target 
+    }
   ];
 
   const programs = [
     {
-      title: "Advanced STEM Program",
-      description: "Accelerated science and mathematics curriculum for gifted students",
-      grades: "Grades 9-12",
-      schools: "15 Partner Schools"
+      title: t('programs.stemProgram.title'),
+      description: t('programs.stemProgram.description'),
+      grades: t('programs.stemProgram.grades'),
+      schools: t('programs.stemProgram.schools')
     },
     {
-      title: "Leadership Development",
-      description: "Building tomorrow's leaders through practical leadership experiences",
-      grades: "Grades 10-12", 
-      schools: "25 Partner Schools"
+      title: t('programs.leadershipDevelopment.title'),
+      description: t('programs.leadershipDevelopment.description'),
+      grades: t('programs.leadershipDevelopment.grades'), 
+      schools: t('programs.leadershipDevelopment.schools')
     },
     {
-      title: "Innovation Lab",
-      description: "Hands-on technology and engineering projects",
-      grades: "Grades 6-12",
-      schools: "30 Partner Schools"
+      title: t('programs.innovationLab.title'),
+      description: t('programs.innovationLab.description'),
+      grades: t('programs.innovationLab.grades'),
+      schools: t('programs.innovationLab.schools')
     }
   ];
 
   const tabs = [
     {
       id: "programs",
-      label: "Available Programs",
+      label: t('tabs.programs'),
       icon: <BookOpen className="h-4 w-4" />,
       content: (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -50,15 +68,15 @@ const SchoolProgramsPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span>Target:</span>
+                    <span>{t('labels.target')}:</span>
                     <span>{program.grades}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Availability:</span>
+                    <span>{t('labels.availability')}:</span>
                     <span>{program.schools}</span>
                   </div>
                 </div>
-                <Button className="w-full">Learn More</Button>
+                <Button className="w-full">{t('buttons.learnMore')}</Button>
               </CardContent>
             </Card>
           ))}
@@ -69,17 +87,18 @@ const SchoolProgramsPage: React.FC = () => {
 
   return (
     <EducationPathwayLayout
-      title="School Programs"
-      description="Specialized educational programs designed to enhance learning experiences in partnership with schools across the UAE"
+      title={t('title')}
+      description={t('description')}
       icon={<BookOpen className="h-12 w-12 text-green-600" />}
       stats={stats}
       tabs={tabs}
       defaultTab="programs"
-      actionButtonText="Explore Programs"
+      actionButtonText={t('buttons.explorePrograms')}
       actionButtonHref="#programs"
-      academicYear="2024-2025"
+      academicYear={t('academicYear')}
     />
   );
 };
 
 export default SchoolProgramsPage;
+
