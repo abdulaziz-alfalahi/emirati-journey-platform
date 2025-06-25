@@ -5,7 +5,6 @@ import { QueryProvider } from './context/QueryContext';
 import { AuthProvider } from './context/AuthContext';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
-import { useTranslation } from 'react-i18next';
 
 // Pages - Updated import paths to match actual file structure
 import Home from './pages/home';
@@ -69,85 +68,63 @@ const ErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
   </div>
 );
 
-// Loading component for when i18n isn't ready
-const LoadingScreen: React.FC = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p>Loading...</p>
-    </div>
-  </div>
-);
-
-const AppContent: React.FC = () => {
-  const { ready } = useTranslation();
-
-  if (!ready) {
-    return <LoadingScreen />;
-  }
-
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/career-advisory" element={<CareerAdvisory />} />
-        <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
-        <Route path="/training" element={<Training />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/internships" element={<Internships />} />
-        <Route path="/career-journey" element={<CareerJourney />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/communities" element={<Communities />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/digital-skills" element={<DigitalSkills />} />
-        <Route path="/digital-skills-development" element={<DigitalSkills />} />
-        <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
-        <Route path="/mentorship" element={<MentorshipPrograms />} />
-        <Route path="/graduate-programs" element={<GraduatePrograms />} />
-        <Route path="/university-programs" element={<UniversityPrograms />} />
-        <Route path="/legacy-projects" element={<LegacyProjects />} />
-        <Route path="/advisory-positions" element={<AdvisoryPositions />} />
-        <Route path="/community-leadership" element={<CommunityLeadership />} />
-        <Route path="/national-service" element={<NationalService />} />
-        <Route path="/industry-exploration" element={<IndustryExploration />} />
-        <Route path="/interview-preparation" element={<InterviewPreparation />} />
-        <Route path="/job-matching" element={<JobMatching />} />
-        <Route path="/career-comparison" element={<CareerComparison />} />
-        <Route path="/assessments" element={<AssessmentsPage />} />
-        <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
-        <Route path="/cv-builder" element={<CVBuilder />} />
-        <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-        <Route path="/become-mentor" element={<BecomeMentor />} />
-        <Route path="/mentor-matching" element={<MentorMatching />} />
-        <Route path="/blockchain" element={<Blockchain />} />
-        <Route path="/blockchain-credentials" element={<Blockchain />} />
-        <Route path="/lms" element={<LMS />} />
-        <Route path="/summer-camps" element={<SummerCamps />} />
-        <Route path="/school-programs" element={<SchoolPrograms />} />
-        <Route path="/scholarships" element={<Scholarships />} />
-        <Route path="/youth-development" element={<YouthDevelopment />} />
-        <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
-        <Route path="/success-stories" element={<SuccessStoriesPage />} />
-        <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
-        <Route path="/financial-planning" element={<FinancialPlanningPage />} />
-        <Route path="/retiree" element={<RetireeServicesPage />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
-    </Router>
-  );
-};
-
 const App: React.FC = () => {
   return (
     <ErrorBoundary fallback={<ErrorFallback error={new Error('Application error')} />}>
       <QueryProvider>
         <AuthProvider>
           <RoleProvider>
-            <AppContent />
+            <Router>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/career-advisory" element={<CareerAdvisory />} />
+                <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
+                <Route path="/training" element={<Training />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/internships" element={<Internships />} />
+                <Route path="/career-journey" element={<CareerJourney />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/communities" element={<Communities />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/digital-skills" element={<DigitalSkills />} />
+                <Route path="/digital-skills-development" element={<DigitalSkills />} />
+                <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
+                <Route path="/mentorship" element={<MentorshipPrograms />} />
+                <Route path="/graduate-programs" element={<GraduatePrograms />} />
+                <Route path="/university-programs" element={<UniversityPrograms />} />
+                <Route path="/legacy-projects" element={<LegacyProjects />} />
+                <Route path="/advisory-positions" element={<AdvisoryPositions />} />
+                <Route path="/community-leadership" element={<CommunityLeadership />} />
+                <Route path="/national-service" element={<NationalService />} />
+                <Route path="/industry-exploration" element={<IndustryExploration />} />
+                <Route path="/interview-preparation" element={<InterviewPreparation />} />
+                <Route path="/job-matching" element={<JobMatching />} />
+                <Route path="/career-comparison" element={<CareerComparison />} />
+                <Route path="/assessments" element={<AssessmentsPage />} />
+                <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
+                <Route path="/cv-builder" element={<CVBuilder />} />
+                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                <Route path="/become-mentor" element={<BecomeMentor />} />
+                <Route path="/mentor-matching" element={<MentorMatching />} />
+                <Route path="/blockchain" element={<Blockchain />} />
+                <Route path="/blockchain-credentials" element={<Blockchain />} />
+                <Route path="/lms" element={<LMS />} />
+                <Route path="/summer-camps" element={<SummerCamps />} />
+                <Route path="/school-programs" element={<SchoolPrograms />} />
+                <Route path="/scholarships" element={<Scholarships />} />
+                <Route path="/youth-development" element={<YouthDevelopment />} />
+                <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
+                <Route path="/success-stories" element={<SuccessStoriesPage />} />
+                <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                <Route path="/financial-planning" element={<FinancialPlanningPage />} />
+                <Route path="/retiree" element={<RetireeServicesPage />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<Admin />} />
+              </Routes>
+            </Router>
           </RoleProvider>
         </AuthProvider>
       </QueryProvider>

@@ -9,25 +9,11 @@ import { useTranslation } from 'react-i18next';
 const Hero: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { user } = useAuth();
-  const { t, ready } = useTranslation('home');
+  const { t } = useTranslation('home');
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-
-  // Show loading state if translations aren't ready
-  if (!ready) {
-    return (
-      <section className="relative min-h-[75vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-8 pb-8 md:pt-12 md:pb-12">
-        <div className="container px-6 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emirati-teal mx-auto mb-4"></div>
-            <p>Loading...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="relative min-h-[75vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden pt-8 pb-8 md:pt-12 md:pb-12">
