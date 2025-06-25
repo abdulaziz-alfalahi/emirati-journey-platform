@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { GraduationCap, Users, BookOpen, Award, Target, Building } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,52 +7,73 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const GraduateProgramsPage: React.FC = () => {
+  const { t } = useTranslation('graduate-programs');
+
   const stats = [
-    { value: "100+", label: "Graduate Programs", icon: GraduationCap },
-    { value: "25+", label: "Partner Universities", icon: Building },
-    { value: "2,500+", label: "Graduate Students", icon: Users },
-    { value: "90%", label: "Employment Rate", icon: Target }
+    { 
+      value: t('stats.graduatePrograms.value'), 
+      label: t('stats.graduatePrograms.label'), 
+      icon: GraduationCap 
+    },
+    { 
+      value: t('stats.partnerUniversities.value'), 
+      label: t('stats.partnerUniversities.label'), 
+      icon: Building 
+    },
+    { 
+      value: t('stats.graduateStudents.value'), 
+      label: t('stats.graduateStudents.label'), 
+      icon: Users 
+    },
+    { 
+      value: t('stats.employmentRate.value'), 
+      label: t('stats.employmentRate.label'), 
+      icon: Target 
+    }
   ];
 
   const programs = [
     {
-      title: "Master of Business Administration (MBA)",
-      university: "American University of Sharjah",
-      duration: "18 months",
-      type: "Full-time",
-      specializations: ["Finance", "Marketing", "Operations"],
-      tuition: "AED 85,000"
+      title: t('programs.mba.title'),
+      university: t('programs.mba.university'),
+      duration: t('programs.mba.duration'),
+      type: t('programs.mba.type'),
+      specializations: t('programs.mba.specializations', { returnObjects: true }) as string[],
+      tuition: t('programs.mba.tuition')
     },
     {
-      title: "Master of Science in Data Science",
-      university: "University of Dubai",
-      duration: "24 months",
-      type: "Part-time",
-      specializations: ["Machine Learning", "Big Data", "Analytics"],
-      tuition: "AED 72,000"
+      title: t('programs.dataScience.title'),
+      university: t('programs.dataScience.university'),
+      duration: t('programs.dataScience.duration'),
+      type: t('programs.dataScience.type'),
+      specializations: t('programs.dataScience.specializations', { returnObjects: true }) as string[],
+      tuition: t('programs.dataScience.tuition')
     },
     {
-      title: "Master of Engineering Management",
-      university: "Khalifa University",
-      duration: "20 months",
-      type: "Executive",
-      specializations: ["Project Management", "Innovation", "Leadership"],
-      tuition: "AED 95,000"
+      title: t('programs.engineeringManagement.title'),
+      university: t('programs.engineeringManagement.university'),
+      duration: t('programs.engineeringManagement.duration'),
+      type: t('programs.engineeringManagement.type'),
+      specializations: t('programs.engineeringManagement.specializations', { returnObjects: true }) as string[],
+      tuition: t('programs.engineeringManagement.tuition')
     },
     {
-      title: "Master of Public Administration",
-      university: "UAE University",
-      duration: "16 months",
-      type: "Full-time",
-      specializations: ["Policy Analysis", "Public Finance", "Governance"],
-      tuition: "AED 68,000"
+      title: t('programs.publicAdministration.title'),
+      university: t('programs.publicAdministration.university'),
+      duration: t('programs.publicAdministration.duration'),
+      type: t('programs.publicAdministration.type'),
+      specializations: t('programs.publicAdministration.specializations', { returnObjects: true }) as string[],
+      tuition: t('programs.publicAdministration.tuition')
     }
   ];
+
+  const generalRequirements = t('requirements.general.items', { returnObjects: true }) as string[];
+  const programSpecificRequirements = t('requirements.programSpecific.items', { returnObjects: true }) as string[];
 
   const tabs = [
     {
       id: "programs",
-      label: "Available Programs",
+      label: t('tabs.programs'),
       icon: <GraduationCap className="h-4 w-4" />,
       content: (
         <div className="grid gap-6 md:grid-cols-2">
@@ -68,15 +89,15 @@ const GraduateProgramsPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span>Duration:</span>
+                    <span>{t('labels.duration')}:</span>
                     <span className="font-medium">{program.duration}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span>Tuition:</span>
+                    <span>{t('labels.tuition')}:</span>
                     <span className="font-medium text-ehrdc-teal">{program.tuition}</span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium">Specializations:</span>
+                    <span className="text-sm font-medium">{t('labels.specializations')}:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {program.specializations.map((spec, idx) => (
                         <Badge key={idx} variant="outline" className="text-xs">
@@ -85,7 +106,7 @@ const GraduateProgramsPage: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                  <Button className="w-full mt-4">Apply Now</Button>
+                  <Button className="w-full mt-4">{t('buttons.applyNow')}</Button>
                 </div>
               </CardContent>
             </Card>
@@ -95,7 +116,7 @@ const GraduateProgramsPage: React.FC = () => {
     },
     {
       id: "requirements",
-      label: "Requirements",
+      label: t('tabs.requirements'),
       icon: <BookOpen className="h-4 w-4" />,
       content: (
         <div className="grid gap-6 md:grid-cols-2">
@@ -103,17 +124,14 @@ const GraduateProgramsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-green-600" />
-                General Requirements
+                {t('requirements.general.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
-                <li>• Bachelor's degree from accredited institution</li>
-                <li>• Minimum GPA of 3.0 (or equivalent)</li>
-                <li>• English proficiency (IELTS 6.5+ or TOEFL 90+)</li>
-                <li>• Statement of purpose</li>
-                <li>• Two letters of recommendation</li>
-                <li>• Updated CV/Resume</li>
+                {generalRequirements.map((requirement, index) => (
+                  <li key={index}>• {requirement}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
@@ -122,17 +140,14 @@ const GraduateProgramsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-5 w-5 text-blue-600" />
-                Program-Specific Requirements
+                {t('requirements.programSpecific.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
-                <li>• MBA: GMAT/GRE scores, work experience</li>
-                <li>• Data Science: Programming background</li>
-                <li>• Engineering: Relevant technical degree</li>
-                <li>• Public Admin: Government/NGO experience preferred</li>
-                <li>• Portfolio submissions for creative programs</li>
-                <li>• Interview rounds for select programs</li>
+                {programSpecificRequirements.map((requirement, index) => (
+                  <li key={index}>• {requirement}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
@@ -141,16 +156,16 @@ const GraduateProgramsPage: React.FC = () => {
     },
     {
       id: "funding",
-      label: "Funding & Aid",
+      label: t('tabs.funding'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <div className="text-center py-8">
           <Award className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Funding Opportunities Available</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('funding.title')}</h3>
           <p className="text-muted-foreground mb-4">
-            Explore scholarships, grants, and financial aid options for graduate studies.
+            {t('funding.description')}
           </p>
-          <Button>View Funding Options</Button>
+          <Button>{t('funding.button')}</Button>
         </div>
       )
     }
@@ -158,17 +173,18 @@ const GraduateProgramsPage: React.FC = () => {
 
   return (
     <EducationPathwayLayout
-      title="Graduate Programs"
-      description="Master's, PhD, and advanced degree programs from top universities across the UAE for continued academic excellence"
+      title={t('title')}
+      description={t('description')}
       icon={<GraduationCap className="h-12 w-12 text-purple-600" />}
       stats={stats}
       tabs={tabs}
       defaultTab="programs"
-      actionButtonText="Explore Programs"
+      actionButtonText={t('buttons.explorePrograms')}
       actionButtonHref="#programs"
-      academicYear="2024-2025"
+      academicYear={t('academicYear')}
     />
   );
 };
 
 export default GraduateProgramsPage;
+
