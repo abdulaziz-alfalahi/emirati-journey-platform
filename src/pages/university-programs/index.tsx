@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EducationPathwayLayout } from '@/components/layouts/EducationPathwayLayout';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +21,8 @@ interface FilterState {
 }
 
 const UniversityProgramsPage: React.FC = () => {
+  const { t } = useTranslation('university-programs');
+  
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     university: '',
@@ -72,22 +75,22 @@ const UniversityProgramsPage: React.FC = () => {
   const educationStats: StatItem[] = [
     {
       value: `${stats?.totalPrograms || 0}+`,
-      label: "University Programs",
+      label: t('stats.universityPrograms.label'),
       icon: University
     },
     {
       value: `${stats?.universities || 0}+`,
-      label: "Partner Universities",
+      label: t('stats.partnerUniversities.label'),
       icon: Building
     },
     {
       value: `${stats?.fields || 0}+`,
-      label: "Fields of Study",
+      label: t('stats.fieldsOfStudy.label'),
       icon: BookOpen
     },
     {
       value: `${stats?.international || 0}+`,
-      label: "International Programs",
+      label: t('stats.internationalPrograms.label'),
       icon: Globe
     }
   ];
@@ -96,7 +99,7 @@ const UniversityProgramsPage: React.FC = () => {
   const educationTabs: TabItem[] = [
     {
       id: "all-programs",
-      label: "Program Catalog",
+      label: t('tabs.allPrograms'),
       icon: <University className="h-4 w-4" />,
       content: (
         <div className="grid gap-8 lg:grid-cols-4">
@@ -119,7 +122,7 @@ const UniversityProgramsPage: React.FC = () => {
     },
     {
       id: "recommended",
-      label: "Recommended",
+      label: t('tabs.recommended'),
       icon: <Target className="h-4 w-4" />,
       content: (
         <div className="grid gap-8 lg:grid-cols-4">
@@ -142,13 +145,13 @@ const UniversityProgramsPage: React.FC = () => {
     },
     {
       id: "applications",
-      label: "My Applications",
+      label: t('tabs.applications'),
       icon: <Calendar className="h-4 w-4" />,
       content: <MyApplications />
     },
     {
       id: "saved",
-      label: "Saved Programs",
+      label: t('tabs.saved'),
       icon: <BookOpen className="h-4 w-4" />,
       content: <SavedPrograms />
     }
@@ -156,17 +159,18 @@ const UniversityProgramsPage: React.FC = () => {
 
   return (
     <EducationPathwayLayout
-      title="University Programs"
-      description="Explore world-class higher education opportunities and institutional partnerships across local and international universities"
+      title={t('title')}
+      description={t('description')}
       icon={<University className="h-12 w-12 text-blue-600" />}
       stats={educationStats}
       tabs={educationTabs}
       defaultTab="all-programs"
-      actionButtonText="Explore Programs"
+      actionButtonText={t('buttons.explorePrograms')}
       actionButtonHref="#all-programs"
-      academicYear="2024-2025"
+      academicYear={t('academicYear')}
     />
   );
 };
 
 export default UniversityProgramsPage;
+
