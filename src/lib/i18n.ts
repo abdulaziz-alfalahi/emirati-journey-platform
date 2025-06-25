@@ -14,6 +14,7 @@ import enGraduatePrograms from '../locales/en/graduate-programs.json';
 import enUniversityPrograms from '../locales/en/university-programs.json';
 import enLms from '../locales/en/lms.json';
 import enCareerPlanningHub from '../locales/en/career-planning-hub.json';
+import enIndustryExploration from '../locales/en/industry-exploration.json';
 
 import arNavigation from '../locales/ar/navigation.json';
 import arHome from '../locales/ar/home.json';
@@ -26,6 +27,7 @@ import arGraduatePrograms from '../locales/ar/graduate-programs.json';
 import arUniversityPrograms from '../locales/ar/university-programs.json';
 import arLms from '../locales/ar/lms.json';
 import arCareerPlanningHub from '../locales/ar/career-planning-hub.json';
+import arIndustryExploration from '../locales/ar/industry-exploration.json';
 
 // Define the resources
 const resources = {
@@ -41,6 +43,7 @@ const resources = {
     'university-programs': enUniversityPrograms,
     'lms': enLms,
     'career-planning-hub': enCareerPlanningHub,
+    'industry-exploration': enIndustryExploration,
     // Keep the existing pages namespace for backward compatibility
     pages: enHome
   },
@@ -56,6 +59,7 @@ const resources = {
     'university-programs': arUniversityPrograms,
     'lms': arLms,
     'career-planning-hub': arCareerPlanningHub,
+    'industry-exploration': arIndustryExploration,
     // Keep the existing pages namespace for backward compatibility
     pages: arHome
   }
@@ -80,7 +84,7 @@ i18n
     },
 
     defaultNS: 'common',
-    ns: ['navigation', 'home', 'common', 'forms', 'pages', 'summer-camps', 'school-programs', 'scholarships', 'graduate-programs', 'university-programs', 'lms', 'career-planning-hub'],
+    ns: ['navigation', 'home', 'common', 'forms', 'pages', 'summer-camps', 'school-programs', 'scholarships', 'graduate-programs', 'university-programs', 'lms', 'career-planning-hub', 'industry-exploration'],
     
     // Add these options to ensure proper loading and updates
     react: {

@@ -214,6 +214,11 @@
     "sessions": "الجلسات",
     "guidance": "التوجيه",
     "support": "الدعم"
+  },
+  "currency": {
+    "symbol": "د.إ",
+    "code": "AED",
+    "name": "درهم إماراتي"
   }
 }
 

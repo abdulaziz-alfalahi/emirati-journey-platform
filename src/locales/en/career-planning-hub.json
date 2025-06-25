@@ -39,7 +39,7 @@
   "careerPaths": {
     "technology": {
       "title": "Technology & Programming",
-      "description": "Explore the technology and programming field with diverse opportunities in software development and artificial intelligence",
+      "description": "Explore the technology and programming field with diverse job opportunities in software development and artificial intelligence",
       "averageSalary": "AED 120,000",
       "growthRate": "15%",
       "jobCount": "1,200+"
@@ -88,7 +88,7 @@
         "Data Analysis and Artificial Intelligence",
         "Cybersecurity",
         "Database Management",
-        "Web and Mobile Development"
+        "Web and Mobile App Development"
       ]
     },
     "soft": {
@@ -104,11 +104,11 @@
     "language": {
       "title": "Language Skills",
       "items": [
-        "Arabic",
-        "English",
-        "French",
-        "German",
-        "Chinese"
+        "Arabic Language",
+        "English Language",
+        "French Language",
+        "German Language",
+        "Chinese Language"
       ]
     }
   },
@@ -158,22 +158,23 @@
     "type": "Type",
     "remote": "Remote",
     "onsite": "On-site",
-    "hybrid": "Hybrid"
+    "hybrid": "Hybrid",
+    "progress": "Progress"
   },
   "assessment": {
     "title": "Professional Skills Assessment",
-    "description": "Discover your strengths and development areas through a comprehensive assessment of your professional skills",
+    "description": "Discover your strengths and areas for development through a comprehensive assessment of your professional skills",
     "categories": {
       "personality": "Personality Assessment",
       "skills": "Skills Assessment",
-      "interests": "Interest Assessment",
+      "interests": "Interests Assessment",
       "values": "Values Assessment"
     },
     "results": {
       "strengths": "Strengths",
-      "weaknesses": "Development Areas",
+      "weaknesses": "Areas for Development",
       "recommendations": "Recommendations",
-      "careerMatch": "Career Matches"
+      "careerMatch": "Suitable Careers"
     }
   },
   "resources": {
@@ -190,7 +191,7 @@
     "graduates": "Successful Graduates",
     "testimonials": "Testimonials",
     "achievements": "Achievements",
-    "inspiration": "Inspiration"
+    "inspiration": "Success is where preparation and opportunity meet"
   },
   "companies": {
     "featured": "Featured Companies",
@@ -214,6 +215,11 @@
     "sessions": "Sessions",
     "guidance": "Guidance",
     "support": "Support"
+  },
+  "currency": {
+    "symbol": "AED",
+    "code": "AED",
+    "name": "UAE Dirham"
   }
 }
 
