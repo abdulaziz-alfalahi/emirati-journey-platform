@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap");
 @import url("./components/accessibility/accessibility.css");
@@ -186,11 +185,11 @@
   }
 
   /* Active state scaling for mobile */
-  .active\\:scale-95:active {
+  .active\:scale-95:active {
     transform: scale(0.95);
   }
 
-  .active\\:scale-98:active {
+  .active\:scale-98:active {
     transform: scale(0.98);
   }
 
@@ -499,66 +498,66 @@
 }
 
 /* RTL layout adjustments */
-[dir="rtl"] .rtl\\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+[dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 1;
 }
 
-[dir="rtl"] .rtl\\:flex-row-reverse {
+[dir="rtl"] .rtl\:flex-row-reverse {
   flex-direction: row-reverse;
 }
 
 /* RTL margin and padding utilities */
-[dir="rtl"] .rtl\\:ml-auto {
+[dir="rtl"] .rtl\:ml-auto {
   margin-left: auto;
 }
 
-[dir="rtl"] .rtl\\:mr-0 {
+[dir="rtl"] .rtl\:mr-0 {
   margin-right: 0;
 }
 
-[dir="rtl"] .rtl\\:pl-4 {
+[dir="rtl"] .rtl\:pl-4 {
   padding-left: 1rem;
 }
 
-[dir="rtl"] .rtl\\:pr-0 {
+[dir="rtl"] .rtl\:pr-0 {
   padding-right: 0;
 }
 
 /* RTL border radius adjustments */
-[dir="rtl"] .rtl\\:rounded-r-lg {
+[dir="rtl"] .rtl\:rounded-r-lg {
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
 }
 
-[dir="rtl"] .rtl\\:rounded-l-none {
+[dir="rtl"] .rtl\:rounded-l-none {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 
 /* RTL text alignment */
-[dir="rtl"] .rtl\\:text-right {
+[dir="rtl"] .rtl\:text-right {
   text-align: right;
 }
 
-[dir="rtl"] .rtl\\:text-left {
+[dir="rtl"] .rtl\:text-left {
   text-align: left;
 }
 
 /* RTL transform adjustments for icons */
-[dir="rtl"] .rtl\\:rotate-180 {
+[dir="rtl"] .rtl\:rotate-180 {
   transform: rotate(180deg);
 }
 
-[dir="rtl"] .rtl\\:scale-x-[-1] {
+[dir="rtl"] .rtl\:scale-x-\[-1\] {
   transform: scaleX(-1);
 }
 
 /* RTL dropdown and menu positioning */
-[dir="rtl"] .rtl\\:origin-top-right {
+[dir="rtl"] .rtl\:origin-top-right {
   transform-origin: top right;
 }
 
-[dir="rtl"] .rtl\\:origin-top-left {
+[dir="rtl"] .rtl\:origin-top-left {
   transform-origin: top left;
 }
 
@@ -600,3 +599,4 @@
   direction: rtl;
   text-align: right;
 }
+

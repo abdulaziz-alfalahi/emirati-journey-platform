@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ interface FinancialPlanningContentProps {
 }
 
 export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> = ({ category }) => {
+  const { t } = useTranslation('financial-planning');
   const [resources, setResources] = useState<FinancialResource[]>([]);
   const [filteredResources, setFilteredResources] = useState<FinancialResource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,25 +79,17 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
     }
   };
 
-  const getCategoryDescription = () => {
-    switch (category) {
-      case 'budgeting':
-        return 'Master your finances with budgeting guides, savings strategies, and expense tracking tools designed for UAE residents.';
-      case 'investments':
-        return 'Explore investment opportunities including stocks, real estate, Islamic finance, and more in the UAE market.';
-      case 'retirement':
-        return 'Plan for your future with retirement guides, pension information, and long-term financial strategies.';
-      case 'insurance':
-        return 'Protect your financial future with comprehensive insurance coverage and risk management strategies.';
-      case 'education':
-        return 'Build financial literacy with courses, webinars, and educational resources covering UAE-specific regulations and Islamic finance.';
-      case 'advisory':
-        return 'Connect with certified financial planners and access professional advisory services for personalized financial guidance.';
-      case 'tools':
-        return 'Access interactive calculators, apps, and worksheets to help manage your financial planning effectively.';
-      default:
-        return '';
+  const getDifficultyLabel = (level: string) => {
+    switch (level) {
+      case 'beginner': return t('filters.beginner');
+      case 'intermediate': return t('filters.intermediate');
+      case 'advanced': return t('filters.advanced');
+      default: return level;
     }
+  };
+
+  const getCategoryDescription = () => {
+    return t(`tabs.${category}.description`);
   };
 
   if (loading) {
@@ -137,7 +130,7 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search resources..."
+              placeholder={t('filters.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -149,13 +142,13 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Difficulty" />
+              <SelectValue placeholder={t('filters.difficulty')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="beginner">Beginner</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced</SelectItem>
+              <SelectItem value="all">{t('filters.allLevels')}</SelectItem>
+              <SelectItem value="beginner">{t('filters.beginner')}</SelectItem>
+              <SelectItem value="intermediate">{t('filters.intermediate')}</SelectItem>
+              <SelectItem value="advanced">{t('filters.advanced')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -166,13 +159,20 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
         <div>
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Star className="h-5 w-5 text-yellow-500" />
-            Featured Resources
+            {t('sections.featured')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {filteredResources
               .filter(resource => resource.is_featured)
               .map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} featured getDifficultyColor={getDifficultyColor} />
+                <ResourceCard 
+                  key={resource.id} 
+                  resource={resource} 
+                  featured 
+                  getDifficultyColor={getDifficultyColor}
+                  getDifficultyLabel={getDifficultyLabel}
+                  t={t}
+                />
               ))}
           </div>
         </div>
@@ -180,12 +180,18 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
 
       {/* All Resources */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">All Resources</h3>
+        <h3 className="text-lg font-semibold mb-4">{t('sections.allResources')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredResources
             .filter(resource => !resource.is_featured)
             .map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} getDifficultyColor={getDifficultyColor} />
+              <ResourceCard 
+                key={resource.id} 
+                resource={resource} 
+                getDifficultyColor={getDifficultyColor}
+                getDifficultyLabel={getDifficultyLabel}
+                t={t}
+              />
             ))}
         </div>
       </div>
@@ -194,8 +200,8 @@ export const FinancialPlanningContent: React.FC<FinancialPlanningContentProps> =
         <div className="text-center py-12">
           <div className="text-muted-foreground mb-4">
             <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No resources found</h3>
-            <p>Try adjusting your search terms or filters.</p>
+            <h3 className="text-lg font-medium mb-2">{t('emptyState.title')}</h3>
+            <p>{t('emptyState.description')}</p>
           </div>
         </div>
       )}
@@ -207,10 +213,14 @@ const ResourceCard: React.FC<{
   resource: FinancialResource; 
   featured?: boolean;
   getDifficultyColor: (level: string) => string;
+  getDifficultyLabel: (level: string) => string;
+  t: (key: string) => string;
 }> = ({ 
   resource, 
   featured = false,
-  getDifficultyColor
+  getDifficultyColor,
+  getDifficultyLabel,
+  t
 }) => {
   return (
     <Card className={`hover:shadow-md transition-shadow ${featured ? 'border-yellow-200 bg-yellow-50/50' : ''}`}>
@@ -222,7 +232,7 @@ const ResourceCard: React.FC<{
               {featured && (
                 <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                   <Star className="h-3 w-3 mr-1" />
-                  Featured
+                  {t('resourceCard.featured')}
                 </Badge>
               )}
             </CardTitle>
@@ -239,7 +249,7 @@ const ResourceCard: React.FC<{
           <div className="flex flex-wrap gap-2">
             {resource.difficulty_level && (
               <Badge variant="outline" className={getDifficultyColor(resource.difficulty_level)}>
-                {resource.difficulty_level}
+                {getDifficultyLabel(resource.difficulty_level)}
               </Badge>
             )}
             {resource.tags?.slice(0, 2).map((tag, index) => (
@@ -253,7 +263,7 @@ const ResourceCard: React.FC<{
           {resource.estimated_read_time && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="h-3 w-3" />
-              <span>{resource.estimated_read_time} min read</span>
+              <span>{resource.estimated_read_time} {t('resourceCard.readTime')}</span>
             </div>
           )}
 
@@ -271,7 +281,7 @@ const ResourceCard: React.FC<{
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
               >
-                View Resource
+                {t('resourceCard.viewResource')}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </Button>
@@ -281,3 +291,4 @@ const ResourceCard: React.FC<{
     </Card>
   );
 };
+
