@@ -1,354 +1,294 @@
-
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import Layout from '@/components/layout/Layout';
-import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
+import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
+import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
+import { 
+  Code, 
+  Database, 
+  Smartphone, 
+  Globe, 
+  Award, 
+  Users, 
+  TrendingUp, 
+  BookOpen,
+  Play,
+  CheckCircle,
+  Clock,
+  Star
+} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ExternalLink, Clock, DollarSign, BookOpen, Users, TrendingUp, Award } from 'lucide-react';
-
-interface DigitalSkillsResource {
-  id: string;
-  title: string;
-  provider: string;
-  skill_category: string;
-  difficulty_level: string | null;
-  description: string | null;
-  duration_hours: number | null;
-  cost: number | null;
-  resource_url: string | null;
-  is_active: boolean;
-  created_at: string;
-}
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 const DigitalSkillsDevelopmentPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const [selectedProvider, setSelectedProvider] = useState('all');
+  const { t } = useTranslation('digital-skills-development');
+  const [selectedSkillTrack, setSelectedSkillTrack] = useState<string | null>(null);
 
-  const { data: resources, isLoading, error } = useQuery({
-    queryKey: ['digital-skills-resources', selectedCategory, selectedDifficulty, selectedProvider, searchTerm],
-    queryFn: async () => {
-      let query = supabase
-        .from('digital_skills_resources')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (selectedCategory && selectedCategory !== 'all') {
-        query = query.eq('skill_category', selectedCategory);
-      }
-
-      if (selectedDifficulty && selectedDifficulty !== 'all') {
-        query = query.eq('difficulty_level', selectedDifficulty);
-      }
-
-      if (selectedProvider && selectedProvider !== 'all') {
-        query = query.eq('provider', selectedProvider);
-      }
-
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,provider.ilike.%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      return data as DigitalSkillsResource[];
+  const stats: StatItem[] = [
+    {
+      value: t('stats.availableCourses'),
+      label: t('stats.availableCoursesLabel'),
+      icon: BookOpen
+    },
+    {
+      value: t('stats.certifiedLearners'),
+      label: t('stats.certifiedLearnersLabel'),
+      icon: Users
+    },
+    {
+      value: t('stats.skillTracks'),
+      label: t('stats.skillTracksLabel'),
+      icon: TrendingUp
+    },
+    {
+      value: t('stats.completionRate'),
+      label: t('stats.completionRateLabel'),
+      icon: Award
     }
-  });
+  ];
 
-  // Get unique categories, difficulties, and providers for filter options
-  const categories = Array.from(new Set(resources?.map(resource => resource.skill_category) || []));
-  const difficulties = Array.from(new Set(resources?.map(resource => resource.difficulty_level).filter(Boolean) || []));
-  const providers = Array.from(new Set(resources?.map(resource => resource.provider) || []));
-
-  const getDifficultyColor = (difficulty: string | null) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const skillCategories = [
+    {
+      id: 'programming',
+      title: t('skillCategories.programming'),
+      icon: <Code className="h-6 w-6" />,
+      description: t('skillCategories.programmingDescription'),
+      courses: 45,
+      level: t('levels.beginner')
+    },
+    {
+      id: 'data-science',
+      title: t('skillCategories.dataScience'),
+      icon: <Database className="h-6 w-6" />,
+      description: t('skillCategories.dataScienceDescription'),
+      courses: 32,
+      level: t('levels.intermediate')
+    },
+    {
+      id: 'mobile-development',
+      title: t('skillCategories.mobileDevelopment'),
+      icon: <Smartphone className="h-6 w-6" />,
+      description: t('skillCategories.mobileDevelopmentDescription'),
+      courses: 28,
+      level: t('levels.intermediate')
+    },
+    {
+      id: 'web-development',
+      title: t('skillCategories.webDevelopment'),
+      icon: <Globe className="h-6 w-6" />,
+      description: t('skillCategories.webDevelopmentDescription'),
+      courses: 38,
+      level: t('levels.beginner')
     }
-  };
+  ];
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Coding': return 'bg-blue-100 text-blue-800';
-      case 'AI/ML': return 'bg-purple-100 text-purple-800';
-      case 'Cybersecurity': return 'bg-orange-100 text-orange-800';
-      case 'Data Science': return 'bg-indigo-100 text-indigo-800';
-      case 'Digital Marketing': return 'bg-pink-100 text-pink-800';
-      case 'Cloud Computing': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const featuredCourses = [
+    {
+      id: '1',
+      title: t('courses.python.title'),
+      description: t('courses.python.description'),
+      duration: t('courses.python.duration'),
+      level: t('levels.beginner'),
+      rating: 4.8,
+      students: 1250,
+      progress: 0
+    },
+    {
+      id: '2',
+      title: t('courses.dataAnalysis.title'),
+      description: t('courses.dataAnalysis.description'),
+      duration: t('courses.dataAnalysis.duration'),
+      level: t('levels.intermediate'),
+      rating: 4.9,
+      students: 890,
+      progress: 0
+    },
+    {
+      id: '3',
+      title: t('courses.webDev.title'),
+      description: t('courses.webDev.description'),
+      duration: t('courses.webDev.duration'),
+      level: t('levels.beginner'),
+      rating: 4.7,
+      students: 2100,
+      progress: 0
     }
-  };
+  ];
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
-              Failed to load digital skills resources. Please try again later.
-            </p>
-          </CardContent>
-        </Card>
-      </Layout>
-    );
-  }
-
-  return (
-    <Layout>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-              Digital Skills Development
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">
-              Master the Future with Cutting-Edge Digital Competencies
-            </p>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              Accelerate your career with comprehensive digital skills training. From coding to AI, 
-              cybersecurity to data science - unlock your potential in the digital economy.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <BookOpen className="h-8 w-8 text-blue-600" />
-                  </div>
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">{resources?.length || 0}+</h3>
-                <p className="text-gray-600">Learning Resources</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-green-100 rounded-full">
-                    <Award className="h-8 w-8 text-green-600" />
-                  </div>
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">{categories.length}+</h3>
-                <p className="text-gray-600">Skill Categories</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-full">
-                    <TrendingUp className="h-8 w-8 text-purple-600" />
-                  </div>
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">95%</h3>
-                <p className="text-gray-600">Industry Relevance</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-full">
-                    <Users className="h-8 w-8 text-orange-600" />
-                  </div>
-                </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-2">{providers.length}+</h3>
-                <p className="text-gray-600">Trusted Providers</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Quote Section */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <blockquote className="text-2xl md:text-3xl font-medium text-gray-900 mb-6">
-              "The future belongs to those who learn more skills and combine them in creative ways."
-            </blockquote>
-            <cite className="text-lg text-gray-600">— Robert Greene</cite>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Explore Digital Skills Resources
-              </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Browse our comprehensive collection of courses, tutorials, and resources 
-                from top providers worldwide.
-              </p>
+  const tabs: TabItem[] = [
+    {
+      id: "courses",
+      label: t('tabs.courses.label'),
+      icon: <BookOpen className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title={t('tabs.courses.title')}
+          icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description={t('tabs.courses.description')}
+        >
+          <div className="space-y-6">
+            {/* Skill Categories */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {skillCategories.map((category) => (
+                <Card key={category.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        {category.icon}
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm">{category.title}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">
+                          {category.courses} {t('common.courses')}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {category.description}
+                    </p>
+                    <Badge variant="outline" className="text-xs">
+                      {category.level}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
-            {/* Search and Filters */}
-            <Card className="mb-8">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search resources..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Levels" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Levels</SelectItem>
-                      {difficulties.map(difficulty => (
-                        <SelectItem key={difficulty} value={difficulty || ''}>{difficulty}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Providers" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Providers</SelectItem>
-                      {providers.map(provider => (
-                        <SelectItem key={provider} value={provider}>{provider}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Resources Grid */}
-            {!resources || resources.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">No Resources Found</h3>
-                    <p className="text-muted-foreground">
-                      {searchTerm || selectedCategory !== 'all' || selectedDifficulty !== 'all' || selectedProvider !== 'all'
-                        ? "No resources match your current filters. Try adjusting your search criteria."
-                        : "No digital skills resources are currently available."
-                      }
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {resources.map((resource) => (
-                  <Card key={resource.id} className="h-full hover:shadow-lg transition-shadow">
+            {/* Featured Courses */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">{t('sections.featuredCourses')}</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {featuredCourses.map((course) => (
+                  <Card key={course.id} className="hover:shadow-md transition-shadow">
                     <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg line-clamp-2">
-                            {resource.title}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {resource.provider}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        <Badge className={getCategoryColor(resource.skill_category)}>
-                          {resource.skill_category}
-                        </Badge>
-                        {resource.difficulty_level && (
-                          <Badge className={getDifficultyColor(resource.difficulty_level)}>
-                            {resource.difficulty_level}
-                          </Badge>
-                        )}
-                      </div>
+                      <CardTitle className="text-base">{course.title}</CardTitle>
+                      <CardDescription className="text-sm">
+                        {course.description}
+                      </CardDescription>
                     </CardHeader>
-                    
                     <CardContent>
-                      {resource.description && (
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                          {resource.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                        {resource.duration_hours && (
-                          <div className="flex items-center gap-1">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            {resource.duration_hours}h
+                            {course.duration}
+                          </span>
+                          <Badge variant="outline">{course.level}</Badge>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            {course.rating}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {course.students} {t('common.students')}
+                          </span>
+                        </div>
+
+                        {course.progress > 0 && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-sm">
+                              <span>{t('common.progress')}</span>
+                              <span>{course.progress}%</span>
+                            </div>
+                            <Progress value={course.progress} className="h-2" />
                           </div>
                         )}
-                        {resource.cost !== null && (
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="h-4 w-4" />
-                            {resource.cost === 0 ? 'Free' : `$${resource.cost}`}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {resource.resource_url && (
-                        <Button variant="outline" size="sm" className="w-full" asChild>
-                          <a href={resource.resource_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Start Learning
-                          </a>
+
+                        <Button className="w-full" size="sm">
+                          <Play className="h-4 w-4 mr-2" />
+                          {course.progress > 0 ? t('actions.continue') : t('actions.start')}
                         </Button>
-                      )}
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      </section>
-    </Layout>
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "skill-tracks",
+      label: t('tabs.skillTracks.label'),
+      icon: <TrendingUp className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title={t('tabs.skillTracks.title')}
+          icon={<TrendingUp className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description={t('tabs.skillTracks.description')}
+        >
+          <div className="text-center py-12">
+            <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">{t('comingSoon.title')}</h3>
+            <p className="text-muted-foreground">
+              {t('comingSoon.skillTracks')}
+            </p>
+          </div>
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "certifications",
+      label: t('tabs.certifications.label'),
+      icon: <Award className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title={t('tabs.certifications.title')}
+          icon={<Award className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description={t('tabs.certifications.description')}
+        >
+          <div className="text-center py-12">
+            <Award className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">{t('comingSoon.title')}</h3>
+            <p className="text-muted-foreground">
+              {t('comingSoon.certifications')}
+            </p>
+          </div>
+        </ProfessionalGrowthTabContent>
+      )
+    },
+    {
+      id: "progress",
+      label: t('tabs.progress.label'),
+      icon: <CheckCircle className="h-4 w-4" />,
+      content: (
+        <ProfessionalGrowthTabContent
+          title={t('tabs.progress.title')}
+          icon={<CheckCircle className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
+          description={t('tabs.progress.description')}
+        >
+          <div className="text-center py-12">
+            <CheckCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">{t('signInRequired.title')}</h3>
+            <p className="text-muted-foreground mb-6">
+              {t('signInRequired.description')}
+            </p>
+            <Button>
+              {t('signInRequired.action')}
+            </Button>
+          </div>
+        </ProfessionalGrowthTabContent>
+      )
+    }
+  ];
+
+  return (
+    <ProfessionalGrowthLayout
+      title={t('heroTitle')}
+      description={t('heroDescription')}
+      icon={<Code className="h-12 w-12 text-white" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="courses"
+    />
   );
 };
 
 export default DigitalSkillsDevelopmentPage;
+

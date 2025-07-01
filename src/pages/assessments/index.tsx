@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { AuthenticationRequired } from '@/components/auth/AuthenticationRequired';
@@ -22,6 +22,7 @@ const queryClient = new QueryClient();
 const AssessmentsPage = () => {
   console.log('AssessmentsPage component rendering');
   
+  const { t } = useTranslation('assessments');
   const { user, roles, hasRole } = useAuth();
   const [searchParams] = useSearchParams();
   const context = searchParams.get('context');
@@ -34,15 +35,15 @@ const AssessmentsPage = () => {
   // Assessment Center Controls Component
   const AssessmentCenterControls = () => (
     <ProfessionalGrowthTabContent
-      title="Assessment Center Controls"
-      description="Manage assessments for your organization"
+      title={t('centerControls.title')}
+      description={t('centerControls.description')}
       icon={<Users className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
     >
       <div className="space-y-4">
         <div className="mb-4">
-          <h3 className="text-lg font-medium mb-2">Upload New Assessments</h3>
+          <h3 className="text-lg font-medium mb-2">{t('upload.title')}</h3>
           <p className="text-muted-foreground mb-4">
-            Add new assessment materials to your organization's catalog.
+            {t('upload.description')}
           </p>
         </div>
         <AssessmentUpload />
@@ -54,18 +55,18 @@ const AssessmentsPage = () => {
   const getContextContent = () => {
     if (context === 'academic') {
       return {
-        title: 'Academic Assessment Excellence',
-        description: 'Comprehensive academic evaluation platform designed to measure learning outcomes, identify growth opportunities, and accelerate educational development through evidence-based assessment methodologies.'
+        title: t('contexts.academic.title'),
+        description: t('contexts.academic.description')
       };
     } else if (context === 'career') {
       return {
-        title: 'Professional Skills Assessment',
-        description: 'Advanced skills evaluation platform that measures professional competencies, identifies development opportunities, and provides personalized career advancement pathways through comprehensive assessment analytics.'
+        title: t('contexts.career.title'),
+        description: t('contexts.career.description')
       };
     } else {
       return {
-        title: 'Comprehensive Assessment Platform',
-        description: 'Unified assessment ecosystem that evaluates skills, measures capabilities, and tracks development progress across academic and professional domains through innovative evaluation methodologies.'
+        title: t('contexts.general.title'),
+        description: t('contexts.general.description')
       };
     }
   };
@@ -78,7 +79,7 @@ const AssessmentsPage = () => {
       <div className="min-h-screen bg-[rgb(var(--pg-background))]">
         <div className="flex items-center justify-center min-h-screen">
           <AuthenticationRequired 
-            message="Please log in to access assessments and track your development journey" 
+            message={t('authentication.required')}
             icon={<ClipboardCheck className="h-12 w-12 text-muted-foreground mb-4" />}
           />
         </div>
@@ -91,22 +92,22 @@ const AssessmentsPage = () => {
   const stats = [
     {
       value: "500+",
-      label: "Available Assessments",
+      label: t('stats.assessments'),
       icon: ClipboardCheck
     },
     {
       value: "92%",
-      label: "Completion Rate",
+      label: t('stats.completionRate'),
       icon: TrendingUp
     },
     {
       value: "15+",
-      label: "Skill Categories",
+      label: t('stats.categories'),
       icon: Target
     },
     {
       value: "24/7",
-      label: "Platform Access",
+      label: t('stats.access'),
       icon: BookOpen
     }
   ];
@@ -114,18 +115,18 @@ const AssessmentsPage = () => {
   const tabs = [
     {
       id: "available",
-      label: "Available",
+      label: t('tabs.available.label'),
       icon: <Search className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Available Assessments"
-          description="Discover and complete assessments to evaluate your skills and track your progress"
+          title={t('tabs.available.title')}
+          description={t('tabs.available.description')}
           icon={<Search className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
           action={
             isAssessmentOrTrainingCenter && (
               <Button className="bg-[rgb(var(--pg-primary))] hover:bg-[rgb(var(--pg-primary))/90]">
                 <ClipboardCheck className="h-4 w-4 mr-2" />
-                Create Assessment
+                {t('centerControls.features.createAssessment')}
               </Button>
             )
           }
@@ -139,22 +140,22 @@ const AssessmentsPage = () => {
     },
     {
       id: "in-progress",
-      label: "In Progress",
+      label: t('tabs.inProgress.label'),
       icon: <TrendingUp className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Assessments In Progress"
-          description="Continue with your ongoing assessment sessions and track completion status"
+          title={t('tabs.inProgress.title')}
+          description={t('tabs.inProgress.description')}
           icon={<TrendingUp className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
         >
           <div className="text-center py-12">
             <TrendingUp className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">No Assessments In Progress</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('inProgress.empty.title')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Start an assessment from the Available tab to see your progress here.
+              {t('inProgress.empty.description')}
             </p>
             <Button variant="outline" className="border-[rgb(var(--pg-secondary))] text-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))] hover:text-white">
-              Browse Available Assessments
+              {t('inProgress.empty.action')}
             </Button>
           </div>
         </ProfessionalGrowthTabContent>
@@ -162,12 +163,12 @@ const AssessmentsPage = () => {
     },
     {
       id: "completed",
-      label: "Completed",
+      label: t('tabs.completed.label'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Completed Assessments"
-          description="Review your completed assessments and achievements"
+          title={t('tabs.completed.title')}
+          description={t('tabs.completed.description')}
           icon={<Award className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
         >
           <div className="space-y-8">
@@ -179,22 +180,22 @@ const AssessmentsPage = () => {
     },
     {
       id: "results",
-      label: "Results",
+      label: t('tabs.results.label'),
       icon: <BarChart3 className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Assessment Results & Analytics"
-          description="Comprehensive analysis of your assessment performance and skill development trends"
+          title={t('tabs.results.title')}
+          description={t('tabs.results.description')}
           icon={<BarChart3 className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
         >
           <div className="text-center py-12">
             <BarChart3 className="h-16 w-16 text-[rgb(var(--pg-primary))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Advanced Analytics</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('results.overview.title')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Detailed assessment analytics and performance insights to track your skill development journey.
+              {t('results.empty.description')}
             </p>
             <Button className="bg-[rgb(var(--pg-primary))] hover:bg-[rgb(var(--pg-primary))/90]">
-              View Detailed Analytics
+              {t('results.empty.action')}
             </Button>
           </div>
         </ProfessionalGrowthTabContent>
@@ -202,22 +203,22 @@ const AssessmentsPage = () => {
     },
     {
       id: "skills",
-      label: "Skills Analysis",
+      label: t('tabs.skills.label'),
       icon: <Target className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Skills Gap Analysis"
-          description="Comprehensive skills assessment and gap analysis to identify your strengths and areas for improvement"
+          title={t('tabs.skills.title')}
+          description={t('tabs.skills.description')}
           icon={<Target className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
         >
           <div className="text-center py-12">
             <Target className="h-16 w-16 text-[rgb(var(--pg-accent))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Skills Gap Analysis</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('skills.title')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Advanced skills mapping and gap analysis to create personalized development pathways.
+              {t('skills.mapping.description')}
             </p>
             <Button variant="outline" className="border-[rgb(var(--pg-accent))] text-[rgb(var(--pg-accent))] hover:bg-[rgb(var(--pg-accent))] hover:text-white">
-              Coming Soon
+              {t('skills.empty.action')}
             </Button>
           </div>
         </ProfessionalGrowthTabContent>
@@ -225,22 +226,22 @@ const AssessmentsPage = () => {
     },
     {
       id: "cognitive",
-      label: "Cognitive",
+      label: t('tabs.cognitive.label'),
       icon: <Brain className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Cognitive Assessment Suite"
-          description="Advanced cognitive abilities and aptitude evaluations for comprehensive mental capability assessment"
+          title={t('tabs.cognitive.title')}
+          description={t('tabs.cognitive.description')}
           icon={<Brain className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
         >
           <div className="text-center py-12">
             <Brain className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Cognitive Assessments</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('cognitive.title')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Scientifically-designed cognitive assessments to evaluate problem-solving, reasoning, and analytical capabilities.
+              {t('cognitive.empty.description')}
             </p>
             <Button variant="outline" className="border-[rgb(var(--pg-secondary))] text-[rgb(var(--pg-secondary))] hover:bg-[rgb(var(--pg-secondary))] hover:text-white">
-              Coming Soon
+              {t('cognitive.empty.action')}
             </Button>
           </div>
         </ProfessionalGrowthTabContent>
@@ -262,10 +263,10 @@ const AssessmentsPage = () => {
         showProgress={true}
         progressStep={1}
         totalSteps={4}
-        stepLabel="Assessment Discovery"
-        ctaTitle="Ready to Advance Your Skills?"
-        ctaDescription="Join thousands of professionals who have accelerated their careers through comprehensive skills assessment and personalized development pathways."
-        ctaActionLabel="Start Your Assessment Journey"
+        stepLabel={t('progress.steps.discovery')}
+        ctaTitle={t('cta.title')}
+        ctaDescription={t('cta.description')}
+        ctaActionLabel={t('cta.action')}
         ctaActionHref="/assessments?tab=available"
       />
     </QueryClientProvider>
@@ -273,3 +274,4 @@ const AssessmentsPage = () => {
 };
 
 export default AssessmentsPage;
+

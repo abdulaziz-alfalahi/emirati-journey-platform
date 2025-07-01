@@ -1,4 +1,3 @@
-
 const CACHE_NAME = 'emirati-pathways-v1';
 const STATIC_CACHE_NAME = 'emirati-pathways-static-v1';
 const DYNAMIC_CACHE_NAME = 'emirati-pathways-dynamic-v1';
@@ -17,6 +16,15 @@ const CACHE_STRATEGIES = {
   static: 'cache-first',
   dynamic: 'stale-while-revalidate'
 };
+
+// Helper function to check if request can be cached
+function canCacheRequest(request) {
+  const url = new URL(request.url);
+  // Only cache HTTP and HTTPS requests, exclude chrome-extension and other schemes
+  // Also exclude POST, PUT, DELETE, PATCH requests - only cache GET requests
+  return (url.protocol === 'http:' || url.protocol === 'https:') && 
+         request.method === 'GET';
+}
 
 // Install event
 self.addEventListener('install', (event) => {
@@ -53,7 +61,14 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Handle API requests
+  // Skip caching for non-GET requests or non-HTTP/HTTPS requests
+  if (!canCacheRequest(request)) {
+    // For non-cacheable requests, just pass through to network
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Handle API requests (only GET requests will reach here)
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) {
     event.respondWith(networkFirstStrategy(request));
     return;
@@ -77,6 +92,11 @@ self.addEventListener('fetch', (event) => {
 
 // Cache strategies
 async function networkFirstStrategy(request) {
+  // Additional safety check before caching
+  if (!canCacheRequest(request)) {
+    return fetch(request);
+  }
+
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
@@ -91,6 +111,11 @@ async function networkFirstStrategy(request) {
 }
 
 async function cacheFirstStrategy(request) {
+  // Additional safety check before caching
+  if (!canCacheRequest(request)) {
+    return fetch(request);
+  }
+
   const cachedResponse = await caches.match(request);
   if (cachedResponse) {
     return cachedResponse;
@@ -107,6 +132,11 @@ async function cacheFirstStrategy(request) {
 }
 
 async function staleWhileRevalidateStrategy(request) {
+  // Additional safety check before caching
+  if (!canCacheRequest(request)) {
+    return fetch(request);
+  }
+
   const cache = await caches.open(DYNAMIC_CACHE_NAME);
   const cachedResponse = await caches.match(request);
   
@@ -195,3 +225,4 @@ self.addEventListener('notificationclick', (event) => {
     );
   }
 });
+

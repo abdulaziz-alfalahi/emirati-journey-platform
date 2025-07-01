@@ -2,79 +2,143 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import translation files
-import enNavigation from '../locales/en/navigation.json';
-import enHome from '../locales/en/home.json';
-import enCommon from '../locales/en/common.json';
-import enForms from '../locales/en/forms.json';
-import enSummerCamps from '../locales/en/summer-camps.json';
-import enSchoolPrograms from '../locales/en/school-programs.json';
-import enScholarships from '../locales/en/scholarships.json';
-import enGraduatePrograms from '../locales/en/graduate-programs.json';
-import enUniversityPrograms from '../locales/en/university-programs.json';
-import enLms from '../locales/en/lms.json';
-import enCareerPlanningHub from '../locales/en/career-planning-hub.json';
-import enIndustryExploration from '../locales/en/industry-exploration.json';
-import enFinancialPlanning from '../locales/en/financial-planning.json';
-import enPortfolio from '../locales/en/portfolio.json';
-import enResumeBuilder from '../locales/en/resume-builder.json';
+// Import all existing translation files
+import commonEn from '../locales/en/common.json';
+import commonAr from '../locales/ar/common.json';
+import navigationEn from '../locales/en/navigation.json';
+import navigationAr from '../locales/ar/navigation.json';
+import homeEn from '../locales/en/home.json';
+import homeAr from '../locales/ar/home.json';
+import formsEn from '../locales/en/forms.json';
+import formsAr from '../locales/ar/forms.json';
+import lmsEn from '../locales/en/lms.json';
+import lmsAr from '../locales/ar/lms.json';
+import careerPlanningHubEn from '../locales/en/career-planning-hub.json';
+import careerPlanningHubAr from '../locales/ar/career-planning-hub.json';
+import graduateProgramsEn from '../locales/en/graduate-programs.json';
+import graduateProgramsAr from '../locales/ar/graduate-programs.json';
+import industryExplorationEn from '../locales/en/industry-exploration.json';
+import industryExplorationAr from '../locales/ar/industry-exploration.json';
+import scholarshipsEn from '../locales/en/scholarships.json';
+import scholarshipsAr from '../locales/ar/scholarships.json';
+import schoolProgramsEn from '../locales/en/school-programs.json';
+import schoolProgramsAr from '../locales/ar/school-programs.json';
+import summerCampsEn from '../locales/en/summer-camps.json';
+import summerCampsAr from '../locales/ar/summer-camps.json';
+import universityProgramsEn from '../locales/en/university-programs.json';
+import universityProgramsAr from '../locales/ar/university-programs.json';
+import financialPlanningEn from '../locales/en/financial-planning.json';
+import financialPlanningAr from '../locales/ar/financial-planning.json';
+import portfolioEn from '../locales/en/portfolio.json';
+import portfolioAr from '../locales/ar/portfolio.json';
+import resumeBuilderEn from '../locales/en/resume-builder.json';
+import resumeBuilderAr from '../locales/ar/resume-builder.json';
+import internshipsEn from '../locales/en/internships.json';
+import internshipsAr from '../locales/ar/internships.json';
+import interviewPreparationEn from '../locales/en/interview-preparation.json';
+import interviewPreparationAr from '../locales/ar/interview-preparation.json';
+import careerAdvisoryEn from '../locales/en/career-advisory.json';
+import careerAdvisoryAr from '../locales/ar/career-advisory.json';
+import jobsEn from '../locales/en/jobs.json';
+import jobsAr from '../locales/ar/jobs.json';
+import analyticsEn from '../locales/en/analytics.json';
+import analyticsAr from '../locales/ar/analytics.json';
+import assessmentsEn from '../locales/en/assessments.json';
+import assessmentsAr from '../locales/ar/assessments.json';
 
-import arNavigation from '../locales/ar/navigation.json';
-import arHome from '../locales/ar/home.json';
-import arCommon from '../locales/ar/common.json';
-import arForms from '../locales/ar/forms.json';
-import arSummerCamps from '../locales/ar/summer-camps.json';
-import arSchoolPrograms from '../locales/ar/school-programs.json';
-import arScholarships from '../locales/ar/scholarships.json';
-import arGraduatePrograms from '../locales/ar/graduate-programs.json';
-import arUniversityPrograms from '../locales/ar/university-programs.json';
-import arLms from '../locales/ar/lms.json';
-import arCareerPlanningHub from '../locales/ar/career-planning-hub.json';
-import arIndustryExploration from '../locales/ar/industry-exploration.json';
-import arFinancialPlanning from '../locales/ar/financial-planning.json';
-import arPortfolio from '../locales/ar/portfolio.json';
-import arResumeBuilder from '../locales/ar/resume-builder.json';
+// Import new translation files for missing pages
+import digitalSkillsEn from '../locales/en/digital-skills-development.json';
+import digitalSkillsAr from '../locales/ar/digital-skills-development.json';
+import professionalCertificationsEn from '../locales/en/professional-certifications.json';
+import professionalCertificationsAr from '../locales/ar/professional-certifications.json';
+import mentorshipEn from '../locales/en/mentorship.json';
+import mentorshipAr from '../locales/ar/mentorship.json';
+import blockchainCredentialsEn from '../locales/en/blockchain-credentials.json';
+import blockchainCredentialsAr from '../locales/ar/blockchain-credentials.json';
+import communitiesEn from '../locales/en/communities.json';
+import communitiesAr from '../locales/ar/communities.json';
 
-// Define the resources
+// MISSING IMPORTS - NOW ADDED
+import credentialsEn from '../locales/en/credentials.json';
+import credentialsAr from '../locales/ar/credentials.json';
+import networkingEn from '../locales/en/networking.json';
+import networkingAr from '../locales/ar/networking.json';
+
+// NEW: Training translation files
+import trainingEn from '../locales/en/training.json';
+import trainingAr from '../locales/ar/training.json';
+
 const resources = {
   en: {
-    navigation: enNavigation,
-    home: enHome,
-    common: enCommon,
-    forms: enForms,
-    'summer-camps': enSummerCamps,
-    'school-programs': enSchoolPrograms,
-    'scholarships': enScholarships,
-    'graduate-programs': enGraduatePrograms,
-    'university-programs': enUniversityPrograms,
-    'lms': enLms,
-    'career-planning-hub': enCareerPlanningHub,
-    'industry-exploration': enIndustryExploration,
-    'financial-planning': enFinancialPlanning,
-    'portfolio': enPortfolio,
-    'resume-builder': enResumeBuilder,
-    // Keep the existing pages namespace for backward compatibility
-    pages: enHome
+    // Existing namespaces
+    common: commonEn,
+    navigation: navigationEn,
+    home: homeEn,
+    forms: formsEn,
+    lms: lmsEn,
+    'career-planning-hub': careerPlanningHubEn,
+    'graduate-programs': graduateProgramsEn,
+    'industry-exploration': industryExplorationEn,
+    scholarships: scholarshipsEn,
+    'school-programs': schoolProgramsEn,
+    'summer-camps': summerCampsEn,
+    'university-programs': universityProgramsEn,
+    'financial-planning': financialPlanningEn,
+    portfolio: portfolioEn,
+    'resume-builder': resumeBuilderEn,
+    internships: internshipsEn,
+    'interview-preparation': interviewPreparationEn,
+    'career-advisory': careerAdvisoryEn,
+    jobs: jobsEn,
+    analytics: analyticsEn,
+    assessments: assessmentsEn,
+    // New namespaces for missing pages
+    'digital-skills-development': digitalSkillsEn,
+    'professional-certifications': professionalCertificationsEn,
+    mentorship: mentorshipEn,
+    'blockchain-credentials': blockchainCredentialsEn,
+    communities: communitiesEn,
+    // PREVIOUSLY MISSING - NOW ADDED
+    credentials: credentialsEn,
+    networking: networkingEn,
+    // NEW: Training namespace
+    training: trainingEn,
   },
   ar: {
-    navigation: arNavigation,
-    home: arHome,
-    common: arCommon,
-    forms: arForms,
-    'summer-camps': arSummerCamps,
-    'school-programs': arSchoolPrograms,
-    'scholarships': arScholarships,
-    'graduate-programs': arGraduatePrograms,
-    'university-programs': arUniversityPrograms,
-    'lms': arLms,
-    'career-planning-hub': arCareerPlanningHub,
-    'industry-exploration': arIndustryExploration,
-    'financial-planning': arFinancialPlanning,
-    'portfolio': arPortfolio,
-    'resume-builder': arResumeBuilder,
-    // Keep the existing pages namespace for backward compatibility
-    pages: arHome
-  }
+    // Existing namespaces
+    common: commonAr,
+    navigation: navigationAr,
+    home: homeAr,
+    forms: formsAr,
+    lms: lmsAr,
+    'career-planning-hub': careerPlanningHubAr,
+    'graduate-programs': graduateProgramsAr,
+    'industry-exploration': industryExplorationAr,
+    scholarships: scholarshipsAr,
+    'school-programs': schoolProgramsAr,
+    'summer-camps': summerCampsAr,
+    'university-programs': universityProgramsAr,
+    'financial-planning': financialPlanningAr,
+    portfolio: portfolioAr,
+    'resume-builder': resumeBuilderAr,
+    internships: internshipsAr,
+    'interview-preparation': interviewPreparationAr,
+    'career-advisory': careerAdvisoryAr,
+    jobs: jobsAr,
+    analytics: analyticsAr,
+    assessments: assessmentsAr,
+    // New namespaces for missing pages
+    'digital-skills-development': digitalSkillsAr,
+    'professional-certifications': professionalCertificationsAr,
+    mentorship: mentorshipAr,
+    'blockchain-credentials': blockchainCredentialsAr,
+    communities: communitiesAr,
+    // PREVIOUSLY MISSING - NOW ADDED
+    credentials: credentialsAr,
+    networking: networkingAr,
+    // NEW: Training namespace
+    training: trainingAr,
+  },
 };
 
 i18n
@@ -82,75 +146,22 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
     fallbackLng: 'en',
-    debug: process.env.NODE_ENV === 'development',
-
+    debug: false,
+    
     interpolation: {
-      escapeValue: false, // React already does escaping
+      escapeValue: false,
     },
-
+    
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
     },
-
-    defaultNS: 'common',
-    ns: ['navigation', 'home', 'common', 'forms', 'pages', 'summer-camps', 'school-programs', 'scholarships', 'graduate-programs', 'university-programs', 'lms', 'career-planning-hub', 'industry-exploration', 'financial-planning', 'portfolio', 'resume-builder'],
     
-    // Add these options to ensure proper loading and updates
     react: {
       useSuspense: false,
     },
-    
-    // Ensure resources are loaded before initialization
-    initImmediate: false,
-
-    // Translation key validation
-    saveMissing: process.env.NODE_ENV === 'development',
-    missingKeyHandler: (lng, ns, key) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`Missing translation key: ${lng}.${ns}.${key}`);
-      }
-    },
-
-    // Namespace fallback for missing keys
-    nsSeparator: ':',
-    keySeparator: '.',
-    
-    // Return key if translation is missing in development
-    returnEmptyString: false,
-    returnNull: false,
-    returnObjects: false,
   });
-
-// Add event listeners for debugging and monitoring
-i18n.on('languageChanged', (lng) => {
-  console.log('i18n language changed to:', lng);
-  
-  // Update document direction and language
-  if (typeof document !== 'undefined') {
-    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lng;
-    
-    // Update CSS custom property for direction-aware styles
-    document.documentElement.style.setProperty('--text-direction', lng === 'ar' ? 'rtl' : 'ltr');
-  }
-});
-
-i18n.on('loaded', (loaded) => {
-  console.log('i18n resources loaded:', loaded);
-});
-
-i18n.on('failedLoading', (lng, ns, msg) => {
-  console.error('i18n failed loading:', lng, ns, msg);
-});
-
-i18n.on('missingKey', (lng, namespace, key, res) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn(`Missing i18n key [${lng}] ${namespace}:${key}`, res);
-  }
-});
 
 export default i18n;
 

@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
 import { useRole } from '@/context/RoleContext';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
@@ -11,6 +11,7 @@ import CredentialIssuer from '@/components/blockchain/CredentialIssuer';
 import { BlockchainCredential } from '@/types/blockchainCredentials';
 
 const BlockchainCredentialsPage: React.FC = () => {
+  const { t } = useTranslation('blockchain-credentials');
   const { user } = useAuth();
   const { activeRole } = useRole();
   const [selectedCredential, setSelectedCredential] = useState<BlockchainCredential | null>(null);
@@ -19,23 +20,23 @@ const BlockchainCredentialsPage: React.FC = () => {
 
   const stats = [
     {
-      value: "2,500+",
-      label: "Verified Credentials",
+      value: t('stats.verifiedCredentials.value'),
+      label: t('stats.verifiedCredentials.label'),
       icon: Shield
     },
     {
-      value: "99.9%",
-      label: "Security Uptime",
+      value: t('stats.securityUptime.value'),
+      label: t('stats.securityUptime.label'),
       icon: Lock
     },
     {
-      value: "150+",
-      label: "Partner Institutions",
+      value: t('stats.partnerInstitutions.value'),
+      label: t('stats.partnerInstitutions.label'),
       icon: Users
     },
     {
-      value: "5sec",
-      label: "Average Verification Time",
+      value: t('stats.averageVerificationTime.value'),
+      label: t('stats.averageVerificationTime.label'),
       icon: Zap
     }
   ];
@@ -47,8 +48,8 @@ const BlockchainCredentialsPage: React.FC = () => {
       recipient_id: user?.id || 'user-1',
       issuer_id: 'issuer-1',
       credential_type: 'certification',
-      title: 'Digital Marketing Certificate',
-      description: 'Advanced digital marketing certification covering SEO, social media, and analytics',
+      title: t('mockCredentials.digitalMarketing.title'),
+      description: t('mockCredentials.digitalMarketing.description'),
       issued_date: '2024-01-15T00:00:00Z',
       expiry_date: '2026-01-15T00:00:00Z',
       credential_hash: '0x1234...abcd',
@@ -57,10 +58,10 @@ const BlockchainCredentialsPage: React.FC = () => {
       transaction_hash: '0x5678...efgh',
       verification_status: 'verified',
       metadata: {
-        issuer_name: 'Dubai Digital Authority',
-        level: 'Intermediate'
+        issuer_name: t('mockCredentials.digitalMarketing.issuer'),
+        level: t('mockCredentials.digitalMarketing.level')
       },
-      skills: ['Digital Marketing', 'SEO', 'Social Media'],
+      skills: [t('skills.digitalMarketing'), t('skills.seo'), t('skills.socialMedia')],
       created_at: '2024-01-15T00:00:00Z',
       updated_at: '2024-01-15T00:00:00Z'
     },
@@ -69,8 +70,8 @@ const BlockchainCredentialsPage: React.FC = () => {
       recipient_id: user?.id || 'user-1',
       issuer_id: 'issuer-2',
       credential_type: 'degree',
-      title: 'Bachelor of Computer Science',
-      description: 'Bachelor\'s degree in Computer Science with focus on software engineering',
+      title: t('mockCredentials.computerScience.title'),
+      description: t('mockCredentials.computerScience.description'),
       issued_date: '2023-06-20T00:00:00Z',
       credential_hash: '0x5678...efgh',
       merkle_proof: ['0xghi789', '0xjkl012'],
@@ -78,9 +79,9 @@ const BlockchainCredentialsPage: React.FC = () => {
       transaction_hash: '0x9abc...defg',
       verification_status: 'verified',
       metadata: {
-        issuer_name: 'American University of Dubai',
-        degree: 'Bachelor',
-        major: 'Computer Science',
+        issuer_name: t('mockCredentials.computerScience.issuer'),
+        degree: t('mockCredentials.computerScience.degree'),
+        major: t('mockCredentials.computerScience.major'),
         gpa: '3.8'
       },
       created_at: '2023-06-20T00:00:00Z',
@@ -91,7 +92,7 @@ const BlockchainCredentialsPage: React.FC = () => {
   const tabs = [
     {
       id: 'my-credentials',
-      label: 'My Credentials',
+      label: t('tabs.myCredentials.label'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
@@ -108,12 +109,12 @@ const BlockchainCredentialsPage: React.FC = () => {
             <Card>
               <CardContent className="p-8 text-center">
                 <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No Credentials Yet</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('tabs.myCredentials.emptyState.title')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Start building your verified credential portfolio
+                  {t('tabs.myCredentials.emptyState.description')}
                 </p>
                 <Button>
-                  Request Credential Verification
+                  {t('tabs.myCredentials.emptyState.action')}
                 </Button>
               </CardContent>
             </Card>
@@ -123,7 +124,7 @@ const BlockchainCredentialsPage: React.FC = () => {
     },
     {
       id: 'verify',
-      label: 'Verify Credentials',
+      label: t('tabs.verify.label'),
       icon: <FileCheck className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
@@ -131,21 +132,21 @@ const BlockchainCredentialsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Credential Verification
+                {t('tabs.verify.title')}
               </CardTitle>
               <CardDescription>
-                Verify the authenticity of blockchain credentials using hash verification
+                {t('tabs.verify.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <Database className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Verification Interface</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('tabs.verify.interface.title')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Enter a credential hash or scan a QR code to verify authenticity
+                  {t('tabs.verify.interface.description')}
                 </p>
                 <Button>
-                  Start Verification
+                  {t('tabs.verify.interface.action')}
                 </Button>
               </div>
             </CardContent>
@@ -155,7 +156,7 @@ const BlockchainCredentialsPage: React.FC = () => {
     },
     {
       id: 'wallet',
-      label: 'Digital Wallet',
+      label: t('tabs.wallet.label'),
       icon: <Database className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
@@ -163,21 +164,21 @@ const BlockchainCredentialsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="h-5 w-5" />
-                Blockchain Wallet
+                {t('tabs.wallet.title')}
               </CardTitle>
               <CardDescription>
-                Manage your digital credential wallet and blockchain interactions
+                {t('tabs.wallet.description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Secure Wallet</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('tabs.wallet.secure.title')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Your credentials are securely stored on the blockchain
+                  {t('tabs.wallet.secure.description')}
                 </p>
                 <Button>
-                  View Wallet Details
+                  {t('tabs.wallet.secure.action')}
                 </Button>
               </div>
             </CardContent>
@@ -191,7 +192,7 @@ const BlockchainCredentialsPage: React.FC = () => {
   if (isAdmin) {
     tabs.push({
       id: 'issue',
-      label: 'Issue Credentials',
+      label: t('tabs.issue.label'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <div className="space-y-6">
@@ -204,24 +205,24 @@ const BlockchainCredentialsPage: React.FC = () => {
   if (!user) {
     return (
       <ProfessionalGrowthLayout
-        title="Blockchain Credentials"
-        description="Secure, verifiable digital credentials powered by blockchain technology for trusted professional recognition"
+        title={t('title')}
+        description={t('description')}
         icon={<Shield className="h-12 w-12 text-white" />}
         stats={stats}
         tabs={[
           {
             id: 'signin',
-            label: 'Sign In Required',
+            label: t('signInRequired.label'),
             icon: <Eye className="h-4 w-4" />,
             content: (
               <div className="text-center py-16">
                 <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h1 className="text-3xl font-bold mb-4">Access Your Blockchain Credentials</h1>
+                <h1 className="text-3xl font-bold mb-4">{t('signInRequired.title')}</h1>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Please sign in to view and manage your verified digital credentials.
+                  {t('signInRequired.description')}
                 </p>
                 <Button onClick={() => window.location.href = '/auth'} size="lg">
-                  Sign In to Continue
+                  {t('signInRequired.action')}
                 </Button>
               </div>
             )
@@ -234,8 +235,8 @@ const BlockchainCredentialsPage: React.FC = () => {
 
   return (
     <ProfessionalGrowthLayout
-      title="Blockchain Credentials"
-      description="Secure, verifiable digital credentials powered by blockchain technology for trusted professional recognition"
+      title={t('title')}
+      description={t('description')}
       icon={<Shield className="h-12 w-12 text-white" />}
       stats={stats}
       tabs={tabs}
@@ -245,3 +246,4 @@ const BlockchainCredentialsPage: React.FC = () => {
 };
 
 export default BlockchainCredentialsPage;
+

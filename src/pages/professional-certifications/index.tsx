@@ -1,30 +1,32 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { ProfessionalCertificationsList } from '@/components/professional-certifications/ProfessionalCertificationsList';
 import { Award, Building2, TrendingUp, Users, BookOpen, Calendar, Target } from 'lucide-react';
 
 const ProfessionalCertificationsPage: React.FC = () => {
+  const { t } = useTranslation('professional-certifications');
+
   const stats: StatItem[] = [
     {
-      value: "500+",
-      label: "Available Certifications",
+      value: t('stats.availableCertifications'),
+      label: t('stats.availableCertificationsLabel'),
       icon: Award
     },
     {
-      value: "25+",
-      label: "Industry Sectors",
+      value: t('stats.industrySectors'),
+      label: t('stats.industrySectorsLabel'),
       icon: Building2
     },
     {
-      value: "35%",
-      label: "Average Salary Increase",
+      value: t('stats.salaryIncrease'),
+      label: t('stats.salaryIncreaseLabel'),
       icon: TrendingUp
     },
     {
-      value: "50K+",
-      label: "Certified Professionals",
+      value: t('stats.certifiedProfessionals'),
+      label: t('stats.certifiedProfessionalsLabel'),
       icon: Users
     }
   ];
@@ -32,13 +34,13 @@ const ProfessionalCertificationsPage: React.FC = () => {
   const tabs: TabItem[] = [
     {
       id: "browse",
-      label: "Browse Certifications",
+      label: t('tabs.browse.label'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Professional Certifications Directory"
+          title={t('tabs.browse.title')}
           icon={<Award className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Explore industry-recognized certification programs that will enhance your skills and advance your career"
+          description={t('tabs.browse.description')}
         >
           <ProfessionalCertificationsList />
         </ProfessionalGrowthTabContent>
@@ -46,19 +48,19 @@ const ProfessionalCertificationsPage: React.FC = () => {
     },
     {
       id: "my-certifications",
-      label: "My Certifications",
+      label: t('tabs.myCertifications.label'),
       icon: <BookOpen className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="My Certifications"
+          title={t('tabs.myCertifications.title')}
           icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Track your certification progress and manage your credentials"
+          description={t('tabs.myCertifications.description')}
         >
           <div className="text-center py-12">
             <BookOpen className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">My Certifications</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('tabs.myCertifications.contentTitle')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Track your certification progress, view completed credentials, and manage your professional development journey.
+              {t('tabs.myCertifications.contentDescription')}
             </p>
           </div>
         </ProfessionalGrowthTabContent>
@@ -66,19 +68,19 @@ const ProfessionalCertificationsPage: React.FC = () => {
     },
     {
       id: "recommended",
-      label: "Recommended",
+      label: t('tabs.recommended.label'),
       icon: <Target className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Recommended Certifications"
+          title={t('tabs.recommended.title')}
           icon={<Target className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Personalized certification recommendations based on your career goals and interests"
+          description={t('tabs.recommended.description')}
         >
           <div className="text-center py-12">
             <Target className="h-16 w-16 text-[rgb(var(--pg-secondary))] mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold mb-2">Recommended for You</h3>
+            <h3 className="text-2xl font-semibold mb-2">{t('tabs.recommended.contentTitle')}</h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Get personalized certification recommendations based on your career goals, current skills, and industry trends.
+              {t('tabs.recommended.contentDescription')}
             </p>
           </div>
         </ProfessionalGrowthTabContent>
@@ -88,8 +90,8 @@ const ProfessionalCertificationsPage: React.FC = () => {
 
   return (
     <ProfessionalGrowthLayout
-      title="Professional Certifications"
-      description="Elevate your career with industry-recognized credentials and certification programs designed to enhance your skills and increase your earning potential"
+      title={t('title')}
+      description={t('description')}
       icon={<Award className="h-8 w-8 text-white" />}
       stats={stats}
       tabs={tabs}
@@ -97,13 +99,14 @@ const ProfessionalCertificationsPage: React.FC = () => {
       showProgress={true}
       progressStep={3}
       totalSteps={5}
-      stepLabel="Professional Credential Advancement"
-      ctaTitle="Accelerate Your Leadership Journey"
-      ctaDescription="Build on your certifications with comprehensive leadership development programs"
-      ctaActionLabel="Explore Leadership Development"
+      stepLabel={t('progressLabel')}
+      ctaTitle={t('cta.title')}
+      ctaDescription={t('cta.description')}
+      ctaActionLabel={t('cta.actionLabel')}
       ctaActionHref="/leadership"
     />
   );
 };
 
 export default ProfessionalCertificationsPage;
+

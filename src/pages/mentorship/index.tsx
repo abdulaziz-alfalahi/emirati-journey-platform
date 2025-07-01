@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProfessionalGrowthLayout, StatItem, TabItem } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { 
@@ -18,25 +18,27 @@ import { MentorApplicationsTab } from '@/components/mentorship/MentorApplication
 import { MentorshipResourcesTab } from '@/components/mentorship/MentorshipResourcesTab';
 
 const MentorshipProgramsPage: React.FC = () => {
+  const { t } = useTranslation('mentorship');
+
   const stats: StatItem[] = [
     {
       value: "300+",
-      label: "Active Mentors",
+      label: t('stats.activeMentors'),
       icon: UserCheck
     },
     {
       value: "800+",
-      label: "Mentees",
+      label: t('stats.mentees'),
       icon: Users
     },
     {
       value: "1,500+",
-      label: "Sessions Completed",
+      label: t('stats.sessionsCompleted'),
       icon: Calendar
     },
     {
       value: "4.8/5",
-      label: "Average Rating",
+      label: t('stats.averageRating'),
       icon: Star
     }
   ];
@@ -44,13 +46,13 @@ const MentorshipProgramsPage: React.FC = () => {
   const tabs: TabItem[] = [
     {
       id: "find-mentors",
-      label: "Find Mentors",
+      label: t('tabs.findMentors.label'),
       icon: <Search className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Find Your Mentor"
+          title={t('tabs.findMentors.title')}
           icon={<Search className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
-          description="Connect with experienced professionals who can guide your career development and personal growth"
+          description={t('tabs.findMentors.description')}
         >
           <FindMentorsTab />
         </ProfessionalGrowthTabContent>
@@ -58,13 +60,13 @@ const MentorshipProgramsPage: React.FC = () => {
     },
     {
       id: "my-mentorships",
-      label: "My Mentorships",
+      label: t('tabs.myMentorships.label'),
       icon: <MessageCircle className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="My Mentorship Relationships"
+          title={t('tabs.myMentorships.title')}
           icon={<MessageCircle className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
-          description="Manage your active mentorship relationships, sessions, and progress tracking"
+          description={t('tabs.myMentorships.description')}
         >
           <MyMentorshipsTab />
         </ProfessionalGrowthTabContent>
@@ -72,13 +74,13 @@ const MentorshipProgramsPage: React.FC = () => {
     },
     {
       id: "mentor-applications",
-      label: "Mentor Applications",
+      label: t('tabs.mentorApplications.label'),
       icon: <UserPlus className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Mentor Applications"
+          title={t('tabs.mentorApplications.title')}
           icon={<UserPlus className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
-          description="Review and manage your applications to become a mentor or mentee"
+          description={t('tabs.mentorApplications.description')}
         >
           <MentorApplicationsTab />
         </ProfessionalGrowthTabContent>
@@ -86,13 +88,13 @@ const MentorshipProgramsPage: React.FC = () => {
     },
     {
       id: "resources",
-      label: "Resources",
+      label: t('tabs.resources.label'),
       icon: <BookOpen className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Mentorship Resources"
+          title={t('tabs.resources.title')}
           icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
-          description="Access guides, templates, and tools for effective mentorship relationships"
+          description={t('tabs.resources.description')}
         >
           <MentorshipResourcesTab />
         </ProfessionalGrowthTabContent>
@@ -102,15 +104,15 @@ const MentorshipProgramsPage: React.FC = () => {
 
   return (
     <ProfessionalGrowthLayout
-      title="Mentorship Programs"
-      description="Connect with experienced professionals and peers through structured mentorship programs designed to accelerate your career growth and personal development"
+      title={t('title')}
+      description={t('description')}
       icon={<Users className="h-8 w-8 text-white" />}
       stats={stats}
       tabs={tabs}
       defaultTab="find-mentors"
-      ctaTitle="Ready to Start Your Mentorship Journey?"
-      ctaDescription="Join our community of mentors and mentees to accelerate your professional development"
-      ctaActionLabel="Get Started"
+      ctaTitle={t('cta.title')}
+      ctaDescription={t('cta.description')}
+      ctaActionLabel={t('cta.actionLabel')}
       ctaActionHref="#find-mentors"
       showProgress={false}
     />
@@ -118,3 +120,4 @@ const MentorshipProgramsPage: React.FC = () => {
 };
 
 export default MentorshipProgramsPage;
+

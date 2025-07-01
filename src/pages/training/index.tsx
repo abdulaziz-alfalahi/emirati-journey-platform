@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProfessionalGrowthLayout } from '@/components/professional-growth/ProfessionalGrowthLayout';
 import { ProfessionalGrowthTabContent } from '@/components/professional-growth/ProfessionalGrowthTabContent';
 import { TrainingFilters } from '@/components/training/TrainingFilters';
@@ -12,6 +12,7 @@ import { BookOpen, Users, Award, TrendingUp, GraduationCap, Building, User, Chec
 import type { TrainingFilters as TrainingFiltersType } from '@/types/training';
 
 const TrainingPage: React.FC = () => {
+  const { t } = useTranslation('training');
   const { toast } = useToast();
   const [filters, setFilters] = useState<TrainingFiltersType>({});
 
@@ -25,36 +26,52 @@ const TrainingPage: React.FC = () => {
 
   const handleApplyToProgram = (programId: string) => {
     toast({
-      title: "Application Started",
-      description: "Redirecting to application form...",
+      title: t('actions.applicationStarted'),
+      description: t('actions.redirectingToForm'),
     });
     // TODO: Implement application flow
   };
 
   const handleViewDetails = (programId: string) => {
     toast({
-      title: "Program Details",
-      description: "Opening program details...",
+      title: t('actions.programDetails'),
+      description: t('actions.openingDetails'),
     });
     // TODO: Implement program details view
   };
 
   const stats = [
-    { value: "200+", label: "Training Programs", icon: BookOpen },
-    { value: "15,000+", label: "Graduates", icon: Users },
-    { value: "92%", label: "Job Placement Rate", icon: TrendingUp },
-    { value: "50+", label: "Training Partners", icon: Building }
+    { 
+      value: t('stats.trainingPrograms.value'), 
+      label: t('stats.trainingPrograms.label'), 
+      icon: BookOpen 
+    },
+    { 
+      value: t('stats.graduates.value'), 
+      label: t('stats.graduates.label'), 
+      icon: Users 
+    },
+    { 
+      value: t('stats.jobPlacementRate.value'), 
+      label: t('stats.jobPlacementRate.label'), 
+      icon: TrendingUp 
+    },
+    { 
+      value: t('stats.trainingPartners.value'), 
+      label: t('stats.trainingPartners.label'), 
+      icon: Building 
+    }
   ];
 
   const tabs = [
     {
       id: "available-courses",
-      label: "Available Courses",
+      label: t('tabs.availableCourses.label'),
       icon: <BookOpen className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Training Programs"
-          description="Discover comprehensive vocational training programs designed for the UAE's growing economy"
+          title={t('tabs.availableCourses.title')}
+          description={t('tabs.availableCourses.description')}
           icon={<BookOpen className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
         >
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -78,12 +95,12 @@ const TrainingPage: React.FC = () => {
     },
     {
       id: "my-learning",
-      label: "My Learning",
+      label: t('tabs.myLearning.label'),
       icon: <User className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="My Learning Journey"
-          description="Track your current training programs and learning progress"
+          title={t('tabs.myLearning.title')}
+          description={t('tabs.myLearning.description')}
           icon={<User className="h-5 w-5 text-[rgb(var(--pg-secondary))]" />}
         >
           <MyLearningTab />
@@ -92,12 +109,12 @@ const TrainingPage: React.FC = () => {
     },
     {
       id: "completed",
-      label: "Completed",
+      label: t('tabs.completed.label'),
       icon: <CheckCircle className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="Completed Training"
-          description="Review your completed training programs and achievements"
+          title={t('tabs.completed.title')}
+          description={t('tabs.completed.description')}
           icon={<CheckCircle className="h-5 w-5 text-[rgb(var(--pg-accent))]" />}
         >
           <CompletedTrainingTab />
@@ -106,12 +123,12 @@ const TrainingPage: React.FC = () => {
     },
     {
       id: "certificates",
-      label: "Certificates",
+      label: t('tabs.certificates.label'),
       icon: <Award className="h-4 w-4" />,
       content: (
         <ProfessionalGrowthTabContent
-          title="My Certificates"
-          description="Access and manage your earned certificates and credentials"
+          title={t('tabs.certificates.title')}
+          description={t('tabs.certificates.description')}
           icon={<Award className="h-5 w-5 text-[rgb(var(--pg-primary))]" />}
         >
           <CertificatesTab />
@@ -122,18 +139,19 @@ const TrainingPage: React.FC = () => {
 
   return (
     <ProfessionalGrowthLayout
-      title="Vocational Training Programs"
-      description="Develop practical skills and advance your career with industry-specific training programs designed for the UAE's growing economy"
+      title={t('title')}
+      description={t('description')}
       icon={<GraduationCap className="h-12 w-12" />}
       stats={stats}
       tabs={tabs}
       defaultTab="available-courses"
-      ctaTitle="Ready to Start Your Training Journey?"
-      ctaDescription="Join thousands of professionals who have advanced their careers through our comprehensive training programs"
-      ctaActionLabel="Browse All Programs"
+      ctaTitle={t('cta.title')}
+      ctaDescription={t('cta.description')}
+      ctaActionLabel={t('cta.actionLabel')}
       ctaActionHref="#available-courses"
     />
   );
 };
 
 export default TrainingPage;
+
