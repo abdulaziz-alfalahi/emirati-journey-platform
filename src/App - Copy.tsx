@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from './context/QueryContext';
@@ -6,7 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
 
-// Pages - Updated import paths to match actual file structure
+// Pages - Fixed import paths to match actual file structure
 import Home from './pages/home';
 import Dashboard from './pages/dashboard';
 import AuthPage from './pages/auth';
@@ -16,9 +15,12 @@ import Jobs from './pages/job-matching';
 import Internships from './pages/internships';
 import CareerJourney from './pages/career-journey';
 import Portfolio from './pages/portfolio';
-import Communities from './pages/communities/analytics';
-import Analytics from './pages/analytics';
+// FIXED: Correct import path for communities
+import Communities from './pages/communities';
+import Analytics from './pages/analytics/index';
 import DigitalSkills from './pages/digital-skills';
+// FIXED: Add proper import for digital-skills-development
+import DigitalSkillsDevelopment from './pages/digital-skills-development';
 import ProfessionalCertifications from './pages/professional-certifications';
 import MentorshipPrograms from './pages/mentorship';
 import GraduatePrograms from './pages/graduate-programs';
@@ -48,6 +50,8 @@ import CareerPlanningHubPage from './pages/career-planning-hub';
 import ResumeBuilderPage from './pages/resume-builder';
 import YouthDevelopment from './pages/youth-development';
 import SuccessStoriesPage from './pages/success-stories';
+// ✅ FIXED: Add proper import for share-success-stories page with translations
+import ShareSuccessStoriesPage from './pages/share-success-stories';
 import ThoughtLeadershipPage from './pages/thought-leadership';
 import FinancialPlanningPage from './pages/financial-planning';
 import RetireeServicesPage from './pages/retiree';
@@ -86,10 +90,12 @@ const App: React.FC = () => {
                 <Route path="/internships" element={<Internships />} />
                 <Route path="/career-journey" element={<CareerJourney />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                {/* FIXED: Correct component for communities route */}
                 <Route path="/communities" element={<Communities />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/digital-skills" element={<DigitalSkills />} />
-                <Route path="/digital-skills-development" element={<DigitalSkills />} />
+                {/* FIXED: Correct component for digital-skills-development route */}
+                <Route path="/digital-skills-development" element={<DigitalSkillsDevelopment />} />
                 <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
                 <Route path="/mentorship" element={<MentorshipPrograms />} />
                 <Route path="/graduate-programs" element={<GraduatePrograms />} />
@@ -115,7 +121,8 @@ const App: React.FC = () => {
                 <Route path="/school-programs" element={<SchoolPrograms />} />
                 <Route path="/scholarships" element={<Scholarships />} />
                 <Route path="/youth-development" element={<YouthDevelopment />} />
-                <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
+                {/* ✅ FIXED: Use the correct component with translation support */}
+                <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
                 <Route path="/success-stories" element={<SuccessStoriesPage />} />
                 <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
                 <Route path="/financial-planning" element={<FinancialPlanningPage />} />
@@ -133,3 +140,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

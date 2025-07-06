@@ -4,6 +4,9 @@ import { QueryProvider } from './context/QueryContext';
 import { AuthProvider } from './context/AuthContext';
 import { RoleProvider } from './context/RoleContext';
 import { ErrorBoundary } from './components/ui/error-boundary';
+import { AccessibilityProvider } from './components/accessibility/AccessibilityProvider';
+import { AccessibilityToolbar } from './components/accessibility/AccessibilityToolbar';
+import { Toaster } from 'sonner';
 
 // Pages - Fixed import paths to match actual file structure
 import Home from './pages/home';
@@ -55,86 +58,107 @@ import ShareSuccessStoriesPage from './pages/share-success-stories';
 import ThoughtLeadershipPage from './pages/thought-leadership';
 import FinancialPlanningPage from './pages/financial-planning';
 import RetireeServicesPage from './pages/retiree';
+import MVPTestPage from './pages/mvp-test';
 
-// Error fallback component
-const ErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
-      <p className="text-gray-600 mb-4">{error.message}</p>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Reload Page
-      </button>
-    </div>
-  </div>
+// Skip to content component for accessibility
+const SkipToContent: React.FC = () => (
+  <a
+    href="#main-content"
+    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200"
+  >
+    تخطي إلى المحتوى الرئيسي / Skip to main content
+  </a>
 );
 
 const App: React.FC = () => {
   return (
-    <ErrorBoundary fallback={<ErrorFallback error={new Error('Application error')} />}>
-      <QueryProvider>
-        <AuthProvider>
-          <RoleProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/career-advisory" element={<CareerAdvisory />} />
-                <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
-                <Route path="/training" element={<Training />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/internships" element={<Internships />} />
-                <Route path="/career-journey" element={<CareerJourney />} />
-                <Route path="/portfolio" element={<Portfolio />} />
-                {/* FIXED: Correct component for communities route */}
-                <Route path="/communities" element={<Communities />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/digital-skills" element={<DigitalSkills />} />
-                {/* FIXED: Correct component for digital-skills-development route */}
-                <Route path="/digital-skills-development" element={<DigitalSkillsDevelopment />} />
-                <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
-                <Route path="/mentorship" element={<MentorshipPrograms />} />
-                <Route path="/graduate-programs" element={<GraduatePrograms />} />
-                <Route path="/university-programs" element={<UniversityPrograms />} />
-                <Route path="/legacy-projects" element={<LegacyProjects />} />
-                <Route path="/advisory-positions" element={<AdvisoryPositions />} />
-                <Route path="/community-leadership" element={<CommunityLeadership />} />
-                <Route path="/national-service" element={<NationalService />} />
-                <Route path="/industry-exploration" element={<IndustryExploration />} />
-                <Route path="/interview-preparation" element={<InterviewPreparation />} />
-                <Route path="/job-matching" element={<JobMatching />} />
-                <Route path="/career-comparison" element={<CareerComparison />} />
-                <Route path="/assessments" element={<AssessmentsPage />} />
-                <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
-                <Route path="/cv-builder" element={<CVBuilder />} />
-                <Route path="/resume-builder" element={<ResumeBuilderPage />} />
-                <Route path="/become-mentor" element={<BecomeMentor />} />
-                <Route path="/mentor-matching" element={<MentorMatching />} />
-                <Route path="/blockchain" element={<Blockchain />} />
-                <Route path="/blockchain-credentials" element={<Blockchain />} />
-                <Route path="/lms" element={<LMS />} />
-                <Route path="/summer-camps" element={<SummerCamps />} />
-                <Route path="/school-programs" element={<SchoolPrograms />} />
-                <Route path="/scholarships" element={<Scholarships />} />
-                <Route path="/youth-development" element={<YouthDevelopment />} />
-                {/* ✅ FIXED: Use the correct component with translation support */}
-                <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
-                <Route path="/success-stories" element={<SuccessStoriesPage />} />
-                <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
-                <Route path="/financial-planning" element={<FinancialPlanningPage />} />
-                <Route path="/retiree" element={<RetireeServicesPage />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<Admin />} />
-              </Routes>
-            </Router>
-          </RoleProvider>
-        </AuthProvider>
-      </QueryProvider>
+    <ErrorBoundary>
+      <AccessibilityProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <RoleProvider>
+              <div className="min-h-screen bg-gray-50">
+                {/* Skip to content link for accessibility */}
+                <SkipToContent />
+                
+                {/* Accessibility toolbar */}
+                <AccessibilityToolbar />
+                
+                {/* Toast notifications */}
+                <Toaster 
+                  position="top-right" 
+                  richColors 
+                  closeButton
+                  toastOptions={{
+                    duration: 5000,
+                    style: {
+                      fontFamily: 'Inter, system-ui, sans-serif'
+                    }
+                  }}
+                />
+                
+                <Router>
+                  <main id="main-content" role="main" className="focus:outline-none">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/career-advisory" element={<CareerAdvisory />} />
+                      <Route path="/career-planning-hub" element={<CareerPlanningHubPage />} />
+                      <Route path="/training" element={<Training />} />
+                      <Route path="/jobs" element={<Jobs />} />
+                      <Route path="/internships" element={<Internships />} />
+                      <Route path="/career-journey" element={<CareerJourney />} />
+                      <Route path="/portfolio" element={<Portfolio />} />
+                      {/* FIXED: Correct component for communities route */}
+                      <Route path="/communities" element={<Communities />} />
+                      <Route path="/analytics" element={<Analytics />} />
+                      <Route path="/digital-skills" element={<DigitalSkills />} />
+                      {/* FIXED: Correct component for digital-skills-development route */}
+                      <Route path="/digital-skills-development" element={<DigitalSkillsDevelopment />} />
+                      <Route path="/professional-certifications" element={<ProfessionalCertifications />} />
+                      <Route path="/mentorship" element={<MentorshipPrograms />} />
+                      <Route path="/graduate-programs" element={<GraduatePrograms />} />
+                      <Route path="/university-programs" element={<UniversityPrograms />} />
+                      <Route path="/legacy-projects" element={<LegacyProjects />} />
+                      <Route path="/advisory-positions" element={<AdvisoryPositions />} />
+                      <Route path="/community-leadership" element={<CommunityLeadership />} />
+                      <Route path="/national-service" element={<NationalService />} />
+                      <Route path="/industry-exploration" element={<IndustryExploration />} />
+                      <Route path="/interview-preparation" element={<InterviewPreparation />} />
+                      <Route path="/job-matching" element={<JobMatching />} />
+                      <Route path="/career-comparison" element={<CareerComparison />} />
+                      <Route path="/assessments" element={<AssessmentsPage />} />
+                      <Route path="/collaborative-assessments" element={<CollaborativeAssessments />} />
+                      <Route path="/cv-builder" element={<CVBuilder />} />
+                      <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                      <Route path="/become-mentor" element={<BecomeMentor />} />
+                      <Route path="/mentor-matching" element={<MentorMatching />} />
+                      <Route path="/blockchain" element={<Blockchain />} />
+                      <Route path="/blockchain-credentials" element={<Blockchain />} />
+                      <Route path="/lms" element={<LMS />} />
+                      <Route path="/summer-camps" element={<SummerCamps />} />
+                      <Route path="/school-programs" element={<SchoolPrograms />} />
+                      <Route path="/scholarships" element={<Scholarships />} />
+                      <Route path="/youth-development" element={<YouthDevelopment />} />
+                      {/* ✅ FIXED: Use the correct component with translation support */}
+                      <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
+                      <Route path="/success-stories" element={<SuccessStoriesPage />} />
+                      <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                      <Route path="/financial-planning" element={<FinancialPlanningPage />} />
+                      <Route path="/retiree" element={<RetireeServicesPage />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/mvp-test" element={<MVPTestPage />} />
+                    </Routes>
+                  </main>
+                </Router>
+              </div>
+            </RoleProvider>
+          </AuthProvider>
+        </QueryProvider>
+      </AccessibilityProvider>
     </ErrorBoundary>
   );
 };

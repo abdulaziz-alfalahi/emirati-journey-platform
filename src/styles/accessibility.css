@@ -1,0 +1,330 @@
+/* Accessibility Styles for Emirati Journey Platform - Dubai Government Design System */
+
+/* Dubai Government Official Color Palette */
+:root {
+  /* Primary Dubai Government Colors */
+  --dubai-blue: #1B365D;        /* Primary brand color */
+  --dubai-gold: #B8860B;        /* Secondary/accent color */
+  --dubai-red: #C41E3A;         /* Alert/danger states */
+  --dubai-green: #228B22;       /* Success states */
+  --dubai-orange: #FFA500;      /* Warning states */
+  
+  /* Neutral Colors */
+  --dubai-white: #FFFFFF;
+  --dubai-black: #000000;
+  --dubai-gray-50: #F8F9FA;
+  --dubai-gray-100: #E9ECEF;
+  --dubai-gray-200: #DEE2E6;
+  --dubai-gray-300: #CED4DA;
+  --dubai-gray-400: #6C757D;
+  --dubai-gray-500: #495057;
+  --dubai-gray-600: #343A40;
+  --dubai-gray-700: #212529;
+  
+  /* Semantic Colors for Dubai Government */
+  --color-primary: var(--dubai-blue);
+  --color-secondary: var(--dubai-gold);
+  --color-success: var(--dubai-green);
+  --color-warning: var(--dubai-orange);
+  --color-danger: var(--dubai-red);
+  --color-info: var(--dubai-blue);
+  
+  /* Background Colors */
+  --bg-primary: var(--dubai-blue);
+  --bg-secondary: var(--dubai-gold);
+  --bg-success: var(--dubai-green);
+  --bg-warning: var(--dubai-orange);
+  --bg-danger: var(--dubai-red);
+  
+  /* Text Colors */
+  --text-primary: var(--dubai-blue);
+  --text-secondary: var(--dubai-gray-600);
+  --text-success: var(--dubai-green);
+  --text-warning: var(--dubai-orange);
+  --text-danger: var(--dubai-red);
+  
+  /* Border Colors */
+  --border-primary: var(--dubai-blue);
+  --border-secondary: var(--dubai-gold);
+  --border-light: var(--dubai-gray-200);
+  --border-dark: var(--dubai-gray-400);
+}
+
+/* High Contrast Mode - Dubai Government Compliant */
+.accessibility-high-contrast {
+  --dubai-blue: #0F1F35;        /* Darker blue for better contrast */
+  --dubai-gold: #8B6914;        /* Darker gold for better contrast */
+  --dubai-green: #1A5F1A;       /* Darker green for better contrast */
+  --dubai-red: #8B1538;         /* Darker red for better contrast */
+  --dubai-gray-400: #495057;    /* Darker gray for better contrast */
+  
+  background-color: var(--dubai-white) !important;
+  color: var(--dubai-black) !important;
+}
+
+.accessibility-high-contrast * {
+  background-color: inherit !important;
+  color: inherit !important;
+  border-color: var(--dubai-black) !important;
+}
+
+.accessibility-high-contrast button {
+  background-color: var(--dubai-blue) !important;
+  color: var(--dubai-white) !important;
+  border: 2px solid var(--dubai-black) !important;
+}
+
+.accessibility-high-contrast a {
+  color: var(--dubai-blue) !important;
+  text-decoration: underline !important;
+}
+
+/* Font Size Controls */
+.accessibility-font-normal {
+  font-size: 16px;
+}
+
+.accessibility-font-large {
+  font-size: 20px;
+}
+
+.accessibility-font-extra-large {
+  font-size: 24px;
+}
+
+/* Reduced Motion */
+.accessibility-reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus Management - Dubai Government Standards */
+.accessibility-focus-visible:focus-visible {
+  outline: 3px solid var(--dubai-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip Links - Dubai Government Accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--dubai-blue);
+  color: var(--dubai-white);
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Accessibility Toolbar Styling - Dubai Government */
+.accessibility-toolbar {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: var(--dubai-white);
+  border: 2px solid var(--dubai-blue);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(27, 54, 93, 0.15);
+  font-family: 'Inter', sans-serif;
+}
+
+.accessibility-toolbar-button {
+  background: var(--dubai-blue);
+  color: var(--dubai-white);
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.accessibility-toolbar-button:hover {
+  background: var(--dubai-gray-700);
+}
+
+.accessibility-toolbar-button:focus {
+  outline: 3px solid var(--dubai-gold);
+  outline-offset: 2px;
+}
+
+.accessibility-panel {
+  background: var(--dubai-white);
+  padding: 20px;
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.accessibility-panel h3 {
+  color: var(--dubai-blue);
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.accessibility-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dubai-gray-200);
+}
+
+.accessibility-control:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.accessibility-control label {
+  color: var(--dubai-gray-700);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.accessibility-toggle {
+  background: var(--dubai-gray-300);
+  border: none;
+  border-radius: 12px;
+  width: 44px;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.accessibility-toggle.active {
+  background: var(--dubai-green);
+}
+
+.accessibility-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--dubai-white);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.accessibility-toggle.active::after {
+  transform: translateX(20px);
+}
+
+.accessibility-button {
+  background: var(--dubai-blue);
+  color: var(--dubai-white);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.accessibility-button:hover {
+  background: var(--dubai-gray-700);
+}
+
+.accessibility-button.secondary {
+  background: var(--dubai-gold);
+}
+
+.accessibility-button.secondary:hover {
+  background: #9A7209;
+}
+
+/* RTL Support for Arabic - Dubai Government Standards */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .accessibility-toolbar {
+  left: auto;
+  right: 20px;
+}
+
+[dir="rtl"] .accessibility-control {
+  flex-direction: row-reverse;
+}
+
+/* Dubai Government Typography */
+.dubai-font-arabic {
+  font-family: 'Amiri', 'Arial Unicode MS', sans-serif;
+  line-height: 1.6;
+}
+
+.dubai-font-english {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+}
+
+/* Keyboard Navigation Indicators */
+.keyboard-navigation-active *:focus {
+  outline: 3px solid var(--dubai-gold) !important;
+  outline-offset: 2px !important;
+}
+
+/* Print Styles - Dubai Government */
+@media print {
+  .accessibility-toolbar {
+    display: none !important;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Mobile Responsive - Dubai Government Standards */
+@media (max-width: 768px) {
+  .accessibility-toolbar {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .accessibility-panel {
+    min-width: auto;
+    max-width: none;
+    padding: 16px;
+  }
+  
+  .accessibility-font-large {
+    font-size: 18px;
+  }
+  
+  .accessibility-font-extra-large {
+    font-size: 22px;
+  }
+}
+
