@@ -1,23 +1,31 @@
+// Simple utility function for combining classes
+export const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' ')
 
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+// Format date function that your CV component needs
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return ''
+  
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  
+  if (isNaN(dateObj.getTime())) return ''
+  
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
 
-export function formatDate(dateString: string): string {
-  if (!dateString) return '';
+// Additional utility functions your project might need
+export function formatDateShort(date: Date | string | null | undefined): string {
+  if (!date) return ''
   
-  const options: Intl.DateTimeFormatOptions = { 
-    year: 'numeric', 
+  const dateObj = typeof date === 'string' ? new Date(date) : date
+  
+  if (isNaN(dateObj.getTime())) return ''
+  
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
     month: 'short'
-  };
-  
-  try {
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return dateString;
-  }
+  })
 }

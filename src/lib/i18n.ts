@@ -68,6 +68,18 @@ import networkingAr from '../locales/ar/networking.json';
 import trainingEn from '../locales/en/training.json';
 import trainingAr from '../locales/ar/training.json';
 
+// ✅ NEW: Lifelong Engagement translation files
+import youthDevelopmentEn from '../locales/en/youth-development.json';
+import youthDevelopmentAr from '../locales/ar/youth-development.json';
+import nationalServiceEn from '../locales/en/national-service.json';
+import nationalServiceAr from '../locales/ar/national-service.json';
+import thoughtLeadershipEn from '../locales/en/thought-leadership.json';
+import thoughtLeadershipAr from '../locales/ar/thought-leadership.json';
+import shareSuccessStoriesEn from '../locales/en/share-success-stories.json';
+import shareSuccessStoriesAr from '../locales/ar/share-success-stories.json';
+import retireeEn from '../locales/en/retiree.json';
+import retireeAr from '../locales/ar/retiree.json';
+
 const resources = {
   en: {
     // Existing namespaces
@@ -103,6 +115,12 @@ const resources = {
     networking: networkingEn,
     // NEW: Training namespace
     training: trainingEn,
+    // ✅ NEW: Lifelong Engagement namespaces
+    'youth-development': youthDevelopmentEn,
+    'national-service': nationalServiceEn,
+    'thought-leadership': thoughtLeadershipEn,
+    'share-success-stories': shareSuccessStoriesEn,
+    retiree: retireeEn,
   },
   ar: {
     // Existing namespaces
@@ -138,6 +156,12 @@ const resources = {
     networking: networkingAr,
     // NEW: Training namespace
     training: trainingAr,
+    // ✅ NEW: Lifelong Engagement namespaces
+    'youth-development': youthDevelopmentAr,
+    'national-service': nationalServiceAr,
+    'thought-leadership': thoughtLeadershipAr,
+    'share-success-stories': shareSuccessStoriesAr,
+    retiree: retireeAr,
   },
 };
 

@@ -1,121 +1,396 @@
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@custom-variant dark (&:is(.dark *));
 
-/* Import RTL support styles */
-@import './styles/rtl.css';
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* UAE-inspired color palette */
+  --color-uae-gold: #D4AF37;
+  --color-uae-gold-light: #E6C757;
+  --color-uae-gold-dark: #B8941F;
+  --color-uae-navy: #1B365D;
+  --color-uae-navy-light: #2C4A6B;
+  --color-uae-navy-dark: #0F1F35;
+  --color-uae-green: #00A651;
+  --color-uae-green-light: #33B86A;
+  --color-uae-green-dark: #008A44;
+  --color-uae-red: #CE1126;
+  --color-uae-red-light: #D63851;
+  --color-uae-red-dark: #A50E20;
+  --color-uae-white: #FFFFFF;
+  --color-uae-pearl: #F8F9FA;
+  --color-uae-sand: #F5F1E8;
+}
 
-/* Import Dubai Font */
-@import url('https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap');
+:root {
+  --radius: 0.75rem;
+  
+  /* UAE-inspired light theme */
+  --background: #FFFFFF;
+  --foreground: #1B365D;
+  --card: #FFFFFF;
+  --card-foreground: #1B365D;
+  --popover: #FFFFFF;
+  --popover-foreground: #1B365D;
+  --primary: #D4AF37;
+  --primary-foreground: #1B365D;
+  --secondary: #F5F1E8;
+  --secondary-foreground: #1B365D;
+  --muted: #F8F9FA;
+  --muted-foreground: #6B7280;
+  --accent: #00A651;
+  --accent-foreground: #FFFFFF;
+  --destructive: #CE1126;
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --ring: #D4AF37;
+  --chart-1: #D4AF37;
+  --chart-2: #00A651;
+  --chart-3: #1B365D;
+  --chart-4: #CE1126;
+  --chart-5: #6B7280;
+  --sidebar: #F8F9FA;
+  --sidebar-foreground: #1B365D;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #1B365D;
+  --sidebar-accent: #F5F1E8;
+  --sidebar-accent-foreground: #1B365D;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #D4AF37;
+}
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 94.1%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+.dark {
+  --background: #0F1F35;
+  --foreground: #F8F9FA;
+  --card: #1B365D;
+  --card-foreground: #F8F9FA;
+  --popover: #1B365D;
+  --popover-foreground: #F8F9FA;
+  --primary: #E6C757;
+  --primary-foreground: #0F1F35;
+  --secondary: #2C4A6B;
+  --secondary-foreground: #F8F9FA;
+  --muted: #374151;
+  --muted-foreground: #9CA3AF;
+  --accent: #33B86A;
+  --accent-foreground: #0F1F35;
+  --destructive: #D63851;
+  --border: #374151;
+  --input: #1F2937;
+  --ring: #E6C757;
+  --chart-1: #E6C757;
+  --chart-2: #33B86A;
+  --chart-3: #60A5FA;
+  --chart-4: #D63851;
+  --chart-5: #9CA3AF;
+  --sidebar: #1B365D;
+  --sidebar-foreground: #F8F9FA;
+  --sidebar-primary: #E6C757;
+  --sidebar-primary-foreground: #0F1F35;
+  --sidebar-accent: #2C4A6B;
+  --sidebar-accent-foreground: #F8F9FA;
+  --sidebar-border: #374151;
+  --sidebar-ring: #E6C757;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
+  
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Dubai', Arial, sans-serif;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Typography system */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl lg:text-5xl;
+  }
+  
+  h2 {
+    @apply text-3xl lg:text-4xl;
+  }
+  
+  h3 {
+    @apply text-2xl lg:text-3xl;
+  }
+  
+  h4 {
+    @apply text-xl lg:text-2xl;
+  }
+  
+  h5 {
+    @apply text-lg lg:text-xl;
+  }
+  
+  h6 {
+    @apply text-base lg:text-lg;
+  }
+  
+  /* Arabic text support */
+  .text-arabic {
+    font-family: 'Noto Sans Arabic', 'Arial Unicode MS', sans-serif;
+    direction: rtl;
+    text-align: right;
+  }
+  
+  /* UAE-inspired gradients */
+  .gradient-uae-primary {
+    background: linear-gradient(135deg, var(--color-uae-gold) 0%, var(--color-uae-gold-light) 100%);
+  }
+  
+  .gradient-uae-secondary {
+    background: linear-gradient(135deg, var(--color-uae-navy) 0%, var(--color-uae-navy-light) 100%);
+  }
+  
+  .gradient-uae-success {
+    background: linear-gradient(135deg, var(--color-uae-green) 0%, var(--color-uae-green-light) 100%);
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Hover effects */
+  .hover-lift {
+    @apply transition-smooth;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* Focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-uae-gold) transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-uae-gold);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-uae-gold-dark);
   }
 }
 
-/* Language transition styles */
-.language-transition * {
-  transition: all 0.3s ease-in-out;
+@layer components {
+  /* Custom button variants */
+  .btn-uae-primary {
+    @apply bg-[var(--color-uae-gold)] text-[var(--color-uae-navy)] hover:bg-[var(--color-uae-gold-dark)] transition-smooth font-medium;
+  }
+  
+  .btn-uae-secondary {
+    @apply bg-[var(--color-uae-navy)] text-white hover:bg-[var(--color-uae-navy-light)] transition-smooth font-medium;
+  }
+  
+  .btn-uae-success {
+    @apply bg-[var(--color-uae-green)] text-white hover:bg-[var(--color-uae-green-dark)] transition-smooth font-medium;
+  }
+  
+  /* Card styles */
+  .card-uae {
+    @apply bg-card border border-border rounded-lg shadow-sm hover-lift;
+  }
+  
+  .card-uae-featured {
+    @apply card-uae border-[var(--color-uae-gold)] shadow-lg;
+  }
+  
+  /* Input styles */
+  .input-uae {
+    @apply bg-input border border-border rounded-md px-3 py-2 focus-ring transition-smooth;
+  }
+  
+  /* Navigation styles */
+  .nav-link {
+    @apply text-foreground hover:text-[var(--color-uae-gold)] transition-smooth font-medium;
+  }
+  
+  .nav-link-active {
+    @apply nav-link text-[var(--color-uae-gold)] border-b-2 border-[var(--color-uae-gold)];
+  }
 }
 
-/* Ensure proper font loading for Arabic and English - Using Dubai font for both */
-@font-face {
-  font-family: 'Dubai';
-  src: url('https://fonts.googleapis.com/css2?family=Dubai:wght@300;400;500;700&display=swap');
+@layer utilities {
+  /* Spacing utilities */
+  .space-y-uae > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  /* Text utilities */
+  .text-uae-gold {
+    color: var(--color-uae-gold);
+  }
+  
+  .text-uae-navy {
+    color: var(--color-uae-navy);
+  }
+  
+  .text-uae-green {
+    color: var(--color-uae-green);
+  }
+  
+  /* Background utilities */
+  .bg-uae-gold {
+    background-color: var(--color-uae-gold);
+  }
+  
+  .bg-uae-navy {
+    background-color: var(--color-uae-navy);
+  }
+  
+  .bg-uae-green {
+    background-color: var(--color-uae-green);
+  }
+  
+  .bg-uae-pearl {
+    background-color: var(--color-uae-pearl);
+  }
+  
+  .bg-uae-sand {
+    background-color: var(--color-uae-sand);
+  }
+  
+  /* Border utilities */
+  .border-uae-gold {
+    border-color: var(--color-uae-gold);
+  }
+  
+  .border-uae-navy {
+    border-color: var(--color-uae-navy);
+  }
+  
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
 }
 
-/* RTL-specific adjustments for better Arabic text rendering */
-[dir="rtl"] {
-  font-variant-numeric: lining-nums;
-  text-rendering: optimizeLegibility;
-  font-family: 'Dubai', Arial, sans-serif;
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-[dir="ltr"] {
-  font-family: 'Dubai', Arial, sans-serif;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Smooth direction changes */
-html {
-  transition: direction 0.3s ease-in-out;
-  font-family: 'Dubai', Arial, sans-serif;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
+
+/* Responsive design helpers */
+@media (max-width: 640px) {
+  .mobile-stack {
+    @apply flex-col space-y-4;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
+

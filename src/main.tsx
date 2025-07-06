@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
@@ -23,6 +22,30 @@ initializePerformanceMonitoring({
   enableLogging: process.env.NODE_ENV === 'development',
   enableAnalytics: process.env.NODE_ENV === 'production',
 });
+
+// Create PhaseProvider if it doesn't exist
+const PhaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentPhase, setCurrentPhase] = React.useState('dashboard');
+  const [phaseData, setPhaseData] = React.useState({});
+
+  const PhaseContext = React.createContext({
+    currentPhase,
+    setCurrentPhase,
+    phaseData,
+    setPhaseData,
+  });
+
+  return (
+    <PhaseContext.Provider value={{
+      currentPhase,
+      setCurrentPhase,
+      phaseData,
+      setPhaseData,
+    }}>
+      {children}
+    </PhaseContext.Provider>
+  );
+};
 
 // PWA Features Initialization
 const initializePWAFeatures = async () => {
@@ -137,7 +160,9 @@ const AppWithProviders: React.FC = () => {
     <React.StrictMode>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <LanguageProvider defaultLanguage="en">
-          <App />
+          <PhaseProvider>
+            <App />
+          </PhaseProvider>
         </LanguageProvider>
       </ThemeProvider>
     </React.StrictMode>
@@ -165,7 +190,7 @@ try {
   // Initialize PWA features after app loads
   initializePWAFeatures();
 
-  console.log("Main rendering complete with translation infrastructure and PWA features initialized");
+  console.log("Main rendering complete with translation infrastructure, PWA features, and PhaseProvider initialized");
 } catch (error) {
   console.error("Failed to render app:", error);
   
