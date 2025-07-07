@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
+import LifelongEngagementLayout from '@/components/layout/LifelongEngagementLayout';
 import { Users, Target, BookOpen, Award, Calendar, Heart, Star, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
