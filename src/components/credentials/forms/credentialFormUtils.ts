@@ -1,7 +1,7 @@
 
 import { useToast } from '@/hooks/use-toast';
 import { credentialVerificationService } from '@/services/credentialVerification/credentialVerificationService';
-import {
+import type {
   EducationVerificationData,
   EmploymentVerificationData,
   CertificationVerificationData

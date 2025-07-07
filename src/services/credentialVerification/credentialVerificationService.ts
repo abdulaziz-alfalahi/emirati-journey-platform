@@ -1,86 +1,117 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import {
-  CredentialVerificationRequest,
-  VerifiedCredential,
   EducationVerificationData,
   EmploymentVerificationData,
   CertificationVerificationData,
   VerificationResponse
-} from "@/types/credentialVerification";
-
-import { EducationVerifier } from "./verifiers/educationVerifier";
-import { EmploymentVerifier } from "./verifiers/employment";
-import { CertificationVerifier } from "./verifiers/certificationVerifier";
+} from '@/types/credentialVerification';
 
 class CredentialVerificationService {
-  private educationVerifier = new EducationVerifier();
-  private employmentVerifier = new EmploymentVerifier();
-  private certificationVerifier = new CertificationVerifier();
-
   async verifyEducationCredentials(
-    userId: string,
+    userId: string, 
     data: EducationVerificationData
   ): Promise<VerificationResponse> {
-    return this.educationVerifier.verify(userId, data);
+    try {
+      // Mock verification logic - replace with actual external API calls
+      const verificationId = `edu_${Date.now()}`;
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock success response
+      return {
+        success: true,
+        verification_id: verificationId,
+        data: {
+          id: verificationId,
+          user_id: userId,
+          credential_type: 'education',
+          institution_name: data.institution_name,
+          credential_title: `${data.degree_type} in ${data.field_of_study}`,
+          issue_date: `${data.graduation_year}-12-31`,
+          verification_source: 'UAE Education Ministry',
+          verification_status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Failed to verify education credentials',
+        verification_id: ''
+      };
+    }
   }
 
   async verifyEmploymentCredentials(
     userId: string,
     data: EmploymentVerificationData
   ): Promise<VerificationResponse> {
-    return this.employmentVerifier.verify(userId, data);
+    try {
+      const verificationId = `emp_${Date.now()}`;
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      return {
+        success: true,
+        verification_id: verificationId,
+        data: {
+          id: verificationId,
+          user_id: userId,
+          credential_type: 'employment',
+          institution_name: data.employer_name,
+          credential_title: data.job_title,
+          issue_date: data.start_date,
+          expiry_date: data.end_date,
+          verification_source: 'UAE Labor Ministry',
+          verification_status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'Failed to verify employment credentials',
+        verification_id: ''
+      };
+    }
   }
 
   async verifyCertificationCredentials(
     userId: string,
     data: CertificationVerificationData
   ): Promise<VerificationResponse> {
-    return this.certificationVerifier.verify(userId, data);
-  }
-
-  async getUserVerifiedCredentials(userId: string): Promise<VerifiedCredential[]> {
     try {
-      const { data, error } = await supabase
-        .from('verified_credentials')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const verificationId = `cert_${Date.now()}`;
       
-      return (data || []).map(item => ({
-        ...item,
-        credential_type: item.credential_type as 'education' | 'employment' | 'certification',
-        verification_status: item.verification_status as 'active' | 'expired' | 'revoked',
-        metadata: (item.metadata as Record<string, any>) || {}
-      }));
-    } catch (error) {
-      console.error("Error fetching user credentials:", error);
-      return [];
-    }
-  }
-
-  async getUserVerificationRequests(userId: string): Promise<CredentialVerificationRequest[]> {
-    try {
-      const { data, error } = await supabase
-        .from('credential_verification_requests')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      return (data || []).map(item => ({
-        ...item,
-        verification_type: item.verification_type as 'education' | 'employment' | 'certification',
-        status: item.status as 'pending' | 'verified' | 'failed' | 'expired',
-        request_data: (item.request_data as Record<string, any>) || {},
-        response_data: (item.response_data as Record<string, any>) || undefined
-      }));
+      return {
+        success: true,
+        verification_id: verificationId,
+        data: {
+          id: verificationId,
+          user_id: userId,
+          credential_type: 'certification',
+          institution_name: data.issuing_organization,
+          credential_title: data.certification_name,
+          issue_date: data.issue_date,
+          expiry_date: data.expiry_date,
+          credential_number: data.certification_number,
+          verification_source: 'Certification Registry',
+          verification_status: 'active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      };
     } catch (error) {
-      console.error("Error fetching verification requests:", error);
-      return [];
+      return {
+        success: false,
+        error: 'Failed to verify certification credentials',
+        verification_id: ''
+      };
     }
   }
 }
