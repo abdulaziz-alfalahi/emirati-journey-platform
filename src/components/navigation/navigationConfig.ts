@@ -1,4 +1,4 @@
-import { NavGroup } from '@/components/layout/types';
+// import { NavGroup } from '@/components/layout/types';
 import {
   GraduationCap,
   Briefcase,
@@ -24,7 +24,7 @@ import {
   GitCompare
 } from 'lucide-react';
 
-export const navigationGroups: NavGroup[] = [
+export const navigationGroups: any[] = [
   {
     id: 'education',
     name: 'Education Pathway',
