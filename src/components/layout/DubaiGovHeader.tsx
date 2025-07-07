@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Menu, Phone, Mail, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
+// FIXED: Explicitly import from .tsx file to avoid .jsx conflicts
+import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar.tsx';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { ColorBlindFilters } from '@/components/accessibility/ColorBlindFilters';
 
@@ -215,3 +215,4 @@ const DubaiGovHeader: React.FC = () => {
 };
 
 export default DubaiGovHeader;
+

@@ -2,6 +2,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap");
 @import url("./components/accessibility/accessibility.css");
 @import url("./components/ui/animations.css");
+@import url("./styles/rtl.css");
+
+/* Day 2 Enhancement: Add accessibility styles import */
+@import url("./styles/accessibility.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

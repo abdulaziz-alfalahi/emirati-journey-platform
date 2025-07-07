@@ -1,217 +1,241 @@
 import React, { useState } from 'react';
-import { useErrorHandler } from '../hooks/useErrorHandler';
-import DDSButton from '../components/dds/DDSButton';
+import { DDSButton } from '@/components/dds/DDSButton';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useAccessibility } from '@/components/accessibility/AccessibilityProvider';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, CheckCircle, Settings, Zap, Eye, Type } from 'lucide-react';
 
-const MVPTestPage = () => {
-  const { handleError, clearError } = useErrorHandler();
-  const [testResults, setTestResults] = useState([]);
+const MVPTestPage: React.FC = () => {
+  const [testResults, setTestResults] = useState<string[]>([]);
+  const { handleError, handleAsyncError, isLoading } = useErrorHandler();
+  const { 
+    isHighContrast, 
+    fontSize, 
+    isReducedMotion, 
+    language, 
+    toggleHighContrast,
+    increaseFontSize,
+    toggleLanguage 
+  } = useAccessibility();
 
-  const addTestResult = (test, status) => {
-    setTestResults(prev => [...prev, { test, status, timestamp: new Date().toLocaleTimeString() }]);
+  const addTestResult = (result: string) => {
+    setTestResults(prev => [...prev, result]);
   };
 
   const testErrorHandling = () => {
     try {
-      throw new Error('Test error for demonstration');
+      throw new Error('Test error for MVP demonstration');
     } catch (error) {
-      handleError(error, 'Error handling test completed');
-      addTestResult('Error handling test', 'completed');
+      handleError(error, {
+        description: 'This is a test error to demonstrate error handling',
+        severity: 'warning'
+      });
+      addTestResult('✅ Error handling test completed');
     }
   };
 
   const testAsyncError = async () => {
     try {
-      // Simulate async operation that fails
-      await new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Async operation failed')), 1000);
-      });
+      await handleAsyncError(
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Async test error')), 1000)
+        ),
+        {
+          description: 'Testing async error handling',
+          operation: 'async test'
+        }
+      );
     } catch (error) {
-      handleError(error, 'Async error handling test completed');
-      addTestResult('Async error handling test', 'completed');
+      addTestResult('✅ Async error handling test completed');
     }
   };
 
-  const testAccessibilityFeature = (feature) => {
-    addTestResult(`Accessibility test - ${feature}`, 'completed');
-  };
-
-  const clearResults = () => {
-    setTestResults([]);
-    clearError();
+  const testAccessibilityFeatures = () => {
+    addTestResult(`✅ Accessibility test - High Contrast: ${isHighContrast ? 'ON' : 'OFF'}`);
+    addTestResult(`✅ Accessibility test - Font Size: ${fontSize}`);
+    addTestResult(`✅ Accessibility test - Reduced Motion: ${isReducedMotion ? 'ON' : 'OFF'}`);
+    addTestResult(`✅ Accessibility test - Language: ${language}`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#1B365D] to-[#B8860B] text-white p-8 rounded-lg mb-8">
-          <h1 className="text-3xl font-bold mb-2">Day 1 MVP Enhancements Test</h1>
-          <p className="text-lg opacity-90">Testing Error Handling, Accessibility, and Dubai Design System</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-3xl font-bold mb-2">
+            {language === 'ar' ? 'اختبار تحسينات اليوم الأول' : 'Day 1 MVP Enhancements Test'}
+          </h1>
+          <p className="text-blue-100">
+            {language === 'ar' 
+              ? 'اختبار معالجة الأخطاء وإمكانية الوصول ونظام التصميم الحكومي'
+              : 'Testing Error Handling, Accessibility, and Dubai Design System'
+            }
+          </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Error Handling Tests */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div className="flex items-center mb-4">
-              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                <span className="text-red-600 text-sm">⚠</span>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">Error Handling Tests</h2>
-            </div>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Error Handling Tests */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+              {language === 'ar' ? 'اختبار معالجة الأخطاء' : 'Error Handling Tests'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <DDSButton 
+              onClick={testErrorHandling}
+              variant="danger"
+              className="w-full"
+            >
+              {language === 'ar' ? 'اختبار معالجة الأخطاء' : 'Test Error Handling'}
+            </DDSButton>
             
-            <div className="space-y-3 mb-4">
-              <DDSButton 
-                variant="danger" 
-                onClick={testErrorHandling}
-                className="w-full"
-              >
-                Test Error Handling
-              </DDSButton>
-              
-              <DDSButton 
-                variant="warning" 
-                onClick={testAsyncError}
-                className="w-full"
-              >
-                Test Async Error
-              </DDSButton>
-            </div>
-            
-            <p className="text-sm text-gray-600">
-              Click the buttons above to test the enhanced error handling system
-            </p>
-          </div>
+            <DDSButton 
+              onClick={testAsyncError}
+              variant="warning"
+              loading={isLoading}
+              className="w-full"
+            >
+              {language === 'ar' ? 'اختبار الأخطاء غير المتزامنة' : 'Test Async Error'}
+            </DDSButton>
 
-          {/* Accessibility Tests */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div className="flex items-center mb-4">
-              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                <span className="text-[#1B365D] text-sm">♿</span>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">Accessibility Tests</h2>
+            <div className="text-sm text-gray-600">
+              {language === 'ar' 
+                ? 'انقر على الأزرار أعلاه لاختبار نظام معالجة الأخطاء المحسن'
+                : 'Click the buttons above to test the enhanced error handling system'
+              }
             </div>
-            
-            <div className="space-y-3 mb-4">
-              <DDSButton 
-                variant="primary" 
-                onClick={() => testAccessibilityFeature('High Contrast: OFF')}
-                className="w-full"
-              >
-                Toggle High Contrast
-              </DDSButton>
-              
-              <DDSButton 
-                variant="secondary" 
-                onClick={() => testAccessibilityFeature('Font Size: 100')}
-                className="w-full"
-              >
-                Increase Font Size
-              </DDSButton>
-              
-              <DDSButton 
-                variant="outline" 
-                onClick={() => testAccessibilityFeature('Language: ar')}
-                className="w-full"
-              >
-                التبديل إلى العربية
-              </DDSButton>
-              
-              <DDSButton 
-                variant="success" 
-                onClick={() => testAccessibilityFeature('Reduced Motion: OFF')}
-                className="w-full"
-              >
-                Test Features
-              </DDSButton>
-            </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Dubai Design System */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div className="flex items-center mb-4">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                <span className="text-[#228B22] text-sm">✓</span>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">Dubai Design System</h2>
-            </div>
+        {/* Accessibility Tests */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Settings className="h-5 w-5 mr-2 text-blue-500" />
+              {language === 'ar' ? 'اختبار إمكانية الوصول' : 'Accessibility Tests'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <DDSButton 
+              onClick={toggleHighContrast}
+              variant={isHighContrast ? "primary" : "outline"}
+              icon={<Eye className="h-4 w-4" />}
+              className="w-full"
+            >
+              {language === 'ar' ? 'تبديل التباين العالي' : 'Toggle High Contrast'}
+            </DDSButton>
             
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <DDSButton variant="primary" size="sm">Primary</DDSButton>
-              <DDSButton variant="secondary" size="sm">Secondary</DDSButton>
-              <DDSButton variant="success" size="sm">Success</DDSButton>
-              <DDSButton variant="warning" size="sm">Warning</DDSButton>
-              <DDSButton variant="danger" size="sm">Danger</DDSButton>
-              <DDSButton variant="outline" size="sm">Outline</DDSButton>
-            </div>
-            
-            <p className="text-sm text-gray-600">
-              Dubai Government compliant button components
-            </p>
-          </div>
+            <DDSButton 
+              onClick={increaseFontSize}
+              variant="secondary"
+              icon={<Type className="h-4 w-4" />}
+              className="w-full"
+            >
+              {language === 'ar' ? 'زيادة حجم الخط' : 'Increase Font Size'}
+            </DDSButton>
 
-          {/* Test Results */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-yellow-600 text-sm">★</span>
-                </div>
-                <h2 className="text-xl font-semibold text-gray-800">Test Results</h2>
-              </div>
-              <DDSButton 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearResults}
-              >
-                Clear Results
-              </DDSButton>
+            <DDSButton 
+              onClick={toggleLanguage}
+              variant="outline"
+              className="w-full"
+            >
+              {language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+            </DDSButton>
+
+            <DDSButton 
+              onClick={testAccessibilityFeatures}
+              variant="success"
+              className="w-full"
+            >
+              {language === 'ar' ? 'اختبار الميزات' : 'Test Features'}
+            </DDSButton>
+          </CardContent>
+        </Card>
+
+        {/* Dubai Design System Demo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+              {language === 'ar' ? 'نظام التصميم الحكومي' : 'Dubai Design System'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <DDSButton variant="primary" size="small">Primary</DDSButton>
+              <DDSButton variant="secondary" size="small">Secondary</DDSButton>
+              <DDSButton variant="success" size="small">Success</DDSButton>
+              <DDSButton variant="warning" size="small">Warning</DDSButton>
+              <DDSButton variant="danger" size="small">Danger</DDSButton>
+              <DDSButton variant="outline" size="small">Outline</DDSButton>
             </div>
             
+            <div className="text-sm text-gray-600">
+              {language === 'ar' 
+                ? 'أزرار متوافقة مع معايير الحكومة الإماراتية'
+                : 'UAE Government compliant button components'
+              }
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Test Results */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Zap className="h-5 w-5 mr-2 text-yellow-500" />
+              {language === 'ar' ? 'نتائج الاختبار' : 'Test Results'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {testResults.length === 0 ? (
-                <p className="text-gray-500 text-sm italic">No tests run yet</p>
+                <p className="text-gray-500 text-sm">
+                  {language === 'ar' 
+                    ? 'لا توجد نتائج اختبار بعد. ابدأ الاختبار!'
+                    : 'No test results yet. Start testing!'
+                  }
+                </p>
               ) : (
                 testResults.map((result, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <div className="flex items-center">
-                      <span className="text-green-500 mr-2">✅</span>
-                      <span className="text-sm text-gray-700">{result.test}</span>
-                    </div>
-                    <span className="text-xs text-gray-500">{result.timestamp}</span>
+                  <div key={index} className="text-sm bg-green-50 text-green-800 p-2 rounded">
+                    {result}
                   </div>
                 ))
               )}
             </div>
-          </div>
-        </div>
+            
+            {testResults.length > 0 && (
+              <DDSButton 
+                onClick={() => setTestResults([])}
+                variant="outline"
+                size="small"
+                className="mt-4 w-full"
+              >
+                {language === 'ar' ? 'مسح النتائج' : 'Clear Results'}
+              </DDSButton>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Dubai Government Branding Footer */}
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-[#1B365D] mb-2">
-              Dubai Government Design System Integration
-            </h3>
-            <p className="text-gray-600 text-sm mb-4">
-              This platform follows Dubai Government design standards and accessibility guidelines
-            </p>
-            <div className="flex justify-center space-x-4 text-xs text-gray-500">
-              <span>✅ WCAG 2.1 AA Compliant</span>
-              <span>✅ Dubai DDS Colors</span>
-              <span>✅ Arabic RTL Support</span>
-              <span>✅ Government Standards</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Keyboard Shortcuts Info */}
-        <div className="mt-6 bg-[#1B365D] text-white p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">Keyboard Shortcuts:</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-            <div><kbd className="bg-[#B8860B] px-2 py-1 rounded">Alt + M</kbd> Skip to main content</div>
-            <div><kbd className="bg-[#B8860B] px-2 py-1 rounded">Alt + N</kbd> Skip to navigation</div>
-            <div><kbd className="bg-[#B8860B] px-2 py-1 rounded">Alt + A</kbd> Open accessibility menu</div>
-          </div>
-        </div>
+      {/* Footer */}
+      <div className="max-w-4xl mx-auto mt-8 text-center text-gray-600">
+        <p className="text-sm">
+          {language === 'ar' 
+            ? 'تم تطوير هذه الصفحة لاختبار تحسينات اليوم الأول من خطة MVP'
+            : 'This page was created to test Day 1 MVP enhancements'
+          }
+        </p>
+        <p className="text-xs mt-2">
+          {language === 'ar' 
+            ? 'استخدم شريط أدوات إمكانية الوصول في الزاوية العلوية اليسرى للمزيد من الخيارات'
+            : 'Use the accessibility toolbar in the top-left corner for more options'
+          }
+        </p>
       </div>
     </div>
   );

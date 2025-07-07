@@ -1,316 +1,335 @@
+import React, { useState } from 'react';
+import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18n';
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Accessibility, 
-  Type, 
-  Eye, 
-  Keyboard, 
-  Volume2, 
-  MousePointer,
-  Contrast,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw
-} from 'lucide-react';
-
-interface AccessibilitySettings {
-  fontSize: number;
-  highContrast: boolean;
-  dyslexiaFont: boolean;
-  focusIndicator: boolean;
-  screenReader: boolean;
-  keyboardNavigation: boolean;
-  colorBlindFilter: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
-}
-
-export const AccessibilityToolbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [settings, setSettings] = useState<AccessibilitySettings>({
-    fontSize: 100,
+export function AccessibilityToolbar() {
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation('common');
+  const [isTestMode, setIsTestMode] = React.useState(false);
+  const [diagnostics, setDiagnostics] = React.useState<string[]>([]);
+  const [settings, setSettings] = useState({
     highContrast: false,
-    dyslexiaFont: false,
-    focusIndicator: true,
-    screenReader: false,
-    keyboardNavigation: true,
-    colorBlindFilter: 'none'
+    fontSize: 'normal',
+    language: language
   });
 
-  // Apply accessibility settings to the document
-  useEffect(() => {
-    const root = document.documentElement;
-    
-    // Font size adjustment
-    root.style.fontSize = `${settings.fontSize}%`;
-    
-    // High contrast mode
-    if (settings.highContrast) {
-      root.classList.add('high-contrast');
-    } else {
-      root.classList.remove('high-contrast');
-    }
-    
-    // Dyslexia-friendly font
-    if (settings.dyslexiaFont) {
-      root.classList.add('dyslexia-font');
-    } else {
-      root.classList.remove('dyslexia-font');
-    }
-    
-    // Enhanced focus indicators
-    if (settings.focusIndicator) {
-      root.classList.add('enhanced-focus');
-    } else {
-      root.classList.remove('enhanced-focus');
-    }
-    
-    // Color blind filters
-    if (settings.colorBlindFilter !== 'none') {
-      root.classList.add(`filter-${settings.colorBlindFilter}`);
-    } else {
-      root.classList.remove('filter-protanopia', 'filter-deuteranopia', 'filter-tritanopia');
-    }
-    
-    // Save settings to localStorage
-    localStorage.setItem('accessibility-settings', JSON.stringify(settings));
-  }, [settings]);
+  // Add diagnostic logging
+  const addDiagnostic = (message: string) => {
+    console.log('🔍 DIAGNOSTIC:', message);
+    setDiagnostics(prev => [...prev.slice(-10), `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('accessibility-settings');
-    if (savedSettings) {
-      try {
-        setSettings(JSON.parse(savedSettings));
-      } catch (error) {
-        console.error('Failed to load accessibility settings:', error);
+  React.useEffect(() => {
+    addDiagnostic(`AccessibilityToolbar mounted - current language: ${language}`);
+    addDiagnostic(`i18n language: ${i18n.language}`);
+    addDiagnostic(`Document lang: ${document.documentElement.lang}`);
+    addDiagnostic(`Document dir: ${document.documentElement.dir}`);
+  }, [language]);
+
+  const handleLanguageChange = async (newLanguage: 'en' | 'ar') => {
+    addDiagnostic(`🚀 Language change initiated: ${language} → ${newLanguage}`);
+    
+    try {
+      if (typeof setLanguage !== 'function') {
+        addDiagnostic('❌ ERROR: setLanguage is not a function');
+        return;
       }
-    }
-  }, []);
 
-  const increaseFontSize = () => {
-    if (settings.fontSize < 150) {
-      setSettings(prev => ({ ...prev, fontSize: prev.fontSize + 10 }));
+      addDiagnostic('✅ setLanguage function exists, calling...');
+      await setLanguage(newLanguage);
+      
+      addDiagnostic(`✅ setLanguage completed`);
+      
+      // Update local settings
+      setSettings(prev => ({ ...prev, language: newLanguage }));
+      
+      // Check if changes took effect
+      setTimeout(() => {
+        addDiagnostic(`📊 After change - Context language: ${language}`);
+        addDiagnostic(`📊 After change - i18n language: ${i18n.language}`);
+        addDiagnostic(`📊 After change - Document lang: ${document.documentElement.lang}`);
+        addDiagnostic(`📊 After change - Document dir: ${document.documentElement.dir}`);
+      }, 200);
+      
+    } catch (error) {
+      addDiagnostic(`❌ ERROR in language change: ${error}`);
+      console.error('Language change error:', error);
     }
   };
 
-  const decreaseFontSize = () => {
-    if (settings.fontSize > 80) {
-      setSettings(prev => ({ ...prev, fontSize: prev.fontSize - 10 }));
+  // Simple toggle function
+  const toggleLanguage = () => {
+    const newLanguage = language === 'en' ? 'ar' : 'en';
+    addDiagnostic(`🔄 Toggle clicked: ${language} → ${newLanguage}`);
+    handleLanguageChange(newLanguage);
+  };
+
+  // Test function to bypass everything and directly manipulate DOM
+  const forceLanguageChange = (newLanguage: 'en' | 'ar') => {
+    addDiagnostic(`🔧 FORCE CHANGE: Directly setting ${newLanguage}`);
+    
+    // Direct DOM manipulation
+    document.documentElement.lang = newLanguage;
+    document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+    
+    // Direct i18n change
+    i18n.changeLanguage(newLanguage).then(() => {
+      addDiagnostic(`🔧 FORCE CHANGE: i18n changed to ${i18n.language}`);
+    }).catch(error => {
+      addDiagnostic(`🔧 FORCE CHANGE ERROR: ${error}`);
+    });
+    
+    // Direct localStorage
+    try {
+      localStorage.setItem('language', newLanguage);
+      addDiagnostic(`🔧 FORCE CHANGE: localStorage set to ${newLanguage}`);
+    } catch (error) {
+      addDiagnostic(`🔧 FORCE CHANGE localStorage ERROR: ${error}`);
     }
+    
+    // Force page refresh to see changes
+    setTimeout(() => {
+      addDiagnostic(`🔧 FORCE CHANGE: Refreshing page to apply changes`);
+      window.location.reload();
+    }, 1000);
   };
 
   const toggleHighContrast = () => {
-    setSettings(prev => ({ ...prev, highContrast: !prev.highContrast }));
+    const newValue = !settings.highContrast;
+    setSettings(prev => ({ ...prev, highContrast: newValue }));
+    
+    if (newValue) {
+      document.body.style.filter = 'contrast(150%) brightness(1.2)';
+    } else {
+      document.body.style.filter = '';
+    }
   };
 
-  const toggleDyslexiaFont = () => {
-    setSettings(prev => ({ ...prev, dyslexiaFont: !prev.dyslexiaFont }));
+  const changeFontSize = (size: string) => {
+    setSettings(prev => ({ ...prev, fontSize: size }));
+    
+    const root = document.documentElement;
+    switch (size) {
+      case 'large':
+        root.style.fontSize = '18px';
+        break;
+      case 'xlarge':
+        root.style.fontSize = '20px';
+        break;
+      default:
+        root.style.fontSize = '16px';
+    }
   };
 
   const resetSettings = () => {
     setSettings({
-      fontSize: 100,
       highContrast: false,
-      dyslexiaFont: false,
-      focusIndicator: true,
-      screenReader: false,
-      keyboardNavigation: true,
-      colorBlindFilter: 'none'
+      fontSize: 'normal',
+      language: 'en'
     });
+    
+    document.body.style.filter = '';
+    document.documentElement.style.fontSize = '16px';
+    handleLanguageChange('en');
   };
 
-  const setColorBlindFilter = (filter: AccessibilitySettings['colorBlindFilter']) => {
-    setSettings(prev => ({ ...prev, colorBlindFilter: filter }));
-  };
-
-  const hasActiveSettings = settings.fontSize !== 100 || 
-                           settings.highContrast || 
-                           settings.dyslexiaFont || 
-                           settings.colorBlindFilter !== 'none';
-
-  return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`flex items-center space-x-2 transition-colors ${
-            hasActiveSettings 
-              ? 'text-ehrdc-teal bg-ehrdc-teal/10 hover:bg-ehrdc-teal/20' 
-              : 'text-ehrdc-neutral-dark hover:text-ehrdc-teal hover:bg-ehrdc-teal/10'
-          }`}
-          aria-label="Accessibility options"
-          title="Accessibility Toolbar"
-        >
-          <Accessibility className="h-4 w-4" />
-          <span className="hidden sm:inline font-medium">Accessibility</span>
-        </Button>
-      </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        align="end" 
-        className="w-80 bg-white border border-ehrdc-neutral-light shadow-lg"
-        sideOffset={5}
-      >
-        <DropdownMenuLabel className="text-ehrdc-neutral-dark font-semibold">
-          Accessibility Options
-        </DropdownMenuLabel>
-        
-        <DropdownMenuSeparator className="bg-ehrdc-neutral-light" />
-        
-        {/* Text Size Controls */}
-        <div className="p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-ehrdc-neutral-dark flex items-center">
-              <Type className="h-4 w-4 mr-2" />
-              Text Size
-            </span>
-            <span className="text-xs text-ehrdc-neutral-dark/70">
-              {settings.fontSize}%
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={decreaseFontSize}
-              disabled={settings.fontSize <= 80}
-              className="border-ehrdc-neutral-light hover:border-ehrdc-teal hover:text-ehrdc-teal"
-              aria-label="Decrease text size"
-            >
-              <ZoomOut className="h-3 w-3" />
-            </Button>
-            <div className="flex-1 h-2 bg-ehrdc-neutral-light rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-ehrdc-teal transition-all duration-200"
-                style={{ width: `${((settings.fontSize - 80) / 70) * 100}%` }}
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={increaseFontSize}
-              disabled={settings.fontSize >= 150}
-              className="border-ehrdc-neutral-light hover:border-ehrdc-teal hover:text-ehrdc-teal"
-              aria-label="Increase text size"
-            >
-              <ZoomIn className="h-3 w-3" />
-            </Button>
-          </div>
+  if (isTestMode) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: '60px',
+        right: '20px',
+        zIndex: 9999,
+        backgroundColor: 'white',
+        border: '2px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '16px',
+        width: '400px',
+        maxHeight: '500px',
+        overflow: 'auto',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+        fontSize: '12px',
+        fontFamily: 'monospace'
+      }}>
+        <div style={{ marginBottom: '12px', fontWeight: 'bold', fontSize: '14px' }}>
+          🔍 Language System Diagnostics
         </div>
         
-        <DropdownMenuSeparator className="bg-ehrdc-neutral-light" />
-        
-        {/* Visual Adjustments */}
-        <DropdownMenuItem
-          onClick={toggleHighContrast}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.highContrast ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Contrast className="h-4 w-4 mr-2" />
-          <span>High Contrast</span>
-          {settings.highContrast && (
-            <span className="ml-auto text-xs bg-ehrdc-teal text-white px-2 py-1 rounded">
-              ON
-            </span>
-          )}
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={toggleDyslexiaFont}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.dyslexiaFont ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Type className="h-4 w-4 mr-2" />
-          <span>Dyslexia-Friendly Font</span>
-          {settings.dyslexiaFont && (
-            <span className="ml-auto text-xs bg-ehrdc-teal text-white px-2 py-1 rounded">
-              ON
-            </span>
-          )}
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator className="bg-ehrdc-neutral-light" />
-        
-        {/* Color Blind Support */}
-        <DropdownMenuLabel className="text-xs text-ehrdc-neutral-dark/70 font-medium">
-          Color Vision Support
-        </DropdownMenuLabel>
-        
-        <DropdownMenuItem
-          onClick={() => setColorBlindFilter('none')}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.colorBlindFilter === 'none' ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          <span>Normal Vision</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={() => setColorBlindFilter('protanopia')}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.colorBlindFilter === 'protanopia' ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          <span>Protanopia (Red-blind)</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={() => setColorBlindFilter('deuteranopia')}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.colorBlindFilter === 'deuteranopia' ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          <span>Deuteranopia (Green-blind)</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem
-          onClick={() => setColorBlindFilter('tritanopia')}
-          className={`cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal ${
-            settings.colorBlindFilter === 'tritanopia' ? 'bg-ehrdc-teal/10 text-ehrdc-teal' : ''
-          }`}
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          <span>Tritanopia (Blue-blind)</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator className="bg-ehrdc-neutral-light" />
-        
-        {/* Navigation Aids */}
-        <DropdownMenuItem className="cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal">
-          <Keyboard className="h-4 w-4 mr-2" />
-          <span>Keyboard Navigation Guide</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem className="cursor-pointer hover:bg-ehrdc-teal/10 hover:text-ehrdc-teal">
-          <Volume2 className="h-4 w-4 mr-2" />
-          <span>Screen Reader Support</span>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator className="bg-ehrdc-neutral-light" />
-        
-        {/* Reset Button */}
-        <DropdownMenuItem
-          onClick={resetSettings}
-          className="cursor-pointer hover:bg-orange-50 hover:text-orange-600 text-orange-600"
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          <span>Reset All Settings</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <div style={{ marginBottom: '12px' }}>
+          <strong>Current State:</strong><br/>
+          Context Language: {language}<br/>
+          i18n Language: {i18n.language}<br/>
+          Document Lang: {document.documentElement.lang}<br/>
+          Document Dir: {document.documentElement.dir}<br/>
+        </div>
+
+        <div style={{ marginBottom: '12px' }}>
+          <strong>Test Actions:</strong><br/>
+          <button 
+            onClick={toggleLanguage}
+            style={{ 
+              margin: '2px', 
+              padding: '4px 8px', 
+              fontSize: '11px', 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer' 
+            }}
+          >
+            Normal Toggle ({language === 'en' ? 'to Arabic' : 'to English'})
+          </button><br/>
+          
+          <button 
+            onClick={() => forceLanguageChange('ar')}
+            style={{ 
+              margin: '2px', 
+              padding: '4px 8px', 
+              fontSize: '11px', 
+              backgroundColor: '#dc2626', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer' 
+            }}
+          >
+            Force Arabic (with refresh)
+          </button>
+          
+          <button 
+            onClick={() => forceLanguageChange('en')}
+            style={{ 
+              margin: '2px', 
+              padding: '4px 8px', 
+              fontSize: '11px', 
+              backgroundColor: '#dc2626', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer' 
+            }}
+          >
+            Force English (with refresh)
+          </button><br/>
+          
+          <button 
+            onClick={() => setIsTestMode(false)}
+            style={{ 
+              margin: '2px', 
+              padding: '4px 8px', 
+              fontSize: '11px', 
+              backgroundColor: '#6b7280', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer' 
+            }}
+          >
+            Close Diagnostics
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '12px' }}>
+          <strong>Diagnostic Log:</strong>
+          <div style={{ 
+            backgroundColor: '#f9fafb', 
+            padding: '8px', 
+            borderRadius: '4px', 
+            maxHeight: '200px', 
+            overflow: 'auto',
+            fontSize: '10px'
+          }}>
+            {diagnostics.map((msg, i) => (
+              <div key={i} style={{ marginBottom: '2px' }}>{msg}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Main accessibility button */}
+      <button
+        onClick={() => setIsTestMode(true)}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          left: '16px',
+          zIndex: 1000,
+          backgroundColor: '#1B365D',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          fontWeight: '500',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = '#2c5282';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = '#1B365D';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+        title="Open Accessibility Options"
+      >
+        ♿ Accessibility
+      </button>
+
+      {/* Language indicator */}
+      <div style={{
+        position: 'fixed',
+        top: '16px',
+        left: '140px',
+        zIndex: 1000,
+        backgroundColor: language === 'ar' ? '#10b981' : '#3b82f6',
+        color: 'white',
+        fontSize: '12px',
+        padding: '4px 8px',
+        borderRadius: '4px',
+        fontWeight: 'bold'
+      }}>
+        {language === 'ar' ? 'العربية' : 'English'}
+      </div>
+
+      {/* Quick language toggle */}
+      <button
+        onClick={toggleLanguage}
+        style={{
+          position: 'fixed',
+          top: '16px',
+          left: '220px',
+          zIndex: 1000,
+          backgroundColor: '#B8860B',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '6px 10px',
+          fontSize: '12px',
+          fontWeight: '500',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = '#9a7209';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = '#B8860B';
+        }}
+        title={`Switch to ${language === 'en' ? 'Arabic' : 'English'}`}
+      >
+        {language === 'en' ? 'عربي' : 'EN'}
+      </button>
+    </div>
   );
-};
+}
+

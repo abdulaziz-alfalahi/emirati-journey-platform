@@ -1,178 +1,202 @@
-/* RTL Support Styles for Summer Camps Page - Font Consistent Version */
+/* RTL Layout Proportion Fix - Targeted Solution */
+/* THIS IS THE WORKING VERSION FROM YOUR JUNE 30TH BACKUP */
 
-/* Global font consistency - Apply Dubai font uniformly regardless of direction */
-html {
-  font-family: 'Dubai', Arial, sans-serif;
+/* Fix main layout container proportions in RTL mode */
+[dir="rtl"] .layout-container,
+[dir="rtl"] main,
+[dir="rtl"] .main-content {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-body {
-  font-family: 'Dubai', Arial, sans-serif;
+/* Ensure main content area maintains proper width in RTL */
+[dir="rtl"] .content-area,
+[dir="rtl"] .main-section,
+[dir="rtl"] .page-content {
+  flex: 1 !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
 }
 
-/* Base RTL styles - Layout only, no font changes */
-[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
+/* Fix sidebar width and positioning in RTL */
+[dir="rtl"] .sidebar,
+[dir="rtl"] .right-sidebar,
+[dir="rtl"] .navigation-sidebar {
+  flex: 0 0 auto !important;
+  width: 80px !important;
+  max-width: 80px !important;
+  min-width: 80px !important;
+  order: 2 !important;
 }
 
-[dir="ltr"] {
-  direction: ltr;
-  text-align: left;
+/* Fix left sidebar positioning in RTL */
+[dir="rtl"] .left-sidebar {
+  flex: 0 0 auto !important;
+  width: 80px !important;
+  max-width: 80px !important;
+  min-width: 80px !important;
+  order: 1 !important;
 }
 
-/* Text alignment for Arabic - consistent line height */
-[dir="rtl"] .rtl-text {
-  text-align: right;
-  /* Removed line-height override to prevent size changes */
+/* Ensure proper flex container behavior */
+[dir="rtl"] .flex-container {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
 }
 
-[dir="ltr"] .rtl-text {
-  text-align: left;
+/* Fix any grid layouts that might be causing issues */
+[dir="rtl"] .grid-container {
+  display: grid !important;
+  grid-template-columns: 80px 1fr 80px !important;
+  width: 100% !important;
 }
 
-/* Flex direction adjustments - layout only */
-[dir="rtl"] .rtl-flex {
-  flex-direction: row-reverse;
+/* Fix header layout in RTL */
+[dir="rtl"] header,
+[dir="rtl"] .header,
+[dir="rtl"] .navbar {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  justify-content: space-between !important;
 }
 
-[dir="ltr"] .rtl-flex {
-  flex-direction: row;
+/* Fix navigation menu positioning */
+[dir="rtl"] .nav-menu,
+[dir="rtl"] .navigation {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  gap: 1rem !important;
 }
 
-/* Card content adjustments - no font changes */
-[dir="rtl"] .rtl-card {
-  text-align: right;
+/* Fix main content centering */
+[dir="rtl"] .hero-section,
+[dir="rtl"] .main-hero,
+[dir="rtl"] .content-center {
+  text-align: center !important;
+  margin: 0 auto !important;
+  max-width: 800px !important;
+  padding: 2rem !important;
 }
 
-[dir="rtl"] .rtl-card .card-header {
-  text-align: right;
+/* Fix text alignment for Arabic content */
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] .title {
+  text-align: center !important;
+  direction: rtl !important;
 }
 
-[dir="rtl"] .rtl-card .card-content {
-  text-align: right;
+[dir="rtl"] p,
+[dir="rtl"] .description {
+  text-align: center !important;
+  direction: rtl !important;
 }
 
-/* Button text alignment - no font changes */
-[dir="rtl"] .rtl-button {
-  /* Removed font-family override */
+/* Fix button and form elements */
+[dir="rtl"] .button-group,
+[dir="rtl"] .form-actions {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 1rem !important;
 }
 
-[dir="ltr"] .rtl-button {
-  /* Removed font-family override */
+/* Fix any absolute positioned elements */
+[dir="rtl"] .absolute-positioned {
+  left: auto !important;
+  right: initial !important;
 }
 
-/* Stats grid adjustments - no font changes */
-[dir="rtl"] .rtl-stats {
-  text-align: center;
-  /* Removed font-family override */
+/* Fix floating elements */
+[dir="rtl"] .float-right {
+  float: left !important;
 }
 
-/* Arabic numerals display - minimal changes */
-[dir="rtl"] .arabic-numerals {
-  font-feature-settings: "tnum" 1;
-  /* Removed font-family override */
+[dir="rtl"] .float-left {
+  float: right !important;
 }
 
-/* Badge positioning - layout only */
-[dir="rtl"] .rtl-badge {
-  margin-left: 0;
-  margin-right: auto;
-  /* Removed font-family override */
-}
-
-/* Icon spacing adjustments for RTL - layout only */
-[dir="rtl"] .rtl-icon {
-  margin-left: 8px;
-  margin-right: 0;
-}
-
-[dir="ltr"] .rtl-icon {
-  margin-left: 0;
-  margin-right: 8px;
-}
-
-/* Form field adjustments - no font changes */
-[dir="rtl"] .rtl-form-field {
-  text-align: right;
-}
-
-[dir="rtl"] .rtl-form-field input,
-[dir="rtl"] .rtl-form-field textarea,
-[dir="rtl"] .rtl-form-field select {
-  text-align: right;
-  /* Inherit font from global styles */
-}
-
-/* Navigation adjustments - layout only */
-[dir="rtl"] .rtl-nav {
-  flex-direction: row-reverse;
-}
-
-/* Table adjustments for RTL */
-[dir="rtl"] .rtl-table {
-  direction: rtl;
-}
-
-[dir="rtl"] .rtl-table th,
-[dir="rtl"] .rtl-table td {
-  text-align: right;
-}
-
-/* Search field adjustments */
-[dir="rtl"] .rtl-search {
-  text-align: right;
-}
-
-/* Dropdown menu adjustments */
-[dir="rtl"] .rtl-dropdown {
-  right: 0;
-  left: auto;
-}
-
-[dir="ltr"] .rtl-dropdown {
-  left: 0;
-  right: auto;
-}
-
-/* Tooltip positioning */
-[dir="rtl"] .rtl-tooltip {
-  right: 0;
-  left: auto;
-}
-
-/* Modal content alignment */
-[dir="rtl"] .rtl-modal {
-  text-align: right;
-}
-
-/* Breadcrumb navigation */
-[dir="rtl"] .rtl-breadcrumb {
-  flex-direction: row-reverse;
-}
-
-/* Pagination controls */
-[dir="rtl"] .rtl-pagination {
-  flex-direction: row-reverse;
-}
-
-/* Responsive adjustments */
+/* Responsive fixes for RTL */
 @media (max-width: 768px) {
-  [dir="rtl"] .rtl-mobile {
-    text-align: right;
+  [dir="rtl"] .sidebar,
+  [dir="rtl"] .right-sidebar,
+  [dir="rtl"] .left-sidebar {
+    width: 60px !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
   }
   
-  [dir="ltr"] .rtl-mobile {
-    text-align: left;
+  [dir="rtl"] .content-area,
+  [dir="rtl"] .main-section {
+    padding: 0 1rem !important;
   }
 }
 
-/* Print styles */
-@media print {
-  [dir="rtl"] {
-    direction: rtl;
+@media (max-width: 480px) {
+  [dir="rtl"] .layout-container {
+    flex-direction: column !important;
   }
   
-  [dir="ltr"] {
-    direction: ltr;
+  [dir="rtl"] .sidebar,
+  [dir="rtl"] .right-sidebar,
+  [dir="rtl"] .left-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    order: 1 !important;
+  }
+  
+  [dir="rtl"] .content-area,
+  [dir="rtl"] .main-section {
+    order: 2 !important;
+    width: 100% !important;
   }
 }
+
+/* Debug helper - remove after fixing */
+[dir="rtl"] * {
+  box-sizing: border-box !important;
+}
+
+/* Ensure no elements have fixed widths that break layout */
+[dir="rtl"] .w-full {
+  width: 100% !important;
+}
+
+[dir="rtl"] .max-w-none {
+  max-width: none !important;
+}
+
+/* Fix any transform issues */
+[dir="rtl"] .transform {
+  transform: none !important;
+}
+
+/* Fix margin and padding direction issues */
+[dir="rtl"] .ml-auto {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: auto !important;
+  margin-left: 0 !important;
+}
+
+[dir="rtl"] .pl-4 {
+  padding-left: 0 !important;
+  padding-right: 1rem !important;
+}
+
+[dir="rtl"] .pr-4 {
+  padding-right: 0 !important;
+  padding-left: 1rem !important;
+}
+
