@@ -1,4 +1,3 @@
-
 export interface ExternalDatabaseConfig {
   id: string;
   database_name: string;
