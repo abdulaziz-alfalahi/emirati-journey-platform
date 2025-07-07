@@ -35,35 +35,28 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
   const isRTL = direction === 'rtl';
 
   const setLanguage = async (newLanguage: Language) => {
+    // Prevent unnecessary changes
+    if (language === newLanguage) return;
+    
     console.log('Changing language to:', newLanguage);
     console.log('Current i18n language:', i18n.language);
     console.log('i18n isInitialized:', i18n.isInitialized);
     
-    setLanguageState(newLanguage);
-    
     try {
+      // Save to localStorage first
       if (typeof window !== 'undefined') {
         localStorage.setItem('language', newLanguage);
       }
-    } catch (error) {
-      console.warn('Failed to save language to localStorage:', error);
-    }
-    
-    // Change language in i18n
-    try {
+      
+      // Change language in i18n first, then update state
       await i18n.changeLanguage(newLanguage);
       console.log('Language changed successfully in i18n to:', i18n.language);
       
-      // Force a re-render by triggering a storage event
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'language',
-          newValue: newLanguage,
-          oldValue: language
-        }));
-      }
+      // Update state only after i18n change is complete
+      setLanguageState(newLanguage);
+      
     } catch (error) {
-      console.error('Failed to change language in i18n:', error);
+      console.error('Failed to change language:', error);
     }
   };
 

@@ -44,10 +44,11 @@ export function AccessibilityToolbar() {
       // Update local settings
       setSettings(prev => ({ ...prev, language: newLanguage }));
       
-      // Check if changes took effect
+      // Check if changes took effect (use callback to get current values)
       setTimeout(() => {
-        addDiagnostic(`📊 After change - Context language: ${language}`);
-        addDiagnostic(`📊 After change - i18n language: ${i18n.language}`);
+        const currentLang = i18n.language;
+        addDiagnostic(`📊 After change - Context language: ${newLanguage}`);
+        addDiagnostic(`📊 After change - i18n language: ${currentLang}`);
         addDiagnostic(`📊 After change - Document lang: ${document.documentElement.lang}`);
         addDiagnostic(`📊 After change - Document dir: ${document.documentElement.dir}`);
       }, 200);

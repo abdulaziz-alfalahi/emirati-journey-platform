@@ -1,14 +1,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import App from './App.jsx';
 import './index.css';
 
 // Initialize i18n first, before any React rendering
-import './lib/i18n';
-import i18n from './lib/i18n';
+import './lib/i18n.js';
+import i18n from './lib/i18n.js';
 
 import { ThemeProvider } from './components/theme-provider';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext.jsx';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
