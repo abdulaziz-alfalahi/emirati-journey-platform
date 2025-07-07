@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, Users, Video, MapPin, Settings } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { VirtualEventsService } from '@/services/virtualEventsService';
 import { VirtualEvent, EventRegistration } from '@/types/virtualEvents';
 import EventOverview from '@/components/virtual-events/EventOverview';

@@ -12,7 +12,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { fetchCareerAdvisors } from '@/services/careerAdvisory';
 import { scheduleInterview } from '@/services/careerAdvisory/advisorySessionService';
 import { useAuth } from '@/context/AuthContext';

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Award, Download, Share2, Calendar, User, CheckCircle } from 'lucide-react';
 import { PostEventFollowUpService, AttendanceCertificate } from '@/services/postEventFollowUpService';
 import { VirtualEventsService } from '@/services/virtualEventsService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface CertificateViewerProps {
   eventId: string;

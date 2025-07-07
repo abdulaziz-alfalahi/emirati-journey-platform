@@ -16,7 +16,7 @@ import {
 import { EngagementTrackingService } from '@/services/engagementTrackingService';
 import { VirtualEventsService } from '@/services/virtualEventsService';
 import { VirtualBooth } from '@/types/virtualEvents';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface BoothHeatmapProps {
   eventId: string;

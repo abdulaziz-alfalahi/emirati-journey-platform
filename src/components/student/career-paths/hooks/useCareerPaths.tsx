@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { getUserCareerPaths, getUserCareerPathDetails, deleteUserCareerPath } from '@/services/careerPathService';
 import { UserCareerPath, UserCareerPathWithDetails } from '@/types/careerPath';
 
