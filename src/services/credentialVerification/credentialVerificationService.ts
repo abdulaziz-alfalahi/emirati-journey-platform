@@ -38,14 +38,13 @@ class CredentialVerificationService {
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to verify education credentials',
-        verification_id: ''
+        error: 'Failed to verify education credentials'
       };
     }
   }
 
   async verifyEmploymentCredentials(
-    userId: string,
+    userId: string, 
     data: EmploymentVerificationData
   ): Promise<VerificationResponse> {
     try {
@@ -63,7 +62,6 @@ class CredentialVerificationService {
           institution_name: data.employer_name,
           credential_title: data.job_title,
           issue_date: data.start_date,
-          expiry_date: data.end_date,
           verification_source: 'UAE Labor Ministry',
           verification_status: 'active',
           created_at: new Date().toISOString(),
@@ -73,14 +71,13 @@ class CredentialVerificationService {
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to verify employment credentials',
-        verification_id: ''
+        error: 'Failed to verify employment credentials'
       };
     }
   }
 
   async verifyCertificationCredentials(
-    userId: string,
+    userId: string, 
     data: CertificationVerificationData
   ): Promise<VerificationResponse> {
     try {
@@ -98,9 +95,7 @@ class CredentialVerificationService {
           institution_name: data.issuing_organization,
           credential_title: data.certification_name,
           issue_date: data.issue_date,
-          expiry_date: data.expiry_date,
-          credential_number: data.certification_number,
-          verification_source: 'Certification Registry',
+          verification_source: 'Certification Authority',
           verification_status: 'active',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -109,8 +104,7 @@ class CredentialVerificationService {
     } catch (error) {
       return {
         success: false,
-        error: 'Failed to verify certification credentials',
-        verification_id: ''
+        error: 'Failed to verify certification credentials'
       };
     }
   }

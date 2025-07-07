@@ -72,5 +72,5 @@ export interface VerificationResponse {
   success: boolean;
   data?: VerifiedCredential;
   error?: string;
-  verification_id: string;
+  verification_id?: string;
 }
