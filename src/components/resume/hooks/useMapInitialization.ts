@@ -132,7 +132,7 @@ export const useMapInitialization = ({
       };
       
       // Create the map with safe and deliberate parameters
-      const mapOptions: mapboxgl.MapOptions = {
+      const mapOptions: mapboxgl.MapboxOptions = {
         container: mapContainerRef.current,
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [initialLocationData.lng, initialLocationData.lat],

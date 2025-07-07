@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { JobDescriptionParser } from "@/components/resume/utils/jobDescriptionParser"; // Original local parser
 import { useQuery } from "@tanstack/react-query";
 
@@ -30,7 +30,7 @@ export const useJobDescriptions = () => {
 export const useJobUploader = (refetch: () => void) => {
   const { toast } = useToast();
   
-  const uploadJobDescriptions = async (files: FileList) => {
+  const uploadJobDescriptions = async (files: FileList | null) => {
     if (!files || files.length === 0) return { success: false, error: "No files selected" };
 
     console.log("[JobDescriptionUtils.ts] uploadJobDescriptions called. FLASK_API_BASE_URL:", FLASK_API_BASE_URL);
@@ -55,7 +55,7 @@ export const useJobUploader = (refetch: () => void) => {
           });
 
           if (!response.ok) {
-            const errorData = await response.json(); // Attempt to get JSON error from Flask
+            const errorData = await response.json() as { error?: string }; // Attempt to get JSON error from Flask
             const errorText = errorData.error || response.statusText;
             console.error(`[JobDescriptionUtils.ts] Flask API error for ${file.name}: ${response.status} ${errorText}`, errorData);
             toast({
