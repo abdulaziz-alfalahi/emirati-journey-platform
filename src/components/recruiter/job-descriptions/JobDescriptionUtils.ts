@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { JobDescriptionParser } from "@/components/resume/utils/jobDescriptionParser"; // Original local parser
 import { useQuery } from "@tanstack/react-query";
 
