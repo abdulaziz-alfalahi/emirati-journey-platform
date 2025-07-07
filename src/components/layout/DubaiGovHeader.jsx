@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 // FIXED: Explicitly import from .tsx file to avoid .jsx conflicts
-import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar.tsx';
+import { AccessibilityToolbar } from '@/components/accessibility/AccessibilityToolbar';
 import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
 import { ColorBlindFilters } from '@/components/accessibility/ColorBlindFilters';
 
