@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { PostEventFollowUpService } from '@/services/postEventFollowUpService';
 import { VirtualEventsService } from '@/services/virtualEventsService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface PostEventDashboardProps {
   eventId: string;

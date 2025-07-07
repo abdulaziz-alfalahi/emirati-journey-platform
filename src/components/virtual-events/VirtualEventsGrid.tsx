@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Search, Filter, Calendar, Users, Video } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { VirtualEventsService } from '@/services/virtualEventsService';
 import { VirtualEvent } from '@/types/virtualEvents';
 import VirtualEventCard from './VirtualEventCard';

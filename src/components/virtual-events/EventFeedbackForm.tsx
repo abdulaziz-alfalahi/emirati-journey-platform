@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Star, Send, CheckCircle } from 'lucide-react';
 import { PostEventFollowUpService } from '@/services/postEventFollowUpService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface EventFeedbackFormProps {
   eventId: string;

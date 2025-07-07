@@ -32,17 +32,25 @@ export interface VerificationResponse {
   success: boolean;
   error?: string;
   data?: any;
+  verification_id?: string;
 }
 
 export interface VerifiedCredential {
-  id: string;
-  user_id: string;
-  type: 'education' | 'employment' | 'certification';
-  status: 'verified' | 'pending' | 'rejected';
-  data: any;
+  id?: string;
+  user_id?: string;
+  type?: 'education' | 'employment' | 'certification';
+  credential_type?: string;
+  verification_status?: string;
+  status?: 'verified' | 'pending' | 'rejected';
+  data?: any;
+  metadata?: any;
   verified_at?: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
+  verification_id?: string;
+  verification_date?: string;
+  verification_source?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface CredentialVerificationRequest {
@@ -56,7 +64,16 @@ export interface CredentialVerificationRequest {
 }
 
 export interface ExternalDatabaseConfig {
-  url: string;
+  url?: string;
   apiKey?: string;
   headers?: Record<string, string>;
+  database_name?: string;
+  timeout_seconds?: number;
+  api_endpoint?: string;
+  authentication_type?: string;
+  is_active?: boolean;
+  rate_limit_per_minute?: number;
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
 }

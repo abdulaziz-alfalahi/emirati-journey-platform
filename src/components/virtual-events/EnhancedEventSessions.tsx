@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, Users, Video, Play, MessageSquare } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { VirtualEventsService } from '@/services/virtualEventsService';
 import { EventSession } from '@/types/virtualEvents';
 import SessionChat from './SessionChat';

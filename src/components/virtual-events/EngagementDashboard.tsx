@@ -16,7 +16,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { EngagementTrackingService, EngagementAnalytics } from '@/services/engagementTrackingService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface EngagementDashboardProps {
   eventId: string;
