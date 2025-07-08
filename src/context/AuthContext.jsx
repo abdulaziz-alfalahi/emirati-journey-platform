@@ -1,17 +1,14 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthContextType, UserRole } from '@/types/auth';
-import { useFetchUserRoles } from '@/hooks/use-fetch-user-roles';
-import { useAuthOperations } from '@/hooks/use-auth-operations';
+import { useFetchUserRoles } from '@/hooks/use-fetch-user-roles.js';
+import { useAuthOperations } from '@/hooks/use-auth-operations.js';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [roles, setRoles] = useState<UserRole[]>([]);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   
@@ -108,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const hasRole = (role: UserRole) => {
+  const hasRole = (role) => {
     return roles.includes(role);
   };
 
@@ -135,5 +132,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-export type { UserRole } from '@/types/auth';
