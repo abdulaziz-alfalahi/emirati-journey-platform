@@ -13,7 +13,7 @@ import SkillsLanguagesForm from '@/components/cv-builder/SkillsLanguagesForm';
 import CVUploader from '@/components/cv-builder/CVUploader';
 import CVPreview from '@/components/cv-builder/CVPreview';
 
-const CVBuilderPage: React.FC = () => {
+const CVBuilderPage = () => {
   return (
     <Layout>
       <div className="container mx-auto py-6">

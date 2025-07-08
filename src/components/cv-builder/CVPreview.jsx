@@ -7,7 +7,7 @@ import { Download, Eye, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
 
-const CVPreview: React.FC = () => {
+const CVPreview = () => {
   const { cvData, saveCV, isSaving } = useCV();
 
   const handleSave = async () => {

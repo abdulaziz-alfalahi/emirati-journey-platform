@@ -53,11 +53,6 @@ const PhaseProvider = ({ children }) => {
 };
 
 // Lazy load heavy components with error handling
-const CVBuilder = lazy(() => 
-  import('@/components/cv-builder/CVBuilder').catch(() => ({
-    default: () => <div className="p-4 text-center">CV Builder is not available</div>
-  }))
-);
 
 const JobSearch = lazy(() => 
   import('@/components/job-search/JobSearch').catch(() => ({
@@ -246,11 +241,9 @@ const Dashboard = () => {
     switch (activeView) {
       case 'cv-builder':
         return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading CV Builder..." />}>
-              <CVBuilder />
-            </Suspense>
-          </ErrorBoundary>
+          <div className="p-4 text-center">
+            <p className="text-muted-foreground">CV Builder functionality is available as a separate page.</p>
+          </div>
         );
       case 'job-search':
         return (
