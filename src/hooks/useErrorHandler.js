@@ -1,6 +1,13 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
+export const ERROR_SEVERITY = {
+  CRITICAL: 'critical',
+  HIGH: 'high',
+  MEDIUM: 'medium',
+  LOW: 'low'
+};
+
 export const useErrorHandler = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
