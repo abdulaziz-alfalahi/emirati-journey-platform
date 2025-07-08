@@ -24,7 +24,7 @@ initializePerformanceMonitoring({
 });
 
 // Create PhaseProvider if it doesn't exist
-const PhaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PhaseProvider = ({ children }) => {
   const [currentPhase, setCurrentPhase] = React.useState('dashboard');
   const [phaseData, setPhaseData] = React.useState({});
 
@@ -62,7 +62,7 @@ const initializePWAFeatures = async () => {
         // Register sync event for offline data
         window.addEventListener('online', () => {
           // Use type assertion for the sync property
-          (registration as any).sync?.register('sync-offline-data');
+          registration.sync?.register('sync-offline-data');
         });
       } else {
         console.log('Background sync is not supported');
@@ -98,7 +98,7 @@ const initializePWAFeatures = async () => {
 };
 
 // Error fallback component
-const ErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
+const ErrorFallback = ({ error }) => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
       <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
@@ -114,7 +114,7 @@ const ErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
 );
 
 // Create the App component with proper provider nesting and i18n initialization
-const AppWithProviders: React.FC = () => {
+const AppWithProviders = () => {
   const [isI18nReady, setIsI18nReady] = React.useState(false);
 
   React.useEffect(() => {
