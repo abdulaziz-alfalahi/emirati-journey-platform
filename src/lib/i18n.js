@@ -165,6 +165,7 @@ const resources = {
   },
 };
 
+// ENHANCED i18n CONFIGURATION WITH NAMESPACE PRELOADING
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -172,20 +173,62 @@ i18n
     resources,
     fallbackLng: 'en',
     debug: false,
+
+    // CRITICAL FIX: Preload all namespaces
+    preload: ['en', 'ar'],
     
+    // CRITICAL FIX: Load all namespaces by default
+    defaultNS: 'common',
+    ns: [
+      'common', 'navigation', 'home', 'forms', 'lms',
+      'career-planning-hub', 'graduate-programs', 'industry-exploration',
+      'scholarships', 'school-programs', 'summer-camps', 'university-programs',
+      'financial-planning', 'portfolio', 'resume-builder', 'internships',
+      'interview-preparation', 'career-advisory', 'jobs', 'analytics',
+      'assessments', 'digital-skills-development', 'professional-certifications',
+      'mentorship', 'blockchain-credentials', 'communities', 'credentials',
+      'networking', 'training',
+      // LIFELONG ENGAGEMENT NAMESPACES
+      'youth-development', 'national-service', 'thought-leadership',
+      'share-success-stories', 'retiree'
+    ],
+
     interpolation: {
       escapeValue: false,
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
     },
-    
+
     react: {
       useSuspense: false,
     },
+
+    // CRITICAL FIX: Ensure namespace loading on language change
+    load: 'languageOnly',
+    cleanCode: true,
+    
+    // CRITICAL FIX: Backend options for proper namespace handling
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+    },
   });
+
+// CRITICAL FIX: Force reload namespaces when language changes
+i18n.on('languageChanged', (lng) => {
+  console.log('i18n language changed to:', lng);
+  // Reload all Lifelong Engagement namespaces
+  const lifelongNamespaces = [
+    'youth-development', 'national-service', 'thought-leadership',
+    'share-success-stories', 'retiree'
+  ];
+  
+  lifelongNamespaces.forEach(ns => {
+    i18n.reloadResources(lng, ns);
+  });
+});
 
 export default i18n;
 

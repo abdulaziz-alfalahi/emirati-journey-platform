@@ -33,8 +33,23 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }) {
         localStorage.setItem('language', newLanguage);
       }
       
-      // Change language in i18n first, then update state
+      // Change the language
       await i18n.changeLanguage(newLanguage);
+      
+      // CRITICAL FIX: Force reload all Lifelong Engagement namespaces
+      const lifelongNamespaces = [
+        'youth-development', 'national-service', 'thought-leadership',
+        'share-success-stories', 'retiree'
+      ];
+      
+      console.log('Reloading Lifelong Engagement namespaces for', newLanguage);
+      await Promise.all(
+        lifelongNamespaces.map(ns => {
+          console.log(`Reloading namespace: ${ns}`);
+          return i18n.reloadResources(newLanguage, ns);
+        })
+      );
+      
       console.log('Language changed successfully in i18n to:', i18n.language);
       
       // Update state only after i18n change is complete
