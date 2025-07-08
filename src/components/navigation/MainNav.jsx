@@ -26,7 +26,9 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
   const location = useLocation();
 
   // Reverse the order of navigation groups for Arabic (RTL)
-  const orderedNavGroups = language === 'ar' ? [...navGroups].reverse() : navGroups;
+  const orderedNavGroups = React.useMemo(() => {
+    return language === 'ar' ? [...navGroups].reverse() : navGroups;
+  }, [navGroups, language]);
 
   return (
     <div className="flex items-center space-x-6">
