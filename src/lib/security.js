@@ -40,12 +40,12 @@ export interface SecurityConfig {
 export const SECURITY_HEADERS: SecurityHeaders = {
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.gstatic.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.gstatic.com https://static.cloudflareinsights.com https://cdn.gpteng.co",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
     "media-src 'self' blob:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mapbox.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mapbox.com https://cloudflareinsights.com",
     "frame-src 'self' https://challenges.cloudflare.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
