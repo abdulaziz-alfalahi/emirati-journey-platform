@@ -1,27 +1,9 @@
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
 
 /**
- * Interface for Core Web Vitals metrics
+ * Performance monitoring configuration defaults
  */
-export interface WebVitalsMetric {
-  name: string;
-  value: number;
-  rating: 'good' | 'needs-improvement' | 'poor';
-  delta: number;
-  id: string;
-  navigationType: string;
-}
-
-/**
- * Performance monitoring configuration
- */
-interface PerformanceConfig {
-  enableLogging: boolean;
-  enableAnalytics: boolean;
-  endpoint?: string;
-}
-
-const defaultConfig: PerformanceConfig = {
+const defaultConfig = {
   enableLogging: process.env.NODE_ENV === 'development',
   enableAnalytics: process.env.NODE_ENV === 'production',
 };
@@ -30,12 +12,10 @@ const defaultConfig: PerformanceConfig = {
  * Initialize Core Web Vitals monitoring
  * @param config - Performance monitoring configuration
  */
-export function initializePerformanceMonitoring(
-  config: Partial<PerformanceConfig> = {}
-): void {
+export function initializePerformanceMonitoring(config = {}) {
   const finalConfig = { ...defaultConfig, ...config };
 
-  const handleMetric = (metric: WebVitalsMetric) => {
+  const handleMetric = (metric) => {
     if (finalConfig.enableLogging) {
       console.log(`${metric.name}: ${metric.value} (${metric.rating})`);
     }
@@ -58,10 +38,10 @@ export function initializePerformanceMonitoring(
  * Send metrics to analytics service
  * @param metric - Web vitals metric to send
  */
-function sendToAnalytics(metric: WebVitalsMetric): void {
+function sendToAnalytics(metric) {
   // Replace with your analytics service
   if (typeof window !== 'undefined' && 'gtag' in window) {
-    (window as any).gtag('event', metric.name, {
+    window.gtag('event', metric.name, {
       custom_parameter_value: metric.value,
       custom_parameter_rating: metric.rating,
       custom_parameter_delta: metric.delta,
@@ -78,7 +58,7 @@ export const performanceBudgets = {
   CLS: 0.1, // Cumulative Layout Shift should be under 0.1
   FCP: 1800, // First Contentful Paint should be under 1.8s
   TTFB: 800, // Time to First Byte should be under 800ms
-} as const;
+};
 
 /**
  * Check if metric exceeds performance budget
@@ -86,17 +66,14 @@ export const performanceBudgets = {
  * @param value - Metric value
  * @returns Whether the metric exceeds the budget
  */
-export function exceedsPerformanceBudget(
-  metricName: keyof typeof performanceBudgets,
-  value: number
-): boolean {
+export function exceedsPerformanceBudget(metricName, value) {
   return value > performanceBudgets[metricName];
 }
 
 /**
  * Performance observer for monitoring long tasks
  */
-export function observeLongTasks(): void {
+export function observeLongTasks() {
   if ('PerformanceObserver' in window) {
     const observer = new PerformanceObserver(list => {
       list.getEntries().forEach(entry => {
@@ -121,14 +98,9 @@ export function observeLongTasks(): void {
 /**
  * Memory usage monitoring
  */
-export function monitorMemoryUsage(): {
-  usedJSHeapSize: number;
-  totalJSHeapSize: number;
-  jsHeapSizeLimit: number;
-  usagePercentage: number;
-} | null {
+export function monitorMemoryUsage() {
   if ('memory' in performance) {
-    const memory = (performance as any).memory;
+    const memory = performance.memory;
     const usage = {
       usedJSHeapSize: memory.usedJSHeapSize,
       totalJSHeapSize: memory.totalJSHeapSize,
