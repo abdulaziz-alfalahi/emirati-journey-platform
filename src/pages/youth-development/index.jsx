@@ -1,5 +1,5 @@
 import React from 'react';
-import LifelongEngagementLayout from '@/components/layout/LifelongEngagementLayout';
+import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import { useTranslation } from 'react-i18next';
 import { Users, Target, BookOpen, Award, Calendar, Heart, Star, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -742,52 +742,13 @@ const YouthDevelopmentPage: React.FC = () => {
 
   return (
     <LifelongEngagementLayout
-      heroTitle={t('title', 'Youth Development')}
-      heroDescription={t('description', 'Empowering young Emiratis through comprehensive development programs and opportunities')}
-    >
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="flex justify-center mb-4">
-                  <stat.icon className="h-8 w-8 text-ehrdc-teal" />
-                </div>
-                <div className="text-4xl font-bold text-ehrdc-teal mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Main Content Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="programs" className="w-full">
-          <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-white border min-w-max">
-              {tabs.map((tab) => (
-                <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2 text-ehrdc-teal whitespace-nowrap">
-                  {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          {tabs.map((tab) => (
-            <TabsContent key={tab.id} value={tab.id}>
-              <Card>
-                <CardContent className="p-6">
-                  {tab.content}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </div>
-    </LifelongEngagementLayout>
+      title={t('title', 'Youth Development')}
+      description={t('description', 'Empowering young Emiratis through comprehensive development programs and opportunities')}
+      icon={<Users className="h-12 w-12 text-white" />}
+      stats={stats}
+      tabs={tabs}
+      defaultTab="programs"
+    />
   );
 };
 
