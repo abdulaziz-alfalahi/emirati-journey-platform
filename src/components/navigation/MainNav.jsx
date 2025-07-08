@@ -30,6 +30,11 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
     return language === 'ar' ? [...navGroups].reverse() : navGroups;
   }, [navGroups, language]);
 
+  // Force re-render when language changes to ensure translations are applied
+  React.useEffect(() => {
+    console.log('MainNav language changed to:', language);
+  }, [language]);
+
   return (
     <div className="flex items-center space-x-6">
       {/* Logo */}
@@ -65,36 +70,36 @@ const MainNav: React.FC<MainNavProps> = ({ navGroups }) => {
                   {group.items.map((item) => {
                     // Map the item name to the translation key
                     const getItemKey = (itemName: string) => {
-                      const nameToKeyMap: { [key: string]: string } = {
-                        'Summer Camps': 'summerCamps',
-                        'School Programs': 'schoolPrograms',
-                        'Scholarships': 'scholarships',
-                        'University Programs': 'universityPrograms',
-                        'Learning Management System': 'lms',
-                        'Career Planning Hub': 'planningHub',
-                        'Industry Exploration': 'industryExploration',
-                        'Graduate Programs': 'graduatePrograms',
-                        'Internships': 'internships',
-                        'Job Matching': 'jobMatching',
-                        'Career Advisory': 'advisory',
-                        'Resume Builder': 'resumeBuilder',
-                        'Portfolio': 'portfolio',
-                        'Interview Preparation': 'interviewPrep',
-                        'Digital Skills Development': 'digitalSkills',
-                        'Professional Certifications': 'certifications',
-                        'Training Programs': 'training',
-                        'Assessments': 'assessments',
-                        'Mentorship': 'mentorship',
-                        'Communities': 'communities',
-                        'National Service': 'nationalService',
-                        'Youth Development': 'youthDevelopment',
-                        'Success Stories': 'successStories',
-                        'Blockchain Credentials': 'blockchainCredentials',
-                        'Analytics': 'analytics',
-                        'Financial Planning': 'financialPlanning',
-                        'Thought Leadership': 'thoughtLeadership',
-                        'Retiree Services': 'retiree'
-                      };
+                       const nameToKeyMap: { [key: string]: string } = {
+                         'Summer Camps': 'summerCamps',
+                         'School Programs': 'schoolPrograms',
+                         'Scholarships': 'scholarships',
+                         'University Programs': 'universityPrograms',
+                         'Learning Management System': 'lms',
+                         'Career Planning Hub': 'planningHub',
+                         'Industry Exploration': 'industryExploration',
+                         'Graduate Programs': 'graduatePrograms',
+                         'Internships': 'internships',
+                         'Job Matching': 'jobMatching',
+                         'Career Advisory': 'advisory',
+                         'Resume Builder': 'resumeBuilder',
+                         'Portfolio': 'portfolio',
+                         'Interview Preparation': 'interviewPrep',
+                         'Digital Skills Development': 'digitalSkills',
+                         'Professional Certifications': 'certifications',
+                         'Training Programs': 'training',
+                         'Assessments': 'assessments',
+                         'Mentorship': 'mentorship',
+                         'Communities': 'communities',
+                         'National Service': 'nationalService',
+                         'Youth Development': 'youthDevelopment',
+                         'Success Stories': 'successStories',
+                         'Blockchain Credentials': 'blockchainCredentials',
+                         'Analytics': 'analytics',
+                         'Financial Planning': 'financialPlanning',
+                         'Thought Leadership': 'thoughtLeadership',
+                         'Retiree Services': 'retiree'
+                       };
                       return nameToKeyMap[itemName] || itemName.toLowerCase().replace(/\s+/g, '');
                     };
 
