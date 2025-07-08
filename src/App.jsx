@@ -52,36 +52,35 @@ const PhaseProvider = ({ children }) => {
   );
 };
 
-// Lazy load heavy components with error handling
-
-const JobSearch = lazy(() => 
-  import('@/components/job-search/JobSearch').catch(() => ({
-    default: () => <div className="p-4 text-center">Job Search is not available</div>
-  }))
+// Placeholder components for missing functionality
+const JobSearch = () => (
+  <div className="p-4 text-center">
+    <p className="text-muted-foreground">Job Search functionality coming soon</p>
+  </div>
 );
 
-const ProfileManager = lazy(() => 
-  import('@/components/profile/ProfileManager').catch(() => ({
-    default: () => <div className="p-4 text-center">Profile Manager is not available</div>
-  }))
+const ProfileManager = () => (
+  <div className="p-4 text-center">
+    <p className="text-muted-foreground">Profile Manager functionality coming soon</p>
+  </div>
 );
 
-const ApplicationTracker = lazy(() => 
-  import('@/components/applications/ApplicationTracker').catch(() => ({
-    default: () => <div className="p-4 text-center">Application Tracker is not available</div>
-  }))
+const ApplicationTracker = () => (
+  <div className="p-4 text-center">
+    <p className="text-muted-foreground">Application Tracker functionality coming soon</p>
+  </div>
 );
 
-const SkillAssessment = lazy(() => 
-  import('@/components/skills/SkillAssessment').catch(() => ({
-    default: () => <div className="p-4 text-center">Skill Assessment is not available</div>
-  }))
+const SkillAssessment = () => (
+  <div className="p-4 text-center">
+    <p className="text-muted-foreground">Skill Assessment functionality coming soon</p>
+  </div>
 );
 
-const CareerGuidance = lazy(() => 
-  import('@/components/career/CareerGuidance').catch(() => ({
-    default: () => <div className="p-4 text-center">Career Guidance is not available</div>
-  }))
+const CareerGuidance = () => (
+  <div className="p-4 text-center">
+    <p className="text-muted-foreground">Career Guidance functionality coming soon</p>
+  </div>
 );
 
 // Loading component with UAE branding
@@ -246,45 +245,15 @@ const Dashboard = () => {
           </div>
         );
       case 'job-search':
-        return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading Job Search..." />}>
-              <JobSearch />
-            </Suspense>
-          </ErrorBoundary>
-        );
+        return <JobSearch />;
       case 'profile':
-        return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading Profile Manager..." />}>
-              <ProfileManager />
-            </Suspense>
-          </ErrorBoundary>
-        );
+        return <ProfileManager />;
       case 'applications':
-        return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading Application Tracker..." />}>
-              <ApplicationTracker />
-            </Suspense>
-          </ErrorBoundary>
-        );
+        return <ApplicationTracker />;
       case 'skills':
-        return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading Skill Assessment..." />}>
-              <SkillAssessment />
-            </Suspense>
-          </ErrorBoundary>
-        );
+        return <SkillAssessment />;
       case 'career':
-        return (
-          <ErrorBoundary fallback={ErrorFallback}>
-            <Suspense fallback={<LoadingSpinner message="Loading Career Guidance..." />}>
-              <CareerGuidance />
-            </Suspense>
-          </ErrorBoundary>
-        );
+        return <CareerGuidance />;
       default:
         return <DashboardHome stats={stats} setActiveView={setActiveView} />;
     }
