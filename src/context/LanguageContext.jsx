@@ -2,39 +2,24 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import i18n from '../lib/i18n';
 
-type Language = 'en' | 'ar';
-type Direction = 'ltr' | 'rtl';
+const LanguageContext = createContext(undefined);
 
-interface LanguageContextType {
-  language: Language;
-  direction: Direction;
-  setLanguage: (language: Language) => void;
-  isRTL: boolean;
-}
-
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-interface LanguageProviderProps {
-  children: React.ReactNode;
-  defaultLanguage?: Language;
-}
-
-export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
+export function LanguageProvider({ children, defaultLanguage = 'en' }) {
   // Initialize state with a safer approach
-  const [language, setLanguageState] = useState<Language>(() => {
+  const [language, setLanguageState] = useState(() => {
     try {
       const stored = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
-      return (stored as Language) || defaultLanguage;
+      return stored || defaultLanguage;
     } catch (error) {
       console.warn('Failed to read language from localStorage:', error);
       return defaultLanguage;
     }
   });
 
-  const direction: Direction = language === 'ar' ? 'rtl' : 'ltr';
+  const direction = language === 'ar' ? 'rtl' : 'ltr';
   const isRTL = direction === 'rtl';
 
-  const setLanguage = async (newLanguage: Language) => {
+  const setLanguage = async (newLanguage) => {
     // Prevent unnecessary changes
     if (language === newLanguage) return;
     
@@ -95,7 +80,7 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     changeLanguage();
   }, [language, direction]);
 
-  const value: LanguageContextType = {
+  const value = {
     language,
     direction,
     setLanguage,
