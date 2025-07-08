@@ -1,12 +1,7 @@
 
 import React from 'react';
 
-interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-}
-
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+const LoadingSpinner = ({ 
   size = 'md',
   className = ''
 }) => {
