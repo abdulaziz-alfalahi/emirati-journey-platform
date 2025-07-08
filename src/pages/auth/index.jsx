@@ -10,9 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, LogIn, UserPlus, Shield, AlertCircle } from 'lucide-react';
 import RoleSelector from '@/components/auth/RoleSelector';
-import { UserRole } from '@/types/auth';
-
-const AuthPage: React.FC = () => {
+const AuthPage = () => {
   const { user, signIn, signUp, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +18,7 @@ const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<UserRole[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('signin');
 
@@ -32,7 +30,7 @@ const AuthPage: React.FC = () => {
     }
   }, [user, navigate, location]);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
     
@@ -49,13 +47,13 @@ const AuthPage: React.FC = () => {
     try {
       await signIn(email, password);
       // Success handling is done in the signIn function via toast
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign in error:', error);
       setError(error.message || 'Sign in failed. Please try again.');
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
     
@@ -88,7 +86,7 @@ const AuthPage: React.FC = () => {
       setPassword('');
       setFullName('');
       setSelectedRoles([]);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign up error:', error);
       setError(error.message || 'Sign up failed. Please try again.');
     }
