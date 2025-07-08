@@ -1,526 +1,129 @@
-import React, { Suspense, lazy, createContext, useContext, useState } from 'react';
-import { AlertTriangle, CheckCircle, Info, Zap, Users, TrendingUp, Award } from 'lucide-react';
-import Layout from '@/components/Layout';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import ErrorToastContainer from '@/components/ErrorToastContainer';
-import { ErrorProvider, useErrorHandler, ERROR_TYPES, ERROR_SEVERITY } from '@/hooks/useErrorHandler';
-import { UAEButton } from '@/components/ui/uae-button';
-import { UAECard, UAECardHeader, UAECardTitle, UAECardDescription, UAECardContent, UAECardFooter } from '@/components/ui/uae-card';
-import { Button } from '@/components/ui/button';
+import { ErrorProvider } from '@/hooks/useErrorHandler';
+import { AuthProvider } from '@/context/AuthContext';
+import { QueryProvider } from '@/context/QueryContext';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import './App.css';
 
-// Create PhaseContext to fix the usePhase error
-const PhaseContext = createContext();
+// Lazy load pages for better performance
+const HomePage = lazy(() => import('@/pages/home/index'));
+const DashboardPage = lazy(() => import('@/pages/dashboard/index'));
+const AuthPage = lazy(() => import('@/pages/auth/index'));
+const ProfilePage = lazy(() => import('@/pages/profile/index'));
+const ResumeBuilderPage = lazy(() => import('@/pages/resume-builder/index'));
+const JobMatchingPage = lazy(() => import('@/pages/job-matching/index'));
+const TrainingPage = lazy(() => import('@/pages/training/index'));
+const AssessmentsPage = lazy(() => import('@/pages/assessments/index'));
+const MentorshipPage = lazy(() => import('@/pages/mentorship/index'));
+const CommunitiesPage = lazy(() => import('@/pages/communities/index'));
+const AnalyticsPage = lazy(() => import('@/pages/analytics/index'));
 
-export const usePhase = () => {
-  const context = useContext(PhaseContext);
-  if (!context) {
-    // Return default values instead of throwing error to prevent crashes
-    return {
-      currentPhase: 'dashboard',
-      setCurrentPhase: () => {},
-      phaseData: {},
-      setPhaseData: () => {},
-      isLoading: false,
-      error: null
-    };
-  }
-  return context;
-};
+// Lifelong Engagement Pages
+const NationalServicePage = lazy(() => import('@/pages/national-service/index'));
+const ThoughtLeadershipPage = lazy(() => import('@/pages/thought-leadership/index'));
+const ShareSuccessStoriesPage = lazy(() => import('@/pages/share-success-stories/index'));
+const RetireePage = lazy(() => import('@/pages/retiree/index'));
+const YouthDevelopmentPage = lazy(() => import('@/pages/youth-development/index'));
 
-const PhaseProvider = ({ children }) => {
-  const [currentPhase, setCurrentPhase] = useState('dashboard');
-  const [phaseData, setPhaseData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+// Career Entry Pages
+const InternshipsPage = lazy(() => import('@/pages/internships/index'));
+const UniversityProgramsPage = lazy(() => import('@/pages/university-programs/index'));
+const GraduateProgramsPage = lazy(() => import('@/pages/graduate-programs/index'));
+const ScholarshipsPage = lazy(() => import('@/pages/scholarships/index'));
+const SummerCampsPage = lazy(() => import('@/pages/summer-camps/index'));
+const SchoolProgramsPage = lazy(() => import('@/pages/school-programs/index'));
 
-  const value = {
-    currentPhase,
-    setCurrentPhase,
-    phaseData,
-    setPhaseData,
-    isLoading,
-    setIsLoading,
-    error,
-    setError
-  };
+// Professional Growth Pages
+const CareerAdvisoryPage = lazy(() => import('@/pages/career-advisory/index'));
+const DigitalSkillsPage = lazy(() => import('@/pages/digital-skills/index'));
+const ProfessionalCertificationsPage = lazy(() => import('@/pages/professional-certifications/index'));
+const LMSPage = lazy(() => import('@/pages/lms/index'));
+const NetworkingPage = lazy(() => import('@/pages/networking/index'));
 
-  return (
-    <PhaseContext.Provider value={value}>
-      {children}
-    </PhaseContext.Provider>
-  );
-};
-
-// Placeholder components for missing functionality
-const JobSearch = () => (
-  <div className="p-4 text-center">
-    <p className="text-muted-foreground">Job Search functionality coming soon</p>
-  </div>
-);
-
-const ProfileManager = () => (
-  <div className="p-4 text-center">
-    <p className="text-muted-foreground">Profile Manager functionality coming soon</p>
-  </div>
-);
-
-const ApplicationTracker = () => (
-  <div className="p-4 text-center">
-    <p className="text-muted-foreground">Application Tracker functionality coming soon</p>
-  </div>
-);
-
-const SkillAssessment = () => (
-  <div className="p-4 text-center">
-    <p className="text-muted-foreground">Skill Assessment functionality coming soon</p>
-  </div>
-);
-
-const CareerGuidance = () => (
-  <div className="p-4 text-center">
-    <p className="text-muted-foreground">Career Guidance functionality coming soon</p>
-  </div>
-);
-
-// Loading component with UAE branding
-const LoadingSpinner = ({ message = "Loading..." }) => (
-  <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-    <div className="relative">
-      <div className="w-16 h-16 border-4 border-gray-200 border-t-yellow-500 rounded-full animate-spin"></div>
-      <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-blue-600 rounded-full animate-spin" style={{animationDelay: '150ms'}}></div>
-    </div>
-    <p className="text-blue-600 font-medium">{message}</p>
-    <p className="text-sm text-gray-500">Powered by EHRDC</p>
-  </div>
-);
+// Other Pages
+const NotFoundPage = lazy(() => import('@/pages/NotFound'));
 
 // Error fallback component
-const ErrorFallback = ({ error, resetError }) => (
-  <UAECard variant="default" className="border-red-200 bg-red-50">
-    <UAECardHeader>
-      <UAECardTitle className="text-red-700 flex items-center gap-2">
-        <AlertTriangle className="w-5 h-5" />
-        Something went wrong
-      </UAECardTitle>
-      <UAECardDescription className="text-red-600">
-        {error?.message || 'An unexpected error occurred'}
-      </UAECardDescription>
-    </UAECardHeader>
-    <UAECardFooter>
-      <UAEButton onClick={resetError} variant="outline" className="border-red-300 text-red-700 hover:bg-red-100">
-        Try Again
-      </UAEButton>
-    </UAECardFooter>
-  </UAECard>
+const ErrorFallback = ({ error }) => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+      <p className="text-gray-600 mb-4">{error.message}</p>
+      <button 
+        onClick={() => window.location.reload()} 
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Reload Page
+      </button>
+    </div>
+  </div>
 );
 
-// Demo component to test error handling
-const ErrorTestComponent = () => {
-  const { handleError, withErrorHandling, ERROR_TYPES, ERROR_SEVERITY } = useErrorHandler();
-
-  const triggerNetworkError = () => {
-    const error = new Error('Failed to fetch user data from server');
-    handleError(error, {
-      type: ERROR_TYPES.NETWORK,
-      severity: ERROR_SEVERITY.HIGH,
-      context: 'User Profile Loading'
-    });
-  };
-
-  const triggerValidationError = () => {
-    const error = new Error('Email format is invalid');
-    handleError(error, {
-      type: ERROR_TYPES.VALIDATION,
-      severity: ERROR_SEVERITY.MEDIUM,
-      context: 'Profile Form Validation'
-    });
-  };
-
-  const triggerCriticalError = () => {
-    const error = new Error('Database connection lost');
-    handleError(error, {
-      type: ERROR_TYPES.SERVER,
-      severity: ERROR_SEVERITY.CRITICAL,
-      context: 'System Health Check'
-    });
-  };
-
-  const triggerAsyncError = async () => {
-    const result = await withErrorHandling(
-      async () => {
-        throw new Error('Async operation failed');
-      },
-      {
-        errorOptions: {
-          type: ERROR_TYPES.CLIENT,
-          severity: ERROR_SEVERITY.LOW,
-          context: 'Background Task'
-        }
-      }
-    );
-    
-    if (!result.success) {
-      console.log('Async operation failed gracefully');
-    }
-  };
-
-  return (
-    <UAECard variant="default" className="mb-6">
-      <UAECardHeader>
-        <UAECardTitle className="flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-yellow-500" />
-          Error Handling Demo
-        </UAECardTitle>
-        <UAECardDescription>
-          Test the enhanced error handling system with different error types and severities.
-        </UAECardDescription>
-      </UAECardHeader>
-      <UAECardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UAEButton onClick={triggerNetworkError} variant="outline" className="w-full">
-            Network Error (High)
-          </UAEButton>
-          <UAEButton onClick={triggerValidationError} variant="outline" className="w-full">
-            Validation Error (Medium)
-          </UAEButton>
-          <UAEButton onClick={triggerCriticalError} variant="outline" className="w-full">
-            Critical Error
-          </UAEButton>
-          <UAEButton onClick={triggerAsyncError} variant="outline" className="w-full">
-            Async Error (Low)
-          </UAEButton>
-        </div>
-      </UAECardContent>
-    </UAECard>
-  );
-};
-
-// Dashboard component showcasing UAE design system
-const Dashboard = () => {
-  const [activeView, setActiveView] = useState('dashboard');
-  
-  const stats = [
-    {
-      title: 'Active Applications',
-      value: '12',
-      change: '+3 this week',
-      icon: TrendingUp,
-      color: 'text-green-600',
-      action: () => setActiveView('applications')
-    },
-    {
-      title: 'Profile Views',
-      value: '248',
-      change: '+15% this month',
-      icon: Users,
-      color: 'text-yellow-500',
-      action: () => setActiveView('profile')
-    },
-    {
-      title: 'Skills Verified',
-      value: '8',
-      change: '2 pending',
-      icon: Award,
-      color: 'text-blue-600',
-      action: () => setActiveView('skills')
-    },
-    {
-      title: 'AI Recommendations',
-      value: '5',
-      change: 'Updated today',
-      icon: Zap,
-      color: 'text-green-600',
-      action: () => setActiveView('career')
-    }
-  ];
-
-  // Render different views based on activeView state
-  const renderActiveView = () => {
-    switch (activeView) {
-      case 'cv-builder':
-        return (
-          <div className="p-4 text-center">
-            <p className="text-muted-foreground">CV Builder functionality is available as a separate page.</p>
-          </div>
-        );
-      case 'job-search':
-        return <JobSearch />;
-      case 'profile':
-        return <ProfileManager />;
-      case 'applications':
-        return <ApplicationTracker />;
-      case 'skills':
-        return <SkillAssessment />;
-      case 'career':
-        return <CareerGuidance />;
-      default:
-        return <DashboardHome stats={stats} setActiveView={setActiveView} />;
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Navigation Bar */}
-      <div className="flex flex-wrap gap-2 p-4 bg-gray-100 rounded-lg">
-        <UAEButton 
-          onClick={() => setActiveView('dashboard')} 
-          variant={activeView === 'dashboard' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Dashboard
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('cv-builder')} 
-          variant={activeView === 'cv-builder' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          CV Builder
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('job-search')} 
-          variant={activeView === 'job-search' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Job Search
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('profile')} 
-          variant={activeView === 'profile' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Profile
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('applications')} 
-          variant={activeView === 'applications' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Applications
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('skills')} 
-          variant={activeView === 'skills' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Skills
-        </UAEButton>
-        <UAEButton 
-          onClick={() => setActiveView('career')} 
-          variant={activeView === 'career' ? 'primary' : 'outline'}
-          size="sm"
-        >
-          Career Guidance
-        </UAEButton>
-      </div>
-
-      {/* Dynamic Content Area */}
-      {renderActiveView()}
-    </div>
-  );
-};
-
-// Dashboard Home Component (extracted for better organization)
-const DashboardHome = ({ stats, setActiveView }) => {
-  return (
-    <>
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-br from-yellow-500 to-blue-600 rounded-lg p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, Ahmed!</h1>
-            <p className="text-white/90">
-              You have 3 new opportunities matching your profile. Let's explore them together.
-            </p>
-          </div>
-          <div className="hidden md:block">
-            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
-              <Users className="w-12 h-12 text-white" />
-            </div>
-          </div>
-        </div>
-        <div className="mt-6 flex gap-4">
-          <UAEButton 
-            onClick={() => setActiveView('job-search')}
-            variant="secondary" 
-            className="bg-white text-blue-600 hover:bg-white/90"
-          >
-            View Opportunities
-          </UAEButton>
-          <UAEButton 
-            onClick={() => setActiveView('profile')}
-            variant="outline" 
-            className="border-white text-white hover:bg-white hover:text-blue-600"
-          >
-            Update Profile
-          </UAEButton>
-        </div>
-      </div>
-
-      {/* Error Testing Section */}
-      <ErrorTestComponent />
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <UAECard 
-            key={index} 
-            variant="default" 
-            className="hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-            onClick={stat.action}
-          >
-            <UAECardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-blue-600">{stat.value}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stat.change}</p>
-                </div>
-                <div className={`${stat.color}`}>
-                  <stat.icon className="w-8 h-8" />
-                </div>
-              </div>
-            </UAECardContent>
-          </UAECard>
-        ))}
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UAECard variant="default">
-          <UAECardHeader>
-            <UAECardTitle>Recent Applications</UAECardTitle>
-            <UAECardDescription>
-              Track your latest job applications and their status.
-            </UAECardDescription>
-          </UAECardHeader>
-          <UAECardContent>
-            <div className="space-y-4">
-              {[
-                { company: 'Emirates Airlines', position: 'Software Engineer', status: 'Interview Scheduled', color: 'bg-green-500' },
-                { company: 'ADNOC', position: 'Data Analyst', status: 'Under Review', color: 'bg-yellow-500' },
-                { company: 'Dubai Municipality', position: 'Project Manager', status: 'Application Sent', color: 'bg-blue-500' }
-              ].map((app, index) => (
-                <div key={index} className="flex items-center gap-4 p-3 rounded-lg bg-gray-50">
-                  <div className={`w-3 h-3 rounded-full ${app.color}`}></div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{app.position}</p>
-                    <p className="text-xs text-gray-600">{app.company}</p>
-                  </div>
-                  <span className="text-xs px-2 py-1 bg-white rounded-full border">
-                    {app.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </UAECardContent>
-          <UAECardFooter>
-            <UAEButton 
-              onClick={() => setActiveView('applications')}
-              variant="outline" 
-              className="w-full"
-            >
-              View All Applications
-            </UAEButton>
-          </UAECardFooter>
-        </UAECard>
-
-        <UAECard variant="default">
-          <UAECardHeader>
-            <UAECardTitle>AI Recommendations</UAECardTitle>
-            <UAECardDescription>
-              Personalized career opportunities based on your profile.
-            </UAECardDescription>
-          </UAECardHeader>
-          <UAECardContent>
-            <div className="space-y-4">
-              {[
-                { title: 'Senior Developer Role', match: '95%', company: 'Technology Innovation Institute' },
-                { title: 'Product Manager', match: '88%', company: 'Careem' },
-                { title: 'UX Designer', match: '82%', company: 'Noon' }
-              ].map((rec, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                  <div>
-                    <p className="font-medium text-sm">{rec.title}</p>
-                    <p className="text-xs text-gray-600">{rec.company}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-medium text-green-600">{rec.match}</span>
-                    <p className="text-xs text-gray-600">match</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </UAECardContent>
-          <UAECardFooter>
-            <UAEButton 
-              onClick={() => setActiveView('career')}
-              variant="primary" 
-              className="w-full"
-            >
-              Explore Recommendations
-            </UAEButton>
-          </UAECardFooter>
-        </UAECard>
-      </div>
-
-      {/* Design System Showcase */}
-      <UAECard variant="featured">
-        <UAECardHeader>
-          <UAECardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            Phase 2A: Foundation Enhancement Complete
-          </UAECardTitle>
-          <UAECardDescription>
-            Enhanced error handling system and UAE-inspired design system successfully implemented.
-          </UAECardDescription>
-        </UAECardHeader>
-        <UAECardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-lg bg-gray-100">
-              <AlertTriangle className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-              <h4 className="font-medium text-blue-600">Error Boundaries</h4>
-              <p className="text-xs text-gray-600">Graceful error handling</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-gray-100">
-              <Info className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h4 className="font-medium text-blue-600">Toast Notifications</h4>
-              <p className="text-xs text-gray-600">User-friendly messages</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-gray-100">
-              <Award className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <h4 className="font-medium text-blue-600">UAE Design System</h4>
-              <p className="text-xs text-gray-600">Cultural design elements</p>
-            </div>
-          </div>
-        </UAECardContent>
-        <UAECardFooter className="justify-between">
-          <div className="text-sm text-gray-600">
-            Ready for Phase 2B: UI/UX Enhancement
-          </div>
-          <UAEButton variant="success">
-            Continue to Phase 2B
-          </UAEButton>
-        </UAECardFooter>
-      </UAECard>
-    </>
-  );
-};
-
-// Main App component
+// Main App component with proper routing
 function App() {
   return (
     <ErrorProvider>
-      <PhaseProvider>
-        <ErrorBoundary fallback={ErrorFallback}>
-          <Layout>
-            <Suspense fallback={<LoadingSpinner message="Loading EHRDC Platform..." />}>
-              <Dashboard />
-            </Suspense>
-            <ErrorToastContainer />
-          </Layout>
-        </ErrorBoundary>
-      </PhaseProvider>
+      <AuthProvider>
+        <QueryProvider>
+          <Router>
+            <ErrorBoundary fallback={ErrorFallback}>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Home route */}
+                  <Route path="/" element={<HomePage />} />
+                  
+                  {/* Authentication */}
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/auth/login" element={<AuthPage />} />
+                  <Route path="/auth/register" element={<AuthPage />} />
+                  
+                  {/* Main dashboard */}
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  
+                  {/* Core features */}
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+                  <Route path="/job-matching" element={<JobMatchingPage />} />
+                  <Route path="/training" element={<TrainingPage />} />
+                  <Route path="/assessments" element={<AssessmentsPage />} />
+                  <Route path="/mentorship" element={<MentorshipPage />} />
+                  <Route path="/communities" element={<CommunitiesPage />} />
+                  <Route path="/analytics" element={<AnalyticsPage />} />
+                  
+                  {/* Career Entry Phase */}
+                  <Route path="/internships" element={<InternshipsPage />} />
+                  <Route path="/university-programs" element={<UniversityProgramsPage />} />
+                  <Route path="/graduate-programs" element={<GraduateProgramsPage />} />
+                  <Route path="/scholarships" element={<ScholarshipsPage />} />
+                  <Route path="/summer-camps" element={<SummerCampsPage />} />
+                  <Route path="/school-programs" element={<SchoolProgramsPage />} />
+                  
+                  {/* Professional Growth Phase */}
+                  <Route path="/career-advisory" element={<CareerAdvisoryPage />} />
+                  <Route path="/digital-skills" element={<DigitalSkillsPage />} />
+                  <Route path="/professional-certifications" element={<ProfessionalCertificationsPage />} />
+                  <Route path="/lms" element={<LMSPage />} />
+                  <Route path="/networking" element={<NetworkingPage />} />
+                  
+                  {/* Lifelong Engagement Phase */}
+                  <Route path="/national-service" element={<NationalServicePage />} />
+                  <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
+                  <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
+                  <Route path="/retiree" element={<RetireePage />} />
+                  <Route path="/youth-development" element={<YouthDevelopmentPage />} />
+                  
+                  {/* 404 page */}
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Suspense>
+              <ErrorToastContainer />
+            </ErrorBoundary>
+          </Router>
+        </QueryProvider>
+      </AuthProvider>
     </ErrorProvider>
   );
 }
