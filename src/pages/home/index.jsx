@@ -6,7 +6,7 @@ import HomeContent from '@/components/home/HomeContent';
 import HomeGridSection from '@/components/home/HomeGridSection';
 import { useAuth } from '@/context/AuthContext';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const { user, roles } = useAuth();
   
   // Check if user is a student based on role or email
