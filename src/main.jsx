@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
-import './index.css';
+import './App.css';
 
 // Initialize i18n first, before any React rendering
 import './lib/i18n.js';
