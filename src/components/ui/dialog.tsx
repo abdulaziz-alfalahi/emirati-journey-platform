@@ -50,7 +50,7 @@ function DialogContent({
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+      <DialogOverlay className="" />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
@@ -106,7 +106,7 @@ function DialogTitle({
 }
 
 function DialogDescription({
-  className,
+  className = "",
   ...props
 }) {
   return (
