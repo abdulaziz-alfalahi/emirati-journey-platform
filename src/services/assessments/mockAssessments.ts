@@ -1,5 +1,5 @@
 
-import { Assessment } from "@/types/assessments";
+import { Assessment } from "../../types/assessments";
 
 export const mockAssessments: Assessment[] = [
   {
