@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Badge } from '../../ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../ui/dialog';
 
 export function JobDetailsDialog({ isOpen, onOpenChange, selectedJob }) {
   if (!selectedJob) return null;

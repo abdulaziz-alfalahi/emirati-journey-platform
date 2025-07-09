@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '../../../integrations/supabase/client';
+import { useToast } from '../../../hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 export function useJobDescriptionsList() {
@@ -61,7 +61,7 @@ export function useJobDescriptionsList() {
       toast({
         title: 'Success',
         description: 'Job description deleted successfully',
-        variant: 'success',
+        variant: 'default',
       });
     } catch (error) {
       console.error('Error deleting job description:', error);
@@ -92,7 +92,7 @@ export function useJobDescriptionsList() {
       toast({
         title: 'Success',
         description: `Job description ${!currentStatus ? 'activated' : 'deactivated'} successfully`,
-        variant: 'success',
+        variant: 'default',
       });
     } catch (error) {
       console.error('Error updating job status:', error);

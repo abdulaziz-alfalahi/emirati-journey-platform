@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { Button } from '../../ui/button';
 import { Loader2, FileText } from 'lucide-react';
 
 export function JobDescriptionCard({ isLoading, jobDescriptions, onAddNew, children }) {
