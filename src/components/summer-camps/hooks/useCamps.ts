@@ -10,11 +10,11 @@ import {
   cancelEnrollment 
 } from '../../../services/summerCamps';
 
-export const useCamps = (type, filters, searchQuery = "") => {
+export const useCamps = (type: string, filters: any, searchQuery: string = "") => {
   const { user } = useAuth();
-  const [camps, setCamps] = useState([]);
+  const [camps, setCamps] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [enrolledCamps, setEnrolledCamps] = useState({});
+  const [enrolledCamps, setEnrolledCamps] = useState<any>({});
   const [loading, setLoading] = useState(true);
   
   // Use pagination hook
@@ -115,7 +115,7 @@ export const useCamps = (type, filters, searchQuery = "") => {
     fetchCamps();
   }, [type, user, pagination.currentPage, debouncedSearchQuery, debouncedFilters]);
 
-  const handleEnroll = async (campId) => {
+  const handleEnroll = async (campId: string) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -132,7 +132,7 @@ export const useCamps = (type, filters, searchQuery = "") => {
     }
   };
 
-  const handleCancelEnrollment = async (campId) => {
+  const handleCancelEnrollment = async (campId: string) => {
     if (!user || !enrolledCamps[campId]) return;
     
     const result = await cancelEnrollment(enrolledCamps[campId], campId);

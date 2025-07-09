@@ -24,7 +24,7 @@ export const fetchAssessments = async () => {
   return data;
 };
 
-export const fetchAssessmentById = async (id) => {
+export const fetchAssessmentById = async (id: string) => {
   if (USE_MOCK_DATA) {
     const assessment = mockAssessments.find(a => a.id === id);
     if (!assessment) {
@@ -47,7 +47,7 @@ export const fetchAssessmentById = async (id) => {
   return data;
 };
 
-export const createAssessment = async (assessmentData) => {
+export const createAssessment = async (assessmentData: any) => {
   if (USE_MOCK_DATA) {
     const newAssessment = {
       ...assessmentData,
@@ -74,7 +74,7 @@ export const createAssessment = async (assessmentData) => {
   return data;
 };
 
-export const updateAssessment = async (id, assessmentData) => {
+export const updateAssessment = async (id: string, assessmentData: any) => {
   if (USE_MOCK_DATA) {
     const index = mockAssessments.findIndex(a => a.id === id);
     if (index === -1) {
@@ -108,7 +108,7 @@ export const updateAssessment = async (id, assessmentData) => {
   return data;
 };
 
-export const deleteAssessment = async (id) => {
+export const deleteAssessment = async (id: string) => {
   if (USE_MOCK_DATA) {
     const index = mockAssessments.findIndex(a => a.id === id);
     if (index === -1) {

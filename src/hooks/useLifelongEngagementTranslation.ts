@@ -6,13 +6,12 @@ import { useEffect, useState } from 'react';
  * Enhanced translation hook for Lifelong Engagement sections
  * Provides proper namespace loading and language change handling
  */
-export const useLifelongEngagementTranslation = (namespace) => {
+export const useLifelongEngagementTranslation = (namespace: string) => {
   const { language } = useLanguage();
   const [isReady, setIsReady] = useState(false);
   const { t, i18n, ready } = useTranslation(namespace, {
     useSuspense: false,
     bindI18n: 'languageChanged loaded',
-    bindI18nStore: 'added removed',
   });
 
   useEffect(() => {

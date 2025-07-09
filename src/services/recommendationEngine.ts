@@ -3,32 +3,32 @@ import { supabase } from '@/integrations/supabase/client';
 import { trackTestEvent, getUserTestAssignment, getRecommendationConfig } from './abTestingService';
 
 export class RecommendationEngine {
-  calculateSkillsMatch(userProfile, item) {
+  calculateSkillsMatch(userProfile: any, item: any) {
     // Implementation of skills matching algorithm
     return 0.75;
   }
 
-  calculateEducationMatch(userProfile, item) {
+  calculateEducationMatch(userProfile: any, item: any) {
     // Implementation of education matching algorithm
     return 0.6;
   }
 
-  calculateExperienceMatch(userProfile, item) {
+  calculateExperienceMatch(userProfile: any, item: any) {
     // Implementation of experience matching algorithm
     return 0.8;
   }
 
-  calculateLocationMatch(userProfile, item) {
+  calculateLocationMatch(userProfile: any, item: any) {
     // Implementation of location matching algorithm
     return 0.9;
   }
 
-  calculateFreshnessScore(item) {
+  calculateFreshnessScore(item: any) {
     // Implementation of freshness scoring algorithm
     return 0.95;
   }
 
-  async generateRecommendations(userId, userRoles, filters = {}) {
+  async generateRecommendations(userId: string, userRoles: string[], filters: any = {}) {
     try {
       // Get A/B test configuration for recommendations
       const variant = getUserTestAssignment(userId, 'recommendation_algorithm_test');
@@ -54,7 +54,7 @@ export class RecommendationEngine {
       });
 
       // Generate mock recommendations for now since we don't have the recommendations table
-      const mockRecommendations = [];
+      const mockRecommendations: any[] = [];
 
       // Add job recommendations if enabled
       if (filters.includeJobs !== false) {
@@ -173,7 +173,7 @@ export class RecommendationEngine {
     }
   }
 
-  async trackRecommendationInteraction(userId, recommendationId, interactionType) {
+  async trackRecommendationInteraction(userId: string, recommendationId: string, interactionType: string) {
     try {
       // For now, just log the interaction since we don't have the recommendation_interactions table
       console.log('Recommendation interaction:', {
