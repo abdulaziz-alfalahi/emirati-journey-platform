@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { legacyProjectService } from '@/services/legacyProjectService';
 import { ProjectContribution } from '@/types/legacyProject';
 import { ContributionCard } from './ContributionCard';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 

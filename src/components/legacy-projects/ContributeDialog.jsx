@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LegacyProject } from '@/types/legacyProject';
 import { legacyProjectService } from '@/services/legacyProjectService';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 interface ContributeDialogProps {

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { AdvancedSearchFilters, SearchSuggestion } from '@/types/communities';
 import { CommunitiesService } from '@/services/communitiesService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface AdvancedGroupSearchProps {
   onFiltersChange: (filters: AdvancedSearchFilters) => void;

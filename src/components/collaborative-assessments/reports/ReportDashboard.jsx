@@ -13,7 +13,7 @@ import { ProgressTimelineChart } from './charts/ProgressTimelineChart';
 import { ReportSummary } from './ReportSummary';
 import { ExportOptions } from './ExportOptions';
 import { Download, TrendingUp, Users, Clock, BarChart3 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReportDashboardProps {
   assessmentId: string;

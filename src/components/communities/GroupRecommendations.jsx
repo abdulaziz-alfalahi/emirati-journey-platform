@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { GroupRecommendation } from '@/types/communities';
 import { CommunitiesService } from '@/services/communitiesService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface GroupRecommendationsProps {
   onJoinGroup?: (groupId: string) => void;

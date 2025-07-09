@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { addPortfolioHighlight, updatePortfolioHighlight } from "@/services/portfolioService";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),

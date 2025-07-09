@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Video, ExternalLink, Award, User } from 'lucide-react';
 import { AdvisorySession } from '@/types/careerAdvisory';
 import { updateSession } from '@/services/careerAdvisory/advisorySessionService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface InterviewSessionCardProps {
   session: AdvisorySession;

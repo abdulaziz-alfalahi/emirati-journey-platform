@@ -17,7 +17,7 @@ import {
 import { GroupEvent, EventRsvp } from '@/types/communities';
 import { CommunitiesService } from '@/services/communitiesService';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface EventCardProps {
   event: GroupEvent;

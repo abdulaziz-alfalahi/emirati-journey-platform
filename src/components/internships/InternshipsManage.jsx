@@ -4,7 +4,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { InternshipsCreate } from './InternshipsCreate';
 import { InternshipWithApplications } from '@/types/internships';
 import { getInternshipsWithApplicationCounts, updateInternshipStatus } from '@/services/internshipService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, Clock, PlusCircle, User } from 'lucide-react';

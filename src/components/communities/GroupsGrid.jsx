@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { CommunitiesService } from '@/services/communitiesService';
 import { ProfessionalGroup, GroupWithMetrics, AdvancedSearchFilters, GroupPoll, GroupEvent } from '@/types/communities';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import GroupCard from './GroupCard';
 import CreateGroupDialog from './CreateGroupDialog';
 import GroupRecommendations from './GroupRecommendations';

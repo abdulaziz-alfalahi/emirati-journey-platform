@@ -4,7 +4,7 @@ import { legacyProjectService } from '@/services/legacyProjectService';
 import { LegacyProject } from '@/types/legacyProject';
 import { ProjectCard } from './ProjectCard';
 import { ProjectFilters } from './ProjectFilters';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export const ExploreProjectsTab: React.FC = () => {

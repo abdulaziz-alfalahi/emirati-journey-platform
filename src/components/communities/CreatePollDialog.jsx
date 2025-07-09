@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X, BarChart3 } from 'lucide-react';
 import { CommunitiesService } from '@/services/communitiesService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface CreatePollDialogProps {
   groupId: string;

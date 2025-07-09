@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   RefreshCw
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { credentialVerificationService } from '@/services/credentialVerification/credentialVerificationService';
 import { VerifiedCredential, CredentialVerificationRequest } from '@/types/credentialVerification';
 

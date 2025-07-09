@@ -8,7 +8,7 @@ import HighlightsSection from "./sections/HighlightsSection";
 import CertificateForm from "./forms/CertificateForm";
 import TrainingForm from "./forms/TrainingForm";
 import HighlightForm from "./forms/HighlightForm";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { deleteCertificate, deletePortfolioHighlight, deleteTraining } from "@/services/portfolioService";
 

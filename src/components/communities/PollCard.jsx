@@ -8,7 +8,7 @@ import { Calendar, Users, CheckCircle } from 'lucide-react';
 import { GroupPoll, PollVote } from '@/types/communities';
 import { CommunitiesService } from '@/services/communitiesService';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface PollCardProps {
   poll: GroupPoll;

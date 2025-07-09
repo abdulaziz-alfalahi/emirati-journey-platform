@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchAssessmentById, scheduleAssessment } from '@/services/assessmentService';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Calendar as CalendarIcon, Clock, User, BadgeCheck, CheckCircle } from 'lucide-react';

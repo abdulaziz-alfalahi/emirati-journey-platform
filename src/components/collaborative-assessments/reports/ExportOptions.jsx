@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AssessmentReport } from '@/types/collaborativeAssessments';
 import { Download, FileText, Table, Share } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ExportOptionsProps {
   report: AssessmentReport;

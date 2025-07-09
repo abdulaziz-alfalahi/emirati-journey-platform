@@ -7,7 +7,7 @@ import { Sparkles, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { recommendationEngine, Recommendation, RecommendationFilters } from '@/services/recommendationEngine';
 import { trackTestEvent } from '@/services/abTestingService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import RecommendationCard from './RecommendationCard';
 
 const AIRecommendations = () => {

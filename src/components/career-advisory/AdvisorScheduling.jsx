@@ -12,7 +12,7 @@ import { Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { getAdvisors, fetchCareerAdvisors } from '@/services/careerAdvisory/advisoryService';
 import { scheduleAdvisorySession } from '@/services/careerAdvisory/advisorySessionService';

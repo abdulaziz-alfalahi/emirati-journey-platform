@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { communityLeadershipService } from '@/services/communityLeadershipService';
 import { CommunityLeadershipResource } from '@/types/communityLeadership';
 import { ResourceCard } from './ResourceCard';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { blockchainCredentialService } from '@/services/blockchain/blockchainCredentialService';
 import { CredentialIssueRequest } from '@/types/blockchainCredentials';
 import { Award, Plus, X } from 'lucide-react';

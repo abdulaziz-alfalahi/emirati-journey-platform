@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { CollaborativeAssessment, AssessmentSection, AssessmentCriterion, AssessmentEvaluation } from '@/types/collaborativeAssessments';
 import { fetchCollaborativeAssessments, fetchAssessmentCollaborators } from '@/services/collaborativeAssessments/assessmentService';
