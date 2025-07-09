@@ -1,6 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import type { TrainingProgram, TrainingProvider, TrainingApplication, TrainingEnrollment, TrainingFilters } from '@/types/training';
+import { supabase } from '../integrations/supabase/client';
+import type { TrainingProgram, TrainingProvider, TrainingApplication, TrainingEnrollment, TrainingFilters } from '../types/training';
 
 export const trainingService = {
   // Get all training programs with filters
@@ -134,7 +134,7 @@ export const trainingService = {
       throw error;
     }
 
-    return (data || []).map(item => ({
+    return (data || []).map((item: any) => ({
       ...item,
       application_data: item.application_data as Record<string, any>
     }));
