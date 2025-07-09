@@ -4,7 +4,14 @@ import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Eye, Trash2 } from 'lucide-react';
 
-export function JobDescriptionsTable({ jobDescriptions, onViewDetails, onToggleStatus, onDelete }) {
+interface JobDescriptionsTableProps {
+  jobDescriptions: any[];
+  onViewDetails: (job: any) => void;
+  onToggleStatus: (id: string, status: boolean) => void;
+  onDelete: (id: string) => void;
+}
+
+export function JobDescriptionsTable({ jobDescriptions, onViewDetails, onToggleStatus, onDelete }: JobDescriptionsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
@@ -63,7 +70,7 @@ export function JobDescriptionsTable({ jobDescriptions, onViewDetails, onToggleS
   );
 }
 
-export function JobStatusBadge({ isActive }) {
+export function JobStatusBadge({ isActive }: { isActive: boolean }) {
   return (
     <Badge 
       variant={isActive ? "success" : "secondary"}

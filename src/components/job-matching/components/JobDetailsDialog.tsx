@@ -3,15 +3,21 @@ import React from 'react';
 import { Badge } from '../../ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../ui/dialog';
 
-export function JobDetailsDialog({ isOpen, onOpenChange, selectedJob }) {
+interface JobDetailsDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedJob: any;
+}
+
+export function JobDetailsDialog({ isOpen, onOpenChange, selectedJob }: JobDetailsDialogProps) {
   if (!selectedJob) return null;
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{selectedJob?.title}</DialogTitle>
-          <DialogDescription>
+        <DialogHeader className="">
+          <DialogTitle className="">{selectedJob?.title}</DialogTitle>
+          <DialogDescription className="">
             {selectedJob?.company} • {selectedJob?.location}
           </DialogDescription>
         </DialogHeader>
@@ -63,7 +69,7 @@ export function JobDetailsDialog({ isOpen, onOpenChange, selectedJob }) {
   );
 }
 
-function JobDescriptionSection({ title, content }) {
+function JobDescriptionSection({ title, content }: { title: string; content: string }) {
   if (!content) return null;
   return (
     <div>
@@ -73,7 +79,7 @@ function JobDescriptionSection({ title, content }) {
   );
 }
 
-function JobResponsibilitiesSection({ responsibilities }) {
+function JobResponsibilitiesSection({ responsibilities }: { responsibilities: string[] }) {
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">Responsibilities</h3>
@@ -86,7 +92,7 @@ function JobResponsibilitiesSection({ responsibilities }) {
   );
 }
 
-function JobRequirementsSection({ requirements }) {
+function JobRequirementsSection({ requirements }: { requirements: any }) {
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">Requirements</h3>
@@ -96,7 +102,7 @@ function JobRequirementsSection({ requirements }) {
           <h4 className="text-xs font-medium text-gray-500">Skills</h4>
           <div className="mt-1 flex flex-wrap gap-1">
             {requirements.skills.map((skill, i) => (
-              <Badge key={i} variant={skill.required ? "default" : "outline"}>
+              <Badge key={i} variant={skill.required ? "default" : "outline"} className="">
                 {skill.name} {skill.level ? `(${skill.level})` : ''}
               </Badge>
             ))}
@@ -135,7 +141,7 @@ function JobRequirementsSection({ requirements }) {
   );
 }
 
-function JobListSection({ title, items }) {
+function JobListSection({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
@@ -148,7 +154,7 @@ function JobListSection({ title, items }) {
   );
 }
 
-function JobSalarySection({ salary }) {
+function JobSalarySection({ salary }: { salary: any }) {
   if (!salary || Object.keys(salary).length === 0) return null;
   
   return (
@@ -165,7 +171,7 @@ function JobSalarySection({ salary }) {
   );
 }
 
-function JobMetaSection({ title, content }) {
+function JobMetaSection({ title, content }: { title: string; content: string }) {
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
@@ -174,13 +180,13 @@ function JobMetaSection({ title, content }) {
   );
 }
 
-function JobKeywordsSection({ keywords }) {
+function JobKeywordsSection({ keywords }: { keywords: string[] }) {
   return (
     <div>
       <h3 className="text-sm font-medium text-gray-500">Keywords</h3>
       <div className="mt-1 flex flex-wrap gap-1">
         {keywords.map((keyword, i) => (
-          <Badge key={i} variant="outline">{keyword}</Badge>
+          <Badge key={i} variant="outline" className="">{keyword}</Badge>
         ))}
       </div>
     </div>
