@@ -1,5 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
+import { supabase } from '../integrations/supabase/client';
 
 export interface AnalyticsEvent {
   phase: string;
@@ -97,9 +96,9 @@ class CrossPhaseAnalyticsService {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      await supabase.from('phase_transitions').insert({
+      const { error } = await supabase.from('phase_transitions').insert({
         user_id: user.user.id,
-        from_phase: transition.from_phase,
+        from_phase: transition.from_phase || '',
         to_phase: transition.to_phase,
         transition_reason: transition.transition_reason,
         readiness_score: transition.readiness_score,
