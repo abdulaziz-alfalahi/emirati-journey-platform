@@ -75,6 +75,9 @@ export default defineConfig(({ mode } ) => ({
     include: /\.(js|jsx|ts|tsx)$/,
     target: 'es2020',
   },
+  define: {
+    global: 'globalThis',
+  },
   css: {
     devSourcemap: mode === 'development',
   }
