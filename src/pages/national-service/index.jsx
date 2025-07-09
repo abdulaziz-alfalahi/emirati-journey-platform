@@ -1,13 +1,17 @@
 import React from 'react';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
-import { useTranslation } from 'react-i18next';
+import { useLifelongEngagementTranslation } from '@/hooks/useLifelongEngagementTranslation';
 import { Shield, Users, Heart, Leaf, Award, Target, Calendar, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const NationalServicePage: React.FC = () => {
-  const { t } = useTranslation('national-service');
+  const { t, isReady } = useLifelongEngagementTranslation('national-service');
+
+  if (!isReady) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   const stats = [
     {

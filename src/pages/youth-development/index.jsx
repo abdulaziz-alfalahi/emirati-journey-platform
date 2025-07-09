@@ -1,6 +1,6 @@
 import React from 'react';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
-import { useTranslation } from 'react-i18next';
+import { useLifelongEngagementTranslation } from '@/hooks/useLifelongEngagementTranslation';
 import { Users, Target, BookOpen, Award, Calendar, Heart, Star, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const YouthDevelopmentPage: React.FC = () => {
-  const { t } = useTranslation('youth-development');
+  const { t, isReady } = useLifelongEngagementTranslation('youth-development');
+
+  if (!isReady) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   const stats = [
     {

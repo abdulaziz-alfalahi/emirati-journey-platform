@@ -21,10 +21,10 @@ export const fetchAssessments = async () => {
     throw error;
   }
 
-  return data as Assessment[];
+  return data;
 };
 
-export const fetchAssessmentById = async (id: string) => {
+export const fetchAssessmentById = async (id) => {
   if (USE_MOCK_DATA) {
     const assessment = mockAssessments.find(a => a.id === id);
     if (!assessment) {
@@ -44,12 +44,12 @@ export const fetchAssessmentById = async (id: string) => {
     throw error;
   }
 
-  return data as Assessment;
+  return data;
 };
 
-export const createAssessment = async (assessmentData: Omit<Assessment, 'id' | 'created_at' | 'updated_at'>) => {
+export const createAssessment = async (assessmentData) => {
   if (USE_MOCK_DATA) {
-    const newAssessment: Assessment = {
+    const newAssessment = {
       ...assessmentData,
       id: `ASSMT${String(mockAssessments.length + 1).padStart(3, '0')}`,
       created_at: new Date().toISOString(),
@@ -71,17 +71,17 @@ export const createAssessment = async (assessmentData: Omit<Assessment, 'id' | '
     throw error;
   }
 
-  return data as Assessment;
+  return data;
 };
 
-export const updateAssessment = async (id: string, assessmentData: Partial<Assessment>) => {
+export const updateAssessment = async (id, assessmentData) => {
   if (USE_MOCK_DATA) {
     const index = mockAssessments.findIndex(a => a.id === id);
     if (index === -1) {
       throw new Error(`Assessment with ID ${id} not found`);
     }
     
-    const updatedAssessment: Assessment = {
+    const updatedAssessment = {
       ...mockAssessments[index],
       ...assessmentData,
       updated_at: new Date().toISOString()
@@ -105,10 +105,10 @@ export const updateAssessment = async (id: string, assessmentData: Partial<Asses
     throw error;
   }
 
-  return data as Assessment;
+  return data;
 };
 
-export const deleteAssessment = async (id: string) => {
+export const deleteAssessment = async (id) => {
   if (USE_MOCK_DATA) {
     const index = mockAssessments.findIndex(a => a.id === id);
     if (index === -1) {

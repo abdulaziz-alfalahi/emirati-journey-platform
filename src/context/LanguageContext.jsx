@@ -35,10 +35,6 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
     // Prevent unnecessary changes
     if (language === newLanguage) return;
     
-    console.log('Changing language to:', newLanguage);
-    console.log('Current i18n language:', i18n.language);
-    console.log('i18n isInitialized:', i18n.isInitialized);
-    
     try {
       // Save to localStorage first
       if (typeof window !== 'undefined') {
@@ -54,15 +50,9 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageP
         'share-success-stories', 'retiree'
       ];
       
-      console.log('Reloading Lifelong Engagement namespaces for', newLanguage);
       await Promise.all(
-        lifelongNamespaces.map(ns => {
-          console.log(`Reloading namespace: ${ns}`);
-          return i18n.reloadResources(newLanguage, ns);
-        })
+        lifelongNamespaces.map(ns => i18n.reloadResources(newLanguage, ns))
       );
-      
-      console.log('Language changed successfully in i18n to:', i18n.language);
       
       // Update state only after i18n change is complete
       setLanguageState(newLanguage);
