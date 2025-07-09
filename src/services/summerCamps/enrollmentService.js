@@ -10,7 +10,7 @@ export const enrollmentService = {
   /**
    * Enroll a user in a summer camp
    */
-  async enrollInCamp(campId: string, userId: string): Promise<CampEnrollment | null> {
+  async enrollInCamp(campId, userId) {
     try {
       // First check if the camp has available space
       const camp = await campQueryService.getCampById(campId);
@@ -63,7 +63,7 @@ export const enrollmentService = {
       });
       
       return transformEnrollment(enrollment);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error in enrollInCamp:', error);
       
       // Handle unique constraint violation (already enrolled)
@@ -88,7 +88,7 @@ export const enrollmentService = {
   /**
    * Cancel a user's enrollment in a camp
    */
-  async cancelEnrollment(enrollmentId: string, campId: string): Promise<boolean> {
+  async cancelEnrollment(enrollmentId, campId) {
     try {
       // Get the camp details first
       const camp = await campQueryService.getCampById(campId);
@@ -133,7 +133,7 @@ export const enrollmentService = {
   /**
    * Get all enrollments for a specific user
    */
-  async getUserEnrollments(userId: string): Promise<CampEnrollment[]> {
+  async getUserEnrollments(userId) {
     try {
       const { data, error } = await supabase
         .from('camp_enrollments')
@@ -158,7 +158,7 @@ export const enrollmentService = {
   /**
    * Get all enrollments for a specific camp
    */
-  async getCampEnrollments(campId: string): Promise<CampEnrollment[]> {
+  async getCampEnrollments(campId) {
     try {
       const { data, error } = await supabase
         .from('camp_enrollments')

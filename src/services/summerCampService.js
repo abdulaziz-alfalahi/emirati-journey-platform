@@ -3,12 +3,12 @@ import { SummerCamp, CampEnrollment, CampFilters } from '@/types/summerCamps';
 import { toast } from '@/hooks/use-toast';
 
 // Status type guard
-function isValidEnrollmentStatus(status: string): status is "confirmed" | "cancelled" | "waiting_list" {
+function isValidEnrollmentStatus(status) {
   return ["confirmed", "cancelled", "waiting_list"].includes(status);
 }
 
 // Helper to transform enrollment data
-function transformEnrollment(enrollment: any): CampEnrollment {
+function transformEnrollment(enrollment) {
   return {
     ...enrollment,
     status: isValidEnrollmentStatus(enrollment.status) ? enrollment.status : "confirmed" // Default to confirmed if invalid
@@ -16,7 +16,7 @@ function transformEnrollment(enrollment: any): CampEnrollment {
 }
 
 // Helper function to transform database data to SummerCamp type
-const transformCampData = (data: any): SummerCamp => ({
+const transformCampData = (data) => ({
   ...data,
   // Provide defaults for optional fields that might not exist in DB
   max_participants: data.max_participants || data.capacity,
@@ -28,7 +28,7 @@ const transformCampData = (data: any): SummerCamp => ({
  * Fetch all summer camps with optional filtering
  * OPTIMIZED: Uses RPC function for better performance
  */
-export const getCamps = async (filters?: CampFilters): Promise<SummerCamp[]> => {
+export const getCamps = async (filters) => {
   try {
     // Use optimized RPC function directly
     const { data, error } = await supabase
@@ -44,7 +44,7 @@ export const getCamps = async (filters?: CampFilters): Promise<SummerCamp[]> => 
     // Apply client-side filtering for now
     if (filters?.searchQuery) {
       const searchTerm = filters.searchQuery.toLowerCase();
-      filteredData = filteredData.filter((camp: any) => 
+      filteredData = filteredData.filter((camp) => 
         camp.title.toLowerCase().includes(searchTerm) ||
         camp.description?.toLowerCase().includes(searchTerm) ||
         camp.organizer.toLowerCase().includes(searchTerm)
@@ -66,7 +66,7 @@ export const getCamps = async (filters?: CampFilters): Promise<SummerCamp[]> => 
 /**
  * Fetch a single camp by ID
  */
-export const getCampById = async (id: string): Promise<SummerCamp | null> => {
+export const getCampById = async (id) => {
   try {
     const { data, error } = await supabase
       .from('summer_camps')
@@ -95,7 +95,7 @@ export const getCampById = async (id: string): Promise<SummerCamp | null> => {
  * Fetch camps created by a specific institution with enrollment counts
  * OPTIMIZED: Uses RPC function to avoid N+1 query problem
  */
-export const getCampsByInstitution = async (userId: string): Promise<SummerCamp[]> => {
+export const getCampsByInstitution = async (userId) => {
   try {
     // Use optimized RPC function directly
     const { data, error } = await supabase
@@ -122,7 +122,7 @@ export const getCampsByInstitution = async (userId: string): Promise<SummerCamp[
 /**
  * Create a new summer camp
  */
-export const createCamp = async (campData: Omit<SummerCamp, 'id' | 'created_at' | 'updated_at'>): Promise<SummerCamp | null> => {
+export const createCamp = async (campData) => {
   try {
     const { data, error } = await supabase
       .from('summer_camps')
@@ -155,7 +155,7 @@ export const createCamp = async (campData: Omit<SummerCamp, 'id' | 'created_at' 
 /**
  * Update an existing summer camp
  */
-export const updateCamp = async (id: string, campData: Partial<SummerCamp>): Promise<SummerCamp | null> => {
+export const updateCamp = async (id, campData) => {
   try {
     const { data, error } = await supabase
       .from('summer_camps')
@@ -189,7 +189,7 @@ export const updateCamp = async (id: string, campData: Partial<SummerCamp>): Pro
 /**
  * Enroll a user in a summer camp
  */
-export const enrollInCamp = async (campId: string, userId: string): Promise<CampEnrollment | null> => {
+export const enrollInCamp = async (campId, userId) => {
   try {
     // First check if the camp has available space
     const camp = await getCampById(campId);
@@ -244,7 +244,7 @@ export const enrollInCamp = async (campId: string, userId: string): Promise<Camp
     });
     
     return transformEnrollment(enrollment);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in enrollInCamp:', error);
     
     // Handle unique constraint violation (already enrolled)
@@ -269,7 +269,7 @@ export const enrollInCamp = async (campId: string, userId: string): Promise<Camp
 /**
  * Cancel a user's enrollment in a camp
  */
-export const cancelEnrollment = async (enrollmentId: string, campId: string): Promise<boolean> => {
+export const cancelEnrollment = async (enrollmentId, campId) => {
   try {
     // Get the camp details first
     const camp = await getCampById(campId);
@@ -320,7 +320,7 @@ export const cancelEnrollment = async (enrollmentId: string, campId: string): Pr
 /**
  * Get all enrollments for a specific user
  */
-export const getUserEnrollments = async (userId: string): Promise<CampEnrollment[]> => {
+export const getUserEnrollments = async (userId) => {
   try {
     const { data, error } = await supabase
       .from('camp_enrollments')
@@ -351,7 +351,7 @@ export const getUserEnrollments = async (userId: string): Promise<CampEnrollment
 /**
  * Get all enrollments for a specific camp
  */
-export const getCampEnrollments = async (campId: string): Promise<CampEnrollment[]> => {
+export const getCampEnrollments = async (campId) => {
   try {
     const { data, error } = await supabase
       .from('camp_enrollments')
