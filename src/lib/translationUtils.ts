@@ -1,4 +1,5 @@
 
+// @ts-ignore - i18n.js file doesn't have TypeScript declarations
 import i18n from './i18n';
 
 /**
