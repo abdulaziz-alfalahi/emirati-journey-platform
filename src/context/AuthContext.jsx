@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useFetchUserRoles } from '@/hooks/use-fetch-user-roles';
-import { useAuthOperations } from '@/hooks/use-auth-operations.js';
+import { useAuthOperations } from '@/hooks/use-auth-operations';
 
 const AuthContext = createContext(undefined);
 

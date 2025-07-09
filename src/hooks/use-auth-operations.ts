@@ -1,7 +1,7 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { UserRole } from '@/types/auth';
+import { supabase } from '../integrations/supabase/client';
+import { useToast } from './use-toast';
+import type { UserRole } from '../types/auth';
 
 export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
   const { toast } = useToast();
@@ -96,7 +96,7 @@ export const useAuthOperations = (setIsLoading: (loading: boolean) => void) => {
       const roleAssignmentPromises = roles.map(role => 
         supabase.functions.invoke('assign-user-role', {
           body: { 
-            userId: userData.user.id,
+            userId: userData.user!.id,
             role: role
           }
         })
