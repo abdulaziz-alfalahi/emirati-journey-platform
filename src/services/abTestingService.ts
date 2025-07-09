@@ -1,5 +1,4 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 
 export interface ABTestExperiment {
   id: string;
@@ -56,12 +55,12 @@ class ABTestingService {
         id: data.id,
         experiment_name: data.experiment_name,
         feature_name: data.feature_name,
-        hypothesis: data.hypothesis,
+        hypothesis: data.hypothesis || '',
         variant_a_config: data.variant_a_config as Record<string, any>,
         variant_b_config: data.variant_b_config as Record<string, any>,
         success_metric: data.success_metric,
         start_date: data.start_date,
-        end_date: data.end_date,
+        end_date: data.end_date || undefined,
         status: data.status as ABTestExperiment['status'],
         created_by: data.created_by
       };
@@ -81,7 +80,7 @@ class ABTestingService {
 
       if (error) throw error;
       
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         id: item.id,
         experiment_name: item.experiment_name,
         feature_name: item.feature_name,
@@ -109,7 +108,7 @@ class ABTestingService {
 
       if (error) throw error;
       
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         id: item.id,
         experiment_name: item.experiment_name,
         feature_name: item.feature_name,
@@ -159,11 +158,15 @@ class ABTestingService {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      await supabase.from('ab_testing_assignments').insert({
+      const { error } = await supabase.from('ab_testing_assignments').insert({
         experiment_id: experimentId,
         user_id: user.user.id,
         variant
       });
+
+      if (error) {
+        console.error('Failed to assign user to variant:', error);
+      }
     } catch (error) {
       console.error('Failed to assign user to variant:', error);
     }
@@ -181,8 +184,8 @@ class ABTestingService {
 
       // For now, we'll simulate conversion data
       // In a real implementation, you'd track actual conversion events
-      const variantA = assignments.filter(a => a.variant === 'A');
-      const variantB = assignments.filter(a => a.variant === 'B');
+      const variantA = assignments.filter((a: any) => a.variant === 'A');
+      const variantB = assignments.filter((a: any) => a.variant === 'B');
 
       // Simulate conversion rates (replace with actual conversion tracking)
       const aConversions = Math.floor(variantA.length * (0.15 + Math.random() * 0.1));
