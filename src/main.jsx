@@ -4,11 +4,11 @@ import App from './App.jsx';
 import './App.css';
 
 // Initialize i18n first, before any React rendering
-import './lib/i18n.js';
-import i18n from './lib/i18n.js';
+import './lib/i18n.ts';
+import i18n from './lib/i18n.ts';
 
 import { ThemeProvider } from './components/theme-provider';
-import { LanguageProvider } from './context/LanguageContext.jsx';
+import { LanguageProvider } from './context/LanguageContext.tsx';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 

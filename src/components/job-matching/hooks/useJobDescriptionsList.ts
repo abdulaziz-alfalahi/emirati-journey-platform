@@ -5,9 +5,9 @@ import { useToast } from '../../../hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 export function useJobDescriptionsList() {
-  const [jobDescriptions, setJobDescriptions] = useState([]);
+  const [jobDescriptions, setJobDescriptions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export function useJobDescriptionsList() {
       console.error('Error fetching job descriptions:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load job descriptions: ' + error.message,
+        description: 'Failed to load job descriptions: ' + (error as Error).message,
         variant: 'destructive',
       });
     } finally {
@@ -42,7 +42,7 @@ export function useJobDescriptionsList() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this job description?')) {
       return;
     }
@@ -67,13 +67,13 @@ export function useJobDescriptionsList() {
       console.error('Error deleting job description:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete job description: ' + error.message,
+        description: 'Failed to delete job description: ' + (error as Error).message,
         variant: 'destructive',
       });
     }
   };
 
-  const toggleJobStatus = async (id, currentStatus) => {
+  const toggleJobStatus = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from('job_descriptions')
@@ -98,13 +98,13 @@ export function useJobDescriptionsList() {
       console.error('Error updating job status:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update job status: ' + error.message,
+        description: 'Failed to update job status: ' + (error as Error).message,
         variant: 'destructive',
       });
     }
   };
 
-  const viewJobDetails = (job) => {
+  const viewJobDetails = (job: any) => {
     setSelectedJob(job);
     setIsDialogOpen(true);
   };
