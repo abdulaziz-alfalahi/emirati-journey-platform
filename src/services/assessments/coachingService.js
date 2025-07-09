@@ -1,12 +1,12 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CoachingRecommendation } from '@/types/assessments';
+// import { CoachingRecommendation } from '@/types/assessments';
 import { mockCoachingRecommendations, getMockUserCoachingRecommendations } from './mockCoachingData';
 
 // Flag to determine whether to use mock data
 const USE_MOCK_DATA = true;
 
-export const fetchCoachingRecommendations = async (sessionId?: string) => {
+export const fetchCoachingRecommendations = async (sessionId) => {
   if (USE_MOCK_DATA) {
     if (sessionId) {
       return mockCoachingRecommendations.filter(rec => rec.session_id === sessionId);
@@ -44,10 +44,10 @@ export const fetchCoachingRecommendations = async (sessionId?: string) => {
     throw error;
   }
 
-  return data as CoachingRecommendation[];
+  return data;
 };
 
-export const fetchUserCoachingRecommendations = async (userId: string) => {
+export const fetchUserCoachingRecommendations = async (userId) => {
   if (USE_MOCK_DATA) {
     return getMockUserCoachingRecommendations(userId);
   }
@@ -77,11 +77,11 @@ export const fetchUserCoachingRecommendations = async (userId: string) => {
     throw error;
   }
 
-  return data as CoachingRecommendation[];
+  return data;
 };
 
 // New function to fetch coach assignments (coaching recommendations where coach_id matches)
-export const fetchCoachAssignments = async (coachId: string) => {
+export const fetchCoachAssignments = async (coachId) => {
   if (USE_MOCK_DATA) {
     return mockCoachingRecommendations
       .filter(rec => rec.coach_id === coachId)
@@ -128,12 +128,12 @@ export const fetchCoachAssignments = async (coachId: string) => {
     throw error;
   }
 
-  return data as CoachingRecommendation[];
+  return data;
 };
 
-export const createCoachingRecommendation = async (recommendationData: Omit<CoachingRecommendation, 'id' | 'created_at' | 'updated_at'>) => {
+export const createCoachingRecommendation = async (recommendationData) => {
   if (USE_MOCK_DATA) {
-    const newRecommendation: CoachingRecommendation = {
+    const newRecommendation = {
       ...recommendationData,
       id: `COACH${String(mockCoachingRecommendations.length + 1).padStart(3, '0')}`,
       created_at: new Date().toISOString(),
@@ -157,10 +157,10 @@ export const createCoachingRecommendation = async (recommendationData: Omit<Coac
     throw error;
   }
 
-  return data as CoachingRecommendation;
+  return data;
 };
 
-export const updateCoachingRecommendation = async (id: string, updateData: Partial<CoachingRecommendation>) => {
+export const updateCoachingRecommendation = async (id, updateData) => {
   if (USE_MOCK_DATA) {
     const index = mockCoachingRecommendations.findIndex(rec => rec.id === id);
     if (index === -1) {
@@ -191,5 +191,5 @@ export const updateCoachingRecommendation = async (id: string, updateData: Parti
     throw error;
   }
 
-  return data as CoachingRecommendation;
+  return data;
 };
