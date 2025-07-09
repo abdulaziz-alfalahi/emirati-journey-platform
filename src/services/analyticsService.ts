@@ -1,5 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
-import { UserRole } from '@/types/auth';
+import { supabase } from '../integrations/supabase/client';
+import { UserRole } from '../types/auth';
 
 interface RoleSwitchEvent {
   user_id: string;
