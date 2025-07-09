@@ -72,7 +72,7 @@ export default defineConfig(({ mode } ) => ({
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : [],
     loader: 'tsx',
-    include: /\.(jsx|tsx)$/,
+    include: /\.(js|jsx|ts|tsx)$/,
   },
   css: {
     devSourcemap: mode === 'development',
