@@ -2,54 +2,33 @@
 import { supabase } from '@/integrations/supabase/client';
 import { trackTestEvent, getUserTestAssignment, getRecommendationConfig } from './abTestingService';
 
-export interface Recommendation {
-  id: string;
-  title: string;
-  type: 'job' | 'training' | 'scholarship' | 'internship';
-  provider?: string;
-  score: number;
-  description?: string;
-  url?: string;
-  location?: string;
-  deadline?: string;
-}
-
-export interface RecommendationFilters {
-  includeJobs?: boolean;
-  includeTraining?: boolean;
-  includeScholarships?: boolean;
-  includeInternships?: boolean;
-  minScore?: number;
-  maxResults?: number;
-}
-
 export class RecommendationEngine {
-  private calculateSkillsMatch(userProfile: any, item: any): number {
+  calculateSkillsMatch(userProfile, item) {
     // Implementation of skills matching algorithm
     return 0.75;
   }
 
-  private calculateEducationMatch(userProfile: any, item: any): number {
+  calculateEducationMatch(userProfile, item) {
     // Implementation of education matching algorithm
     return 0.6;
   }
 
-  private calculateExperienceMatch(userProfile: any, item: any): number {
+  calculateExperienceMatch(userProfile, item) {
     // Implementation of experience matching algorithm
     return 0.8;
   }
 
-  private calculateLocationMatch(userProfile: any, item: any): number {
+  calculateLocationMatch(userProfile, item) {
     // Implementation of location matching algorithm
     return 0.9;
   }
 
-  private calculateFreshnessScore(item: any): number {
+  calculateFreshnessScore(item) {
     // Implementation of freshness scoring algorithm
     return 0.95;
   }
 
-  async generateRecommendations(userId: string, userRoles: any, filters: RecommendationFilters = {}): Promise<Recommendation[]> {
+  async generateRecommendations(userId, userRoles, filters = {}) {
     try {
       // Get A/B test configuration for recommendations
       const variant = getUserTestAssignment(userId, 'recommendation_algorithm_test');
@@ -75,7 +54,7 @@ export class RecommendationEngine {
       });
 
       // Generate mock recommendations for now since we don't have the recommendations table
-      const mockRecommendations: Recommendation[] = [];
+      const mockRecommendations = [];
 
       // Add job recommendations if enabled
       if (filters.includeJobs !== false) {
@@ -179,7 +158,7 @@ export class RecommendationEngine {
 
       // Filter by minimum score if specified
       const filteredRecommendations = filters.minScore 
-        ? mockRecommendations.filter(rec => rec.score >= filters.minScore!)
+        ? mockRecommendations.filter(rec => rec.score >= filters.minScore)
         : mockRecommendations;
 
       // Sort by score and limit results
@@ -194,7 +173,7 @@ export class RecommendationEngine {
     }
   }
 
-  async trackRecommendationInteraction(userId: string, recommendationId: string, interactionType: string): Promise<void> {
+  async trackRecommendationInteraction(userId, recommendationId, interactionType) {
     try {
       // For now, just log the interaction since we don't have the recommendation_interactions table
       console.log('Recommendation interaction:', {
