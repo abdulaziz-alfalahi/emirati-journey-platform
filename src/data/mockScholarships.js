@@ -1,7 +1,5 @@
 
-import { Scholarship } from "@/types/scholarships";
-
-export const mockScholarships: Scholarship[] = [
+export const mockScholarships = [
   {
     id: "SCH001",
     title: "UAE Future Leaders Scholarship",

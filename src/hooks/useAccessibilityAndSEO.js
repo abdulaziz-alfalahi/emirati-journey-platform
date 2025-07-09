@@ -2,22 +2,9 @@
 import { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
-interface SEOData {
-  title: string;
-  description: string;
-  keywords?: string;
-  canonicalUrl?: string;
-}
-
-interface AccessibilityOptions {
-  skipLinkTarget?: string;
-  mainContentId?: string;
-  navigationId?: string;
-}
-
 export const useAccessibilityAndSEO = (
-  seoData: SEOData,
-  options: AccessibilityOptions = {}
+  seoData,
+  options = {}
 ) => {
   const { language, direction, isRTL } = useLanguage();
   
@@ -27,7 +14,7 @@ export const useAccessibilityAndSEO = (
     document.documentElement.dir = direction;
     
     // Update meta tags
-    const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
+    const updateMetaTag = (name, content, attribute = 'name') => {
       let element = document.querySelector(`meta[${attribute}="${name}"]`);
       if (!element) {
         element = document.createElement('meta');
@@ -91,7 +78,7 @@ export const useAccessibilityAndSEO = (
   }, [language, direction, seoData, options]);
 
   // Generate structured data for JSON-LD
-  const generateStructuredData = (campData?: any[]) => {
+  const generateStructuredData = (campData) => {
     const baseStructuredData = {
       "@context": "https://schema.org",
       "@type": "WebPage",

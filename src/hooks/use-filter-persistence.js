@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
  * @param defaultFilters - Default filter values
  * @returns Object with filters, setFilters, and clearPersistedFilters
  */
-export const useFilterPersistence = <T extends Record<string, any>>(
-  storageKey: string,
-  defaultFilters: T
+export const useFilterPersistence = (
+  storageKey,
+  defaultFilters
 ) => {
-  const [filters, setFilters] = useState<T>(() => {
+  const [filters, setFilters] = useState(() => {
     // Try to load from localStorage on initial mount
     if (typeof window !== 'undefined') {
       try {
@@ -32,16 +32,16 @@ export const useFilterPersistence = <T extends Record<string, any>>(
       try {
         // Only store non-default values to keep localStorage clean
         const nonDefaultFilters = Object.keys(filters).reduce((acc, key) => {
-          const value = filters[key as keyof T];
-          const defaultValue = defaultFilters[key as keyof T];
+          const value = filters[key];
+          const defaultValue = defaultFilters[key];
           
           // Only store if value is different from default and not empty
           if (value !== defaultValue && value !== '' && value !== null && value !== undefined) {
-            (acc as any)[key] = value;
+            acc[key] = value;
           }
           
           return acc;
-        }, {} as Partial<T>);
+        }, {});
 
         if (Object.keys(nonDefaultFilters).length > 0) {
           localStorage.setItem(storageKey, JSON.stringify(nonDefaultFilters));
@@ -61,7 +61,7 @@ export const useFilterPersistence = <T extends Record<string, any>>(
     }
   };
 
-  const updateFilters = (newFilters: Partial<T>) => {
+  const updateFilters = (newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
@@ -80,17 +80,17 @@ export const useFilterPersistence = <T extends Record<string, any>>(
  * @param debounceDelay - Delay before persisting changes
  * @returns Object with filters, batchUpdateFilters, and other utilities
  */
-export const usePersistentDebouncedFilters = <T extends Record<string, any>>(
-  storageKey: string,
-  defaultFilters: T,
-  debounceDelay: number = 300
+export const usePersistentDebouncedFilters = (
+  storageKey,
+  defaultFilters,
+  debounceDelay = 300
 ) => {
   const { filters, updateFilters, clearPersistedFilters } = useFilterPersistence(
     storageKey,
     defaultFilters
   );
 
-  const [pendingUpdates, setPendingUpdates] = useState<Partial<T>>({});
+  const [pendingUpdates, setPendingUpdates] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export const usePersistentDebouncedFilters = <T extends Record<string, any>>(
     return () => clearTimeout(timer);
   }, [pendingUpdates, debounceDelay, updateFilters]);
 
-  const batchUpdateFilters = (updates: Partial<T>) => {
+  const batchUpdateFilters = (updates) => {
     setPendingUpdates(prev => ({ ...prev, ...updates }));
   };
 

@@ -1,8 +1,7 @@
 
-import { AssessmentSession } from "@/types/assessments";
 import { mockAssessments } from "./mockAssessments";
 
-export const mockAssessmentSessions: AssessmentSession[] = [
+export const mockAssessmentSessions = [
   {
     id: "SESSION001",
     assessment_id: "ASSMT001",
@@ -116,7 +115,7 @@ export const mockAssessmentSessions: AssessmentSession[] = [
 ];
 
 // Helper function to get assessment sessions for a specific user
-export const getMockUserAssessmentSessions = (userId: string): AssessmentSession[] => {
+export const getMockUserAssessmentSessions = (userId) => {
   return mockAssessmentSessions.map(session => ({
     ...session,
     user_id: userId
