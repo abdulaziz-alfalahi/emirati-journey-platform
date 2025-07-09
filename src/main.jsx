@@ -8,7 +8,7 @@ import './lib/i18n.ts';
 import i18n from './lib/i18n.ts';
 
 import { ThemeProvider } from './components/theme-provider';
-import { LanguageProvider } from './context/LanguageContext.tsx';
+import { LanguageProvider } from './context/LanguageContext.jsx';
 import { initializePerformanceMonitoring } from './lib/performance';
 import { initializeSentry } from './lib/sentry';
 
