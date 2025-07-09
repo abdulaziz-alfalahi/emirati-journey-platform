@@ -73,6 +73,7 @@ export default defineConfig(({ mode } ) => ({
     drop: mode === 'production' ? ['console', 'debugger'] : [],
     loader: 'tsx',
     include: /\.(js|jsx|ts|tsx)$/,
+    target: 'es2020',
   },
   css: {
     devSourcemap: mode === 'development',
