@@ -1,10 +1,22 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import i18n from '../lib/i18n';
 
-const LanguageContext = createContext(undefined);
+interface LanguageContextType {
+  language: string;
+  direction: string;
+  setLanguage: (lang: string) => Promise<void>;
+  isRTL: boolean;
+}
 
-export function LanguageProvider({ children, defaultLanguage = 'en' }) {
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+interface LanguageProviderProps {
+  children: ReactNode;
+  defaultLanguage?: string;
+}
+
+export function LanguageProvider({ children, defaultLanguage = 'en' }: LanguageProviderProps) {
   // Initialize state with a safer approach
   const [language, setLanguageState] = useState(() => {
     try {
@@ -19,7 +31,7 @@ export function LanguageProvider({ children, defaultLanguage = 'en' }) {
   const direction = language === 'ar' ? 'rtl' : 'ltr';
   const isRTL = direction === 'rtl';
 
-  const setLanguage = async (newLanguage) => {
+  const setLanguage = async (newLanguage: string) => {
     // Prevent unnecessary changes
     if (language === newLanguage) return;
     

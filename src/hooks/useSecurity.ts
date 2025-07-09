@@ -1,9 +1,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { SecurityUtils, authRateLimiter, sensitiveRateLimiter } from '@/lib/security';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from './use-toast';
+import { SecurityUtils, authRateLimiter, sensitiveRateLimiter } from '../lib/security';
 
 export interface SecurityMetrics {
   suspiciousActivity: number;
@@ -33,7 +33,6 @@ export const useSecurity = () => {
   const [isMonitoring, setIsMonitoring] = useState(false);
   
   const { user, roles } = useAuth();
-  const { toast } = useToast();
 
   // Check if user has admin privileges for security monitoring
   const canAccessSecurityData = roles.some(role => 

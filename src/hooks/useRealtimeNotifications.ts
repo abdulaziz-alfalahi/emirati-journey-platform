@@ -1,8 +1,8 @@
 
 import { useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/AuthContext';
-import { ActivityFeedItem } from '@/services/collaborativeAssessments/realtimeCollaborationService';
+import { toast } from './use-toast';
+import { useAuth } from '../context/AuthContext';
+import { ActivityFeedItem } from '../services/collaborativeAssessments/realtimeCollaborationService';
 
 interface UseRealtimeNotificationsProps {
   recentActivity: ActivityFeedItem[];
@@ -13,7 +13,6 @@ export const useRealtimeNotifications = ({
   recentActivity, 
   isConnected 
 }: UseRealtimeNotificationsProps) => {
-  const { toast } = useToast();
   const { user } = useAuth();
 
   useEffect(() => {

@@ -1,8 +1,8 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { EngagementTrackingService } from '@/services/engagementTrackingService';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { engagementTrackingService } from '../services/engagementTrackingService';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from './use-toast';
 
 interface UseEngagementTrackingProps {
   eventId: string;
@@ -28,7 +28,7 @@ export const useEngagementTracking = ({
     if (!sessionId || isTracking) return;
 
     try {
-      const attendance = await EngagementTrackingService.startSessionAttendance(sessionId, eventId);
+      const attendance = await engagementTrackingService.startSessionAttendance(sessionId, eventId);
       setAttendanceId(attendance.id);
       setIsTracking(true);
       startTimeRef.current = new Date();
@@ -44,7 +44,7 @@ export const useEngagementTracking = ({
     if (!attendanceId || !isTracking) return;
 
     try {
-      await EngagementTrackingService.endSessionAttendance(attendanceId);
+      await engagementTrackingService.endSessionAttendance(attendanceId);
       setIsTracking(false);
       setAttendanceId(null);
       startTimeRef.current = null;
@@ -67,7 +67,7 @@ export const useEngagementTracking = ({
         ? Math.floor((new Date().getTime() - startTimeRef.current.getTime()) / 1000)
         : 0;
 
-      await EngagementTrackingService.trackBoothInteraction(
+      await engagementTrackingService.trackBoothInteraction(
         boothId,
         eventId,
         interactionType,
@@ -100,7 +100,7 @@ export const useEngagementTracking = ({
     if (!attendanceId || trackingType !== 'session') return;
 
     try {
-      await EngagementTrackingService.updateSessionEngagement(attendanceId, interactionCount);
+      await engagementTrackingService.updateSessionEngagement(attendanceId, interactionCount);
     } catch (error) {
       console.error('Failed to update engagement score:', error);
     }
@@ -112,7 +112,7 @@ export const useEngagementTracking = ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
+      await engagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
         questions_asked: 1
       });
       
@@ -128,7 +128,7 @@ export const useEngagementTracking = ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
+      await engagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
         polls_participated: 1
       });
       
@@ -144,7 +144,7 @@ export const useEngagementTracking = ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      await EngagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
+      await engagementTrackingService.updateEngagementAnalytics(user.user.id, eventId, {
         networking_connections: 1
       });
       

@@ -1,11 +1,26 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useFetchUserRoles } from '@/hooks/use-fetch-user-roles';
-import { useAuthOperations } from '@/hooks/use-auth-operations';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabase } from '../integrations/supabase/client';
+import { useFetchUserRoles } from '../hooks/use-fetch-user-roles';
+import { useAuthOperations } from '../hooks/use-auth-operations';
 
-const AuthContext = createContext(undefined);
+interface AuthContextType {
+  user: any;
+  session: any;
+  roles: string[];
+  isLoading: boolean;
+  signIn: any;
+  signUp: any;
+  signOut: any;
+  hasRole: (role: string) => boolean;
+}
 
-export const AuthProvider = ({ children }) => {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [roles, setRoles] = useState([]);
@@ -20,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      async (event: string, currentSession: any) => {
         console.log('Auth state changed:', event, currentSession?.user?.id);
         
         if (!mounted) return;
@@ -105,7 +120,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const hasRole = (role) => {
+  const hasRole = (role: string) => {
     return roles.includes(role);
   };
 
