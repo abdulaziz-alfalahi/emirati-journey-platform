@@ -1,7 +1,7 @@
 
-import { CoachingRecommendation } from "@/types/assessments";
+// import { CoachingRecommendation } from "@/types/assessments";
 
-export const mockCoachingRecommendations: CoachingRecommendation[] = [
+export const mockCoachingRecommendations = [
   {
     id: "COACH001",
     session_id: "SESSION002",
@@ -55,7 +55,7 @@ export const mockCoachingRecommendations: CoachingRecommendation[] = [
 ];
 
 // Helper function to get coaching recommendations for a specific user
-export const getMockUserCoachingRecommendations = (userId: string): CoachingRecommendation[] => {
+export const getMockUserCoachingRecommendations = (userId) => {
   return mockCoachingRecommendations.map(recommendation => ({
     ...recommendation,
     user_id: userId,
