@@ -1,37 +1,20 @@
-
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { SummerCamp, CampFilters } from '@/types/summerCamps';
-import { toast } from '@/hooks/use-toast';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
-import { usePagination } from '@/hooks/use-pagination';
+import { useAuth } from '../../../context/AuthContext';
+import { toast } from '../../../hooks/use-toast';
+import { useDebouncedValue } from '../../../hooks/use-debounced-value';
+import { usePagination } from '../../../hooks/use-pagination';
 import { 
   campQueryService,
   getUserEnrollments, 
   enrollInCamp, 
   cancelEnrollment 
-} from '@/services/summerCamps';
+} from '../../../services/summerCamps';
 
-export interface UseCampsReturn {
-  camps: SummerCamp[];
-  loading: boolean;
-  totalCount: number;
-  enrolledCamps: Record<string, string>;
-  pagination: ReturnType<typeof usePagination>;
-  handleEnroll: (campId: string) => Promise<void>;
-  handleCancelEnrollment: (campId: string) => Promise<void>;
-  refetch: () => Promise<void>;
-}
-
-export const useCamps = (
-  type: "available" | "registered" | "managed",
-  filters: CampFilters,
-  searchQuery: string = ""
-): UseCampsReturn => {
+export const useCamps = (type, filters, searchQuery = "") => {
   const { user } = useAuth();
-  const [camps, setCamps] = useState<SummerCamp[]>([]);
+  const [camps, setCamps] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [enrolledCamps, setEnrolledCamps] = useState<Record<string, string>>({});
+  const [enrolledCamps, setEnrolledCamps] = useState({});
   const [loading, setLoading] = useState(true);
   
   // Use pagination hook
@@ -63,11 +46,11 @@ export const useCamps = (
               acc[enrollment.camp.id] = enrollment.id;
             }
             return acc;
-          }, {} as Record<string, string>)
+          }, {})
         );
         
         // Filter enrolled camps based on search and filters
-        let filteredCamps = enrollments.map(e => e.camp).filter(Boolean) as SummerCamp[];
+        let filteredCamps = enrollments.map(e => e.camp).filter(Boolean);
         
         if (debouncedSearchQuery) {
           const searchLower = debouncedSearchQuery.toLowerCase();
@@ -132,7 +115,7 @@ export const useCamps = (
     fetchCamps();
   }, [type, user, pagination.currentPage, debouncedSearchQuery, debouncedFilters]);
 
-  const handleEnroll = async (campId: string) => {
+  const handleEnroll = async (campId) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -149,7 +132,7 @@ export const useCamps = (
     }
   };
 
-  const handleCancelEnrollment = async (campId: string) => {
+  const handleCancelEnrollment = async (campId) => {
     if (!user || !enrolledCamps[campId]) return;
     
     const result = await cancelEnrollment(enrolledCamps[campId], campId);
