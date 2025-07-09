@@ -1,33 +1,18 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { usePhase } from './PhaseContext';
 import { 
-  aiPersonalizationEngine, 
-  PersonalizationProfile, 
-  PersonalizedRecommendation,
-  InterfaceAdaptation 
-} from '@/services/aiPersonalizationEngine';
+  aiPersonalizationEngine 
+} from '../services/aiPersonalizationEngine';
 
-interface PersonalizationContextType {
-  profile: PersonalizationProfile | null;
-  recommendations: PersonalizedRecommendation[];
-  interfaceAdaptation: InterfaceAdaptation | null;
-  isLoading: boolean;
-  updateProfile: (updates: Partial<PersonalizationProfile['preferences']>) => Promise<void>;
-  refreshRecommendations: () => Promise<void>;
-  trackInteraction: (interactionData: any) => Promise<void>;
-  applyInterfaceAdaptation: () => Promise<void>;
-}
+const PersonalizationContext = createContext(undefined);
 
-const PersonalizationContext = createContext<PersonalizationContextType | undefined>(undefined);
-
-export const PersonalizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PersonalizationProvider = ({ children }) => {
   const { user } = useAuth();
   const { currentPhase } = usePhase();
-  const [profile, setProfile] = useState<PersonalizationProfile | null>(null);
-  const [recommendations, setRecommendations] = useState<PersonalizedRecommendation[]>([]);
-  const [interfaceAdaptation, setInterfaceAdaptation] = useState<InterfaceAdaptation | null>(null);
+  const [profile, setProfile] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [interfaceAdaptation, setInterfaceAdaptation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -60,7 +45,7 @@ export const PersonalizationProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  const updateProfile = async (updates: Partial<PersonalizationProfile['preferences']>) => {
+  const updateProfile = async (updates) => {
     if (!user || !profile) return;
 
     try {
@@ -91,7 +76,7 @@ export const PersonalizationProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  const trackInteraction = async (interactionData: any) => {
+  const trackInteraction = async (interactionData) => {
     if (!user) return;
 
     try {

@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
 
 export interface PersonalizationProfile {
   userId: string;
@@ -170,7 +170,7 @@ class AIPersonalizationEngine {
         .limit(3);
 
       if (jobs) {
-        jobs.forEach(job => {
+        jobs.forEach((job: any) => {
           recommendations.push({
             id: job.id,
             type: 'job_opportunity',
@@ -193,7 +193,7 @@ class AIPersonalizationEngine {
         .limit(2);
 
       if (courses) {
-        courses.forEach(course => {
+        courses.forEach((course: any) => {
           recommendations.push({
             id: course.id,
             type: 'skill_development',

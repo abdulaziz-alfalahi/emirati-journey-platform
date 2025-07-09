@@ -1,13 +1,3 @@
-
-export { ProfessionalDevelopmentCard } from './ProfessionalDevelopmentCard';
-export { SkillAssessmentInterface } from './SkillAssessmentInterface';
-export { MentorshipInterface } from './MentorshipInterface';
-export { InnovationProjectShowcase } from './InnovationProjectShowcase';
-export { NetworkingEventDisplay } from './NetworkingEventDisplay';
-export { SuccessStoryPresentation } from './SuccessStoryPresentation';
-export { LeadershipModuleInterface } from './LeadershipModuleInterface';
-
-// Type exports - using simpler approach without complex type re-exports
 export type ProfessionalDevelopmentCardProps = {
   title: string;
   description: string;
