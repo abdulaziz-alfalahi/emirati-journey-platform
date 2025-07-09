@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { MFAFactor, MFAChallenge, MFAStatus, MFARequirement } from '@/types/mfa';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../integrations/supabase/client';
+import { useToast } from './use-toast';
+import { MFAFactor, MFAChallenge, MFAStatus, MFARequirement } from '../types/mfa';
 
 export const useMFA = () => {
   const [factors, setFactors] = useState<MFAFactor[]>([]);

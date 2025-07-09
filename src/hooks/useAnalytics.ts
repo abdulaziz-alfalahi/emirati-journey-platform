@@ -1,8 +1,8 @@
 
 import { useEffect, useCallback } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { usePhase } from '@/context/PhaseContext';
-import { crossPhaseAnalyticsService, AnalyticsEvent, PhaseTransition, FeatureUsage, UserMilestone } from '@/services/crossPhaseAnalyticsService';
+import { useAuth } from '../context/AuthContext';
+import { usePhase } from '../context/PhaseContext';
+import { crossPhaseAnalyticsService, AnalyticsEvent, PhaseTransition, FeatureUsage, UserMilestone } from '../services/crossPhaseAnalyticsService';
 
 export const useAnalytics = () => {
   const { user } = useAuth();
