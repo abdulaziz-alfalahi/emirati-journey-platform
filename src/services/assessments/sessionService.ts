@@ -1,7 +1,8 @@
 
-import { supabase } from '@/integrations/supabase/client';
-import { AssessmentSession } from '@/types/assessments';
-import { mockAssessmentSessions, getMockUserAssessmentSessions } from './mockSessionData';
+import { supabase } from '../../integrations/supabase/client';
+import { AssessmentSession } from '../../types/assessments';
+// @ts-ignore
+import { mockAssessmentSessions, getMockUserAssessmentSessions } from './mockSessionData.js';
 
 // Flag to determine whether to use mock data
 const USE_MOCK_DATA = true;
@@ -9,7 +10,7 @@ const USE_MOCK_DATA = true;
 export const fetchAssessmentSessions = async (assessmentId?: string) => {
   if (USE_MOCK_DATA) {
     if (assessmentId) {
-      return mockAssessmentSessions.filter(session => session.assessment_id === assessmentId);
+      return mockAssessmentSessions.filter((session: any) => session.assessment_id === assessmentId);
     }
     return mockAssessmentSessions;
   }
@@ -98,7 +99,7 @@ export const scheduleAssessment = async (assessmentId: string, userId: string, s
 
 export const updateAssessmentSession = async (sessionId: string, sessionData: Partial<AssessmentSession>) => {
   if (USE_MOCK_DATA) {
-    const index = mockAssessmentSessions.findIndex(session => session.id === sessionId);
+    const index = mockAssessmentSessions.findIndex((session: any) => session.id === sessionId);
     if (index === -1) {
       throw new Error(`Session with ID ${sessionId} not found`);
     }
