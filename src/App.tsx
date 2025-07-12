@@ -50,6 +50,8 @@ import CareerPlanningHubPage from './pages/career-planning-hub';
 import ResumeBuilderPage from './pages/resume-builder';
 import YouthDevelopment from './pages/youth-development';
 import SuccessStoriesPage from './pages/success-stories';
+// ✅ FIXED: Add proper import for share-success-stories page with translations
+import ShareSuccessStoriesPage from './pages/share-success-stories';
 import ThoughtLeadershipPage from './pages/thought-leadership';
 import FinancialPlanningPage from './pages/financial-planning';
 import RetireeServicesPage from './pages/retiree';
@@ -119,7 +121,8 @@ const App: React.FC = () => {
                 <Route path="/school-programs" element={<SchoolPrograms />} />
                 <Route path="/scholarships" element={<Scholarships />} />
                 <Route path="/youth-development" element={<YouthDevelopment />} />
-                <Route path="/share-success-stories" element={<SuccessStoriesPage />} />
+                {/* ✅ FIXED: Use the correct component with translation support */}
+                <Route path="/share-success-stories" element={<ShareSuccessStoriesPage />} />
                 <Route path="/success-stories" element={<SuccessStoriesPage />} />
                 <Route path="/thought-leadership" element={<ThoughtLeadershipPage />} />
                 <Route path="/financial-planning" element={<FinancialPlanningPage />} />
