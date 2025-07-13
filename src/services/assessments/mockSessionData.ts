@@ -7,6 +7,10 @@ export interface MockSessionData {
   results: Record<string, any>;
   status: string;
   completed_date?: string;
+  coaching_recommended?: boolean;
+  coaching_notes?: string;
+  scheduled_date?: string;
+  assessments?: any; // For backward compatibility
 }
 
 export const mockSessionData: MockSessionData[] = [

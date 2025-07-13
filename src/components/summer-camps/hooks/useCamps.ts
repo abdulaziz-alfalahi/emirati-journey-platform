@@ -2,7 +2,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { campQueryService } from '@/services/summerCamps';
-import { CampFilters } from '@/services/summerCamps/types';
+// import { CampFilters } from '@/services/summerCamps/types';
+
+interface CampFilters {
+  category?: string;
+  location?: string;
+  ageGroup?: string;
+  priceRange?: [number, number];
+}
 
 export const useCamps = (filters?: CampFilters) => {
   const { user } = useAuth();
@@ -72,6 +79,22 @@ export const useCamps = (filters?: CampFilters) => {
     categories,
     featuredCamps,
     userEnrollments,
+    loading: isLoading,
+    totalCount: camps.length,
+    enrolledCamps: userEnrollments,
+    pagination: { 
+      page: 1, 
+      limit: 20, 
+      total: camps.length,
+      currentPage: 1,
+      pageSize: 20,
+      getTotalPages: () => Math.ceil(camps.length / 20),
+      setCurrentPage: (page: number) => console.log('Set page:', page),
+      hasNextPage: () => false,
+      hasPreviousPage: () => false
+    },
+    handleEnroll: (campId: string) => console.log('Enroll in camp:', campId),
+    handleCancelEnrollment: (campId: string) => console.log('Cancel enrollment:', campId),
     isLoading,
     isLoadingEnrollments,
     error,

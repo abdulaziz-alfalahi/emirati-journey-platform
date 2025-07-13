@@ -19,6 +19,8 @@ export interface JobRecommendation {
   skills_required: string[];
   experience_level: string;
   match_score: number;
+  type: 'job';
+  score: number;
 }
 
 export interface CourseRecommendation {
@@ -28,6 +30,8 @@ export interface CourseRecommendation {
   skills_taught: string[];
   difficulty_level: string;
   match_score: number;
+  type: 'course';
+  score: number;
 }
 
 export interface ScholarshipRecommendation {
@@ -37,6 +41,8 @@ export interface ScholarshipRecommendation {
   amount: number;
   deadline: string;
   match_score: number;
+  type: 'scholarship';
+  score: number;
 }
 
 export type Recommendation = JobRecommendation | CourseRecommendation | ScholarshipRecommendation;
@@ -46,6 +52,10 @@ export interface RecommendationFilters {
   location?: string;
   industry?: string;
   experienceLevel?: string;
+  includeJobs?: boolean;
+  includeCourses?: boolean;
+  includeScholarships?: boolean;
+  includeTraining?: boolean;
 }
 
 export class RecommendationEngine {
@@ -108,6 +118,8 @@ export class RecommendationEngine {
 
         return {
           ...job,
+          type: 'job' as const,
+          score: Math.round(matchScore * 100) / 100,
           match_score: Math.round(matchScore * 100) / 100
         };
       });
@@ -143,6 +155,8 @@ export class RecommendationEngine {
 
         return {
           ...course,
+          type: 'course' as const,
+          score: Math.round(matchScore * 100) / 100,
           match_score: Math.round(matchScore * 100) / 100
         };
       });
@@ -177,6 +191,8 @@ export class RecommendationEngine {
 
         return {
           ...scholarship,
+          type: 'scholarship' as const,
+          score: Math.round(matchScore * 100) / 100,
           match_score: Math.round(matchScore * 100) / 100
         };
       });
