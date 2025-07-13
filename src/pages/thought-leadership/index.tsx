@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useLifelongEngagementTranslation } from '@/hooks/useLifelongEngagementTranslation';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import { Lightbulb, BookOpen, Users, TrendingUp, Award, Star, Calendar, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const ThoughtLeadershipPage: React.FC = () => {
-  const { t } = useTranslation('thought-leadership');
+  const { t } = useLifelongEngagementTranslation('thought-leadership');
 
   const stats = [
     {

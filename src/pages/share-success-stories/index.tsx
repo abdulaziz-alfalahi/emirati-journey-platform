@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useLifelongEngagementTranslation } from '@/hooks/useLifelongEngagementTranslation';
 import { LifelongEngagementLayout } from '@/components/lifelong-engagement/LifelongEngagementLayout';
 import { Share2, Heart, Users, Award, Star, MessageCircle, Camera, Edit3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const ShareSuccessStoriesPage: React.FC = () => {
-  const { t } = useTranslation('share-success-stories');
+  const { t } = useLifelongEngagementTranslation('share-success-stories');
 
   const stats = [
     {
