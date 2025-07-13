@@ -4,10 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 export interface CareerPath {
   id: string;
   title: string;
+  description: string;
   industry: string;
-  description?: string;
   created_at: string;
   updated_at?: string;
+  // Additional UI properties for compatibility
+  current_stage?: CareerPathStage;
+  stages?: CareerPathStage[];
 }
 
 export interface CareerPathStage {
@@ -74,15 +77,44 @@ export const careerPathService = {
   },
 
   // Additional methods for compatibility
-  async getUserCareerPaths(userId: string): Promise<CareerPath[]> {
-    // Mock implementation - return all paths for now
-    return this.getCareerPaths();
+  async getUserCareerPaths(userId: string) {
+    // Transform CareerPath to UserCareerPath format
+    const paths = await this.getCareerPaths();
+    return paths.map(path => ({
+      id: `user-${path.id}`,
+      user_id: userId,
+      career_path_id: path.id,
+      current_stage_id: null,
+      started_at: new Date().toISOString(),
+      updated_at: null,
+      career_path: path,
+      steps: [],
+      duration: '6 months',
+      difficulty: 'intermediate',
+      completionPercentage: 0,
+      isEnrolled: true
+    }));
   },
 
   async getUserCareerPathDetails(userId: string, pathId: string) {
     const path = await this.getCareerPathById(pathId);
     const stages = await this.getCareerPathStages(pathId);
-    return { path, stages };
+    return {
+      id: `user-${pathId}`,
+      user_id: userId,
+      career_path_id: pathId,
+      current_stage_id: null,
+      started_at: new Date().toISOString(),
+      updated_at: null,
+      career_path: path,
+      current_stage: null,
+      stages: stages,
+      steps: [],
+      duration: '6 months',
+      difficulty: 'intermediate',
+      completionPercentage: 0,
+      isEnrolled: true
+    };
   },
 
   async deleteUserCareerPath(userId: string, pathId: string) {

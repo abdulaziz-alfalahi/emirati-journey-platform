@@ -28,6 +28,7 @@ export interface CourseRecommendation {
   id: string;
   title: string;
   provider: string;
+  description: string;
   skills_taught: string[];
   difficulty_level: string;
   match_score: number;
@@ -38,12 +39,15 @@ export interface CourseRecommendation {
 export interface ScholarshipRecommendation {
   id: string;
   title: string;
+  organization: string;
+  description: string;
   eligibility_criteria: string[];
   amount: number;
   deadline: string;
   match_score: number;
   type: 'scholarship';
   score: number;
+  provider?: string;
 }
 
 export type Recommendation = JobRecommendation | CourseRecommendation | ScholarshipRecommendation;
@@ -57,6 +61,7 @@ export interface RecommendationFilters {
   includeCourses?: boolean;
   includeScholarships?: boolean;
   includeTraining?: boolean;
+  includeInternships?: boolean;
 }
 
 export class RecommendationEngine {
@@ -69,7 +74,7 @@ export class RecommendationEngine {
         .single();
 
       if (error) throw error;
-      return data as UserProfile;
+      return data as unknown as UserProfile;
     } catch (error) {
       console.error('Error fetching user profile:', error);
       return null;
@@ -97,7 +102,7 @@ export class RecommendationEngine {
     return Math.max(0, 1 - (diff * 0.2));
   }
 
-  async getJobRecommendations(userId: string, limit: number = 10): Promise<JobRecommendation[]> {
+  async getJobRecommendations(userId: string, filters?: RecommendationFilters): Promise<JobRecommendation[]> {
     const userProfile = await this.getUserProfile(userId);
     if (!userProfile) return [];
 
@@ -128,7 +133,7 @@ export class RecommendationEngine {
 
       return recommendations
         .sort((a, b) => b.match_score - a.match_score)
-        .slice(0, limit);
+        .slice(0, 10);
     } catch (error) {
       console.error('Error fetching job recommendations:', error);
       return [];

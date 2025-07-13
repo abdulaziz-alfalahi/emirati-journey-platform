@@ -11,6 +11,9 @@ export interface MockSessionData {
   coaching_notes?: string;
   scheduled_date?: string;
   assessments?: any; // For backward compatibility
+  feedback?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const mockSessionData: MockSessionData[] = [
@@ -29,6 +32,9 @@ export const mockSessionData: MockSessionData[] = [
     coaching_recommended: false,
     coaching_notes: null,
     scheduled_date: '2024-01-15T09:00:00Z',
+    feedback: 'Good performance overall',
+    created_at: '2024-01-15T08:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
     assessments: {
       title: 'Technical Skills Assessment',
       assessment_type: 'skills'

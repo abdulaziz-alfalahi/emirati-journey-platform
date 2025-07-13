@@ -7,11 +7,11 @@ import { campQueryService } from '@/services/summerCamps';
 interface CampFilters {
   category?: string[];
   location?: string;
-  ageGroup?: string;
+  ageGroup?: string[];
   priceRange?: [number, number];
 }
 
-export const useCamps = (filters?: CampFilters) => {
+export const useCamps = () => {
   const { user } = useAuth();
 
   const {
