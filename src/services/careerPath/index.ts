@@ -1,9 +1,14 @@
 
-// Export everything from the careerPathService
-export * from '../careerPathService';
+import { careerPathService } from '../careerPathService';
 
-// Re-export functions with correct names
-export { getAllCareerPaths as getCareerPaths } from '../careerPathService';
+// Re-export the main service
+export { careerPathService };
 
-// Export the seed function 
-export { seedCareerPaths } from './db-seed';
+// Re-export types
+export type { CareerPath, CareerPathStage } from '../careerPathService';
+
+// Additional utility functions can be added here
+export const getCareerPathsByIndustry = async (industry: string) => {
+  const allPaths = await careerPathService.getCareerPaths();
+  return allPaths.filter(path => path.industry === industry);
+};

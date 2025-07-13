@@ -1,25 +1,18 @@
-
 import { toast } from '@/hooks/use-toast';
 
-// Status type guard
-export function isValidEnrollmentStatus(status: string): status is "confirmed" | "cancelled" | "waiting_list" {
-  return ["confirmed", "cancelled", "waiting_list"].includes(status);
-}
-
-// Helper to transform enrollment data
-export function transformEnrollment(enrollment: any): any {
-  return {
-    ...enrollment,
-    status: isValidEnrollmentStatus(enrollment.status) ? enrollment.status : "confirmed" // Default to confirmed if invalid
-  };
-}
-
-// Error handling utility
-export function handleServiceError(error: any, errorMessage: string): void {
-  console.error(errorMessage, error);
+export const handleServiceError = (error: any, defaultMessage: string) => {
+  console.error('Service error:', error);
+  
+  const message = error?.message || defaultMessage;
+  
   toast({
     title: "Error",
-    description: errorMessage,
+    description: message,
     variant: "destructive",
   });
-}
+};
+
+export const transformEnrollment = (data: any) => ({
+  ...data,
+  // Add any transformation logic here
+});

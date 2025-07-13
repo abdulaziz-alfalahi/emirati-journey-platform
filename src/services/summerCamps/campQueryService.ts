@@ -79,7 +79,7 @@ export const campQueryService = {
         throw error;
       }
       
-      const camps = (data || []).map(camp => transformCampData({
+      const camps = (data || []).map((camp: any) => transformCampData({
         ...camp,
         // Extract enrollment count from the aggregated data
         enrolled: camp.enrollments?.[0]?.count || 0
@@ -185,7 +185,7 @@ export const campQueryService = {
         throw error;
       }
       
-      const camps = (data || []).map(camp => transformCampData({
+      const camps = (data || []).map((camp: any) => transformCampData({
         ...camp,
         enrolled: camp.enrollments?.[0]?.count || 0
       }));
