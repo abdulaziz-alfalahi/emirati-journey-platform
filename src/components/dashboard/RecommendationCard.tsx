@@ -18,7 +18,7 @@ import { recommendationEngine } from '@/services/recommendationEngine';
 interface Recommendation {
   id: string;
   title: string;
-  type: 'job' | 'training' | 'scholarship' | 'internship';
+  type: 'job' | 'course' | 'scholarship';
   provider?: string;
   score: number;
   description?: string;
@@ -43,9 +43,8 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'job': return <Briefcase className="h-4 w-4" />;
-      case 'training': return <GraduationCap className="h-4 w-4" />;
+      case 'course': return <GraduationCap className="h-4 w-4" />;
       case 'scholarship': return <Award className="h-4 w-4" />;
-      case 'internship': return <Users className="h-4 w-4" />;
       default: return <Briefcase className="h-4 w-4" />;
     }
   };
@@ -53,9 +52,8 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'job': return 'bg-blue-100 text-blue-800';
-      case 'training': return 'bg-green-100 text-green-800';
+      case 'course': return 'bg-green-100 text-green-800';
       case 'scholarship': return 'bg-purple-100 text-purple-800';
-      case 'internship': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -63,7 +61,6 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const handleFeedback = async (isPositive: boolean) => {
     try {
       await recommendationEngine.trackRecommendationInteraction(
-        userId,
         recommendation.id,
         isPositive ? 'positive_feedback' : 'negative_feedback'
       );
@@ -77,7 +74,6 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const handleView = async () => {
     try {
       await recommendationEngine.trackRecommendationInteraction(
-        userId,
         recommendation.id,
         'view'
       );

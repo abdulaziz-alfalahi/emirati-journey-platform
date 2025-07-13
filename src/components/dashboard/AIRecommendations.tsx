@@ -37,7 +37,7 @@ const AIRecommendations = () => {
         maxResults: 12
       };
 
-      const recs = await recommendationEngine.generateRecommendations(user.id, roles, filters);
+      const recs = await recommendationEngine.generateRecommendations(user.id, filters);
       setRecommendations(recs);
       
       // Track that user viewed recommendations
@@ -58,7 +58,15 @@ const AIRecommendations = () => {
 
   const getFilteredRecommendations = () => {
     if (activeFilter === 'all') return recommendations;
-    return recommendations.filter(rec => rec.type === activeFilter);
+    return recommendations.filter(rec => {
+      switch (activeFilter) {
+        case 'jobs': return rec.type === 'job';
+        case 'training': return rec.type === 'course';
+        case 'scholarships': return rec.type === 'scholarship';
+        case 'internships': return rec.type === 'job';
+        default: return true;
+      }
+    });
   };
 
   const handleFeedbackSubmitted = () => {
@@ -106,9 +114,9 @@ const AIRecommendations = () => {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all">All ({recommendations.length})</TabsTrigger>
             <TabsTrigger value="jobs">Jobs ({recommendations.filter(r => r.type === 'job').length})</TabsTrigger>
-            <TabsTrigger value="training">Training ({recommendations.filter(r => r.type === 'training').length})</TabsTrigger>
+            <TabsTrigger value="training">Training ({recommendations.filter(r => r.type === 'course').length})</TabsTrigger>
             <TabsTrigger value="scholarships">Scholarships ({recommendations.filter(r => r.type === 'scholarship').length})</TabsTrigger>
-            <TabsTrigger value="internships">Internships ({recommendations.filter(r => r.type === 'internship').length})</TabsTrigger>
+            <TabsTrigger value="internships">Internships ({recommendations.filter(r => r.type === 'job').length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeFilter} className="mt-6">
