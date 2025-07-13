@@ -20,8 +20,8 @@ export const useCamps = () => {
     error,
     refetch
   } = useQuery({
-    queryKey: ['camps', filters],
-    queryFn: () => campQueryService.getCamps(filters),
+    queryKey: ['camps'],
+    queryFn: () => campQueryService.getCamps(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -30,10 +30,7 @@ export const useCamps = () => {
     isLoading: isLoadingEnrollments
   } = useQuery({
     queryKey: ['user-enrollments', user?.id],
-    queryFn: () => {
-      if (!user?.id) return [];
-      return campQueryService.getUserEnrollments?.(user.id) || [];
-    },
+    queryFn: () => Promise.resolve([]), // Mock implementation
     enabled: !!user?.id,
   });
 
