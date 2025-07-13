@@ -40,7 +40,7 @@ const RecommendationsWidget: React.FC<RecommendationsWidgetProps> = ({
         maxResults: maxItems
       };
 
-      const recs = await recommendationEngine.generateRecommendations(user.id, roles, filters);
+      const recs = await recommendationEngine.generateRecommendations(user.id, filters);
       setRecommendations(recs);
     } catch (error) {
       console.error('Error fetching recommendations:', error);

@@ -5,7 +5,7 @@ export type CareerPath = {
   description: string;
   industry: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string | null;
   // Additional UI properties for compatibility
   current_stage?: CareerPathStage;
   stages?: CareerPathStage[];
@@ -15,13 +15,13 @@ export type CareerPathStage = {
   id: string;
   career_path_id: string;
   title: string;
-  description: string | null;
+  description?: string | null;
   stage_type: 'education' | 'career';
-  skills: string[] | null;
-  duration: string | null;
-  requirements: string[] | null;
+  skills?: string[] | null;
+  duration?: string | null;
+  requirements?: string[] | null;
   order_index: number;
-  icon: string | null;
+  icon?: string | null;
   created_at: string;
   updated_at: string | null;
 };
