@@ -7,13 +7,13 @@ export interface MockSessionData {
   results: Record<string, any>;
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
   completed_date: string;
-  coaching_recommended: boolean;
-  coaching_notes: string | null;
+  coaching_recommended?: boolean;
+  coaching_notes?: string;
   scheduled_date: string;
   assessments?: any; // For backward compatibility
   feedback: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const mockSessionData: MockSessionData[] = [

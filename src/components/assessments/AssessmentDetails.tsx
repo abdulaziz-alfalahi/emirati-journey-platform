@@ -77,7 +77,7 @@ export const AssessmentDetails: React.FC<AssessmentDetailsProps> = ({ assessment
 
     try {
       setIsScheduling(true);
-      await scheduleAssessment(assessmentId, user.id);
+      await scheduleAssessment(assessmentId, user.id, date);
       toast({
         title: "Assessment scheduled",
         description: `Your assessment has been scheduled for ${format(date, 'PPP')}`,

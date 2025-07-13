@@ -21,7 +21,7 @@ export type CareerPathStage = {
   duration?: string | null;
   requirements?: string[] | null;
   order_index: number;
-  icon?: string | null;
+  icon: string | null;
   created_at: string;
   updated_at: string | null;
 };

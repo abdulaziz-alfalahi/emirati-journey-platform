@@ -6,12 +6,12 @@ import { campQueryService } from '@/services/summerCamps';
 
 interface CampFilters {
   category?: string[];
-  location?: string[];
+  location?: string;
   ageGroup?: string[];
   priceRange?: [number, number];
 }
 
-export const useCamps = (type?: string, filters?: CampFilters, searchQuery?: string) => {
+export const useCamps = () => {
   const { user } = useAuth();
 
   const {
@@ -85,13 +85,13 @@ export const useCamps = (type?: string, filters?: CampFilters, searchQuery?: str
       total: camps.length,
       currentPage: 1,
       pageSize: 20,
-      getTotalPages: (total: number) => Math.ceil(total / 20),
+      getTotalPages: () => Math.ceil(camps.length / 20),
       setCurrentPage: (page: number) => console.log('Set page:', page),
-      hasNextPage: (total: number) => false,
+      hasNextPage: () => false,
       hasPreviousPage: () => false
     },
-    handleEnroll: (campId: string) => console.log('Enroll in camp:', campId),
-    handleCancelEnrollment: (campId: string) => console.log('Cancel enrollment:', campId),
+    handleEnroll: () => console.log('Enroll in camp'),
+    handleCancelEnrollment: () => console.log('Cancel enrollment'),
     isLoading,
     isLoadingEnrollments,
     error,

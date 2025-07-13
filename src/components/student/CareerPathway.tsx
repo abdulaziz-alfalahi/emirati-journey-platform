@@ -58,7 +58,7 @@ const CareerPathway: React.FC = () => {
       setLoadingDetails(true);
       const pathDetails = await getCareerPathById(pathId);
       if (pathDetails) {
-        setSelectedCareerPath({...pathDetails, stages: pathDetails.stages || []});
+        setSelectedCareerPath(pathDetails);
         setSelectedUserPath(null);
         setActiveTab('explore');
       }
