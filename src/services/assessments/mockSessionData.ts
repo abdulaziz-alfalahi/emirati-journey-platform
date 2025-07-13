@@ -5,13 +5,13 @@ export interface MockSessionData {
   assessment_id: string;
   score: number;
   results: Record<string, any>;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  completed_date: string;
+  status: string;
+  completed_date?: string;
   coaching_recommended?: boolean;
   coaching_notes?: string;
-  scheduled_date: string;
+  scheduled_date?: string;
   assessments?: any; // For backward compatibility
-  feedback: string;
+  feedback?: string;
   created_at?: string;
   updated_at?: string;
 }

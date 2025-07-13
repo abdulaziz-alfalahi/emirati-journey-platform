@@ -7,7 +7,7 @@ export interface CareerPath {
   description: string;
   industry: string;
   created_at: string;
-  updated_at?: string | null;
+  updated_at?: string;
   // Additional UI properties for compatibility
   current_stage?: CareerPathStage;
   stages?: CareerPathStage[];
@@ -17,15 +17,15 @@ export interface CareerPathStage {
   id: string;
   career_path_id: string;
   title: string;
-  description?: string | null;
-  stage_type: 'education' | 'career';
+  description?: string;
+  stage_type: string;
   order_index: number;
   duration?: string;
-  skills?: string[] | null;
-  requirements?: string[] | null;
+  skills?: string[];
+  requirements?: string[];
   icon?: string;
   created_at: string;
-  updated_at?: string | null;
+  updated_at?: string;
 }
 
 export const careerPathService = {
@@ -69,10 +69,7 @@ export const careerPathService = {
         .order('order_index');
 
       if (error) throw error;
-      return (data || []).map(stage => ({
-        ...stage,
-        stage_type: stage.stage_type as 'education' | 'career'
-      }));
+      return data || [];
     } catch (error) {
       console.error('Error fetching career path stages:', error);
       return [];
