@@ -5,7 +5,7 @@ import { campQueryService } from '@/services/summerCamps';
 // import { CampFilters } from '@/services/summerCamps/types';
 
 interface CampFilters {
-  category?: string;
+  category?: string[];
   location?: string;
   ageGroup?: string;
   priceRange?: [number, number];
@@ -93,8 +93,8 @@ export const useCamps = (filters?: CampFilters) => {
       hasNextPage: () => false,
       hasPreviousPage: () => false
     },
-    handleEnroll: (campId: string) => console.log('Enroll in camp:', campId),
-    handleCancelEnrollment: (campId: string) => console.log('Cancel enrollment:', campId),
+    handleEnroll: () => console.log('Enroll in camp'),
+    handleCancelEnrollment: () => console.log('Cancel enrollment'),
     isLoading,
     isLoadingEnrollments,
     error,

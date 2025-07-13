@@ -25,6 +25,20 @@ export const mockSessionData: MockSessionData[] = [
       problem_solving: 85
     },
     status: 'completed',
-    completed_date: '2024-01-15T10:00:00Z'
+    completed_date: '2024-01-15T10:00:00Z',
+    coaching_recommended: false,
+    coaching_notes: null,
+    scheduled_date: '2024-01-15T09:00:00Z',
+    assessments: {
+      title: 'Technical Skills Assessment',
+      assessment_type: 'skills'
+    }
   }
 ];
+
+// Export aliases for backward compatibility
+export const mockAssessmentSessions = mockSessionData;
+
+export const getMockUserAssessmentSessions = (userId: string) => {
+  return mockSessionData.filter(session => session.user_id === userId);
+};

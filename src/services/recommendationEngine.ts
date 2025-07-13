@@ -21,6 +21,7 @@ export interface JobRecommendation {
   match_score: number;
   type: 'job';
   score: number;
+  provider?: string;
 }
 
 export interface CourseRecommendation {
@@ -120,7 +121,8 @@ export class RecommendationEngine {
           ...job,
           type: 'job' as const,
           score: Math.round(matchScore * 100) / 100,
-          match_score: Math.round(matchScore * 100) / 100
+          match_score: Math.round(matchScore * 100) / 100,
+          provider: job.company
         };
       });
 
@@ -193,7 +195,8 @@ export class RecommendationEngine {
           ...scholarship,
           type: 'scholarship' as const,
           score: Math.round(matchScore * 100) / 100,
-          match_score: Math.round(matchScore * 100) / 100
+          match_score: Math.round(matchScore * 100) / 100,
+          provider: scholarship.organization
         };
       });
 

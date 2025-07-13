@@ -2,10 +2,13 @@
 export type CareerPath = {
   id: string;
   title: string;
-  description: string | null;
+  description: string;
   industry: string;
   created_at: string;
   updated_at: string | null;
+  // Additional UI properties for compatibility
+  current_stage?: CareerPathStage;
+  stages?: CareerPathStage[];
 };
 
 export type CareerPathStage = {

@@ -12,7 +12,7 @@ export interface Assessment {
   price_currency: string | null;
   skills_tested: string[] | null;
   requirements: string | null;
-  eligibility_criteria: Record<string, any> | null;
+  eligibility_criteria: any | null;
   is_active: boolean;
   created_at: string;
   updated_at: string | null;
