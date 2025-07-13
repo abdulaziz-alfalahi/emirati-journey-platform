@@ -2,8 +2,9 @@
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/context/LanguageContext';
 
-export const useLifelongEngagementTranslation = () => {
-  const { t } = useTranslation(['lifelong-engagement', 'common']);
+export const useLifelongEngagementTranslation = (namespace?: string) => {
+  const namespaces = namespace ? [namespace, 'common'] : ['lifelong-engagement', 'common'];
+  const { t } = useTranslation(namespaces);
   const { language } = useLanguage();
 
   const getTranslatedTitle = (titleKey: string) => {

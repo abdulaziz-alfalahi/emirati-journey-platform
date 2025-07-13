@@ -12,3 +12,14 @@ export const getCareerPathsByIndustry = async (industry: string) => {
   const allPaths = await careerPathService.getCareerPaths();
   return allPaths.filter(path => path.industry === industry);
 };
+
+// Re-export individual functions for compatibility
+export { 
+  getUserCareerPaths,
+  getUserCareerPathDetails,
+  deleteUserCareerPath,
+  selectCareerPath,
+  getCareerPathById,
+  updateUserCareerStage,
+  getCareerPaths
+} from '../careerPathService';

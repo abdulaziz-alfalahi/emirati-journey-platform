@@ -71,5 +71,41 @@ export const careerPathService = {
       console.error('Error fetching career path stages:', error);
       return [];
     }
+  },
+
+  // Additional methods for compatibility
+  async getUserCareerPaths(userId: string): Promise<CareerPath[]> {
+    // Mock implementation - return all paths for now
+    return this.getCareerPaths();
+  },
+
+  async getUserCareerPathDetails(userId: string, pathId: string) {
+    const path = await this.getCareerPathById(pathId);
+    const stages = await this.getCareerPathStages(pathId);
+    return { path, stages };
+  },
+
+  async deleteUserCareerPath(userId: string, pathId: string) {
+    // Mock implementation
+    return { success: true };
+  },
+
+  async selectCareerPath(userId: string, pathId: string) {
+    // Mock implementation
+    return { success: true, pathId };
+  },
+
+  async updateUserCareerStage(userId: string, pathId: string, stageId: string) {
+    // Mock implementation
+    return { success: true, stageId };
   }
 };
+
+// Export individual functions for backward compatibility
+export const getUserCareerPaths = (userId: string) => careerPathService.getUserCareerPaths(userId);
+export const getUserCareerPathDetails = (userId: string, pathId: string) => careerPathService.getUserCareerPathDetails(userId, pathId);
+export const deleteUserCareerPath = (userId: string, pathId: string) => careerPathService.deleteUserCareerPath(userId, pathId);
+export const selectCareerPath = (userId: string, pathId: string) => careerPathService.selectCareerPath(userId, pathId);
+export const getCareerPathById = (id: string) => careerPathService.getCareerPathById(id);
+export const updateUserCareerStage = (userId: string, pathId: string, stageId: string) => careerPathService.updateUserCareerStage(userId, pathId, stageId);
+export const getCareerPaths = () => careerPathService.getCareerPaths();

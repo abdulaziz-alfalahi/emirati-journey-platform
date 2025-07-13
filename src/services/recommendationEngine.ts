@@ -11,7 +11,7 @@ interface UserProfile {
   location?: string;
 }
 
-interface JobRecommendation {
+export interface JobRecommendation {
   id: string;
   title: string;
   company: string;
@@ -21,7 +21,7 @@ interface JobRecommendation {
   match_score: number;
 }
 
-interface CourseRecommendation {
+export interface CourseRecommendation {
   id: string;
   title: string;
   provider: string;
@@ -30,13 +30,22 @@ interface CourseRecommendation {
   match_score: number;
 }
 
-interface ScholarshipRecommendation {
+export interface ScholarshipRecommendation {
   id: string;
   title: string;
   eligibility_criteria: string[];
   amount: number;
   deadline: string;
   match_score: number;
+}
+
+export type Recommendation = JobRecommendation | CourseRecommendation | ScholarshipRecommendation;
+
+export interface RecommendationFilters {
+  type?: 'job' | 'course' | 'scholarship';
+  location?: string;
+  industry?: string;
+  experienceLevel?: string;
 }
 
 export class RecommendationEngine {
@@ -221,6 +230,21 @@ export class RecommendationEngine {
       interest.toLowerCase().includes(fieldOfStudy.toLowerCase()) ||
       fieldOfStudy.toLowerCase().includes(interest.toLowerCase())
     ) ? 1 : 0.3;
+  }
+
+  // Additional methods for compatibility
+  async generateRecommendations(userId: string, filters?: RecommendationFilters): Promise<Recommendation[]> {
+    const jobs = await this.getJobRecommendations(userId, 5);
+    const courses = await this.getCourseRecommendations(userId, 5);
+    const scholarships = await this.getScholarshipRecommendations(userId, 3);
+    
+    const all: Recommendation[] = [...jobs, ...courses, ...scholarships];
+    return all.sort((a, b) => b.match_score - a.match_score);
+  }
+
+  trackRecommendationInteraction(recommendationId: string, action: string) {
+    // Mock implementation for tracking
+    console.log(`Tracked interaction: ${action} on recommendation ${recommendationId}`);
   }
 }
 
